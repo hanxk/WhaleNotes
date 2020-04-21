@@ -17,22 +17,17 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="哈哈哈哈" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jbX-MF-OEs">
-                    <rect key="frame" x="172.5" y="437.5" width="69.5" height="21"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <color key="textColor" systemColor="systemOrangeColor" red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <nil key="highlightedColor"/>
-                </label>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vk0-n7-v7U">
-                    <rect key="frame" x="38" y="317" width="46" height="30"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="Button"/>
-                </button>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="7lx-rx-Bmb">
+                    <rect key="frame" x="0.0" y="44" width="414" height="818"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                </tableView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="jbX-MF-OEs" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="AGD-FM-BNR"/>
-                <constraint firstItem="jbX-MF-OEs" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="ldY-mX-err"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="7lx-rx-Bmb" secondAttribute="bottom" id="avw-IE-pdw"/>
+                <constraint firstItem="7lx-rx-Bmb" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="kGT-cz-mb4"/>
+                <constraint firstItem="7lx-rx-Bmb" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="mC5-8t-erm"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="7lx-rx-Bmb" secondAttribute="trailing" id="ts9-J9-L4a"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <point key="canvasLocation" x="132" y="153"/>

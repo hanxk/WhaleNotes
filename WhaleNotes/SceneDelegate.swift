@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SideMenu
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -20,7 +21,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        window?.rootViewController = HomeViewController()
+        
+        // Define the menus
+        let sideMenuViewController = SideMenuViewController()
+        let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
+        SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
+   
+        let homeVC = HomeViewController()
+        let navVC = UINavigationController(rootViewController: homeVC)
+        
+        // Setup gestures: the left and/or right menus must be set up (above) for these to work.
+        // Note that these continue to work on the Navigation Controller independent of the view controller it displays!
+        SideMenuManager.default.addPanGestureToPresent(toView: navVC.navigationBar)
+        SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: navVC.view)
+        
+        // (Optional) Prevent status bar area from turning black when menu appears:
+        leftMenuNavigationController.statusBarEndAlpha = 0
+        
+        
+        let navbar = UINavigationBar.appearance()
+        
+        
+        UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -1)
+        
+        navbar.layer.borderWidth = 0.0
+        navbar.clipsToBounds = true
+        navbar.isTranslucent = true;
+        navbar.setBackgroundImage(UIImage(), for: .default);
+        
+        navbar.tintColor = .black
+        
+        
+        window?.rootViewController = navVC
         window?.makeKeyAndVisible()
     }
 
@@ -55,6 +87,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 
+
+}
+
+extension SceneDelegate {
 
 }
 
