@@ -24,6 +24,7 @@ class NoteContentViewCell: UITableViewCell {
     }
     
     var textChanged: ((String) -> Void)?
+    var textShouldBeginChange: ((UITextView) -> Void)?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -31,6 +32,10 @@ class NoteContentViewCell: UITableViewCell {
     
     func textChanged(action: @escaping (String) -> Void) {
         self.textChanged = action
+    }
+    
+    func textShouldBeginChange(action: @escaping (UITextView) -> Void) {
+        self.textShouldBeginChange = action
     }
     
     override func prepareForReuse() {
@@ -58,7 +63,6 @@ class NoteContentViewCell: UITableViewCell {
             make.trailing.equalTo(-NoteEditorViewController.space)
             make.top.bottom.equalTo(0)
         }
-        
         contentView.addSubview(placeholderLabel)
         placeholderLabel.snp.makeConstraints { (make) in
             make.leading.equalTo(NoteEditorViewController.space+5)
@@ -82,5 +86,9 @@ extension NoteContentViewCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         textChanged?(textView.text)
         placeholderLabel.isHidden = !textView.text.isEmpty
+    }
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        textShouldBeginChange?(textView)
+        return true
     }
 }

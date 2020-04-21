@@ -19,4 +19,10 @@ extension UIColor {
             return UIColor(named: "PrimaryText")!
         }
     }
+    
+    open class var buttonTintColor: UIColor {
+        get {
+            return UIColor(named: "ButtonTintColor")!
+        }
+    }
 }

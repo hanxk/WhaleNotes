@@ -42,11 +42,15 @@ extension HomeViewController {
         let barButton = UIBarButtonItem(customView: button)
         self.navigationItem.leftBarButtonItem = barButton
         
+//        button.snp.makeConstraints { (make) in
+//            make.width.equalTo(21)
+//            make.height.equalTo(44)
+//            make.leading.equalToSuperview()
+//            make.top.equalToSuperview()
+//        }
         
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
-        //        let search = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        //        let more = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(playTapped))
         navigationItem.rightBarButtonItems = [more,search]
     }
     
@@ -85,6 +89,11 @@ extension HomeViewController {
     func setupSideMenu() {
         let settings = makeSettings()
         SideMenuManager.default.leftMenuNavigationController?.settings = settings
+        
+        if let navigationController = navigationController {
+            SideMenuManager.default.addPanGestureToPresent(toView: navigationController.navigationBar)
+            SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: self.view,forMenu: .left)
+        }
     }
     
     

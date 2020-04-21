@@ -23,6 +23,9 @@
 		1865AF12244D63700006B48D /* Ditionary+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF11244D63700006B48D /* Ditionary+Ex.swift */; };
 		1865AF14244D8FA10006B48D /* NoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF13244D8FA10006B48D /* NoteStore.swift */; };
 		1865AF16244DCB850006B48D /* NoteContentViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF15244DCB850006B48D /* NoteContentViewCell.swift */; };
+		1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF17244ED46D0006B48D /* BottomBarView.swift */; };
+		1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF19244EDF790006B48D /* UIView+Ex.swift */; };
+		1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF1B244F43D30006B48D /* UITableView+Ex.swift */; };
 		18E956712449A3F0003755BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E956702449A3F0003755BF /* AppDelegate.swift */; };
 		18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 18E956792449A3F0003755BF /* WhaleNotes.xcdatamodeld */; };
 		18E9567D2449A3F2003755BF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18E9567C2449A3F2003755BF /* Assets.xcassets */; };
@@ -50,6 +53,9 @@
 		1865AF11244D63700006B48D /* Ditionary+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ditionary+Ex.swift"; sourceTree = "<group>"; };
 		1865AF13244D8FA10006B48D /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
 		1865AF15244DCB850006B48D /* NoteContentViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteContentViewCell.swift; sourceTree = "<group>"; };
+		1865AF17244ED46D0006B48D /* BottomBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBarView.swift; sourceTree = "<group>"; };
+		1865AF19244EDF790006B48D /* UIView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ex.swift"; sourceTree = "<group>"; };
+		1865AF1B244F43D30006B48D /* UITableView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Ex.swift"; sourceTree = "<group>"; };
 		18E9566D2449A3F0003755BF /* WhaleNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhaleNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18E956702449A3F0003755BF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		18E9567A2449A3F0003755BF /* WhaleNotes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WhaleNotes.xcdatamodel; sourceTree = "<group>"; };
@@ -84,6 +90,8 @@
 				1865AEF5244C61F80006B48D /* UIColor+Ex.swift */,
 				1865AF09244D4E020006B48D /* Date+Ex.swift */,
 				1865AF11244D63700006B48D /* Ditionary+Ex.swift */,
+				1865AF19244EDF790006B48D /* UIView+Ex.swift */,
+				1865AF1B244F43D30006B48D /* UITableView+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -101,6 +109,7 @@
 				1865AEFD244C82E40006B48D /* Models */,
 				1865AEFA244C7CFC0006B48D /* Cells */,
 				1865AEF8244C79870006B48D /* NoteEditorViewController.swift */,
+				1865AF17244ED46D0006B48D /* BottomBarView.swift */,
 			);
 			path = NoteEditor;
 			sourceTree = "<group>";
@@ -358,9 +367,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
 				1865AEFF244C83120006B48D /* NoteBlock.swift in Sources */,
 				1865AEFC244C7D1C0006B48D /* TitleTableViewCell.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
+				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1865AF0D244D4F3C0006B48D /* NotesDao.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
@@ -377,6 +388,7 @@
 				1865AF14244D8FA10006B48D /* NoteStore.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
+				1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -25,6 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Define the menus
         let sideMenuViewController = SideMenuViewController()
         let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
+        leftMenuNavigationController.leftSide = true
         SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
    
         let homeVC = HomeViewController()
@@ -32,8 +33,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Setup gestures: the left and/or right menus must be set up (above) for these to work.
         // Note that these continue to work on the Navigation Controller independent of the view controller it displays!
-        SideMenuManager.default.addPanGestureToPresent(toView: navVC.navigationBar)
-        SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: navVC.view)
         
         // (Optional) Prevent status bar area from turning black when menu appears:
         leftMenuNavigationController.statusBarEndAlpha = 0
