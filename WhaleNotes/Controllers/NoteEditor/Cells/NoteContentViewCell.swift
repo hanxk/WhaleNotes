@@ -15,6 +15,10 @@ class NoteContentViewCell: UITableViewCell {
         $0.textColor = .primaryText
         $0.isEditable = true
         $0.isScrollEnabled = false
+        $0.autocorrectionType = .no
+        $0.spellCheckingType = .no
+        $0.textContainerInset = UIEdgeInsets.zero
+        $0.textContainer.lineFragmentPadding = 0
     }
     
     let placeholderLabel = UILabel().then {
@@ -34,9 +38,9 @@ class NoteContentViewCell: UITableViewCell {
         self.textChanged = action
     }
     
-    func textShouldBeginChange(action: @escaping (UITextView) -> Void) {
-        self.textShouldBeginChange = action
-    }
+//    func textShouldBeginChange(action: @escaping (UITextView) -> Void) {
+//        self.textShouldBeginChange = action
+//    }
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -54,19 +58,19 @@ class NoteContentViewCell: UITableViewCell {
     }
     
     func setupViews() {
-        self.selectionStyle = .none
+//        self.selectionStyle = .none
         _setSpacing(textView: textView, fontSize: 17, lineSpacing: 1, weight: .regular)
         contentView.addSubview(textView)
         textView.delegate = self
         textView.snp.makeConstraints { (make) in
-            make.leading.equalTo(NoteEditorViewController.space)
-            make.trailing.equalTo(-NoteEditorViewController.space)
-            make.top.bottom.equalTo(0)
+            make.leading.equalToSuperview().offset(NoteEditorViewController.space)
+            make.trailing.equalToSuperview().offset(-NoteEditorViewController.space)
+            make.top.bottom.equalToSuperview()
         }
         contentView.addSubview(placeholderLabel)
         placeholderLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(NoteEditorViewController.space+5)
-            make.top.equalTo(8)
+            make.leading.equalToSuperview().offset(NoteEditorViewController.space)
+            make.top.equalToSuperview()
         }
     }
     

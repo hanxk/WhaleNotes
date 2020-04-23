@@ -25,4 +25,11 @@ extension UIColor {
             return UIColor(named: "ButtonTintColor")!
         }
     }
+    
+    
+    open class var thirdColor: UIColor {
+        get {
+            return UIColor(named: "ThirdColor")!
+        }
+    }
 }

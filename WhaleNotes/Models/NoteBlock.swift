@@ -40,4 +40,6 @@ extension NoteBlock {
 enum BlockType: Int {
     case title = 1
     case content = 2
+    case todo = 3
+    case todo_head = 4
 }

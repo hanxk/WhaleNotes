@@ -27,6 +27,8 @@ class BottomBarView: UIView {
     }
     
     private func setupUI() {
+        
+        self.translatesAutoresizingMaskIntoConstraints = false
         addSubview(addButton)
         addSubview(moreButton)
         

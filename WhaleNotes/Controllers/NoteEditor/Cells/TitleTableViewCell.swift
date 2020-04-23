@@ -14,6 +14,8 @@ class TitleTableViewCell: UITableViewCell {
         $0.placeholder = "标题"
         $0.font = UIFont.systemFont(ofSize: 26, weight: .regular)
         $0.textColor = .primaryText
+        $0.autocorrectionType = .no
+        $0.spellCheckingType = .no
     }
     
     var enterkeyTapped: ((String) -> Void)?
@@ -31,10 +33,10 @@ class TitleTableViewCell: UITableViewCell {
     func setupViews() {
         contentView.addSubview(textField)
         textField.snp.makeConstraints { (make) in
-            make.leading.equalTo(NoteEditorViewController.space)
-            make.trailing.equalTo(-NoteEditorViewController.space)
-            make.top.equalTo(14)
-            make.bottom.equalTo(-10)
+            make.leading.equalToSuperview().offset(NoteEditorViewController.space)
+            make.trailing.equalToSuperview().offset(-NoteEditorViewController.space)
+            make.top.equalToSuperview().offset(14)
+            make.bottom.equalToSuperview().offset(-10)
         }
         textField.delegate = self
         self.selectionStyle = .none

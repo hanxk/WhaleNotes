@@ -18,10 +18,12 @@ class NoteEditorViewController: UIViewController {
     private var titleCell:TitleTableViewCell?
     private var contentCell: NoteContentViewCell?
     
+    private var activeTextView: UITextView?
+    
     private var tableView = UITableView().then {
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 20
-        $0.separatorStyle = .none
+        $0.separatorColor = .clear
     }
     private var bottombar: BottomBarView = BottomBarView()
     
@@ -29,6 +31,8 @@ class NoteEditorViewController: UIViewController {
         super.viewDidLoad()
         noteBlocks.append(NoteBlock(id: 1, type: .title, data: nil, sort: 1, noteId: 1))
         noteBlocks.append(NoteBlock(id: 2, type: .content, data: nil, sort: 2, noteId: 1))
+                noteBlocks.append(NoteBlock(id: 3, type: .todo_head, data: nil, sort: 3, noteId: 1))
+        noteBlocks.append(NoteBlock(id: 4, type: .todo, data: nil, sort: 3, noteId: 1))
         self.setup()
     }
     
@@ -108,6 +112,8 @@ class NoteEditorViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(TitleTableViewCell.self, forCellReuseIdentifier: CellType.title.rawValue)
         tableView.register(NoteContentViewCell.self, forCellReuseIdentifier: CellType.content.rawValue)
+        tableView.register(TODOItemCell.self, forCellReuseIdentifier: CellType.todo.rawValue)
+        tableView.register(TODOAddNewCell.self, forCellReuseIdentifier: CellType.todo_head.rawValue)
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
@@ -134,7 +140,8 @@ class NoteEditorViewController: UIViewController {
     }
     
     @objc func handleMoreButtonTapped() {
-        contentCell?.textView.resignFirstResponder()
+        self.activeTextView?.resignFirstResponder()
+        titleCell?.textField.resignFirstResponder()
     }
 }
 
@@ -163,6 +170,7 @@ extension NoteEditorViewController: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 let textView = cell.textView
+                self.activeTextView =  textView
                 if let cursorPosition = textView.selectedTextRange?.start {
                     let caretPositionRect = textView.caretRect(for: cursorPosition)
                     textView.scrollRectToVisible(caretPositionRect, animated: false)
@@ -171,19 +179,37 @@ extension NoteEditorViewController: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
             }
+            cell.textShouldBeginChange =  { [weak self] textView in
+                self?.activeTextView = textView
+            }
             self.contentCell = cell
             return cell
+        case .todo:
+            let cell =  (tableView.dequeueReusableCell(withIdentifier: CellType.todo.rawValue, for: indexPath) as! TODOItemCell)
+            cell.textChanged =  {[weak tableView] textView in
+                DispatchQueue.main.async {
+                    UIView.performWithoutAnimation {
+                        tableView?.beginUpdates()
+                        tableView?.endUpdates()
+                    }
+                }
+            }
+            cell.textShouldBeginChange =  { [weak self] textView in
+                self?.activeTextView = textView
+            }
+            return cell
+        case .todo_head:
+            let cell =  (tableView.dequeueReusableCell(withIdentifier: CellType.todo_head.rawValue, for: indexPath) as! TODOAddNewCell)
+            return cell
         }
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
     }
     
     
 }
 
-enum CellType: String {
+private enum CellType: String {
     case title = "TitleTableViewCell"
     case content = "NoteContentViewCell"
+    case todo_head = "TODOAddNewCell"
+    case todo = "TODOItemCell"
 }

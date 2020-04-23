@@ -30,24 +30,19 @@ class HomeViewController: UIViewController {
 extension HomeViewController {
     
     private func setupNavgationBar() {
-        let button =  UIButton(type: .custom)
+        let button =  UIButton()
+        button.frame = CGRect(x: 0, y: 0, width: 24, height: 44)
         button.setImage(UIImage(named: "ico_menu"), for: .normal)
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
-        button.frame = CGRect(x: 0, y: 0, width: 21, height: 44)
-        let label = UILabel(frame: CGRect(x: 41, y: 0, width: 200, height: 44))
+        let barButton = UIBarButtonItem(customView: button)
+        
+        let label = UILabel()
         label.text = "东京旅行"
         label.textAlignment = .left
-        label.backgroundColor =   UIColor.clear
-        button.addSubview(label)
-        let barButton = UIBarButtonItem(customView: button)
-        self.navigationItem.leftBarButtonItem = barButton
+        label.backgroundColor = UIColor.clear
+        let labelItem = UIBarButtonItem(customView: label)
         
-//        button.snp.makeConstraints { (make) in
-//            make.width.equalTo(21)
-//            make.height.equalTo(44)
-//            make.leading.equalToSuperview()
-//            make.top.equalToSuperview()
-//        }
+        self.navigationItem.leftBarButtonItems = [barButton,labelItem]
         
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
