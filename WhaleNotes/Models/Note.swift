@@ -7,14 +7,15 @@
 //
 
 import Foundation
+import  RealmSwift
 
-struct Note {
-    var id: Int64
-    var blocks:[NoteBlock]
-    var createAt: Date
-    var updateAt: Date
+class Note: Object {
+    @objc dynamic var id: String = UUID().uuidString
+    @objc dynamic var createAt: Date = Date()
+    @objc dynamic var updateAt: Date = Date()
+    let blocks =  List<Block>()
     
-    func clone(id:Int64? = nil,blocks: [NoteBlock]? = nil) -> Note {
-        return  Note(id: id ?? self.id, blocks: blocks ?? self.blocks, createAt: createAt, updateAt: updateAt)
+    override static func primaryKey() -> String? {
+        return "id"
     }
 }

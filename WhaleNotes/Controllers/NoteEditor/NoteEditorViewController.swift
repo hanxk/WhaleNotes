@@ -11,30 +11,68 @@ import SnapKit
 
 class NoteEditorViewController: UIViewController {
     
-    static let space = 14
+    static let space: CGFloat = 14
+    static let cellSpace: CGFloat = 2
     let bottombarHeight: CGFloat = 42.0
     let bottomExtraSpace: CGFloat = 42.0 + 10
-    private var noteBlocks: [NoteBlock] = []
+    
     private var titleCell:TitleTableViewCell?
     private var contentCell: NoteContentViewCell?
     
     private var activeTextView: UITextView?
     
-    private var tableView = UITableView().then {
-        $0.rowHeight = UITableView.automaticDimension
-        $0.estimatedRowHeight = 20
+    private var note: Note!
+    
+    var createMode: CreateMode?
+    
+    private lazy var tableView = UITableView().then { [weak self] in
+        $0.estimatedRowHeight = 50
         $0.separatorColor = .clear
+        
+        $0.delegate = self
+        $0.dataSource = self
+        $0.register(TitleTableViewCell.self, forCellReuseIdentifier: BlockType.title.rawValue)
+        $0.register(NoteContentViewCell.self, forCellReuseIdentifier: BlockType.text.rawValue)
+        $0.register(TODOItemCell.self, forCellReuseIdentifier: BlockType.todo.rawValue)
+        $0.register(BlockImageCell.self, forCellReuseIdentifier:BlockType.image.rawValue)
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
     }
-    private var bottombar: BottomBarView = BottomBarView()
+    private lazy var bottombar: BottomBarView = BottomBarView().then {[weak self] in
+        guard let self = self else { return }
+        $0.moreButton.addTarget(self, action: #selector(self.handleMoreButtonTapped), for: .touchUpInside)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        noteBlocks.append(NoteBlock(id: 1, type: .title, data: nil, sort: 1, noteId: 1))
-        noteBlocks.append(NoteBlock(id: 2, type: .content, data: nil, sort: 2, noteId: 1))
-                noteBlocks.append(NoteBlock(id: 3, type: .todo_head, data: nil, sort: 3, noteId: 1))
-        noteBlocks.append(NoteBlock(id: 4, type: .todo, data: nil, sort: 3, noteId: 1))
-        self.setup()
+        self.setupData()
+        self.setupUI()
     }
+    
+    private func setupData() {
+        guard let createMode = self.createMode else {
+            return
+        }
+        self.createNewNote(createMode: createMode)
+    }
+    
+    private func createNewNote(createMode: CreateMode) {
+        let note: Note = Note()
+        note.blocks.append(Block.newTitleBlock())
+        switch createMode {
+        case .text:
+            note.blocks.append(Block.newTextBlock())
+            break
+        case .image:
+            note.blocks.append(Block.newImageBlock())
+            break
+        case .todo:
+            note.blocks.append(Block.newTodoBlock())
+            break
+        }
+        DBManager.sharedInstance.addNote(note)
+        self.note = note
+    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -74,7 +112,7 @@ class NoteEditorViewController: UIViewController {
         }
     }
     
-    var keyboardIsHide = true
+    private var keyboardIsHide = true
     
     @objc func handleKeyboardHideNotification(notification: Notification) {
         if let userInfo = notification.userInfo {
@@ -101,29 +139,15 @@ class NoteEditorViewController: UIViewController {
         }
     }
     
-    private func setup() {
+    private func setupUI() {
         self.view.backgroundColor = .white
-        self.setupTableView()
-        self.setupBottomBar()
-    }
-    
-    private func setupTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(TitleTableViewCell.self, forCellReuseIdentifier: CellType.title.rawValue)
-        tableView.register(NoteContentViewCell.self, forCellReuseIdentifier: CellType.content.rawValue)
-        tableView.register(TODOItemCell.self, forCellReuseIdentifier: CellType.todo.rawValue)
-        tableView.register(TODOAddNewCell.self, forCellReuseIdentifier: CellType.todo_head.rawValue)
-        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
             make.leading.trailing.equalToSuperview()
         }
-    }
-    
-    private func setupBottomBar() {
+        
         self.view.addSubview(bottombar)
         bottombar.snp.makeConstraints { (make) in
             make.height.equalTo(bottombarHeight)
@@ -131,7 +155,6 @@ class NoteEditorViewController: UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
             make.leading.trailing.equalTo(0)
         }
-        bottombar.moreButton.addTarget(self, action: #selector(handleMoreButtonTapped), for: .touchUpInside)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -147,29 +170,30 @@ class NoteEditorViewController: UIViewController {
 
 extension NoteEditorViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return noteBlocks.count
+        return note.blocks.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let noteBlock = noteBlocks[indexPath.row]
-        switch noteBlock.type {
+        let block = note.blocks[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: block.type, for: indexPath)
+        switch block.blockType {
         case .title:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellType.title.rawValue, for: indexPath) as! TitleTableViewCell
-            cell.enterkeyTapped { [weak self] _ in
+            let titleCell = cell as! TitleTableViewCell
+            titleCell.enterkeyTapped { [weak self] _ in
                 self?.contentCell?.textView.becomeFirstResponder()
             }
-            self.titleCell = cell
-            return cell
-        case .content:
-            let cell =  (tableView.dequeueReusableCell(withIdentifier: CellType.content.rawValue, for: indexPath) as! NoteContentViewCell)
-            cell.textChanged {[weak tableView] newText in
+            self.titleCell = titleCell
+            break
+        case .text:
+            let textCell = cell as! NoteContentViewCell
+            textCell.textChanged {[weak tableView] newText in
                 DispatchQueue.main.async {
                     UIView.performWithoutAnimation {
                         tableView?.beginUpdates()
                         tableView?.endUpdates()
                     }
                 }
-                let textView = cell.textView
+                let textView = textCell.textView
                 self.activeTextView =  textView
                 if let cursorPosition = textView.selectedTextRange?.start {
                     let caretPositionRect = textView.caretRect(for: cursorPosition)
@@ -179,14 +203,14 @@ extension NoteEditorViewController: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
             }
-            cell.textShouldBeginChange =  { [weak self] textView in
+            textCell.textShouldBeginChange =  { [weak self] textView in
                 self?.activeTextView = textView
             }
-            self.contentCell = cell
-            return cell
+            self.contentCell = textCell
+            break
         case .todo:
-            let cell =  (tableView.dequeueReusableCell(withIdentifier: CellType.todo.rawValue, for: indexPath) as! TODOItemCell)
-            cell.textChanged =  {[weak tableView] textView in
+            let todoCell = cell as! TODOItemCell
+            todoCell.textChanged =  {[weak tableView] textView in
                 DispatchQueue.main.async {
                     UIView.performWithoutAnimation {
                         tableView?.beginUpdates()
@@ -194,22 +218,31 @@ extension NoteEditorViewController: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
             }
-            cell.textShouldBeginChange =  { [weak self] textView in
+            todoCell.textShouldBeginChange =  { [weak self] textView in
                 self?.activeTextView = textView
             }
-            return cell
-        case .todo_head:
-            let cell =  (tableView.dequeueReusableCell(withIdentifier: CellType.todo_head.rawValue, for: indexPath) as! TODOAddNewCell)
-            return cell
+            break
+        case .image:
+            //            let imageCell =  cell as! BlockImageCell
+            break
         }
+        return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let block = note.blocks[indexPath.row]
+        if block.blockType == .image {
+            
+            let itemSize = (UIScreen.main.bounds.size.width - NoteEditorViewController.space*2 - NoteEditorViewController.cellSpace)/2
+            return itemSize
+        }
+        return UITableView.automaticDimension
+    }
     
 }
 
-private enum CellType: String {
-    case title = "TitleTableViewCell"
-    case content = "NoteContentViewCell"
-    case todo_head = "TODOAddNewCell"
-    case todo = "TODOItemCell"
+enum CreateMode {
+    case text
+    case todo
+    case image
 }

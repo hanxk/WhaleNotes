@@ -132,6 +132,7 @@ extension HomeViewController {
     
     @objc func btnNewNoteTapped (sender:UIButton) {
         let noteVC  = NoteEditorViewController()
+        noteVC.createMode = .text
         navigationController?.pushViewController(noteVC, animated: true)
     }
     @objc func btnMoreTapped (sender:UIButton) {
