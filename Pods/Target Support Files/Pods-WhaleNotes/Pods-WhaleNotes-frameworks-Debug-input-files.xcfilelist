@@ -1,4 +1,6 @@
 ${PODS_ROOT}/Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes-frameworks.sh
+${BUILT_PRODUCTS_DIR}/ContextMenu/ContextMenu.framework
+${BUILT_PRODUCTS_DIR}/NewPopMenu/PopMenu.framework
 ${BUILT_PRODUCTS_DIR}/Realm/Realm.framework
 ${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework
 ${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework

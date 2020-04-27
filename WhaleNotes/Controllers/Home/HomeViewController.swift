@@ -10,6 +10,8 @@ import UIKit
 import SideMenu
 import SnapKit
 import Then
+import ContextMenu
+import PopMenu
 
 class HomeViewController: UIViewController {
     
@@ -131,12 +133,34 @@ extension HomeViewController {
     }
     
     @objc func btnNewNoteTapped (sender:UIButton) {
-        let noteVC  = NoteEditorViewController()
-        noteVC.createMode = .text
+        self.openNoteEditor(createMode: .text)
+    }
+    
+    private func openNoteEditor(createMode: CreateMode) {
+        let noteVC  = EditorViewController()
+        noteVC.createMode = createMode
         navigationController?.pushViewController(noteVC, animated: true)
     }
     @objc func btnMoreTapped (sender:UIButton) {
-        
+        let popMenuVC = PopBlocksViewController()
+        popMenuVC.cellTapped = { [weak self] createMode in
+            popMenuVC.dismiss(animated: true, completion: {
+                self?.openNoteEditor(createMode: createMode)
+            })
+        }
+        ContextMenu.shared.show(
+          sourceViewController: self,
+          viewController: popMenuVC,
+          options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
+          sourceView: sender
+        )
+//        let menuViewController = PopMenuViewController(actions: [
+//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil),
+//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil),
+//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil),
+//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil)
+//        ])
+//        present(menuViewController, animated: true, completion: nil)
     }
     
     private func makeButton() -> UIButton {

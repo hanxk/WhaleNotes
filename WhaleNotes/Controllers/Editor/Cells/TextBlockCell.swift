@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NoteContentViewCell: UITableViewCell {
+class TextBlockCell: UITableViewCell {
     
     let textView: UITextView = UITextView().then {
         $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -63,13 +63,13 @@ class NoteContentViewCell: UITableViewCell {
         contentView.addSubview(textView)
         textView.delegate = self
         textView.snp.makeConstraints { (make) in
-            make.leading.equalToSuperview().offset(NoteEditorViewController.space)
-            make.trailing.equalToSuperview().offset(-NoteEditorViewController.space)
+            make.leading.equalToSuperview().offset(EditorViewController.space)
+            make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.bottom.equalToSuperview()
         }
         contentView.addSubview(placeholderLabel)
         placeholderLabel.snp.makeConstraints { (make) in
-            make.leading.equalToSuperview().offset(NoteEditorViewController.space)
+            make.leading.equalToSuperview().offset(EditorViewController.space)
             make.top.equalToSuperview()
         }
     }
@@ -86,7 +86,7 @@ class NoteContentViewCell: UITableViewCell {
 
 }
 
-extension NoteContentViewCell: UITextViewDelegate {
+extension TextBlockCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         textChanged?(textView.text)
         placeholderLabel.isHidden = !textView.text.isEmpty

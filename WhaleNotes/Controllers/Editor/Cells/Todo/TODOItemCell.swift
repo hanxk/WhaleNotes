@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class TODOItemCell: UITableViewCell {
+class TodoBlockCell: UITableViewCell {
     
     let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
     
@@ -47,7 +47,7 @@ class TODOItemCell: UITableViewCell {
     
     lazy var chkbtn: UIButton = UIButton()
     
-    private let textView: UITextView = UITextView().then {
+     let textView: UITextView = UITextView().then {
         $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         $0.textColor = .primaryText
         $0.isEditable = true
@@ -88,12 +88,12 @@ class TODOItemCell: UITableViewCell {
         chkbtn.snp.makeConstraints { (make) in
             make.width.height.equalTo(24)
             make.top.equalToSuperview().offset(4)
-            make.leading.equalToSuperview().offset(NoteEditorViewController.space - 2)
+            make.leading.equalToSuperview().offset(EditorViewController.space - 2)
         }
         
         textView.snp.makeConstraints { (make) in
             make.leading.equalTo(chkbtn.snp.trailing).offset(10)
-            make.trailing.equalToSuperview().offset(-NoteEditorViewController.space)
+            make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.equalToSuperview().offset(4)
             make.bottom.equalToSuperview().offset(-4)
         }
@@ -109,7 +109,7 @@ class TODOItemCell: UITableViewCell {
     }
 }
 
-extension TODOItemCell: UITextViewDelegate {
+extension TodoBlockCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         textChanged?(textView)
         isEmpty = textView.text.isEmpty

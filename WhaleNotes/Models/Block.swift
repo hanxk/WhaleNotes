@@ -17,9 +17,8 @@ class Block: Object{
     @objc dynamic var text: String = ""
     @objc dynamic var createAt: Date = Date()
     @objc dynamic var sort: Int = 0
-    @objc dynamic var note: Note?
-    let todos =  List<Image>()
-    let images =  List<Todo>()
+    let images =  List<Image>()
+    let todos =  List<Todo>()
     
     
     lazy var blockType:BlockType = BlockType(rawValue: type)!
@@ -50,9 +49,10 @@ class Block: Object{
         return block
     }
     
-    static func newTodoBlock() -> Block {
+    static func newTodoBlock(note: Note) -> Block {
         let block = Block()
         block.type = BlockType.todo.rawValue
+        block.todos.append(Todo(text: "",block: block))
         return block
     }
 }
@@ -63,7 +63,22 @@ class Image: Object {
 }
 
 class Todo: Object {
+    @objc dynamic var id: String = UUID().uuidString
+    @objc dynamic var isChecked: Bool = false
+    @objc dynamic var text: String = ""
+    @objc dynamic var sort: Int = 0
+    @objc dynamic var createAt: Date = Date()
+    @objc dynamic var block: Block?
     
+    override static func primaryKey() -> String?{
+        return "id"
+    }
+    
+    convenience init(text: String,block: Block) {
+        self.init()
+        self.text = text
+        self.block = block
+    }
 }
 
 enum BlockType: String {

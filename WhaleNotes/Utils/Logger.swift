@@ -12,8 +12,12 @@ class Logger {
     
     private init(){}
     
-    static func info( _ text: String) {
-        print(text)
+    static func info( _ text: String, _ argument: Any? = nil) {
+        if let argument = argument {
+            print(text + "_" + String(describing: argument))
+        }else {
+            print(text)
+        }
     }
     static func error( _ error: NSError) {
         print(error)

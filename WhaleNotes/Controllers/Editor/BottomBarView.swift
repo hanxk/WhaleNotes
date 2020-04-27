@@ -11,7 +11,7 @@ import SnapKit
 class BottomBarView: UIView {
     
     let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .light)
-    private lazy var addButton: UIButton = UIButton().then {
+    lazy var addButton: UIButton = UIButton().then {
         $0.setImage(UIImage(systemName: "plus.circle",withConfiguration: config), for: .normal)
     }
     lazy var moreButton: UIButton = UIButton().then {

@@ -1,4 +1,6 @@
 PODS:
+  - ContextMenu (0.4.0)
+  - NewPopMenu (2.1.2)
   - Realm (4.4.1):
     - Realm/Headers (= 4.4.1)
   - Realm/Headers (4.4.1)
@@ -13,6 +15,8 @@ PODS:
   - Then (2.6.0)
 
 DEPENDENCIES:
+  - ContextMenu
+  - NewPopMenu (~> 2.0)
   - RealmSwift
   - SideMenu
   - SnapKit (~> 5.0.0)
@@ -22,6 +26,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - ContextMenu
+    - NewPopMenu
     - Realm
     - RealmSwift
     - SideMenu
@@ -31,6 +37,8 @@ SPEC REPOS:
     - Then
 
 SPEC CHECKSUMS:
+  ContextMenu: f835e09a93f1c28c631b76ee94396d9570397fd1
+  NewPopMenu: c6129e08e8192f6257ceb5f9a4357e1b59c6e2e7
   Realm: 4eb04d7487bd43c0581256f40b424eafb711deff
   RealmSwift: 3eb8924ff7100df5928c7602f71d0fec51e7c9c5
   SideMenu: 4a891be552d30bb6fa87ad404d62e485f8450c34
@@ -39,6 +47,6 @@ SPEC CHECKSUMS:
   SwiftDate: 6329e58969a2de31cea7f1ee1143b247693196e7
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
 
-PODFILE CHECKSUM: 0726888f92b899ed3f9b16e2e2c44d7e71b95099
+PODFILE CHECKSUM: 649d7cb6d6f729148d6d0e44ad2bb4d574adcbfb
 
 COCOAPODS: 1.9.1

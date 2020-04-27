@@ -10,6 +10,8 @@ target 'WhaleNotes' do
   pod 'SQLite.swift', '~> 0.12.0'
   pod 'SwiftDate', '~> 5.0'
   pod 'RealmSwift'
+  pod 'ContextMenu'
+  pod 'NewPopMenu', '~> 2.0'
   # Pods for WhaleNotes
 
 end

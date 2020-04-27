@@ -15,7 +15,7 @@ class BlockImageCell: UITableViewCell {
 //          $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
       }
 
-    let itemSize = (UIScreen.main.bounds.size.width - NoteEditorViewController.space*2 - NoteEditorViewController.cellSpace)/2
+    let itemSize = (UIScreen.main.bounds.size.width - EditorViewController.space*2 - EditorViewController.cellSpace)/2
     
      lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
          
@@ -109,7 +109,7 @@ extension BlockImageCell : UICollectionViewDelegateFlowLayout {
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return NoteEditorViewController.cellSpace
+        return EditorViewController.cellSpace
     }
     
 }

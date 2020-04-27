@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TitleTableViewCell: UITableViewCell {
+class TitleBlockCell: UITableViewCell {
     
     let textField: UITextField = UITextField().then {
         $0.placeholder = "标题"
@@ -33,8 +33,8 @@ class TitleTableViewCell: UITableViewCell {
     func setupViews() {
         contentView.addSubview(textField)
         textField.snp.makeConstraints { (make) in
-            make.leading.equalToSuperview().offset(NoteEditorViewController.space)
-            make.trailing.equalToSuperview().offset(-NoteEditorViewController.space)
+            make.leading.equalToSuperview().offset(EditorViewController.space)
+            make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.equalToSuperview().offset(14)
             make.bottom.equalToSuperview().offset(-10)
         }
@@ -54,7 +54,7 @@ class TitleTableViewCell: UITableViewCell {
 
 }
 
-extension TitleTableViewCell: UITextFieldDelegate {
+extension TitleBlockCell: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if let enterkeyTapped = self.enterkeyTapped {
             enterkeyTapped(textField.text ?? "")

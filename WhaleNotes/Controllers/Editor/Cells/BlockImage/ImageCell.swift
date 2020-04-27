@@ -23,7 +23,7 @@ class ImageCell: UICollectionViewCell {
         $0.backgroundColor = .red
     }
     
-    lazy var itemSize = (UIScreen.main.bounds.size.width - NoteEditorViewController.space*2 - NoteEditorViewController.cellSpace)/2
+    lazy var itemSize = (UIScreen.main.bounds.size.width - EditorViewController.space*2 - EditorViewController.cellSpace)/2
     
     private func setupUI() {
         
