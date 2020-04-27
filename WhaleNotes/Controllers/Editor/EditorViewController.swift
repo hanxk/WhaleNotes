@@ -132,7 +132,6 @@ class EditorViewController: UIViewController {
     }
     
 }
-
 // 数据处理
 extension EditorViewController {
     
@@ -155,6 +154,11 @@ extension EditorViewController {
         self.note = note
     }
     
+}
+
+// 数据处理-todo
+extension EditorViewController {
+    
     private func setupSectionsTypes(note: Note) {
         for block in note.blocks {
             switch block.blockType {
@@ -171,32 +175,76 @@ extension EditorViewController {
     }
     
     private func setupTodoSections(todoBlock: Block) {
-        let section = self.sections.count
-        self.todoUnCheckedListNotifiToken = observe2(todoBlock: todoBlock, isChecked: false,section:section)
-        self.todoCheckedListNotifiToken = observe2(todoBlock: todoBlock, isChecked: true,section:section+1)
+        self.todoUnCheckedListNotifiToken = observeTodoList(todoBlock: todoBlock, todoMode: .unchecked)
+        self.todoCheckedListNotifiToken = observeTodoList(todoBlock: todoBlock, todoMode: .checked)
     }
     
-    private func observe2(todoBlock: Block,  isChecked: Bool,section: Int) -> NotificationToken{
-        let todoResults = todoBlock.todos.filter("isChecked = " + (isChecked  ? "true" : "false" ))
-        self.sections.append(SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults),isChecked: isChecked))
+    private func observeTodoList(todoBlock: Block,  todoMode: TodoMode) -> NotificationToken{
+        switch todoMode {
+        case .unchecked:
+            return self.observerTodoUnCheckedList(todoBlock: todoBlock)
+        case .checked:
+            return self.observerTodoCheckedList(todoBlock: todoBlock)
+        }
+    }
+    private func observerTodoUnCheckedList(todoBlock: Block) -> NotificationToken {
+        let todoResults = todoBlock.todos.filter("isChecked = false")
         let notificationToken = todoResults.observe { [weak self] changes in
             guard let self = self else { return }
-            let index = self.sections.firstIndex {
-                switch $0 {
-                case .todo(_, _, let isChecked2):
-                    return isChecked == isChecked2
-                default:
-                    return false
+            
+            if let sectionIndex =  self.getTodoSectionIndex(todoMode: .unchecked) { // 更新 section data
+                self.sections[sectionIndex] =  SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .unchecked)
+                self.handleTodoUpdate(changes: changes,section: sectionIndex)
+                return
+            }
+            guard let todoSectionIndex = self.note.blocks.firstIndex(where: { $0.blockType == .todo }) else { return }
+            let todoSection = SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .unchecked)
+            self.sections.insert(todoSection, at: todoSectionIndex)
+            self.insertSectionReload(sectionIndex: todoSectionIndex)
+        }
+        return notificationToken
+    }
+    
+    
+    private func observerTodoCheckedList(todoBlock: Block) -> NotificationToken {
+        let todoResults = todoBlock.todos.filter("isChecked = true")
+        let notificationToken = todoResults.observe { [weak self] changes in
+            guard let self = self else { return }
+            if let sectionIndex =  self.getTodoSectionIndex(todoMode: .checked) { // 更新 section data
+                if todoResults.count > 0 {
+                    self.sections[sectionIndex] =  SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .checked)
+                    self.handleTodoUpdate(changes: changes,section: sectionIndex)
+                }else {
+                    self.sections.remove(at: sectionIndex)
+                    self.deleteSectionReload(sectionIndex: sectionIndex)
                 }
+                return
             }
-            if index != nil {
-               self.sections[index!] =  SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), isChecked: isChecked)
-                self.handleTodoUpdate(changes: changes,section: section)
+            if todoResults.count == 0 {
+                return
             }
+            guard let unCheckedTodoSectionIndex = self.note.blocks.firstIndex(where: { $0.blockType == .todo }) else { return }
+            let checkedTodoSectionIndex  = unCheckedTodoSectionIndex + 1
+            let todoSection = SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .checked)
+            self.sections.insert(todoSection, at: checkedTodoSectionIndex)
+            self.insertSectionReload(sectionIndex: checkedTodoSectionIndex)
             
         }
         return notificationToken
     }
+    
+    private func insertSectionReload(sectionIndex: Int) {
+        self.tableView.performBatchUpdates({
+            self.tableView.insertSections(IndexSet(integer: sectionIndex), with: .bottom)
+        }, completion: nil)
+    }
+    
+    private func deleteSectionReload(sectionIndex: Int) {
+        self.tableView.performBatchUpdates({
+            self.tableView.deleteSections(IndexSet(integer: sectionIndex), with: .top)
+        }, completion: nil)
+    }
+    
     
     private func handleTodoUpdate(changes: RealmCollectionChange<Results<Todo>>,section: Int) {
         
@@ -227,6 +275,19 @@ extension EditorViewController {
             print(type)
         }
     }
+    
+    
+    private func getTodoSectionIndex(todoMode: TodoMode) -> Int?  {
+        return  self.sections.firstIndex {
+                       switch $0 {
+                       case .todo(_, _, let mode):
+                           return mode == todoMode
+                       default:
+                           return false
+                       }
+                   }
+    }
+    
     
     private func createNewNote(createMode: CreateMode) -> Note {
         let note: Note = Note()
@@ -320,12 +381,13 @@ extension EditorViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = sections[section]
         switch sectionType {
-        case .todo(let todoBlock, _, let isChecked):
-            if !isChecked {
+        case .todo(let todoBlock, _, let mode):
+            switch mode {
+            case .unchecked:
                 let todoHeaderView = TodoHeaderView()
                 todoHeaderView.todoBlock = todoBlock
                 return todoHeaderView
-            }else {
+            case .checked:
                 let todoCompleteHeaderView = TodoCompleteHeaderView()
                 todoCompleteHeaderView.todoBlock = todoBlock
                 return todoCompleteHeaderView
@@ -415,7 +477,7 @@ extension EditorViewController {
 enum SectionType {
     case title(title: String)
     case text(text: String)
-    case todo(todoBlock: Block, todos: [Todo],isChecked: Bool)
+    case todo(todoBlock: Block, todos: [Todo],mode: TodoMode)
     
     var identifier: String {
         switch self {
@@ -427,6 +489,11 @@ enum SectionType {
             return "todo"
         }
     }
+}
+
+enum TodoMode {
+    case unchecked
+    case checked
 }
 
 

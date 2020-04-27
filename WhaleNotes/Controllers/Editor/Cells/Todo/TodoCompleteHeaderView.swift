@@ -11,21 +11,18 @@ import UIKit
 
 class TodoCompleteHeaderView: UIView {
     
-    private lazy var addButton: UIButton = UIButton().then {
+    private lazy var expandButton: UIButton = UIButton().then {
         $0.setTitle("展开清单项目", for: .normal)
         $0.setTitleColor(.thirdColor, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        $0.addTarget(self, action: #selector(self.handleExpandButtonTapped), for: .touchUpInside)
     }
     
-//    private let menuButton: UIButton = UIButton().then {
-//        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .light)
-//        $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
-//        $0.tintColor  = .thirdColor
-//    }
-    
-    var todoBlock: Block!
-    
+    var todoBlock: Block!  {
+        didSet {
+            expandButton.setTitle(String(format:"显示已完成的项目(%d)",todoBlock.todos.count), for: .normal)
+        }
+    }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -36,28 +33,15 @@ class TodoCompleteHeaderView: UIView {
     }
     
     private func setup() {
-        let topSpace = 2
-        
-        self.addSubview(addButton)
-        addButton.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(topSpace)
-            make.bottom.equalToSuperview().offset(-topSpace)
+        self.addSubview(expandButton)
+        expandButton.snp.makeConstraints { (make) in
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview()
             make.leading.equalToSuperview().offset(EditorViewController.space)
         }
-        
-//        self.addSubview(menuButton)
-//        menuButton.snp.makeConstraints { (make) in
-//            make.top.equalToSuperview().offset(topSpace)
-//            make.bottom.equalToSuperview().offset(-topSpace)
-//            make.trailing.equalToSuperview().offset(-EditorViewController.space)
-//        }
     }
     
-    @objc private func handleAddButtonTapped() {
-        DBManager.sharedInstance.update { [weak self] in
-            if let self = self {
-                self.todoBlock.todos.insert(Todo(text: "", block: self.todoBlock),at: 0)
-            }
-        }
+    @objc private func handleExpandButtonTapped() {
+        
     }
 }
