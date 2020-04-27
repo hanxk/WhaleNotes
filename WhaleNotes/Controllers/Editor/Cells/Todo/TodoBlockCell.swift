@@ -109,6 +109,7 @@ class TodoBlockCell: UITableViewCell {
         self.isChecked = !self.isChecked
         DBManager.sharedInstance.update { [weak self] in
             guard let self = self else { return }
+            self.textView.resignFirstResponder()
             self.updateCheck()
         }
     }
@@ -121,7 +122,7 @@ class TodoBlockCell: UITableViewCell {
 //            }
 //        }
 //        else {
-//            
+//
 //        }
         self.todo.isChecked = self.isChecked
     }
@@ -159,7 +160,11 @@ extension TodoBlockCell {
         if text.isEmpty {
             // 删除todo
             self.deleteTodo()
-        }else {
+        }else{
+            if  isChecked  {
+                textView.resignFirstResponder()
+                return
+            }
             // 新增todo
             Logger.info("新增todo")
             DBManager.sharedInstance.update { [weak self] in

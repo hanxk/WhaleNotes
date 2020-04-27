@@ -32,22 +32,19 @@ class TodoHeaderView: UIView {
     init() {
         super.init(frame: CGRect.zero)
         self.setup()
+        self.backgroundColor = .white
     }
     
     private func setup() {
-        let topSpace = 2
-        
         self.addSubview(addButton)
         addButton.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(topSpace)
-            make.bottom.equalToSuperview().offset(-topSpace)
+            make.centerY.equalToSuperview()
             make.leading.equalToSuperview().offset(EditorViewController.space)
         }
         
         self.addSubview(menuButton)
         menuButton.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(topSpace)
-            make.bottom.equalToSuperview().offset(-topSpace)
+            make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
         }
     }

@@ -29,6 +29,8 @@ class EditorViewController: UIViewController {
     
     var sections:[SectionType] = []
     
+    var isTodoExpand = true
+    
     
     private var todoUnCheckedListNotifiToken: NotificationToken?
     private var todoCheckedListNotifiToken: NotificationToken?
@@ -39,7 +41,6 @@ class EditorViewController: UIViewController {
     private lazy var tableView = UITableView().then { [weak self] in
         $0.estimatedRowHeight = 50
         $0.separatorColor = .clear
-        
         $0.delegate = self
         $0.dataSource = self
         $0.register(TitleBlockCell.self, forCellReuseIdentifier: "title")
@@ -194,7 +195,7 @@ extension EditorViewController {
             
             if let sectionIndex =  self.getTodoSectionIndex(todoMode: .unchecked) { // 更新 section data
                 self.sections[sectionIndex] =  SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .unchecked)
-                self.handleTodoUpdate(changes: changes,section: sectionIndex)
+                self.handleTodoUpdate(changes: changes,section: sectionIndex,insertNeedShowKeyboard: true)
                 return
             }
             guard let todoSectionIndex = self.note.blocks.firstIndex(where: { $0.blockType == .todo }) else { return }
@@ -213,7 +214,9 @@ extension EditorViewController {
             if let sectionIndex =  self.getTodoSectionIndex(todoMode: .checked) { // 更新 section data
                 if todoResults.count > 0 {
                     self.sections[sectionIndex] =  SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .checked)
-                    self.handleTodoUpdate(changes: changes,section: sectionIndex)
+                    if self.isTodoExpand {
+                       self.handleTodoUpdate(changes: changes,section: sectionIndex)
+                    }
                 }else {
                     self.sections.remove(at: sectionIndex)
                     self.deleteSectionReload(sectionIndex: sectionIndex)
@@ -246,7 +249,7 @@ extension EditorViewController {
     }
     
     
-    private func handleTodoUpdate(changes: RealmCollectionChange<Results<Todo>>,section: Int) {
+    private func handleTodoUpdate(changes: RealmCollectionChange<Results<Todo>>,section: Int,insertNeedShowKeyboard: Bool = false) {
         
         let tableView  = self.tableView
         switch changes {
@@ -263,7 +266,7 @@ extension EditorViewController {
             //                                                  with: .automatic)
             
             tableView.endUpdates()
-            if insertionIndices.count > 0 {
+            if insertionIndices.count > 0 && insertNeedShowKeyboard {
                 let indices = insertionIndices[insertionIndices.count-1]
                 let blockCell = self.tableView.cellForRow(at: IndexPath(row: indices, section: section)) as! TodoBlockCell
                 blockCell.textView.becomeFirstResponder()
@@ -311,8 +314,13 @@ extension EditorViewController {
 extension EditorViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch sections[section] {
-        case .todo(_, let todos,_):
-            return todos.count
+        case .todo(_, let todos,let mode):
+            switch mode {
+            case .unchecked:
+                return todos.count
+            case .checked:
+                return self.isTodoExpand ? todos.count : 0
+            }
         default:
             return 1
         }
@@ -389,7 +397,24 @@ extension EditorViewController: UITableViewDataSource {
                 return todoHeaderView
             case .checked:
                 let todoCompleteHeaderView = TodoCompleteHeaderView()
+                todoCompleteHeaderView.isExpand = self.isTodoExpand
                 todoCompleteHeaderView.todoBlock = todoBlock
+                todoCompleteHeaderView.expandStateChanged = {[weak self] isExpand in
+                    // 刷新 complete section
+                    guard let self = self else { return }
+                    let sectionIndex = self.sections.firstIndex { sectionType -> Bool in
+                        switch sectionType {
+                        case .todo(_, _, let mode):
+                            return mode == .checked
+                        default:
+                            return false
+                        }
+                    }
+                    self.isTodoExpand = isExpand
+                    if sectionIndex != nil {
+                        self.tableView.reloadSections(IndexSet(integer: sectionIndex!), with: .automatic)
+                    }
+                }
                 return todoCompleteHeaderView
             }
         default:
@@ -416,7 +441,7 @@ extension EditorViewController: UITableViewDelegate {
         case .todo(_, _,_):
             return 44
         default:
-            return 0
+            return CGFloat.leastNormalMagnitude
         }
     }
 }
