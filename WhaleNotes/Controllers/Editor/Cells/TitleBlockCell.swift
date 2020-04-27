@@ -17,6 +17,12 @@ class TitleBlockCell: UITableViewCell {
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
     }
+    var titleBlock: Block! {
+        didSet {
+            textField.text = titleBlock.title
+        }
+    }
+        
     
     var enterkeyTapped: ((String) -> Void)?
     
@@ -59,6 +65,17 @@ extension TitleBlockCell: UITextFieldDelegate {
         if let enterkeyTapped = self.enterkeyTapped {
             enterkeyTapped(textField.text ?? "")
             return false
+        }
+        return true
+    }
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        let title = textField.text ?? ""
+        if  title != titleBlock.title {
+            DBManager.sharedInstance.update {
+                titleBlock.title =  title.trimmingCharacters(in: .whitespaces)
+                Logger.info("update title for block: ",titleBlock.id)
+            }
         }
         return true
     }

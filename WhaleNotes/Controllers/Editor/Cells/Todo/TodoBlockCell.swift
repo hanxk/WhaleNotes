@@ -20,6 +20,7 @@ class TodoBlockCell: UITableViewCell {
         didSet {
             textView.text = todo.text
             isChecked = todo.isChecked
+            isEmpty = todo.text.isEmpty
         }
     }
     var todoBlock: Block!
@@ -43,6 +44,7 @@ class TodoBlockCell: UITableViewCell {
             } else {
                 self.chkbtn.tintColor = self.isChecked ? UIColor.brand : UIColor.buttonTintColor
             }
+            self.chkbtn.isEnabled = !isEmpty
         }
     }
     
@@ -81,8 +83,6 @@ class TodoBlockCell: UITableViewCell {
     
     private func setup() {
         self.selectionStyle = .none
-        self.isChecked = false
-        self.isEmpty = true
         
         self.setupUI()
     }
@@ -107,24 +107,12 @@ class TodoBlockCell: UITableViewCell {
     
     @objc private func handleChkButtonTapped() {
         self.isChecked = !self.isChecked
+        self.textView.resignFirstResponder()
         DBManager.sharedInstance.update { [weak self] in
             guard let self = self else { return }
-            self.textView.resignFirstResponder()
-            self.updateCheck()
+            self.todo.text = textView.text.trimmingCharacters(in: .whitespaces)
+            self.todo.isChecked = self.isChecked
         }
-    }
-    private func updateCheck() {
-//        let todos = self.todoBlock.todos
-//        guard let from = todos.firstIndex(of: self.todo) else { return }
-//        if self.isChecked { // 移动到底部
-//            if let to =  todos.lastIndex(where: { !($0.isChecked) }) {
-//                todos.move(from: from, to: to)
-//            }
-//        }
-//        else {
-//
-//        }
-        self.todo.isChecked = self.isChecked
     }
 }
 
@@ -135,6 +123,13 @@ extension TodoBlockCell: UITextViewDelegate {
     }
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         textShouldBeginChange?(textView)
+        return true
+    }
+    
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        if isEmpty {
+            DBManager.sharedInstance.deleteTodo(todo)
+        }
         return true
     }
     

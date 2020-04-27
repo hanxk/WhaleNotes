@@ -21,6 +21,13 @@ class TextBlockCell: UITableViewCell {
         $0.textContainer.lineFragmentPadding = 0
     }
     
+    var textBlock: Block! {
+        didSet {
+            textView.text = textBlock.title
+        }
+    }
+    
+    
     let placeholderLabel = UILabel().then {
         $0.textColor = .lightGray
         $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -38,9 +45,9 @@ class TextBlockCell: UITableViewCell {
         self.textChanged = action
     }
     
-//    func textShouldBeginChange(action: @escaping (UITextView) -> Void) {
-//        self.textShouldBeginChange = action
-//    }
+    //    func textShouldBeginChange(action: @escaping (UITextView) -> Void) {
+    //        self.textShouldBeginChange = action
+    //    }
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -58,7 +65,7 @@ class TextBlockCell: UITableViewCell {
     }
     
     func setupViews() {
-//        self.selectionStyle = .none
+        //        self.selectionStyle = .none
         _setSpacing(textView: textView, fontSize: 17, lineSpacing: 1, weight: .regular)
         contentView.addSubview(textView)
         textView.delegate = self
@@ -83,7 +90,7 @@ class TextBlockCell: UITableViewCell {
         ]
         textView.typingAttributes = attr
     }
-
+    
 }
 
 extension TextBlockCell: UITextViewDelegate {
@@ -93,6 +100,17 @@ extension TextBlockCell: UITextViewDelegate {
     }
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         textShouldBeginChange?(textView)
+        return true
+    }
+    
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        let text = textView.text ?? ""
+        if  text != textBlock.text {
+            DBManager.sharedInstance.update {
+                textBlock.text =  text
+                Logger.info("update text for block: ",textBlock.id)
+            }
+        }
         return true
     }
 }

@@ -10,6 +10,7 @@ import UIKit
 import SnapKit
 import ContextMenu
 import RealmSwift
+import MobileCoreServices
 
 class EditorViewController: UIViewController {
     
@@ -31,22 +32,30 @@ class EditorViewController: UIViewController {
     
     var isTodoExpand = true
     
+    var dragIndexPath: IndexPath?
+    
     
     private var todoUnCheckedListNotifiToken: NotificationToken?
     private var todoCheckedListNotifiToken: NotificationToken?
     
-    private var todosNotificationToken: NotificationToken?
     private var noteNotificationToken: NotificationToken?
     
     private lazy var tableView = UITableView().then { [weak self] in
         $0.estimatedRowHeight = 50
         $0.separatorColor = .clear
-        $0.delegate = self
-        $0.dataSource = self
         $0.register(TitleBlockCell.self, forCellReuseIdentifier: "title")
         $0.register(TextBlockCell.self, forCellReuseIdentifier:  "text")
         $0.register(TodoBlockCell.self, forCellReuseIdentifier: "todo")
         $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
+        
+        
+        $0.delegate = self
+        $0.dataSource = self
+        
+        $0.dragInteractionEnabled = true
+        $0.dragDelegate = self
+        $0.dropDelegate = self
+        
     }
     
     private lazy var bottombar: BottomBarView = BottomBarView().then {[weak self] in
@@ -55,6 +64,12 @@ class EditorViewController: UIViewController {
         $0.addButton.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
     }
     
+    
+    deinit {
+        noteNotificationToken?.invalidate()
+        todoUnCheckedListNotifiToken?.invalidate()
+        todoCheckedListNotifiToken?.invalidate()
+    }
     
     var keyboardHeight: CGFloat = 0
     var keyboardHeight2: CGFloat = 0
@@ -77,6 +92,23 @@ class EditorViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
+        tableView.endEditing(true)
+        
+        //        if (self.isMovingFromParent || self.isBeingDismissed) { // 数据为空就删除
+        //            let unEmptyIndex = sections.firstIndex { (sectionType) -> Bool in
+        //                switch sectionType {
+        //                case .title(let titleBlock):
+        //                    return !titleBlock.title.isEmpty
+        //                case .text(let text):
+        //                    return !text.isEmpty
+        //                case .todo(_, let todos, _):
+        //                    return todos.count > 0
+        //                }
+        //            }
+        //            if unEmptyIndex == nil {
+        //                DBManager.sharedInstance.deleteNote(self.note)
+        //            }
+        //        }
     }
     
     private func setupUI() {
@@ -141,16 +173,16 @@ extension EditorViewController {
             return
         }
         let note = self.createNewNote(createMode: createMode)
-        //        noteNotificationToken = note.observe { [weak self] change in
-        //            switch change {
-        //            case .change(let _):
-        //                Logger.info("change")
-        //            case .error(let error):
-        //                print("An error occurred: \(error)")
-        //            case .deleted:
-        //                print("The object was deleted.")
-        //            }
-        //        }
+        noteNotificationToken = note.observe { [weak self] change in
+            switch change {
+            case .change(_):
+                Logger.info("change")
+            case .error(let error):
+                print("An error occurred: \(error)")
+            case .deleted:
+                print("The object was deleted.")
+            }
+        }
         self.setupSectionsTypes(note: note)
         self.note = note
     }
@@ -164,9 +196,9 @@ extension EditorViewController {
         for block in note.blocks {
             switch block.blockType {
             case .title:
-                self.sections.append(SectionType.title(title: block.title))
+                self.sections.append(SectionType.title(titleBlock: block))
             case .text:
-                self.sections.append(SectionType.text(text: block.text))
+                self.sections.append(SectionType.text(textBlock: block))
             case .todo:
                 self.setupTodoSections(todoBlock: block)
             case .image:
@@ -215,7 +247,7 @@ extension EditorViewController {
                 if todoResults.count > 0 {
                     self.sections[sectionIndex] =  SectionType.todo(todoBlock: todoBlock, todos: Array(todoResults), mode: .checked)
                     if self.isTodoExpand {
-                       self.handleTodoUpdate(changes: changes,section: sectionIndex)
+                        self.handleTodoUpdate(changes: changes,section: sectionIndex)
                     }
                 }else {
                     self.sections.remove(at: sectionIndex)
@@ -282,13 +314,13 @@ extension EditorViewController {
     
     private func getTodoSectionIndex(todoMode: TodoMode) -> Int?  {
         return  self.sections.firstIndex {
-                       switch $0 {
-                       case .todo(_, _, let mode):
-                           return mode == todoMode
-                       default:
-                           return false
-                       }
-                   }
+            switch $0 {
+            case .todo(_, _, let mode):
+                return mode == todoMode
+            default:
+                return false
+            }
+        }
     }
     
     
@@ -334,18 +366,18 @@ extension EditorViewController: UITableViewDataSource {
         let sectionObj = sections[indexPath.section]
         let cell = tableView.dequeueReusableCell(withIdentifier: sectionObj.identifier, for: indexPath)
         switch sectionObj {
-        case .title(let title):
+        case .title(let titleBlock):
             let titleCell = (cell as! TitleBlockCell).then {
-                $0.textField.text = title
+                $0.titleBlock = titleBlock
                 $0.enterkeyTapped { [weak self] _ in
                     self?.contentCell?.textView.becomeFirstResponder()
                 }
             }
             self.titleCell = titleCell
             break
-        case .text(let text):
+        case .text(let textBlock):
             let textCell = cell as! TextBlockCell
-            textCell.textView.text = text
+            textCell.textBlock = textBlock
             textCell.textChanged {[weak tableView] newText in
                 DispatchQueue.main.async {
                     UIView.performWithoutAnimation {
@@ -444,6 +476,103 @@ extension EditorViewController: UITableViewDelegate {
             return CGFloat.leastNormalMagnitude
         }
     }
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        let sectionType = self.sections[indexPath.section]
+        switch sectionType {
+        case .todo(_, _, let mode):
+            switch mode {
+            case .unchecked:
+                return true
+            default:
+                return false
+            }
+        default:
+            return false
+        }
+    }
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        
+        guard let unCheckedTodos = self.sections[sourceIndexPath.section].getTodos(todoMode: .unchecked) else { return }
+        guard let todoBlock = self.note.todoBlock else { return }
+        
+        let allTodos = todoBlock.todos
+        
+        guard let from = allTodos.index(of: unCheckedTodos[sourceIndexPath.row]),
+            let to = allTodos.index(of: unCheckedTodos[destinationIndexPath.row]) else { return }
+        DBManager.sharedInstance.update(withoutNotifying: [self.todoUnCheckedListNotifiToken!]) {
+            allTodos.move(from: from, to: to)
+        }
+        
+        // 交换顺序
+        var newUnCheckedTodos = unCheckedTodos
+        let todo = newUnCheckedTodos.remove(at: sourceIndexPath.row)
+        newUnCheckedTodos.insert(todo, at: destinationIndexPath.row)
+    
+        self.sections[sourceIndexPath.section] =  SectionType.todo(todoBlock: todoBlock, todos: Array(newUnCheckedTodos), mode: .unchecked)
+    }
+    
+    
+    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+        let sourceSection = sourceIndexPath.section
+        let destSection = proposedDestinationIndexPath.section
+
+        if destSection < sourceSection {
+            return IndexPath(row: 0, section: sourceSection)
+        } else if destSection > sourceSection {
+            return IndexPath(row: self.tableView(tableView, numberOfRowsInSection:sourceSection)-1, section: sourceSection)
+        }
+        return proposedDestinationIndexPath
+//        return sourceIndexPath.section == proposedDestinationIndexPath.section ? proposedDestinationIndexPath : sourceIndexPath
+    }
+}
+
+// drag and drop
+extension EditorViewController: UITableViewDragDelegate, UITableViewDropDelegate  {
+    
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        //        let sectionType = self.sections[indexPath.section]
+        //        dragIndexPath =  indexPath
+        //        switch sectionType {
+        //        case .todo(_, let todos, let mode):
+        //            if mode == .unchecked {
+        //                return self.getDragItem(todo: todos[indexPath.row])
+        //            }else {
+        //                return []
+        //            }
+        //        default:
+        //            return []
+        //        }
+        return []
+    }
+    
+    private func getDragItem(todo: Todo) -> [UIDragItem] {
+        
+        guard let data = todo.id.data(using: .utf8) else { return [] }
+        
+        let itemProvider = NSItemProvider(item: data as NSData, typeIdentifier: kUTTypePlainText as String)
+        
+        return [UIDragItem(itemProvider: itemProvider)]
+    }
+    
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+        
+        //        print(dragIndexPath)
+        //        coordinator.session.loadObjects(ofClass: NSString.self) { items in
+        //            print(items)
+        //            guard let destinationIndexPath: IndexPath = coordinator.destinationIndexPath else { return }
+        //            guard let dragIndexPath: IndexPath = self.dragIndexPath else { return }
+        //
+        //            guard let unChckedTodos = self.sections[dragIndexPath.section].getTodos(todoMode: .unchecked) else { return }
+        //            let allTodoList = self.note.blocks[dragIndexPath.section].todos
+        //
+        //            guard let dragDataIndex = allTodoList.firstIndex(where: { $0.id == unChckedTodos[dragIndexPath.row].id }) else { return }
+        //            guard let desDataIndex = allTodoList.firstIndex(where: { $0.id == unChckedTodos[destinationIndexPath.row].id }) else { return }
+        //            Logger.info("dragDataIndex ",dragDataIndex)
+        //            Logger.info("desDataIndex ",desDataIndex)
+        //            allTodoList.move(from: dragDataIndex, to: desDataIndex)
+        //            self.tableView.reloadData()
+        //        }
+    }
 }
 
 // 键盘
@@ -500,8 +629,8 @@ extension EditorViewController {
 
 
 enum SectionType {
-    case title(title: String)
-    case text(text: String)
+    case title(titleBlock: Block)
+    case text(textBlock: Block)
     case todo(todoBlock: Block, todos: [Todo],mode: TodoMode)
     
     var identifier: String {
@@ -512,6 +641,19 @@ enum SectionType {
             return "text"
         case .todo:
             return "todo"
+        }
+    }
+    
+    
+    func getTodos(todoMode: TodoMode) -> [Todo]? {
+        switch self {
+        case .todo(_, let todos, let mode):
+            if mode == todoMode {
+                return todos
+            }
+            return nil
+        default:
+            return nil
         }
     }
 }

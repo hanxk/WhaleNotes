@@ -27,10 +27,17 @@ final class DBManager {
         
     }
     
+    func deleteNote( _ note: Note) {
+        try! database.write {
+            Logger.info("delete note",note.id)
+            database.delete(note)
+        }
+    }
+    
     func addNote( _ note: Note) {
         try! database.write {
-            database.add(note)
             Logger.info("add note",note.id)
+            database.add(note)
         }
     }
     
@@ -41,8 +48,14 @@ final class DBManager {
         }
     }
     
-    func update(callback:()->Void) {
+    func updateNoCommit(callback:()->Void) {
         try! database.write {
+            callback()
+        }
+    }
+    
+    func update(withoutNotifying: [NotificationToken]=[],callback:()->Void) {
+        try! database.write(withoutNotifying: withoutNotifying) {
             callback()
         }
     }
