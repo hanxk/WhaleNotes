@@ -56,6 +56,7 @@ class TodoBlockCell: UITableViewCell {
     
     lazy var chkbtn: UIButton = UIButton().then {
         $0.addTarget(self, action: #selector(self.handleChkButtonTapped), for: .touchUpInside)
+//        $0.backgroundColor = .red
     }
     
     lazy var textView: UITextView = UITextView().then {
@@ -89,19 +90,24 @@ class TodoBlockCell: UITableViewCell {
     
     private func setupUI() {
         
+        let topSpace:CGFloat = 5
+        let horizontalSpace:CGFloat = 6
+        
         self.contentView.addSubview(chkbtn)
         chkbtn.snp.makeConstraints { (make) in
-            make.width.height.equalTo(24)
-            make.top.equalToSuperview().offset(4)
-            make.leading.equalToSuperview().offset(EditorViewController.space - 2)
+            
+            make.width.equalTo(24+horizontalSpace*2)
+            make.height.equalTo(24)
+            make.top.equalToSuperview().offset(topSpace-2)
+            make.leading.equalToSuperview().offset(EditorViewController.space - 2 - horizontalSpace)
         }
         
         self.contentView.addSubview(textView)
         textView.snp.makeConstraints { (make) in
-            make.leading.equalTo(chkbtn.snp.trailing).offset(10)
+            make.leading.equalTo(chkbtn.snp.trailing).offset(2)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
-            make.top.equalToSuperview().offset(4)
-            make.bottom.equalToSuperview().offset(-4)
+            make.top.equalToSuperview().offset(topSpace)
+            make.bottom.equalToSuperview().offset(-topSpace)
         }
     }
     

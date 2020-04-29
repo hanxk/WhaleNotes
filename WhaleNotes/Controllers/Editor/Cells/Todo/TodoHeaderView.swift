@@ -50,6 +50,9 @@ class TodoHeaderView: UIView {
     }
     
     @objc private func handleAddButtonTapped() {
+        if self.todoBlock.todos.firstIndex(where: { $0.text.isEmpty }) != nil {
+            return
+        }
         DBManager.sharedInstance.update { [weak self] in
             if let self = self {
                 self.todoBlock.todos.insert(Todo(text: "", block: self.todoBlock),at: 0)
