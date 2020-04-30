@@ -11,6 +11,9 @@ import SnapKit
 import ContextMenu
 import RealmSwift
 import MobileCoreServices
+import TLPhotoPicker
+import RxSwift
+import MBProgressHUD
 
 class EditorViewController: UIViewController {
     
@@ -23,8 +26,15 @@ class EditorViewController: UIViewController {
     private var contentCell: TextBlockCell?
     private var todoBlockCell: TodoBlockCell?
     
+    private var imagesCell: ImageBlockCell?
     
-    private var note: Note!
+    
+    private var note: Note! {
+        didSet {
+            self.setupSectionsTypes(note: note)
+            self.tableView.reloadData()
+        }
+    }
     
     var createMode: CreateMode?
     
@@ -33,6 +43,8 @@ class EditorViewController: UIViewController {
     var isTodoExpand = true
     
     var dragIndexPath: IndexPath?
+    
+    private let disposeBag = DisposeBag()
     
     
     private var todoUnCheckedListNotifiToken: NotificationToken?
@@ -46,6 +58,7 @@ class EditorViewController: UIViewController {
         $0.register(TitleBlockCell.self, forCellReuseIdentifier: "title")
         $0.register(TextBlockCell.self, forCellReuseIdentifier:  "text")
         $0.register(TodoBlockCell.self, forCellReuseIdentifier: "todo")
+        $0.register(ImageBlockCell.self, forCellReuseIdentifier: "image")
         $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         
         
@@ -81,34 +94,23 @@ class EditorViewController: UIViewController {
         self.setupData()
     }
     
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHideNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+    @objc func rotated() {
+        self.imagesCell?.collectionView.reloadData()
+        self.imagesCell?.collectionView.collectionViewLayout.invalidateLayout()
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
         tableView.endEditing(true)
-        
-        //        if (self.isMovingFromParent || self.isBeingDismissed) { // 数据为空就删除
-        //            let unEmptyIndex = sections.firstIndex { (sectionType) -> Bool in
-        //                switch sectionType {
-        //                case .title(let titleBlock):
-        //                    return !titleBlock.title.isEmpty
-        //                case .text(let text):
-        //                    return !text.isEmpty
-        //                case .todo(_, let todos, _):
-        //                    return todos.count > 0
-        //                }
-        //            }
-        //            if unEmptyIndex == nil {
-        //                DBManager.sharedInstance.deleteNote(self.note)
-        //            }
-        //        }
     }
     
     private func setupUI() {
@@ -132,17 +134,18 @@ class EditorViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.setFirstResponder()
+        
     }
     
     private func setFirstResponder() {
         guard let createMode = createMode else { return }
-        if createMode == .text {
+        switch createMode {
+        case .text: 
             contentCell?.textView.becomeFirstResponder()
-            return
-        }
-        if createMode == .todo {
+        case .todo: 
             self.todoBlockCell?.textView.becomeFirstResponder()
-            return
+        default:
+            break
         }
     }
     
@@ -168,29 +171,68 @@ class EditorViewController: UIViewController {
 // 数据处理
 extension EditorViewController {
     
+    
+    
+    func generateNote(createMode: CreateMode) -> Note {
+        let note: Note = Note()
+        note.blocks.append(Block.newTitleBlock())
+        switch createMode {
+        case .text:
+            note.blocks.append(Block.newTextBlock())
+            break
+        case .todo:
+            note.blocks.append(Block.newTodoBlock(note: note))
+            break
+        case .image(let images):
+            note.blocks.append(Block.newImageBlock(images: generateImages(images: images)))
+            break
+        }
+        return note
+    }
+    
     private func setupData() {
         guard let createMode = self.createMode else {
             return
         }
-        let note = self.createNewNote(createMode: createMode)
-        noteNotificationToken = note.observe { [weak self] change in
-            switch change {
-            case .change(_):
-                Logger.info("change")
-            case .error(let error):
-                print("An error occurred: \(error)")
-            case .deleted:
-                print("The object was deleted.")
-            }
+        var workScheduler: ImmediateSchedulerType = MainScheduler.instance
+        if case .image = createMode {  // 耗时任务在子线程中
+            workScheduler = ConcurrentDispatchQueueScheduler(qos: .userInteractive)
+            self.showHud()
         }
-        self.setupSectionsTypes(note: note)
-        self.note = note
+        Observable<CreateMode>.just(createMode)
+            .observeOn(workScheduler)
+            .map({(createMode)  -> Note in
+                return self.generateNote(createMode: createMode)
+            })
+            .observeOn(MainScheduler.instance)
+            .subscribe {
+                if let note = $0.element {
+                    DBManager.sharedInstance.addNote(note)
+                    self.note = note
+                }
+                self.hideHUD()
+        }
+        .disposed(by: disposeBag)
+        
     }
     
-}
-
-// 数据处理-todo
-extension EditorViewController {
+    private func generateImages(images: [TLPHAsset]) -> [Image] {
+        var newImages: [Image] = []
+        for imageAsset in images {
+            let image = Image()
+            guard let  fullResolutionImage = imageAsset.fullResolutionImage,
+                 let originalFileName = imageAsset.originalFileName else { continue }
+            let nameArray = originalFileName.split(separator: ".")
+            let imageExtension = nameArray.count > 0 ? String(nameArray[nameArray.count-1]).lowercased() : "png"
+            image.extention = imageExtension
+            let isSuccess =  ImageUtil.sharedInstance.saveImage(key: image.id,imageExtension: imageExtension, image: fullResolutionImage)
+            if isSuccess {
+                newImages.append(image)
+            }
+        }
+        return newImages
+    }
+    
     
     private func setupSectionsTypes(note: Note) {
         for block in note.blocks {
@@ -202,10 +244,16 @@ extension EditorViewController {
             case .todo:
                 self.setupTodoSections(todoBlock: block)
             case .image:
-                break
+                self.sections.append(SectionType.image(imageBlock: block))
             }
         }
     }
+    
+}
+
+// 数据处理-todo
+extension EditorViewController {
+    
     
     private func setupTodoSections(todoBlock: Block) {
         self.todoUnCheckedListNotifiToken = observeTodoList(todoBlock: todoBlock, todoMode: .unchecked)
@@ -323,24 +371,6 @@ extension EditorViewController {
         }
     }
     
-    
-    private func createNewNote(createMode: CreateMode) -> Note {
-        let note: Note = Note()
-        note.blocks.append(Block.newTitleBlock())
-        switch createMode {
-        case .text:
-            note.blocks.append(Block.newTextBlock())
-            break
-        case .image:
-            note.blocks.append(Block.newImageBlock())
-            break
-        case .todo:
-            note.blocks.append(Block.newTodoBlock(note: note))
-            break
-        }
-        DBManager.sharedInstance.addNote(note)
-        return note
-    }
 }
 
 extension EditorViewController: UITableViewDataSource {
@@ -353,6 +383,7 @@ extension EditorViewController: UITableViewDataSource {
             case .checked:
                 return self.isTodoExpand ? todos.count : 0
             }
+            
         default:
             return 1
         }
@@ -399,6 +430,11 @@ extension EditorViewController: UITableViewDataSource {
         case .todo(let todoblock,let todos,_):
             let todoCell = cell as! TodoBlockCell
             self.setupTodoCell(todoCell: todoCell, todos: todos, todoBlock: todoblock, indexPath: indexPath)
+            break
+        case .image(imageBlock: let imageBlock):
+            let imagesCell = cell as! ImageBlockCell
+            imagesCell.imageBlock = imageBlock
+            self.imagesCell = imagesCell
             break
         }
         return cell
@@ -459,12 +495,11 @@ extension EditorViewController: UITableViewDataSource {
 extension EditorViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        //        let block = note.blocks[indexPath.section]
-        //        if block.blockType == .image {
-        //
-        //            let itemSize = (UIScreen.main.bounds.size.width - EditorViewController.space*2 - EditorViewController.cellSpace)/2
-        //            return itemSize
-        //        }
+        let block = note.blocks[indexPath.section]
+        if block.blockType == .image {
+            // 计算 collectionview 高度
+            return ImageBlockCell.calculateCellHeight(imageBlock: block)
+        }
         return UITableView.automaticDimension
     }
     
@@ -507,7 +542,7 @@ extension EditorViewController: UITableViewDelegate {
         var newUnCheckedTodos = unCheckedTodos
         let todo = newUnCheckedTodos.remove(at: sourceIndexPath.row)
         newUnCheckedTodos.insert(todo, at: destinationIndexPath.row)
-    
+        
         self.sections[sourceIndexPath.section] =  SectionType.todo(todoBlock: todoBlock, todos: Array(newUnCheckedTodos), mode: .unchecked)
     }
     
@@ -515,14 +550,13 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
         let sourceSection = sourceIndexPath.section
         let destSection = proposedDestinationIndexPath.section
-
+        
         if destSection < sourceSection {
             return IndexPath(row: 0, section: sourceSection)
         } else if destSection > sourceSection {
             return IndexPath(row: self.tableView(tableView, numberOfRowsInSection:sourceSection)-1, section: sourceSection)
         }
         return proposedDestinationIndexPath
-//        return sourceIndexPath.section == proposedDestinationIndexPath.section ? proposedDestinationIndexPath : sourceIndexPath
     }
 }
 
@@ -530,18 +564,6 @@ extension EditorViewController: UITableViewDelegate {
 extension EditorViewController: UITableViewDragDelegate, UITableViewDropDelegate  {
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        //        let sectionType = self.sections[indexPath.section]
-        //        dragIndexPath =  indexPath
-        //        switch sectionType {
-        //        case .todo(_, let todos, let mode):
-        //            if mode == .unchecked {
-        //                return self.getDragItem(todo: todos[indexPath.row])
-        //            }else {
-        //                return []
-        //            }
-        //        default:
-        //            return []
-        //        }
         return []
     }
     
@@ -632,6 +654,7 @@ enum SectionType {
     case title(titleBlock: Block)
     case text(textBlock: Block)
     case todo(todoBlock: Block, todos: [Todo],mode: TodoMode)
+    case image(imageBlock: Block)
     
     var identifier: String {
         switch self {
@@ -641,6 +664,8 @@ enum SectionType {
             return "text"
         case .todo:
             return "todo"
+        case .image:
+            return "image"
         }
     }
     
@@ -667,5 +692,5 @@ enum TodoMode {
 enum CreateMode {
     case text
     case todo
-    case image
+    case image(images: [TLPHAsset])
 }

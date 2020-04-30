@@ -12,6 +12,7 @@ import SnapKit
 import Then
 import ContextMenu
 import PopMenu
+import TLPhotoPicker
 
 class HomeViewController: UIViewController {
     
@@ -24,6 +25,11 @@ class HomeViewController: UIViewController {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.setupFloatButtons()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
     }
     
 }
@@ -133,34 +139,48 @@ extension HomeViewController {
     }
     
     @objc func btnNewNoteTapped (sender:UIButton) {
-        self.openNoteEditor(createMode: .text)
+        //        self.openNoteEditor(createMode: .text)
+        
     }
     
-    private func openNoteEditor(createMode: CreateMode) {
+    private func openNoteEditor(type: MenuType) {
+        
+        switch type {
+        case .text:
+            self.openEditor(createMode: .text)
+        case .todo:
+            self.openEditor(createMode: .todo)
+        case .image:
+            let viewController = TLPhotosPickerViewController()
+            viewController.delegate = self
+            let configure = TLPhotosPickerConfigure()
+            viewController.configure = configure
+            self.present(viewController, animated: true, completion: nil)
+        default:
+            break
+        }
+    }
+    
+    func openEditor(createMode: CreateMode) {
         let noteVC  = EditorViewController()
         noteVC.createMode = createMode
         navigationController?.pushViewController(noteVC, animated: true)
     }
+    
+    
     @objc func btnMoreTapped (sender:UIButton) {
         let popMenuVC = PopBlocksViewController()
-        popMenuVC.cellTapped = { [weak self] createMode in
+        popMenuVC.cellTapped = { [weak self] type in
             popMenuVC.dismiss(animated: true, completion: {
-                self?.openNoteEditor(createMode: createMode)
+                self?.openNoteEditor(type:type)
             })
         }
         ContextMenu.shared.show(
-          sourceViewController: self,
-          viewController: popMenuVC,
-          options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
-          sourceView: sender
+            sourceViewController: self,
+            viewController: popMenuVC,
+            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
+            sourceView: sender
         )
-//        let menuViewController = PopMenuViewController(actions: [
-//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil),
-//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil),
-//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil),
-//            PopMenuDefaultAction(title: "text", image: UIImage(systemName: "checkmark.square"), color: .brand, didSelect: nil)
-//        ])
-//        present(menuViewController, animated: true, completion: nil)
     }
     
     private func makeButton() -> UIButton {
@@ -175,5 +195,15 @@ extension HomeViewController {
         layer0.cornerRadius = 26
         layer0.backgroundColor = UIColor(red: 0.278, green: 0.627, blue: 0.957, alpha: 1).cgColor
         return btn
+    }
+}
+
+
+extension HomeViewController: TLPhotosPickerViewControllerDelegate {
+    func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
+        // use selected order, fullresolution image
+        //        self.selectedAssets = withTLPHAssets
+        self.openEditor(createMode: .image(images: withTLPHAssets))
+        return true
     }
 }

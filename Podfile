@@ -12,6 +12,10 @@ target 'WhaleNotes' do
   pod 'RealmSwift'
   pod 'ContextMenu'
   pod 'NewPopMenu', '~> 2.0'
+  pod "TLPhotoPicker"
+  pod 'RxSwift', '~> 5'
+  pod 'RxCocoa', '~> 5'
+  pod 'MBProgressHUD', '~> 1.2.0'
+  pod 'Kingfisher', '~> 5.0'
   # Pods for WhaleNotes
-
 end

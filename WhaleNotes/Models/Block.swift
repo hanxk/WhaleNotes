@@ -8,6 +8,7 @@
 
 import Foundation
 import RealmSwift
+import Kingfisher
 
 class Block: Object{
     @objc dynamic var id: String = UUID().uuidString
@@ -43,9 +44,10 @@ class Block: Object{
         return block
     }
     
-    static func newImageBlock() -> Block {
+    static func newImageBlock(images: [Image]) -> Block {
         let block = Block()
         block.type = BlockType.image.rawValue
+        block.images.append(objectsIn: images)
         return block
     }
     
@@ -59,7 +61,23 @@ class Block: Object{
 
 
 class Image: Object {
+    @objc dynamic var id: String = UUID().uuidString
+    @objc dynamic var extention: String = ""
     
+    lazy var  localPath: URL = {
+        return ImageUtil.sharedInstance.dirPath.appendingPathComponent(id+"."+extention)
+    }()
+    
+    lazy var localPathProvider: LocalFileImageDataProvider = {
+        let fileURL = URL(fileURLWithPath: localPath.absoluteString)
+        let provider = LocalFileImageDataProvider(fileURL: fileURL)
+        return provider
+    }()
+    
+    
+    override static func ignoredProperties() -> [String] {
+        return ["localPath","localPathProvider"]
+    }
 }
 
 class Todo: Object {

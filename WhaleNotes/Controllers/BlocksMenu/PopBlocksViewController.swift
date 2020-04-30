@@ -12,13 +12,14 @@ class PopBlocksViewController: UIViewController {
     
     private let cellHeight: CGFloat = 55
     
-    private var items:[BlockItem] = [
-        BlockItem(label: "文本", icon: "textbox", createMode: .text),
-        BlockItem(label: "清单", icon: "checkmark.square", createMode: .todo),
-        BlockItem(label: "图片", icon: "photo", createMode: .image),
+    private var items:[MenuItem] = [
+        MenuItem(label: "文本", icon: "textbox", type: .text),
+        MenuItem(label: "待办事项", icon: "checkmark.square", type: .todo),
+        MenuItem(label: "从相册选择", icon: "photo.on.rectangle", type: .image),
+        MenuItem(label: "拍照", icon: "camera", type: .camera),
     ]
     
-    var cellTapped:((CreateMode) -> Void)?
+    var cellTapped:((MenuType) -> Void)?
     
     private lazy var tableView = UITableView().then { [weak self] in
         //        $0.separatorColor = .clear
@@ -33,8 +34,7 @@ class PopBlocksViewController: UIViewController {
     }
     
     private func setupUI() {
-        
-        preferredContentSize = CGSize(width: 120, height: items.count * Int(cellHeight) - 44)
+        preferredContentSize = CGSize(width: caculateTextWidth(), height: CGFloat(items.count) * cellHeight - 44)
         self.view.backgroundColor = .blue
         
         self.view.addSubview(tableView)
@@ -48,13 +48,31 @@ class PopBlocksViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
+    private func caculateTextWidth() -> CGFloat {
+        var longestText = ""
+        items.forEach {
+            if longestText.count < $0.label.count {
+                longestText =  $0.label
+            }
+        }
+        return BlockMenuCell.caculateTextWidth(text: longestText)
+    }
+    
 }
 
-struct BlockItem  {
+struct MenuItem  {
     var label: String
     var icon: String
-    var createMode: CreateMode
+    var type: MenuType
 }
+
+enum MenuType {
+    case text
+    case image
+    case camera
+    case todo
+}
+
 
 
 extension PopBlocksViewController: UITableViewDataSource{
@@ -65,7 +83,7 @@ extension PopBlocksViewController: UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BlockMenuCell", for: indexPath) as! BlockMenuCell
-        cell.blockItem = items[indexPath.row]
+        cell.menuItem = items[indexPath.row]
         return cell
     }
     
@@ -80,7 +98,7 @@ extension PopBlocksViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = self.items[indexPath.row]
-        self.cellTapped?(item.createMode)
+        self.cellTapped?(item.type)
     }
 
 }

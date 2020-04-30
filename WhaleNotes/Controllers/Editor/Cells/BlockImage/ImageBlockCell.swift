@@ -8,33 +8,40 @@
 
 import UIKit
 
-class BlockImageCell: UITableViewCell {
+class ImageBlockCell: UITableViewCell {
     
-     let flowLayout = UICollectionViewFlowLayout().then {
-          $0.scrollDirection = .vertical
-//          $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-      }
-
-    let itemSize = (UIScreen.main.bounds.size.width - EditorViewController.space*2 - EditorViewController.cellSpace)/2
+    private static let cellCountPerRow = 2
     
-     lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
-         
-         guard let self = self else {return}
-         
-         $0.delegate = self
-         $0.dataSource = self
-         $0.isScrollEnabled = true
-         $0.alwaysBounceVertical = true
-         
-         $0.showsVerticalScrollIndicator = true
-         $0.showsHorizontalScrollIndicator  = false
-         $0.backgroundColor = UIColor.white
-         $0.allowsSelection = true
-         //        $0.backgroundColor   = .blue
-         
-         $0.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
-         
-     }
+    let flowLayout = UICollectionViewFlowLayout().then {
+        $0.scrollDirection = .vertical
+    }
+    
+    var imageBlock:Block! {
+        didSet {
+            self.collectionView.reloadData()
+        }
+    }
+    
+    static var itemSize: CGFloat {
+        get {
+            let sss: CGFloat  = UIScreen.main.bounds.size.width - EditorViewController.space*CGFloat(cellCountPerRow) - EditorViewController.cellSpace
+            return  sss / CGFloat(cellCountPerRow)
+        }
+    }
+    
+    
+    lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
+        
+        guard let self = self else {return}
+        
+        $0.delegate = self
+        $0.dataSource = self
+        $0.isScrollEnabled = false
+        $0.allowsSelection = false
+        $0.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
+        $0.backgroundColor = .white
+        
+    }
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -49,44 +56,43 @@ class BlockImageCell: UITableViewCell {
     private func setupCollectionView() {
         self.contentView.addSubview(collectionView)
         collectionView.snp.makeConstraints { (make) in
-            
-            make.top.equalToSuperview()
-//            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
-            make.leading.trailing.equalToSuperview()
-//            make.edges.equalToSuperview()
-            make.height.equalTo(self.itemSize)
+            make.edges.equalToSuperview()
         }
     }
     
-     
+    static func calculateCellHeight(imageBlock: Block) -> CGFloat {
+        let imagesCount = imageBlock.images.count
+        let rows = imagesCount % cellCountPerRow +  imagesCount / cellCountPerRow
+        Logger.info("哈哈哈 " ,ImageBlockCell.itemSize)
+        return CGFloat(rows) * ImageBlockCell.itemSize
+    }
 }
 
-extension BlockImageCell: UICollectionViewDataSource {
+extension ImageBlockCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath) as! ImageCell
+        cell.image = imageBlock.images[indexPath.row]
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return imageBlock.images.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-    
-    
-    
 }
 
 // MARK: - Collection View Flow Layout Delegate
-extension BlockImageCell : UICollectionViewDelegateFlowLayout {
+extension ImageBlockCell : UICollectionViewDelegateFlowLayout {
     
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
+        var itemSize =  ImageBlockCell.itemSize
+        Logger.info("cell height", itemSize)
         return CGSize(width: itemSize, height: itemSize)
     }
     
@@ -94,19 +100,15 @@ extension BlockImageCell : UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-
-        return UIEdgeInsets.init()
+        return UIEdgeInsets(top: 0,left: EditorViewController.space,bottom: 0,right:  EditorViewController.space)
     }
     
-    // 4
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        
-        
-        return 0
+        return EditorViewController.cellSpace
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return EditorViewController.cellSpace

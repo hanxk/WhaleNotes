@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		072F6FF56795E2A22DB4EFBA /* Pods_WhaleNotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */; };
+		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
+		18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18494930245AB416001B61C3 /* UIViewController+Ex.swift */; };
 		1865AEF4244C5EF50006B48D /* ColorTheme.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */; };
 		1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AEF5244C61F80006B48D /* UIColor+Ex.swift */; };
 		1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AEF8244C79870006B48D /* EditorViewController.swift */; };
@@ -23,7 +25,7 @@
 		1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF19244EDF790006B48D /* UIView+Ex.swift */; };
 		1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF1B244F43D30006B48D /* UITableView+Ex.swift */; };
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
-		188328F024531F530097A01D /* BlockImagecCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328EF24531F530097A01D /* BlockImagecCell.swift */; };
+		188328F024531F530097A01D /* ImageBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328EF24531F530097A01D /* ImageBlockCell.swift */; };
 		188328F2245320740097A01D /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F1245320740097A01D /* ImageCell.swift */; };
 		188328F424540F910097A01D /* DBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F324540F910097A01D /* DBManager.swift */; };
 		188328F624540FB40097A01D /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F524540FB40097A01D /* Logger.swift */; };
@@ -44,6 +46,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
+		1849491F245A8B81001B61C3 /* WhaleNotes-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhaleNotes-bridge.h"; sourceTree = "<group>"; };
+		18494930245AB416001B61C3 /* UIViewController+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Ex.swift"; sourceTree = "<group>"; };
 		1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ColorTheme.xcassets; sourceTree = "<group>"; };
 		1865AEF5244C61F80006B48D /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
 		1865AEF8244C79870006B48D /* EditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewController.swift; sourceTree = "<group>"; };
@@ -59,7 +64,7 @@
 		1865AF19244EDF790006B48D /* UIView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF1B244F43D30006B48D /* UITableView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
-		188328EF24531F530097A01D /* BlockImagecCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockImagecCell.swift; sourceTree = "<group>"; };
+		188328EF24531F530097A01D /* ImageBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageBlockCell.swift; sourceTree = "<group>"; };
 		188328F1245320740097A01D /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		188328F324540F910097A01D /* DBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBManager.swift; sourceTree = "<group>"; };
 		188328F524540FB40097A01D /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -104,6 +109,7 @@
 				1865AF11244D63700006B48D /* Ditionary+Ex.swift */,
 				1865AF19244EDF790006B48D /* UIView+Ex.swift */,
 				1865AF1B244F43D30006B48D /* UITableView+Ex.swift */,
+				18494930245AB416001B61C3 /* UIViewController+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -112,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				188328F524540FB40097A01D /* Logger.swift */,
+				1849490D24596E26001B61C3 /* ImagesUtil.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -178,7 +185,7 @@
 		188328EE24531F260097A01D /* BlockImage */ = {
 			isa = PBXGroup;
 			children = (
-				188328EF24531F530097A01D /* BlockImagecCell.swift */,
+				188328EF24531F530097A01D /* ImageBlockCell.swift */,
 				188328F1245320740097A01D /* ImageCell.swift */,
 			);
 			path = BlockImage;
@@ -254,6 +261,7 @@
 				18E956812449A3F2003755BF /* Info.plist */,
 				18E956792449A3F0003755BF /* WhaleNotes.xcdatamodeld */,
 				1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */,
+				1849491F245A8B81001B61C3 /* WhaleNotes-bridge.h */,
 			);
 			name = SupportFiles;
 			sourceTree = "<group>";
@@ -402,8 +410,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
+				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
 				1865AEFC244C7D1C0006B48D /* TitleBlockCell.swift in Sources */,
-				188328F024531F530097A01D /* BlockImagecCell.swift in Sources */,
+				188328F024531F530097A01D /* ImageBlockCell.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
 				18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */,
@@ -424,6 +433,7 @@
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
 				18C59C6F2455AFF700F5CBB0 /* TodoCompleteHeaderView.swift in Sources */,
+				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
 				1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */,
 				188328F8245410810097A01D /* Block.swift in Sources */,
 				188328F424540F910097A01D /* DBManager.swift in Sources */,
@@ -574,6 +584,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.hanxk.WhaleNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "WhaleNotes/WhaleNotes-bridge.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -593,6 +604,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.hanxk.WhaleNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "WhaleNotes/WhaleNotes-bridge.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -11,15 +11,18 @@ import SnapKit
 
 class BlockMenuCell: UITableViewCell {
     
-    var blockItem: BlockItem! {
+    var menuItem: MenuItem! {
         didSet {
-            labelView.text = blockItem.label
-            iconView.image = UIImage(systemName: blockItem.icon)
+            labelView.text = menuItem.label
+            iconView.image = UIImage(systemName: menuItem.icon)
         }
     }
     
+    private static let labelTextFont = UIFont.systemFont(ofSize: 15)
+    
     private lazy var labelView: UILabel = UILabel().then {
         $0.textColor = .primaryText
+        $0.font = BlockMenuCell.labelTextFont
     }
     
     private lazy var iconView: UIImageView = UIImageView().then {
@@ -52,6 +55,12 @@ class BlockMenuCell: UITableViewCell {
             make.leading.equalTo(iconView.snp.trailing).offset(14)
             make.trailing.equalToSuperview().offset(-16)
         }
+    }
+    
+    
+    static func caculateTextWidth(text: String) -> CGFloat {
+        let size = text.size(withAttributes:[.font: BlockMenuCell.labelTextFont])
+        return size.width + 58 + 14
     }
     
 }
