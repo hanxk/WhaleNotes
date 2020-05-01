@@ -22,6 +22,14 @@ class ImageBlockCell: UITableViewCell {
         }
     }
     
+    static var perItemSize: CGSize {
+        get {
+            let width: CGFloat  = UIScreen.main.bounds.size.width - EditorViewController.space*CGFloat(cellCountPerRow) - EditorViewController.cellSpace
+            let height = width*9/16
+            return CGSize(width: width, height: height)
+        }
+    }
+    
     static var itemSize: CGFloat {
         get {
             let sss: CGFloat  = UIScreen.main.bounds.size.width - EditorViewController.space*CGFloat(cellCountPerRow) - EditorViewController.cellSpace
@@ -91,9 +99,10 @@ extension ImageBlockCell : UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        var itemSize =  ImageBlockCell.itemSize
-        Logger.info("cell height", itemSize)
-        return CGSize(width: itemSize, height: itemSize)
+//        let 
+//        var itemSize =  ImageBlockCell.perItemSize
+//        Logger.info("cell height", itemSize)
+        return ImageBlockCell.perItemSize
     }
     
     
