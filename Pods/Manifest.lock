@@ -1,5 +1,6 @@
 PODS:
   - ContextMenu (0.4.0)
+  - DeepDiff (2.3.1)
   - Kingfisher (5.13.4):
     - Kingfisher/Core (= 5.13.4)
   - Kingfisher/Core (5.13.4)
@@ -27,6 +28,7 @@ PODS:
 
 DEPENDENCIES:
   - ContextMenu
+  - DeepDiff
   - Kingfisher (~> 5.0)
   - MBProgressHUD (~> 1.2.0)
   - NewPopMenu (~> 2.0)
@@ -43,6 +45,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - ContextMenu
+    - DeepDiff
     - Kingfisher
     - MBProgressHUD
     - NewPopMenu
@@ -60,6 +63,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   ContextMenu: f835e09a93f1c28c631b76ee94396d9570397fd1
+  DeepDiff: e5ae6c50d0321568e4508cec5930b9f10bb293fc
   Kingfisher: d2279a7abece3c7f25a80cd2b7f363ca5cf3f44c
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   NewPopMenu: c6129e08e8192f6257ceb5f9a4357e1b59c6e2e7
@@ -75,6 +79,6 @@ SPEC CHECKSUMS:
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
   TLPhotoPicker: a5c339732b8326bb16cbb4e00ed01a86f2bfbbb3
 
-PODFILE CHECKSUM: 0b2ffaa62d857341395cc85e87a17c8ee9efc5d1
+PODFILE CHECKSUM: 9eeaf39795559741555265bc8a2b90f1bb6faa98
 
 COCOAPODS: 1.9.1

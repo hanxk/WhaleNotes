@@ -22,9 +22,14 @@ class ImageCell: UICollectionViewCell {
     
     let imageView  = UIImageView()
     
-    var image:Image! {
+    var imageBlock:Block! {
         didSet {
-            imageView.kf.setImage(with: image.localPathProvider)
+            let localPathProvider: LocalFileImageDataProvider = {
+                let fileURL = URL(fileURLWithPath: ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.imageName).absoluteString)
+                let provider = LocalFileImageDataProvider(fileURL: fileURL)
+                return provider
+            }()
+            imageView.kf.setImage(with: localPathProvider)
         }
     }
     

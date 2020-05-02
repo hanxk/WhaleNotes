@@ -13,14 +13,22 @@ import Kingfisher
 class Block: Object{
     @objc dynamic var id: String = UUID().uuidString
     @objc dynamic var type: String  = ""
-    @objc dynamic var title: String = ""
-    @objc dynamic var content: String = ""
-    @objc dynamic var text: String = ""
-    @objc dynamic var createAt: Date = Date()
-    @objc dynamic var sort: Int = 0
-    let images =  List<Image>()
-    let todos =  List<Todo>()
     
+    
+    @objc dynamic var text: String = ""
+    
+    // image
+    @objc dynamic var imageName: String = ""
+    
+    // todo
+    @objc dynamic var isChecked: Bool = false
+    
+    
+    // image: url
+    @objc dynamic var source: String = ""
+    
+    
+    @objc dynamic var createAt: Date = Date()
     
     lazy var blockType:BlockType = BlockType(rawValue: type)!
     
@@ -34,70 +42,66 @@ class Block: Object{
     
     static func newTitleBlock() -> Block {
         let block = Block()
+        block.text = ""
         block.type = BlockType.title.rawValue
         return block
     }
     
     static func newTextBlock() -> Block {
         let block = Block()
+        block.text = ""
         block.type = BlockType.text.rawValue
         return block
     }
     
-    static func newImageBlock(images: [Image]) -> Block {
+    static func newImageBlock(imageUrl: String) -> Block {
         let block = Block()
         block.type = BlockType.image.rawValue
-        block.images.append(objectsIn: images)
+        block.source = imageUrl
         return block
     }
     
-    static func newTodoBlock(note: Note) -> Block {
+    static func newTodoBlock(text: String = "") -> Block {
         let block = Block()
         block.type = BlockType.todo.rawValue
-        block.todos.append(Todo(text: "",block: block))
+        block.isChecked = false
+        block.text = ""
         return block
     }
 }
 
 
-class Image: Object {
-    @objc dynamic var id: String = UUID().uuidString
-    @objc dynamic var extention: String = ""
-    
-    lazy var  localPath: URL = {
-        return ImageUtil.sharedInstance.dirPath.appendingPathComponent(id+"."+extention)
-    }()
-    
-    lazy var localPathProvider: LocalFileImageDataProvider = {
-        let fileURL = URL(fileURLWithPath: localPath.absoluteString)
-        let provider = LocalFileImageDataProvider(fileURL: fileURL)
-        return provider
-    }()
-    
-    
-    override static func ignoredProperties() -> [String] {
-        return ["localPath","localPathProvider"]
-    }
-}
-
-class Todo: Object {
-    @objc dynamic var id: String = UUID().uuidString
-    @objc dynamic var isChecked: Bool = false
-    @objc dynamic var text: String = ""
-    @objc dynamic var sort: Int = 0
-    @objc dynamic var createAt: Date = Date()
-    @objc dynamic var block: Block?
-    
-    override static func primaryKey() -> String?{
-        return "id"
-    }
-    
-    convenience init(text: String,block: Block) {
-        self.init()
-        self.text = text
-        self.block = block
-    }
-}
+//class Image: Object {
+//    @objc dynamic var extention: String = ""
+//    @objc dynamic var block: Block?
+//
+//    lazy var  localPath: URL = {
+//        return ImageUtil.sharedInstance.dirPath.appendingPathComponent(block!.id+"."+extention)
+//    }()
+//
+//    lazy var localPathProvider: LocalFileImageDataProvider = {
+//        let fileURL = URL(fileURLWithPath: localPath.absoluteString)
+//        let provider = LocalFileImageDataProvider(fileURL: fileURL)
+//        return provider
+//    }()
+//
+//
+//    override static func ignoredProperties() -> [String] {
+//        return ["localPath","localPathProvider"]
+//    }
+//}
+//
+//class Todo: Object {
+//    @objc dynamic var isChecked: Bool = false
+//    @objc dynamic var text: String = ""
+//    @objc dynamic var block: Block?
+//
+//    convenience init(text: String,block: Block) {
+//        self.init()
+//        self.text = text
+//        self.block = block
+//    }
+//}
 
 enum BlockType: String {
     case title = "title"

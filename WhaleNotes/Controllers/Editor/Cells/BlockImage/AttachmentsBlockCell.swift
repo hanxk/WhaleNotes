@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ImageBlockCell: UITableViewCell {
+class AttachmentsBlockCell: UITableViewCell {
     
     private static let cellCountPerRow = 2
     
@@ -16,11 +16,12 @@ class ImageBlockCell: UITableViewCell {
         $0.scrollDirection = .vertical
     }
     
-    var imageBlock:Block! {
-        didSet {
-            self.collectionView.reloadData()
-        }
-    }
+//    var imageBlock:Block! {
+//        didSet {
+//            self.collectionView.reloadData()
+//        }
+//    }
+    var blocks:[Block]!
     
     static var perItemSize: CGSize {
         get {
@@ -46,7 +47,7 @@ class ImageBlockCell: UITableViewCell {
         $0.dataSource = self
         $0.isScrollEnabled = false
         $0.allowsSelection = false
-        $0.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
+        $0.register(ImageCell.self, forCellWithReuseIdentifier: AttachmentType.image.rawValue)
         $0.backgroundColor = .white
         
     }
@@ -68,23 +69,24 @@ class ImageBlockCell: UITableViewCell {
         }
     }
     
-    static func calculateCellHeight(imageBlock: Block) -> CGFloat {
-        let imagesCount = imageBlock.images.count
-        let rows = imagesCount % cellCountPerRow +  imagesCount / cellCountPerRow
-        Logger.info("哈哈哈 " ,ImageBlockCell.itemSize)
-        return CGFloat(rows) * ImageBlockCell.itemSize
+    static func calculateCellHeight(blocks: [Block]) -> CGFloat {
+//        let imagesCount = imageBlock.images.count
+//        let rows = imagesCount % cellCountPerRow +  imagesCount / cellCountPerRow
+//        Logger.info("哈哈哈 " ,AttachmentsBlockCell.itemSize)
+//        return CGFloat(rows) * AttachmentsBlockCell.itemSize
+        return 100
     }
 }
 
-extension ImageBlockCell: UICollectionViewDataSource {
+extension AttachmentsBlockCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath) as! ImageCell
-        cell.image = imageBlock.images[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentType.image.rawValue, for: indexPath) as! ImageCell
+        cell.imageBlock = self.blocks[indexPath.row]
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageBlock.images.count
+        return blocks.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -92,17 +94,21 @@ extension ImageBlockCell: UICollectionViewDataSource {
     }
 }
 
+enum AttachmentType:String {
+    case image = "image"
+}
+
 // MARK: - Collection View Flow Layout Delegate
-extension ImageBlockCell : UICollectionViewDelegateFlowLayout {
+extension AttachmentsBlockCell : UICollectionViewDelegateFlowLayout {
     
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-//        let 
+//        let
 //        var itemSize =  ImageBlockCell.perItemSize
 //        Logger.info("cell height", itemSize)
-        return ImageBlockCell.perItemSize
+        return AttachmentsBlockCell.perItemSize
     }
     
     

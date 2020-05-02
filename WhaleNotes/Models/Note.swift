@@ -13,16 +13,24 @@ class Note: Object {
     @objc dynamic var id: String = UUID().uuidString
     @objc dynamic var createAt: Date = Date()
     @objc dynamic var updateAt: Date = Date()
-    let blocks =  List<Block>()
+    
+    @objc dynamic var titleBlock: Block? = nil
+    @objc dynamic var textBlock: Block? = nil
+    
+    @objc dynamic var isTodoExists = false
+    
+    let todoBlocks  = List<Block> ()
+    
+    // 附件： image, video, link
+    let attachBlocks =  List<Block>()
     
     override static func primaryKey() -> String? {
         return "id"
     }
     
-
-    var todoBlock: Block? {
-        return blocks.first { (block) -> Bool in
-            return block.blockType == .todo
-        }
-    }
+//    var todoBlock: Block? {
+//        return blocks.first { (block) -> Bool in
+//            return block.blockType == .todo
+//        }
+//    }
 }

@@ -16,14 +16,14 @@ class TodoBlockCell: UITableViewCell {
     lazy var checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill",withConfiguration: config)!
     
     var cellHeight: CGFloat = 0
-    var todo: Todo! {
+    var todoBlock: Block!{
         didSet {
-            textView.text = todo.text
-            isChecked = todo.isChecked
-            isEmpty = todo.text.isEmpty
+            textView.text = todoBlock.text
+            isChecked = todoBlock.isChecked
+            isEmpty = todoBlock.text.isEmpty
         }
     }
-    var todoBlock: Block!
+    var note:Note!
     
     var isChecked: Bool = false {
         didSet {
@@ -71,7 +71,8 @@ class TodoBlockCell: UITableViewCell {
         $0.delegate = self
     }
     var textChanged: ((UITextView) -> Void)?
-    var textShouldBeginChange: ((UITextView) -> Void)?
+    var textShouldBeginChange: (() -> Void)?
+    var textViewShouldEndEditing: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -116,8 +117,8 @@ class TodoBlockCell: UITableViewCell {
         self.textView.resignFirstResponder()
         DBManager.sharedInstance.update { [weak self] in
             guard let self = self else { return }
-            self.todo.text = textView.text.trimmingCharacters(in: .whitespaces)
-            self.todo.isChecked = self.isChecked
+            self.todoBlock.text = textView.text.trimmingCharacters(in: .whitespaces)
+            self.todoBlock.isChecked = self.isChecked
         }
     }
 }
@@ -128,14 +129,17 @@ extension TodoBlockCell: UITextViewDelegate {
         isEmpty = textView.text.isEmpty
     }
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        textShouldBeginChange?(textView)
+        textShouldBeginChange?()
         return true
     }
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        textViewShouldEndEditing?()
         if isEmpty {
-            DBManager.sharedInstance.deleteTodo(todo)
+            self.deleteTodo()
+            return true
         }
+        self.updateTodo()
         return true
     }
     
@@ -149,6 +153,13 @@ extension TodoBlockCell: UITextViewDelegate {
             return false
         }
         return true
+    }
+    
+    private func updateTodo() {
+        DBManager.sharedInstance.update { [weak self] in
+            guard let self = self else { return }
+            self.todoBlock.text = self.textView.text.trimmingCharacters(in: .whitespaces)
+        }
     }
     
 }
@@ -170,10 +181,10 @@ extension TodoBlockCell {
             Logger.info("新增todo")
             DBManager.sharedInstance.update { [weak self] in
                 guard let self = self else { return }
-                self.todo.text = text
-                let todos = self.todoBlock.todos
-                if let index =  todos.firstIndex(of: self.todo) {
-                    todos.insert(Todo(text: "", block: todoBlock), at: index+1)
+                self.todoBlock.text = text
+                let todos = self.note.todoBlocks
+                if let index =  todos.firstIndex(of: self.todoBlock) {
+                    todos.insert(Block.newTodoBlock(), at: index+1)
                 }
             }
         }
@@ -183,8 +194,9 @@ extension TodoBlockCell {
         Logger.info("删除todo")
         DBManager.sharedInstance.update { [weak self] in
             guard let self = self else { return }
-            if let index = self.todoBlock.todos.firstIndex(of: self.todo) {
-                self.todoBlock.todos.remove(at: index)
+            let todos = self.note.todoBlocks
+            if let index = todos.firstIndex(of: self.todoBlock) {
+                todos.remove(at: index)
             }
         }
     }

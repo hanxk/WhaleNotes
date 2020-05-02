@@ -23,7 +23,8 @@ class TodoHeaderView: UIView {
         $0.tintColor  = .thirdColor
     }
     
-    var todoBlock: Block!
+    var note:Note!
+    var addButtonTapped:(() ->Void)?
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -48,14 +49,14 @@ class TodoHeaderView: UIView {
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
         }
     }
-    
     @objc private func handleAddButtonTapped() {
-        if self.todoBlock.todos.firstIndex(where: { $0.text.isEmpty }) != nil {
+        self.addButtonTapped?() // 防止还有未保存的 todo
+        if note.todoBlocks.firstIndex(where: { $0.text.isEmpty && !$0.isChecked }) != nil {
             return
         }
         DBManager.sharedInstance.update { [weak self] in
             if let self = self {
-                self.todoBlock.todos.insert(Todo(text: "", block: self.todoBlock),at: 0)
+                self.note.todoBlocks.insert(Block.newTodoBlock(),at: 0)
             }
         }
     }

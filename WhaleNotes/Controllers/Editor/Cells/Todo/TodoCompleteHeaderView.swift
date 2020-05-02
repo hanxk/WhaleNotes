@@ -20,9 +20,11 @@ class TodoCompleteHeaderView: UIView {
     }
     var notificationToken: NotificationToken?
     var isExpand = true
-    var todoBlock: Block! {
+    
+    
+    var note:Note! {
         didSet {
-            let todoResults = todoBlock.todos.filter("isChecked = true")
+            let todoResults = note.todoBlocks.filter("isChecked = true")
             let notificationToken = todoResults.observe { [weak self] (changes) in
                 guard let self  = self else { return }
                 let expandStr = self.isExpand ? "隐藏" : "显示"
@@ -30,9 +32,9 @@ class TodoCompleteHeaderView: UIView {
                 self.expandButton.setTitle(title, for: .normal)
             }
             self.notificationToken = notificationToken
-
         }
     }
+    
     var expandStateChanged:((Bool)->Void)?
     
     required init?(coder: NSCoder) {

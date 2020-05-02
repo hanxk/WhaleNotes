@@ -41,21 +41,9 @@ final class DBManager {
         }
     }
     
-    func deleteTodo(_ todo: Todo) {
-        try! database.write {
-            Logger.info("delete todo",todo.id)
-            database.delete(todo)
-        }
-    }
-    
-    func updateNoCommit(callback:()->Void) {
-        try! database.write {
-            callback()
-        }
-    }
-    
     func update(withoutNotifying: [NotificationToken]=[],callback:()->Void) {
         try! database.write(withoutNotifying: withoutNotifying) {
+            Logger.info("update")
             callback()
         }
     }

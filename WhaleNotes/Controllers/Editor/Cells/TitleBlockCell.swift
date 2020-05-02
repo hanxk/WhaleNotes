@@ -19,7 +19,7 @@ class TitleBlockCell: UITableViewCell {
     }
     var titleBlock: Block! {
         didSet {
-            textField.text = titleBlock.title
+            textField.text = titleBlock.text
         }
     }
         
@@ -71,9 +71,9 @@ extension TitleBlockCell: UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         let title = textField.text ?? ""
-        if  title != titleBlock.title {
+        if  title != titleBlock.text {
             DBManager.sharedInstance.update {
-                titleBlock.title =  title.trimmingCharacters(in: .whitespaces)
+                titleBlock.text =  title.trimmingCharacters(in: .whitespaces)
                 Logger.info("update title for block: ",titleBlock.id)
             }
         }

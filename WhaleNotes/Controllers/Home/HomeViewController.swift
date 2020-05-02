@@ -203,7 +203,7 @@ extension HomeViewController: TLPhotosPickerViewControllerDelegate {
     func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
         // use selected order, fullresolution image
         //        self.selectedAssets = withTLPHAssets
-        self.openEditor(createMode: .image(images: withTLPHAssets))
+//        self.openEditor(createMode: .image(images: withTLPHAssets))
         return true
     }
 }

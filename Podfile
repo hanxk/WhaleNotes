@@ -17,5 +17,6 @@ target 'WhaleNotes' do
   pod 'RxCocoa', '~> 5'
   pod 'MBProgressHUD', '~> 1.2.0'
   pod 'Kingfisher', '~> 5.0'
+  pod 'DeepDiff'
   # Pods for WhaleNotes
 end

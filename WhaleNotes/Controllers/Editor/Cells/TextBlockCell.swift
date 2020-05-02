@@ -23,7 +23,7 @@ class TextBlockCell: UITableViewCell {
     
     var textBlock: Block! {
         didSet {
-            textView.text = textBlock.title
+            textView.text = textBlock.text
         }
     }
     
