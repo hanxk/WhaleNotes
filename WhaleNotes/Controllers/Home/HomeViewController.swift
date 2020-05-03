@@ -13,8 +13,13 @@ import Then
 import ContextMenu
 import PopMenu
 import TLPhotoPicker
+import RxSwift
+import Photos
 
-class HomeViewController: UIViewController {
+class HomeViewController: UIViewController, UINavigationControllerDelegate {
+    
+    
+    private lazy var disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -144,7 +149,6 @@ extension HomeViewController {
     }
     
     private func openNoteEditor(type: MenuType) {
-        
         switch type {
         case .text:
             self.openEditor(createMode: .text)
@@ -153,10 +157,18 @@ extension HomeViewController {
         case .image:
             let viewController = TLPhotosPickerViewController()
             viewController.delegate = self
-            let configure = TLPhotosPickerConfigure()
+            var configure = TLPhotosPickerConfigure()
+            configure.allowedVideo = false
+            configure.allowedLivePhotos = false
+            configure.allowedVideoRecording = false
             viewController.configure = configure
             self.present(viewController, animated: true, completion: nil)
-        default:
+        case .camera:
+            let vc = UIImagePickerController()
+            vc.delegate = self
+            vc.sourceType = .camera
+            vc.mediaTypes = ["public.image"]
+            present(vc, animated: true)
             break
         }
     }
@@ -201,9 +213,68 @@ extension HomeViewController {
 
 extension HomeViewController: TLPhotosPickerViewControllerDelegate {
     func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
-        // use selected order, fullresolution image
-        //        self.selectedAssets = withTLPHAssets
-//        self.openEditor(createMode: .image(images: withTLPHAssets))
+        self.handlePicker(images: withTLPHAssets)
         return true
+    }
+    func handlePicker(images: [TLPHAsset]) {
+        self.showHud()
+        Observable<[TLPHAsset]>.just(images)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(images)  -> [Block] in
+                var imageBlocks:[Block] = []
+                images.forEach {
+                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
+                        let imageName =  $0.uuidName
+                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
+                        if success {
+                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
+                        }
+                    }
+                }
+                return imageBlocks
+            })
+            .observeOn(MainScheduler.instance)
+            .subscribe {
+                self.hideHUD()
+                if let blocks  = $0.element {
+                    self.openEditor(createMode: .attachment(blocks: blocks))
+                }
+            }
+        .disposed(by: disposeBag)
+    }
+}
+
+
+extension HomeViewController: UIImagePickerControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        picker.dismiss(animated: true)
+        guard let image = info[.originalImage] as? UIImage else {  return}
+        self.handlePicker(image: image)
+    }
+    
+    func handlePicker(image: UIImage) {
+        self.showHud()
+        Observable<UIImage>.just(image)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(image)  -> [Block] in
+                let imageName = UUID().uuidString+".png"
+                if let rightImage = image.fixedOrientation() {
+                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+                    if success {
+                        return [Block.newImageBlock(imageUrl: imageName)]
+                    }
+                }
+                return []
+            })
+            .observeOn(MainScheduler.instance)
+            .subscribe {
+                self.hideHUD()
+                if let blocks  = $0.element {
+                    self.openEditor(createMode: .attachment(blocks: blocks))
+                }
+            }
+        .disposed(by: disposeBag)
     }
 }

@@ -17,9 +17,6 @@ class Block: Object{
     
     @objc dynamic var text: String = ""
     
-    // image
-    @objc dynamic var imageName: String = ""
-    
     // todo
     @objc dynamic var isChecked: Bool = false
     
@@ -29,6 +26,7 @@ class Block: Object{
     
     
     @objc dynamic var createAt: Date = Date()
+    @objc dynamic var updateAt: Date = Date()
     
     lazy var blockType:BlockType = BlockType(rawValue: type)!
     

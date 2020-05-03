@@ -18,5 +18,6 @@ target 'WhaleNotes' do
   pod 'MBProgressHUD', '~> 1.2.0'
   pod 'Kingfisher', '~> 5.0'
   pod 'DeepDiff'
+  pod 'CHTCollectionViewWaterfallLayout/Swift'
   # Pods for WhaleNotes
 end

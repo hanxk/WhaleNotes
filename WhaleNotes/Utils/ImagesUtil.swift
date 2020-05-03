@@ -20,10 +20,10 @@ class ImageUtil {
         _dirPath = self.getDirPath()
     }
     
-    func saveImage(key: String,imageExtension:String,image: UIImage) -> Bool {
+    func saveImage(imageName: String,image: UIImage) -> Bool {
         if let pngRepresentation = image.pngData() {
             do  {
-                try pngRepresentation.write(to: URL.init(fileURLWithPath: filePath(forKey: key,imageExtension: imageExtension).absoluteString),
+                try pngRepresentation.write(to: URL.init(fileURLWithPath: filePath(imageName: imageName).absoluteString),
                                             options: .atomic)
                 return true
             } catch let err {
@@ -35,8 +35,8 @@ class ImageUtil {
     }
     
     
-    func filePath(forKey key: String,imageExtension: String) -> URL {
-        return _dirPath.appendingPathComponent(key + "."+imageExtension)
+    func filePath(imageName: String) -> URL {
+        return _dirPath.appendingPathComponent(imageName)
     }
     
     private func getDirPath() -> URL? {

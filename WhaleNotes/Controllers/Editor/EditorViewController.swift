@@ -19,9 +19,9 @@ import DeepDiff
 class EditorViewController: UIViewController {
     
     static let space: CGFloat = 14
-    static let cellSpace: CGFloat = 2
     let bottombarHeight: CGFloat = 42.0
     let bottomExtraSpace: CGFloat = 42.0 + 10
+    
     
     private var titleCell:TitleBlockCell?
     private var contentCell: TextBlockCell?
@@ -52,6 +52,7 @@ class EditorViewController: UIViewController {
     
     
     private var todoBlocksNotifiToken: NotificationToken?
+    private var attachmentBlocksNotifiToken: NotificationToken?
     
     private var noteNotificationToken: NotificationToken?
     
@@ -61,7 +62,7 @@ class EditorViewController: UIViewController {
         $0.register(TitleBlockCell.self, forCellReuseIdentifier: "title")
         $0.register(TextBlockCell.self, forCellReuseIdentifier:  "text")
         $0.register(TodoBlockCell.self, forCellReuseIdentifier: "todo")
-        $0.register(AttachmentsBlockCell.self, forCellReuseIdentifier: "image")
+        $0.register(AttachmentsBlockCell.self, forCellReuseIdentifier: "attachments")
         $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         
         
@@ -104,9 +105,7 @@ class EditorViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
     @objc func rotated() {
-        self.attachmentsCell?.collectionView.reloadData()
-        self.attachmentsCell?.collectionView.collectionViewLayout.invalidateLayout()
-        
+        self.attachmentsCell?.handleScreenRotation()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -145,7 +144,6 @@ class EditorViewController: UIViewController {
         case .text: 
             contentCell?.textView.becomeFirstResponder()
         case .todo:
-            break
             self.todoBlockCell?.textView.becomeFirstResponder()
         default:
             break
@@ -156,12 +154,16 @@ class EditorViewController: UIViewController {
         self.tableView.endEditing(true)
     }
     
-    
+}
+
+extension EditorViewController {
     @objc func handleAddButtonTapped() {
         let popMenuVC = PopBlocksViewController()
-        //        popMenuVC.cellTapped = { [weak self] createMode in
-        //
-        //        }
+        popMenuVC.cellTapped = { [weak self] type in
+            popMenuVC.dismiss(animated: true, completion: {
+                self?.handleCreateModeMenu(type: type)
+            })
+        }
         ContextMenu.shared.show(
             sourceViewController: self,
             viewController: popMenuVC,
@@ -170,11 +172,36 @@ class EditorViewController: UIViewController {
         )
     }
     
+    fileprivate func handleCreateModeMenu(type: MenuType) {
+        switch type {
+        case .text:
+            break
+        case .todo:
+            break
+        case .image:
+            let photoVC = TLPhotosPickerViewController()
+            photoVC.delegate = self
+            var configure = TLPhotosPickerConfigure()
+            configure.allowedVideo = false
+            configure.allowedLivePhotos = false
+            configure.allowedVideoRecording = false
+            photoVC.configure = configure
+            self.present(photoVC, animated: true, completion: nil)
+        case .camera:
+            let vc = UIImagePickerController()
+            vc.delegate = self
+            vc.sourceType = .camera
+            vc.mediaTypes = ["public.image"]
+            present(vc, animated: true)
+        }
+    }
+    
+    
 }
+
+
 // 数据处理
 extension EditorViewController {
-    
-    
     
     func generateNote(createMode: CreateMode) -> Note {
         let note: Note = Note()
@@ -198,29 +225,12 @@ extension EditorViewController {
         guard let createMode = self.createMode else {
             return
         }
-        var workScheduler: ImmediateSchedulerType = MainScheduler.instance
-        if case .attachment = createMode {  // 耗时任务在子线程中
-            workScheduler = ConcurrentDispatchQueueScheduler(qos: .userInteractive)
-            self.showHud()
-        }
-        Observable<CreateMode>.just(createMode)
-            .observeOn(workScheduler)
-            .map({(createMode)  -> Note in
-                return self.generateNote(createMode: createMode)
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe {
-                if let note = $0.element {
-                    DBManager.sharedInstance.addNote(note)
-                    self.note = note
-                }
-                self.hideHUD()
-        }
-        .disposed(by: disposeBag)
-        
+        let note = self.generateNote(createMode: createMode)
+        DBManager.sharedInstance.addNote(note)
+        self.note = note
     }
     
-    private func setupSectionsTypes(note: Note) {
+    fileprivate func setupSectionsTypes(note: Note) {
         if let titleBlock = note.titleBlock {
             self.sections.append(SectionType.title(titleBlock: titleBlock))
         }
@@ -230,6 +240,9 @@ extension EditorViewController {
         if note.isTodoExists {
             self.setupTodoSections2(todoBlocks: note.todoBlocks)
         }
+        if !note.attachBlocks.isEmpty {
+            self.sections.append(SectionType.attachments(attachmentBlocks: Array(note.attachBlocks)))
+        }
     }
     
 }
@@ -237,7 +250,7 @@ extension EditorViewController {
 // 数据处理-todo
 extension EditorViewController {
     
-
+    
     func getRightUnCheckedSectionIndex() -> Int {
         var index = 0
         self.sections.forEach {
@@ -263,11 +276,11 @@ extension EditorViewController {
             default:
                 return false
             }
-        } ?? -1
+            } ?? -1
     }
     
     private func getUncheckedAndCheckedTodos(todoBlocks: List<Block>,unCheckedSectionIndex:Int,checkedSectionIndex:Int) -> ([Block],[Block]) {
-
+        
         var unCheckedBlocks:[Block] = []
         var checkedBlocks:[Block] = []
         
@@ -348,7 +361,7 @@ extension EditorViewController {
                     
                     
                     if modIndices.count > 0 { // 有可能是删除了,section 发生改变
-
+                        
                         var deleteIndexPaths:[IndexPath] = []
                         var insertIndexPaths:[IndexPath] = []
                         var modifyIndexPaths:[IndexPath] = []
@@ -483,15 +496,23 @@ extension EditorViewController: UITableViewDataSource {
                 self?.todoBlockCell = nil
             }
             break
-        case .attachments(let attachmentBlocks):
+        case .attachments:
             let imagesCell = cell as! AttachmentsBlockCell
-//            imagesCell.imageBlock = imageBlock
+            imagesCell.heightChanged = { [weak tableView]  in
+                DispatchQueue.main.async {
+                    UIView.performWithoutAnimation {
+                        tableView?.beginUpdates()
+                        tableView?.endUpdates()
+                    }
+                }
+            }
+            imagesCell.note = self.note
             self.attachmentsCell = imagesCell
             break
         }
         return cell
     }
-   
+    
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = sections[section]
@@ -541,8 +562,8 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
-        case .attachments(let attachmentBlocks):
-            return AttachmentsBlockCell.calculateCellHeight(blocks: attachmentBlocks)
+        case .attachments(_):
+            return attachmentsCell?.totalHeight ?? 0
         default:
             return UITableView.automaticDimension
         }
@@ -559,7 +580,7 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
-        case .todo(let todoBlocks, let mode):
+        case .todo(_, let mode):
             switch mode {
             case .unchecked:
                 return true
@@ -665,6 +686,82 @@ extension EditorViewController {
         }
     }
 }
+
+// 相册
+extension EditorViewController: TLPhotosPickerViewControllerDelegate {
+    func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
+        self.handlePicker(images: withTLPHAssets)
+        return true
+    }
+    func handlePicker(images: [TLPHAsset]) {
+        self.showHud()
+        Observable<[TLPHAsset]>.just(images)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(images)  -> [Block] in
+                var imageBlocks:[Block] = []
+                images.forEach {
+                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
+                        let imageName =  $0.uuidName
+                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
+                        if success {
+                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
+                        }
+                    }
+                }
+                return imageBlocks
+            })
+            .observeOn(MainScheduler.instance)
+            .subscribe {
+                self.hideHUD()
+                if let blocks  = $0.element {
+                    DBManager.sharedInstance.update {
+                        self.note.attachBlocks.append(objectsIn: blocks)
+                    }
+                }
+        }
+        .disposed(by: disposeBag)
+    }
+}
+
+// camera 选择
+extension EditorViewController: UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        picker.dismiss(animated: true)
+        guard let image = info[.originalImage] as? UIImage else {  return}
+        self.handlePicker(image: image)
+    }
+    
+    func handlePicker(image: UIImage) {
+        self.showHud()
+        Observable<UIImage>.just(image)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(image)  -> [Block] in
+                let imageName = UUID().uuidString+".png"
+                if let rightImage = image.fixedOrientation() {
+                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+                    if success {
+                        return [Block.newImageBlock(imageUrl: imageName)]
+                    }
+                }
+                return []
+            })
+            .observeOn(MainScheduler.instance)
+            .subscribe {
+                self.hideHUD()
+                if let blocks  = $0.element {
+                    DBManager.sharedInstance.update {
+                        self.note.attachBlocks.append(objectsIn: blocks)
+                    }
+                }
+        }
+        .disposed(by: disposeBag)
+    }
+    
+    
+}
+
 
 
 enum SectionType {

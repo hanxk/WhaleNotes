@@ -20,16 +20,15 @@ class ImageCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    let imageView  = UIImageView()
+    let imageView  = UIImageView().then {
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = AttachmentsConstants.radius
+        $0.backgroundColor = .placeHolderColor
+    }
     
     var imageBlock:Block! {
         didSet {
-            let localPathProvider: LocalFileImageDataProvider = {
-                let fileURL = URL(fileURLWithPath: ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.imageName).absoluteString)
-                let provider = LocalFileImageDataProvider(fileURL: fileURL)
-                return provider
-            }()
-            imageView.kf.setImage(with: localPathProvider)
+            imageView.setLocalImage(filePath: ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString)
         }
     }
     

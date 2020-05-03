@@ -1,4 +1,5 @@
 PODS:
+  - CHTCollectionViewWaterfallLayout/Swift (0.9.8)
   - ContextMenu (0.4.0)
   - DeepDiff (2.3.1)
   - Kingfisher (5.13.4):
@@ -27,6 +28,7 @@ PODS:
   - TLPhotoPicker (2.0.11)
 
 DEPENDENCIES:
+  - CHTCollectionViewWaterfallLayout/Swift
   - ContextMenu
   - DeepDiff
   - Kingfisher (~> 5.0)
@@ -44,6 +46,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - CHTCollectionViewWaterfallLayout
     - ContextMenu
     - DeepDiff
     - Kingfisher
@@ -62,6 +65,7 @@ SPEC REPOS:
     - TLPhotoPicker
 
 SPEC CHECKSUMS:
+  CHTCollectionViewWaterfallLayout: 5f241d2480ab4939aa0d1ad4981de9eef1fbe60d
   ContextMenu: f835e09a93f1c28c631b76ee94396d9570397fd1
   DeepDiff: e5ae6c50d0321568e4508cec5930b9f10bb293fc
   Kingfisher: d2279a7abece3c7f25a80cd2b7f363ca5cf3f44c
@@ -79,6 +83,6 @@ SPEC CHECKSUMS:
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
   TLPhotoPicker: a5c339732b8326bb16cbb4e00ed01a86f2bfbbb3
 
-PODFILE CHECKSUM: 9eeaf39795559741555265bc8a2b90f1bb6faa98
+PODFILE CHECKSUM: a82d3ade3c16d3ae33056ef3d3f5df2d94b07a59
 
 COCOAPODS: 1.9.1

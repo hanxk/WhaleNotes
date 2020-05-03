@@ -32,4 +32,13 @@ extension UIColor {
             return UIColor(named: "ThirdColor")!
         }
     }
+    
+    
+    open class var placeHolderColor: UIColor {
+        get {
+            return UIColor(named: "PlaceHolder")!
+        }
+    }
+    
+    
 }
