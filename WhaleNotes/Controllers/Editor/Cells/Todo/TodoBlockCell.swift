@@ -101,22 +101,19 @@ class TodoBlockCell: UITableViewCell {
     
     private func setupUI() {
         
-        let topSpace:CGFloat = 5
-        let horizontalSpace:CGFloat = 6
-        
-//        self.contentView.backgroundColor = .red
+        let topSpace:CGFloat = 7.3
         
         self.contentView.addSubview(chkbtn)
         chkbtn.snp.makeConstraints { (make) in
-            make.width.equalTo(24)
-            make.height.equalTo(24)
-            make.top.equalToSuperview().offset(topSpace-2)
-            make.leading.equalToSuperview().offset(EditorViewController.space)
+            make.width.equalTo(30)
+            make.height.equalTo(30)
+            make.leading.equalToSuperview().offset(10)
+            make.top.equalToSuperview().offset(2)
         }
         
         self.contentView.addSubview(textView)
         textView.snp.makeConstraints { (make) in
-            make.leading.equalTo(chkbtn.snp.trailing).offset(10)
+            make.leading.equalTo(chkbtn.snp.trailing).offset(6)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.equalToSuperview().offset(topSpace)
             make.bottom.equalToSuperview().offset(-topSpace)
@@ -184,11 +181,6 @@ extension TodoBlockCell {
             // 删除todo
             self.deleteTodo()
         }else{
-//            if  isChecked  {
-//                textView.resignFirstResponder()
-//                return
-//            }
-            
             guard  let currentIndex = self.todoBlocks.index(of: self.todoBlock) else { return }
             let destIndex = currentIndex + 1
             
@@ -197,7 +189,7 @@ extension TodoBlockCell {
             DBManager.sharedInstance.update { [weak self] in
                 guard let self = self else { return }
                 self.todoBlock.text = text
-//                todoBlocks.insert(Block.newTodoBlock(), at÷ßasdasd: destIndex)
+                todoBlocks.insert(Block.newTodoBlock(), at: destIndex)
             }
         }
     }

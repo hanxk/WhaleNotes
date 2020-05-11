@@ -31,21 +31,30 @@ class TodoHeaderView: UIView {
     private lazy var titleField: UITextField = UITextField().then {
         $0.font = UIFont.systemFont(ofSize: 16)
         $0.textColor = .primaryText
-//        $0.backgroundColor = .blue
-//        var f = $0.frame
-//        f.size.height = 24
-//        $0.frame = f
     }
     
     
-    private let menuButton: UIButton = UIButton().then {
+    private lazy var addTodoButton: UIButton = UIButton().then {
+        $0.contentMode = .center
+        $0.imageView?.contentMode = .scaleAspectFit
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .light)
-        $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
-        $0.tintColor  = .thirdColor
+        $0.setImage(UIImage(systemName: "plus.circle", withConfiguration: config), for: .normal)
+        $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
     }
+    
+    private lazy var menuButton: UIButton = UIButton().then {
+         $0.contentMode = .center
+         $0.imageView?.contentMode = .scaleAspectFit
+         $0.tintColor  = .thirdColor
+         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .light)
+         $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
+         $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
+     }
+     
     
     var note:Note!
-    var addButtonTapped:(() ->Void)?
+    var addButtonTapped:((UIButton) ->Void)?
+    var arrowButtonTapped:(() ->Void)?
     var todoGroupBlock:Block! {
         didSet {
             let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
@@ -68,19 +77,35 @@ class TodoHeaderView: UIView {
         self.backgroundColor = .red
         self.addSubview(arrowButton)
         arrowButton.snp.makeConstraints { (make) in
-            make.width.height.equalTo(24)
+            make.width.height.equalTo(30)
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(EditorViewController.space)
+            make.leading.equalToSuperview().offset(10)
         }
         
         self.addSubview(titleField)
+        self.addSubview(menuButton)
         titleField.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
-            make.leading.equalTo(arrowButton.snp.trailing).offset(10)
-            make.trailing.equalToSuperview().offset(-EditorViewController.space)
+            make.leading.equalTo(arrowButton.snp.trailing).offset(6)
+            make.trailing.equalTo(menuButton.snp.leading).offset(-3)
         }
+        
+        menuButton.snp.makeConstraints { (make) in
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(30)
+//            make.leading.equalTo(titleField.snp.trailing)
+            make.trailing.equalToSuperview().offset(-12)
+        }
+        
+        
     }
+    
     @objc private func handleArrowButtonTapped() {
-        self.addButtonTapped?()
+        self.arrowButtonTapped?()
     }
+    
+    @objc private func handleAddTodoButtonTapped() {
+        self.addButtonTapped?(self.menuButton)
+    }
+    
 }

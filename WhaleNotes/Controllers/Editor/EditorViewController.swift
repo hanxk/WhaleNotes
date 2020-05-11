@@ -59,7 +59,7 @@ class EditorViewController: UIViewController {
     
     private var noteNotificationToken: NotificationToken?
     
-    private lazy var tableView = UITableView().then { [weak self] in
+    private lazy var tableView = UITableView(frame: .zero, style: .grouped).then { [weak self] in
         $0.estimatedRowHeight = 50
         $0.separatorColor = .clear
         $0.register(TitleBlockCell.self, forCellReuseIdentifier: "title")
@@ -68,7 +68,7 @@ class EditorViewController: UIViewController {
         $0.register(AttachmentsBlockCell.self, forCellReuseIdentifier: "attachments")
         $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         
-        
+        $0.backgroundColor = .clear
         $0.delegate = self
         $0.dataSource = self
         
@@ -340,7 +340,7 @@ extension EditorViewController {
         let firstSectionIndex = self.firstTodoSectionIndex
         
         // 更新数据源
-        updateObserver(insertionIndices:insertionIndices)
+        updateObserver(insertionIndices:insertionIndices,deletionIndices:deletionIndices)
         
         tableView.performBatchUpdates({
             tableView.deleteSections(IndexSet(deletionIndices.map{ $0 + firstSectionIndex }), with: .automatic)
@@ -354,7 +354,13 @@ extension EditorViewController {
         }
     }
     
-    fileprivate func updateObserver(insertionIndices:[Int]) {
+    fileprivate func updateObserver(insertionIndices:[Int],deletionIndices:[Int]) {
+        
+        deletionIndices.forEach {
+            self.todoBlocksNotifiToken[$0].invalidate()
+            self.todoBlocksNotifiToken.remove(at: $0)
+        }
+        
         let firstSectionIndex = self.firstTodoSectionIndex
         insertionIndices.forEach { sectionIndex in
             let sIndex = sectionIndex + firstSectionIndex
@@ -598,8 +604,7 @@ extension EditorViewController: UITableViewDataSource {
             let todoHeaderView = TodoHeaderView()
             todoHeaderView.note = self.note
             todoHeaderView.todoGroupBlock = todoGroupBlock
-            //            todoHeaderView.backgroundColor = .brown
-            todoHeaderView.addButtonTapped = {
+            todoHeaderView.arrowButtonTapped = {
                 DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
                     todoGroupBlock.isExpand = !todoGroupBlock.isExpand
                 }
@@ -607,10 +612,46 @@ extension EditorViewController: UITableViewDataSource {
                     self.tableView.reloadSections(IndexSet(integer: sectionIndex+self.firstTodoSectionIndex), with: .automatic)
                 }
             }
+            todoHeaderView.addButtonTapped = { btn in
+                let items = [
+                    ContextMenuItem(label: "删除", icon: "trash")
+                ]
+                ContextMenuViewController.show(sourceView: btn, sourceVC: self, items: items) { [weak self] menuItem in
+                    self?.deleteBlock(sectionIndex: section)
+                }
+            }
             return todoHeaderView
         default:
             return nil
         }
+    }
+    
+    func deleteBlock(sectionIndex: Int) {
+        DBManager.sharedInstance.update{
+            let sectionType = self.sections[sectionIndex]
+            switch sectionType {
+            case .todo(let todoGroupBlock):
+                if let deletedIndex = self.note.todoBlocks.index(of: todoGroupBlock) {
+                    self.note.todoBlocks.remove(at: deletedIndex)
+                    self.sections.remove(at: sectionIndex)
+                }
+                
+            default:
+                break
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let sectionType = sections[section]
+          switch sectionType {
+          case .todo(let todoGroupBlock):
+              let todoFooterView = TodoFooterView()
+              todoFooterView.todoGroupBlock = todoGroupBlock
+              return todoFooterView
+          default:
+              return nil
+          }
     }
     
 }
@@ -635,6 +676,16 @@ extension EditorViewController: UITableViewDelegate {
             return CGFloat.leastNormalMagnitude
         }
     }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+       switch sections[section] {
+        case .todo(let todoGroupBlock):
+            return todoGroupBlock.isExpand ? 32 : CGFloat.leastNormalMagnitude
+        default:
+            return CGFloat.leastNormalMagnitude
+        }
+    }
+    
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
