@@ -19,14 +19,18 @@ class Block: Object{
     
     // todo
     @objc dynamic var isChecked: Bool = false
-    
+    // for todo group
+    @objc dynamic var isExpand: Bool = true
     
     // image: url
     @objc dynamic var source: String = ""
     
-    
     @objc dynamic var createAt: Date = Date()
     @objc dynamic var updateAt: Date = Date()
+    
+    // child
+    let blocks = List<Block>()
+    
     
     lazy var blockType:BlockType = BlockType(rawValue: type)!
     
@@ -59,13 +63,23 @@ class Block: Object{
         return block
     }
     
+    
     static func newTodoBlock(text: String = "") -> Block {
         let block = Block()
         block.type = BlockType.todo.rawValue
         block.isChecked = false
-        block.text = ""
+        block.text = text
         return block
     }
+    
+    static func newTodoGroupBlock(text: String = "清单") -> Block {
+        let block = Block()
+        block.type = BlockType.todo_group.rawValue
+        block.text = text
+        block.blocks.append(Block.newTodoBlock())
+        return block
+    }
+    
 }
 
 
@@ -105,5 +119,6 @@ enum BlockType: String {
     case title = "title"
     case text = "text"
     case todo = "todo"
+    case todo_group = "todo_group"
     case image = "image"
 }

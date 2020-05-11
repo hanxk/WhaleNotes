@@ -36,6 +36,7 @@ class TextBlockCell: UITableViewCell {
     
     var textChanged: ((String) -> Void)?
     var textShouldBeginChange: ((UITextView) -> Void)?
+    var textEnterReturnKey: (() -> Void)?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -110,6 +111,13 @@ extension TextBlockCell: UITextViewDelegate {
                 textBlock.text =  text
                 Logger.info("update text for block: ",textBlock.id)
             }
+        }
+        return true
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            textEnterReturnKey?()
         }
         return true
     }

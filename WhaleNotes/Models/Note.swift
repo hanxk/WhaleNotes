@@ -17,8 +17,6 @@ class Note: Object {
     @objc dynamic var titleBlock: Block? = nil
     @objc dynamic var textBlock: Block? = nil
     
-    @objc dynamic var isTodoExists = false
-    
     let todoBlocks  = List<Block> ()
     
     // 附件： image, video, link

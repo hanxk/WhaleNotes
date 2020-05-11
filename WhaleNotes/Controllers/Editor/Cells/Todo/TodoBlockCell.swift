@@ -7,15 +7,24 @@
 //
 import UIKit
 import SnapKit
+import RealmSwift
 
 class TodoBlockCell: UITableViewCell {
     
-    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .light)
     
     lazy var uncheckedImage: UIImage = UIImage(systemName: "stop",withConfiguration: config)!
     lazy var checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill",withConfiguration: config)!
     
     var cellHeight: CGFloat = 0
+    
+    
+    var todoGroupBlock:Block!
+    
+    private var todoBlocks: List<Block> {
+        return self.todoGroupBlock.blocks
+    }
+    
     var todoBlock: Block!{
         didSet {
             textView.text = todoBlock.text
@@ -24,6 +33,7 @@ class TodoBlockCell: UITableViewCell {
         }
     }
     var note:Note!
+    
     
     var isChecked: Bool = false {
         didSet {
@@ -49,7 +59,7 @@ class TodoBlockCell: UITableViewCell {
     }
     
     lazy var placeHolder: UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         $0.textColor = .lightGray
         $0.text = "新项目"
     }
@@ -60,7 +70,7 @@ class TodoBlockCell: UITableViewCell {
     }
     
     lazy var textView: UITextView = UITextView().then {
-        $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         $0.textColor = .primaryText
         $0.isEditable = true
         $0.isScrollEnabled = false
@@ -94,18 +104,19 @@ class TodoBlockCell: UITableViewCell {
         let topSpace:CGFloat = 5
         let horizontalSpace:CGFloat = 6
         
+//        self.contentView.backgroundColor = .red
+        
         self.contentView.addSubview(chkbtn)
         chkbtn.snp.makeConstraints { (make) in
-            
-            make.width.equalTo(24+horizontalSpace*2)
+            make.width.equalTo(24)
             make.height.equalTo(24)
             make.top.equalToSuperview().offset(topSpace-2)
-            make.leading.equalToSuperview().offset(EditorViewController.space - 2 - horizontalSpace)
+            make.leading.equalToSuperview().offset(EditorViewController.space)
         }
         
         self.contentView.addSubview(textView)
         textView.snp.makeConstraints { (make) in
-            make.leading.equalTo(chkbtn.snp.trailing).offset(2)
+            make.leading.equalTo(chkbtn.snp.trailing).offset(10)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.equalToSuperview().offset(topSpace)
             make.bottom.equalToSuperview().offset(-topSpace)
@@ -173,19 +184,20 @@ extension TodoBlockCell {
             // 删除todo
             self.deleteTodo()
         }else{
-            if  isChecked  {
-                textView.resignFirstResponder()
-                return
-            }
+//            if  isChecked  {
+//                textView.resignFirstResponder()
+//                return
+//            }
+            
+            guard  let currentIndex = self.todoBlocks.index(of: self.todoBlock) else { return }
+            let destIndex = currentIndex + 1
+            
             // 新增todo
             Logger.info("新增todo")
             DBManager.sharedInstance.update { [weak self] in
                 guard let self = self else { return }
                 self.todoBlock.text = text
-                let todos = self.note.todoBlocks
-                if let index =  todos.firstIndex(of: self.todoBlock) {
-                    todos.insert(Block.newTodoBlock(), at: index+1)
-                }
+//                todoBlocks.insert(Block.newTodoBlock(), at÷ßasdasd: destIndex)
             }
         }
     }
@@ -194,9 +206,8 @@ extension TodoBlockCell {
         Logger.info("删除todo")
         DBManager.sharedInstance.update { [weak self] in
             guard let self = self else { return }
-            let todos = self.note.todoBlocks
-            if let index = todos.firstIndex(of: self.todoBlock) {
-                todos.remove(at: index)
+            if let index = todoBlocks.firstIndex(of: self.todoBlock) {
+                todoBlocks.remove(at: index)
             }
         }
     }

@@ -10,12 +10,33 @@ import UIKit
 
 class TodoHeaderView: UIView {
     
-    private lazy var addButton: UIButton = UIButton().then {
-        $0.setTitle("添加清单项", for: .normal)
-        $0.setTitleColor(.brand, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
+    private lazy var arrowDownImage:UIImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
+        var image = UIImage(systemName: "chevron.down", withConfiguration: config)
+        return image!
+    }()
+    
+    private lazy var arrowRightImage:UIImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
+        var image = UIImage(systemName: "chevron.right", withConfiguration: config)
+        return image!
+    }()
+    
+    private lazy var arrowButton: UIButton = UIButton().then {
+        $0.contentMode = .center
+        $0.imageView?.contentMode = .scaleAspectFit
+        $0.addTarget(self, action: #selector(self.handleArrowButtonTapped), for: .touchUpInside)
     }
+    
+    private lazy var titleField: UITextField = UITextField().then {
+        $0.font = UIFont.systemFont(ofSize: 16)
+        $0.textColor = .primaryText
+//        $0.backgroundColor = .blue
+//        var f = $0.frame
+//        f.size.height = 24
+//        $0.frame = f
+    }
+    
     
     private let menuButton: UIButton = UIButton().then {
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .light)
@@ -25,6 +46,13 @@ class TodoHeaderView: UIView {
     
     var note:Note!
     var addButtonTapped:(() ->Void)?
+    var todoGroupBlock:Block! {
+        didSet {
+            let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
+            arrowButton.setImage(btnImage, for: .normal)
+            titleField.text = todoGroupBlock.text
+        }
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -37,27 +65,22 @@ class TodoHeaderView: UIView {
     }
     
     private func setup() {
-        self.addSubview(addButton)
-        addButton.snp.makeConstraints { (make) in
+        self.backgroundColor = .red
+        self.addSubview(arrowButton)
+        arrowButton.snp.makeConstraints { (make) in
+            make.width.height.equalTo(24)
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview().offset(EditorViewController.space)
         }
         
-        self.addSubview(menuButton)
-        menuButton.snp.makeConstraints { (make) in
+        self.addSubview(titleField)
+        titleField.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
+            make.leading.equalTo(arrowButton.snp.trailing).offset(10)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
         }
     }
-    @objc private func handleAddButtonTapped() {
-        self.addButtonTapped?() // 防止还有未保存的 todo
-        if note.todoBlocks.firstIndex(where: { $0.text.isEmpty && !$0.isChecked }) != nil {
-            return
-        }
-        DBManager.sharedInstance.update { [weak self] in
-            if let self = self {
-                self.note.todoBlocks.insert(Block.newTodoBlock(),at: 0)
-            }
-        }
+    @objc private func handleArrowButtonTapped() {
+        self.addButtonTapped?()
     }
 }

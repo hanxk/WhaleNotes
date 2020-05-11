@@ -24,7 +24,7 @@ class EditorViewController: UIViewController {
     
     
     private var titleCell:TitleBlockCell?
-    private var contentCell: TextBlockCell?
+    private var textCell: TextBlockCell?
     private var todoBlockCell: TodoBlockCell?
     
     
@@ -51,8 +51,11 @@ class EditorViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     
-    private var todoBlocksNotifiToken: NotificationToken?
+    private var todoGroupBlocksNotifiToken: NotificationToken?
     private var attachmentBlocksNotifiToken: NotificationToken?
+    
+    
+    private var todoBlocksNotifiToken: [NotificationToken] = []
     
     private var noteNotificationToken: NotificationToken?
     
@@ -84,7 +87,7 @@ class EditorViewController: UIViewController {
     
     deinit {
         noteNotificationToken?.invalidate()
-        todoBlocksNotifiToken?.invalidate()
+        todoGroupBlocksNotifiToken?.invalidate()
     }
     
     var keyboardHeight: CGFloat = 0
@@ -142,7 +145,7 @@ class EditorViewController: UIViewController {
         guard let createMode = createMode else { return }
         switch createMode {
         case .text: 
-            contentCell?.textView.becomeFirstResponder()
+            textCell?.textView.becomeFirstResponder()
         case .todo:
             self.todoBlockCell?.textView.becomeFirstResponder()
         default:
@@ -152,6 +155,7 @@ class EditorViewController: UIViewController {
     
     @objc func handleMoreButtonTapped() {
         self.tableView.endEditing(true)
+//        self.tableView.scrollToBottom()
     }
     
 }
@@ -173,10 +177,12 @@ extension EditorViewController {
     }
     
     fileprivate func handleCreateModeMenu(type: MenuType) {
+        self.tableView.resignFirstResponder()
         switch type {
         case .text:
-            break
+            self.handleText()
         case .todo:
+            self.handleTodoBlock()
             break
         case .image:
             let photoVC = TLPhotosPickerViewController()
@@ -196,14 +202,88 @@ extension EditorViewController {
         }
     }
     
+    fileprivate func handleText() {
+        if let textCell = textCell {
+            textCell.textView.becomeFirstResponder()
+            return
+        }
+        // 新增 textblock
+        DBManager.sharedInstance.update {
+            note.textBlock = Block.newTextBlock()
+        }
+    }
     
+    fileprivate func handleTodoBlock() {
+        // 新增 todo block
+        DBManager.sharedInstance.update {
+            note.todoBlocks.append(Block.newTodoGroupBlock())
+        }
+        
+    }
 }
 
 
 // 数据处理
 extension EditorViewController {
     
-    func generateNote(createMode: CreateMode) -> Note {
+    fileprivate func setupData() {
+        guard let createMode = self.createMode else {
+            return
+        }
+        let note = self.generateNote(createMode: createMode)
+        DBManager.sharedInstance.addNote(note)
+        self.noteNotificationToken = note.observe { change in
+            switch change {
+            case .change(let properties):
+                for property in properties {
+                    self.handlePropertyChange(propertyChange: property)
+                }
+            case .error(let error):
+                print("An error occurred: \(error)")
+            case .deleted:
+                print("The object was deleted.")
+            }
+        }
+        self.note = note
+    }
+    fileprivate func handlePropertyChange(propertyChange: PropertyChange) {
+        switch propertyChange.name {
+        case  "textBlock":
+            self.handleTextBlockUpdate(change: propertyChange)
+        case "attachBlocks":
+            self.handleAttachBlockUpdate(change:propertyChange)
+        default:
+            break
+        }
+    }
+    
+    fileprivate func handleTextBlockUpdate(change: PropertyChange) {
+        if let textBlock = (change.newValue as? Block), change.oldValue == nil { // 新增 text
+            let sectionIndex = 1
+            self.sections.insert(SectionType.text(textBlock: textBlock), at: sectionIndex)
+            self.tableView.performBatchUpdates({
+                self.tableView.insertSections(IndexSet([sectionIndex]), with: .automatic)
+            }) { _ in
+                self.textCell?.textView.becomeFirstResponder()
+            }
+        }
+    }
+    
+    
+    fileprivate func handleAttachBlockUpdate(change: PropertyChange) {
+        let attachBlocks = change.newValue as! List<Block>
+        if attachmentsCell == nil && attachBlocks.count > 0 { // 新增
+            let sectionIndex = self.sections.count
+            self.sections.append(SectionType.attachments(attachmentBlocks: Array(attachBlocks)))
+            self.tableView.performBatchUpdates({
+                self.tableView.insertSections(IndexSet([sectionIndex]), with: .automatic)
+            }) { _ in
+            }
+        }
+    }
+    
+    
+    fileprivate func generateNote(createMode: CreateMode) -> Note {
         let note: Note = Note()
         note.titleBlock = Block.newTitleBlock()
         switch createMode {
@@ -211,23 +291,13 @@ extension EditorViewController {
             note.textBlock = Block.newTextBlock()
             break
         case .todo:
-            note.isTodoExists = true
-            note.todoBlocks.append(Block.newTodoBlock())
+            note.todoBlocks.append(Block.newTodoGroupBlock())
             break
         case .attachment(let blocks):
             note.attachBlocks.append(objectsIn: blocks)
             break
         }
         return note
-    }
-    
-    private func setupData() {
-        guard let createMode = self.createMode else {
-            return
-        }
-        let note = self.generateNote(createMode: createMode)
-        DBManager.sharedInstance.addNote(note)
-        self.note = note
     }
     
     fileprivate func setupSectionsTypes(note: Note) {
@@ -237,11 +307,102 @@ extension EditorViewController {
         if let textBlock = note.textBlock {
             self.sections.append(SectionType.text(textBlock: textBlock))
         }
-        if note.isTodoExists {
-            self.setupTodoSections2(todoBlocks: note.todoBlocks)
-        }
+        
+        self.todoGroupBlocksNotifiToken =  self.setupTodoSections(todoBlocks: note.todoBlocks)
+        
         if !note.attachBlocks.isEmpty {
             self.sections.append(SectionType.attachments(attachmentBlocks: Array(note.attachBlocks)))
+        }
+    }
+    
+    fileprivate func setupTodoSections(todoBlocks: List<Block>) -> NotificationToken {
+        let notificationToken = todoBlocks.observe { [weak self] changes in
+            guard let self = self else { return }
+            switch changes {
+            case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, modifications: _):
+                if deletionIndices.count > 0 || insertionIndices.count > 0 {
+                    self.handleTodoSectionUpdate(insertionIndices: insertionIndices, deletionIndices: deletionIndices)
+                }
+                break
+            case .error(let error):
+                print(error)
+            case .initial:
+                self.observeSectionTodos()
+                self.tableView.reloadData()
+            }
+            
+        }
+        return notificationToken
+    }
+    
+    fileprivate func handleTodoSectionUpdate(insertionIndices: [Int],deletionIndices:[Int] ) {
+        
+        let firstSectionIndex = self.firstTodoSectionIndex
+        
+        // 更新数据源
+        updateObserver(insertionIndices:insertionIndices)
+        
+        tableView.performBatchUpdates({
+            tableView.deleteSections(IndexSet(deletionIndices.map{ $0 + firstSectionIndex }), with: .automatic)
+            tableView.insertSections(IndexSet(insertionIndices.map{ $0 + firstSectionIndex }), with: .automatic)
+        }) { _ in
+            if insertionIndices.count > 0 {
+                if let lastTodoSection = insertionIndices.max() {
+                    self.tryGetFocus(sectionIndex:(lastTodoSection + firstSectionIndex))
+                }
+            }
+        }
+    }
+    
+    fileprivate func updateObserver(insertionIndices:[Int]) {
+        let firstSectionIndex = self.firstTodoSectionIndex
+        insertionIndices.forEach { sectionIndex in
+            let sIndex = sectionIndex + firstSectionIndex
+            let todoGroupBlocks = self.note.todoBlocks
+            let todoGroupBlock = todoGroupBlocks[sectionIndex]
+            self.sections.insert( SectionType.todo(todoGroupBlock: todoGroupBlock), at: sIndex)
+            let notificationToken =  todoGroupBlock.blocks.observe { changes in
+                self.handleTodoChanges(todoGroupBlock:todoGroupBlock, changes: changes)
+            }
+            self.todoBlocksNotifiToken.insert(notificationToken, at: sectionIndex)
+        }
+    }
+    
+    fileprivate func observeSectionTodos() {
+        
+        let todoGroupBlocks = self.note.todoBlocks
+        let sectionIndex = self.firstTodoSectionIndex
+        // 生成section
+        self.sections.insert(contentsOf: todoGroupBlocks.map { SectionType.todo(todoGroupBlock: $0)}, at: sectionIndex)
+        
+        self.todoBlocksNotifiToken = todoGroupBlocks.map { todoGroupBlock in
+            todoGroupBlock.blocks.observe { changes in
+                self.handleTodoChanges(todoGroupBlock:todoGroupBlock, changes: changes)
+            }
+        }
+    }
+    
+    fileprivate func handleTodoChanges(todoGroupBlock: Block,changes: RealmCollectionChange<List<Block>>) {
+        switch changes {
+        case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, _):
+            guard let sectionIndex = self.note.todoBlocks.index(of: todoGroupBlock)  else { return }
+            let sIndex = sectionIndex + self.firstTodoSectionIndex
+            tableView.performBatchUpdates({
+                tableView.deleteRows(at: deletionIndices.map{ IndexPath(row: $0, section: sIndex)}, with: .automatic)
+                tableView.insertRows(at: insertionIndices.map{ IndexPath(row: $0, section: sIndex)}, with: .automatic)
+            }) { _ in
+                if !insertionIndices.isEmpty { // 弹出键盘
+                    self.tryGetFocus(sectionIndex: sIndex)
+                }
+            }
+            break
+        case .error(let error):
+            print(error)
+        case .initial(let type):
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.tryGetFocus(sectionIndex: self.firstTodoSectionIndex)
+            }
+            print(type)
         }
     }
     
@@ -250,34 +411,36 @@ extension EditorViewController {
 // 数据处理-todo
 extension EditorViewController {
     
+    //    func getFirstTodoBlockSectionIndex() -> Int {
+    //        var index = 0
+    //        self.sections.forEach {
+    //            switch $0 {
+    //            case .title:
+    //                index += 1
+    //                break
+    //            case .text:
+    //                index += 1
+    //                break
+    //            default:
+    //                break
+    //            }
+    //        }
+    //        return index
+    //    }
     
-    func getRightUnCheckedSectionIndex() -> Int {
+    var firstTodoSectionIndex: Int {
         var index = 0
-        self.sections.forEach {
-            switch $0 {
-            case .title:
-                index += 1
-                break
-            case .text:
-                index += 1
-                break
-            default:
-                break
-            }
+        if titleCell != nil {
+            index += 1
         }
+        
+        if textCell != nil {
+            index += 1
+        }
+        
         return index
     }
     
-    private func getTodoSectionIndex(todoMode: TodoMode) -> Int  {
-        return  self.sections.firstIndex {
-            switch $0 {
-            case .todo(_, let mode):
-                return mode == todoMode
-            default:
-                return false
-            }
-            } ?? -1
-    }
     
     private func getUncheckedAndCheckedTodos(todoBlocks: List<Block>,unCheckedSectionIndex:Int,checkedSectionIndex:Int) -> ([Block],[Block]) {
         
@@ -298,112 +461,10 @@ extension EditorViewController {
         return (unCheckedBlocks,checkedBlocks)
     }
     
-    private func setupTodoSections2(todoBlocks: List<Block>) {
-        let notificationToken = todoBlocks.observe { [weak self] changes in
-            guard let self = self else { return }
-            let tableView = self.tableView
-            
-            var unCheckedSectionIndex =  self.getTodoSectionIndex(todoMode: .unchecked)
-            var checkedSectionIndex = unCheckedSectionIndex + 1
-            
-            let unChckedSection: SectionType
-            let chckedSection: SectionType
-            if unCheckedSectionIndex < 0 {
-                
-                unCheckedSectionIndex  = self.getRightUnCheckedSectionIndex()
-                checkedSectionIndex = unCheckedSectionIndex + 1
-                
-                let uncheckedAndCheckedTodos = self.getUncheckedAndCheckedTodos(todoBlocks: todoBlocks, unCheckedSectionIndex: unCheckedSectionIndex, checkedSectionIndex: checkedSectionIndex)
-                let unCheckedBlocks = uncheckedAndCheckedTodos.0
-                let checkedBlocks = uncheckedAndCheckedTodos.1
-                
-                unChckedSection = SectionType.todo(todoBlocks: unCheckedBlocks, mode: .unchecked)
-                chckedSection = SectionType.todo(todoBlocks: checkedBlocks, mode: .checked)
-                self.sections.insert(unChckedSection, at: unCheckedSectionIndex)
-                self.sections.insert(chckedSection, at: checkedSectionIndex)
-                
-                tableView.reloadData()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                    // your code here
-                    self?.tryGetFocus(unCheckedSectionIndex: unCheckedSectionIndex)
-                }
-                
-            }else {
-                
-                let oldTodoRowIndexMap = self.todoRowIndexMap
-                
-                let uncheckedAndCheckedTodos = self.getUncheckedAndCheckedTodos(todoBlocks: todoBlocks, unCheckedSectionIndex: unCheckedSectionIndex, checkedSectionIndex: checkedSectionIndex)
-                
-                // 新的 todos
-                let unCheckedBlocks = uncheckedAndCheckedTodos.0
-                let checkedBlocks = uncheckedAndCheckedTodos.1
-                
-                // 更新数据源
-                self.sections[unCheckedSectionIndex] =  SectionType.todo(todoBlocks: unCheckedBlocks, mode: .unchecked)
-                self.sections[checkedSectionIndex] =  SectionType.todo(todoBlocks: checkedBlocks, mode: .checked)
-                
-                switch changes {
-                case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, modifications: let modIndices):
-                    tableView.beginUpdates()
-                    // 删除
-                    let deleteRowsIndex: [IndexPath] = deletionIndices.map {
-                        let todoInfo = oldTodoRowIndexMap[$0]!
-                        return IndexPath(row: todoInfo.0, section: todoInfo.1)
-                    }
-                    tableView.deleteRows(at: deleteRowsIndex, with: .automatic)
-                    
-                    // 新增
-                    let insertRowsIndex: [IndexPath] = insertionIndices.map {
-                        let todoInfo = self.todoRowIndexMap[$0]!
-                        return IndexPath(row: todoInfo.0, section: todoInfo.1)
-                    }
-                    tableView.insertRows(at: insertRowsIndex, with: .automatic)
-                    
-                    
-                    if modIndices.count > 0 { // 有可能是删除了,section 发生改变
-                        
-                        var deleteIndexPaths:[IndexPath] = []
-                        var insertIndexPaths:[IndexPath] = []
-                        var modifyIndexPaths:[IndexPath] = []
-                        modIndices.forEach {
-                            let todoInfo = self.todoRowIndexMap[$0]!
-                            let oldTodoInfo = oldTodoRowIndexMap[$0]!
-                            
-                            if oldTodoInfo.1 != todoInfo.1 { // check 状态发生改变
-                                let sectionIndex = todoInfo.1
-                                if case .todo(_,let mode) = self.sections[sectionIndex] {
-                                    if mode == .unchecked || (mode == .checked && self.isTodoExpand) {
-                                        insertIndexPaths.append(IndexPath(row: todoInfo.0, section: todoInfo.1))
-                                    }
-                                }
-                                deleteIndexPaths.append(IndexPath(row: oldTodoInfo.0, section: oldTodoInfo.1))
-                            }else {
-                                modifyIndexPaths.append(IndexPath(row: todoInfo.0, section: todoInfo.1))
-                            }
-                            
-                        }
-                        tableView.deleteRows(at: deleteIndexPaths, with: .automatic)
-                        tableView.insertRows(at: insertIndexPaths, with: .automatic)
-                        tableView.reloadRows(at: modifyIndexPaths, with: .automatic)
-                    }
-                    
-                    tableView.endUpdates()
-                    self.tryGetFocus(unCheckedSectionIndex: unCheckedSectionIndex)
-                    break
-                case .error(let error):
-                    print(error)
-                case .initial(let type):
-                    print(type)
-                }
-                
-            }
-        }
-        self.todoBlocksNotifiToken = notificationToken
-    }
     
-    private func tryGetFocus(unCheckedSectionIndex: Int) {
-        if let  emptyBlockIndex = self.sections[unCheckedSectionIndex].getTodos(todoMode: .unchecked).firstIndex(where: { $0.text.isEmpty }) {
-            if let cell = tableView.cellForRow(at: IndexPath(row: emptyBlockIndex, section: unCheckedSectionIndex)) as? TodoBlockCell {
+    private func tryGetFocus(sectionIndex: Int) {
+        if let  emptyBlockIndex = self.sections[sectionIndex].getTodoGroupBlock()?.blocks.firstIndex(where: { $0.text.isEmpty }) {
+            if let cell = tableView.cellForRow(at: IndexPath(row: emptyBlockIndex, section: sectionIndex)) as? TodoBlockCell {
                 cell.textView.becomeFirstResponder()
             }
         }
@@ -426,14 +487,11 @@ extension EditorViewController {
 extension EditorViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch sections[section] {
-        case .todo(let todoBlocks, let mode):
-            switch mode {
-            case .unchecked:
-                return todoBlocks.count
-            case .checked:
-                return self.isTodoExpand ? todoBlocks.count : 0
+        case .todo(let todoGroupBlock):
+            if todoGroupBlock.isExpand {
+                return todoGroupBlock.blocks.count
             }
-            
+            return 0
         default:
             return 1
         }
@@ -451,7 +509,7 @@ extension EditorViewController: UITableViewDataSource {
             let titleCell = (cell as! TitleBlockCell).then {
                 $0.titleBlock = titleBlock
                 $0.enterkeyTapped { [weak self] _ in
-                    self?.contentCell?.textView.becomeFirstResponder()
+                    self?.textCell?.textView.becomeFirstResponder()
                 }
             }
             self.titleCell = titleCell
@@ -466,21 +524,13 @@ extension EditorViewController: UITableViewDataSource {
                         tableView?.endUpdates()
                     }
                 }
-                let textView = textCell.textView
-                if let cursorPosition = textView.selectedTextRange?.start {
-                    let caretPositionRect = textView.caretRect(for: cursorPosition)
-                    textView.scrollRectToVisible(caretPositionRect, animated: false)
-                    if caretPositionRect.origin.y < 0 { // 按回车键
-                        tableView?.scrollToBottom()
-                    }
-                }
             }
-            self.contentCell = textCell
+            self.textCell = textCell
             break
-        case .todo(let todoBlocks, _):
+        case .todo(let todoGroupBlock):
             let todoCell = cell as! TodoBlockCell
-            todoCell.note = self.note
-            todoCell.todoBlock = todoBlocks[indexPath.row]
+            todoCell.todoGroupBlock = todoGroupBlock
+            todoCell.todoBlock = todoGroupBlock.blocks[indexPath.row]
             todoCell.textChanged =  {[weak tableView] textView in
                 DispatchQueue.main.async {
                     UIView.performWithoutAnimation {
@@ -513,43 +563,51 @@ extension EditorViewController: UITableViewDataSource {
         return cell
     }
     
+    fileprivate func handleTextViewEnterKey(textView: UITextView){
+        let tableView = self.tableView
+        if let cursorPosition = textView.selectedTextRange?.start {
+            let caretPositionRect = textView.caretRect(for: cursorPosition)
+            
+            let inWindowRect = textView.convert(caretPositionRect, to: nil)
+            let visibleHeight = UIScreen.main.bounds.height - (self.keyboardHeight+self.bottombarHeight)
+            
+            let cursorY = inWindowRect.origin.y +  caretPositionRect.height
+            
+            Logger.info("cursorY", cursorY)
+            Logger.info("visibleHeight", visibleHeight)
+            if cursorY > visibleHeight { // 光标隐藏
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    let newOffsetY =  tableView.contentOffset.y +  (cursorY - self.keyboardHeight2)
+                    Logger.info("tableView.contentOffset.y", tableView.contentOffset.y)
+                    Logger.info("newOffsetYy", newOffsetY)
+                    // your code here
+                    tableView.contentOffset.y = newOffsetY
+//                    tableView.scrollRectToVisible(CGRect.init(x: 0, y: cursorY, width: 0, height: 0), animated: false)
+//                    tableView.scroll
+//                    tableView.scrollToBottom()
+                }
+            }
+        }
+    }
+    
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = sections[section]
         switch sectionType {
-        case .todo(_, let mode):
-            switch mode {
-            case .unchecked:
-                let todoHeaderView = TodoHeaderView()
-                todoHeaderView.note = self.note
-                todoHeaderView.addButtonTapped = {
-                    if let todoBlockCell = self.todoBlockCell,!todoBlockCell.isEmpty {
-                        todoBlockCell.textView.endEditing(true)
-                    }
+        case .todo(let todoGroupBlock):
+            let todoHeaderView = TodoHeaderView()
+            todoHeaderView.note = self.note
+            todoHeaderView.todoGroupBlock = todoGroupBlock
+            //            todoHeaderView.backgroundColor = .brown
+            todoHeaderView.addButtonTapped = {
+                DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
+                    todoGroupBlock.isExpand = !todoGroupBlock.isExpand
                 }
-                return todoHeaderView
-            case .checked:
-                let todoCompleteHeaderView = TodoCompleteHeaderView()
-                todoCompleteHeaderView.isExpand = self.isTodoExpand
-                todoCompleteHeaderView.note = self.note
-                todoCompleteHeaderView.expandStateChanged = {[weak self] isExpand in
-                    // 刷新 complete section
-                    guard let self = self else { return }
-                    let sectionIndex = self.sections.firstIndex { sectionType -> Bool in
-                        switch sectionType {
-                        case .todo(_, let mode):
-                            return mode == .checked
-                        default:
-                            return false
-                        }
-                    }
-                    self.isTodoExpand = isExpand
-                    if sectionIndex != nil {
-                        self.tableView.reloadSections(IndexSet(integer: sectionIndex!), with: .automatic)
-                    }
+                if let sectionIndex = self.note.todoBlocks.index(of: todoGroupBlock) {
+                    self.tableView.reloadSections(IndexSet(integer: sectionIndex+self.firstTodoSectionIndex), with: .automatic)
                 }
-                return todoCompleteHeaderView
             }
+            return todoHeaderView
         default:
             return nil
         }
@@ -572,7 +630,7 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch sections[section] {
         case .todo:
-            return 44
+            return 34
         default:
             return CGFloat.leastNormalMagnitude
         }
@@ -580,34 +638,31 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
-        case .todo(_, let mode):
-            switch mode {
-            case .unchecked:
-                return true
-            default:
-                return false
-            }
+        case .todo:
+            return true
         default:
             return false
         }
     }
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         
-        let unCheckedTodos = self.sections[sourceIndexPath.section].getTodos(todoMode: .unchecked)
-        let allTodos = self.note.todoBlocks
+        guard  let todoGroupBlock = self.sections[sourceIndexPath.section].getTodoGroupBlock() else { return }
         
-        guard let from = allTodos.index(of: unCheckedTodos[sourceIndexPath.row]),
-            let to = allTodos.index(of: unCheckedTodos[destinationIndexPath.row]) else { return }
-        DBManager.sharedInstance.update(withoutNotifying: [self.todoBlocksNotifiToken!]) {
-            allTodos.move(from: from, to: to)
+        let blocks = todoGroupBlock.blocks
+        
+        let fromIndex = sourceIndexPath.row
+        let toIndex = destinationIndexPath.row
+        DBManager.sharedInstance.update(withoutNotifying: [self.todoGroupBlocksNotifiToken!]) {
+            blocks.move(from: fromIndex, to: toIndex)
         }
         
         // 交换顺序
-        var newUnCheckedTodos = unCheckedTodos
-        let todo = newUnCheckedTodos.remove(at: sourceIndexPath.row)
-        newUnCheckedTodos.insert(todo, at: destinationIndexPath.row)
+        let todoBlock = blocks[fromIndex]
+        blocks.remove(at: fromIndex)
+        blocks.insert(todoBlock, at: toIndex)
         
-        self.sections[sourceIndexPath.section] =  SectionType.todo(todoBlocks: newUnCheckedTodos, mode: .unchecked)
+        //        self.sections[sourceIndexPath.section] = SectionType.todo(todoGroupBlock: blocks)
+        //        self.sections[sourceIndexPath.section] =  SectionType.todo(todoBlocks: newUnCheckedTodos, mode: .unchecked)
     }
     
     
@@ -643,7 +698,7 @@ extension EditorViewController {
             let rect = (userInfo[UIResponder.keyboardFrameEndUserInfoKey]  as! NSValue).cgRectValue
             keyboardIsHide = false
             keyboardHeight = rect.height
-            keyboardHeight2 += bottombarHeight
+            keyboardHeight2 =  keyboardHeight + bottombarHeight
             let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! Double
             self.bottombar.snp.updateConstraints { (make) in
                 make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset( -(rect.height - view.safeAreaInsets.bottom))
@@ -767,7 +822,7 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
 enum SectionType {
     case title(titleBlock: Block)
     case text(textBlock: Block)
-    case todo(todoBlocks: [Block],mode: TodoMode)
+    case todo(todoGroupBlock:Block)
     case attachments(attachmentBlocks: [Block])
     
     var identifier: String {
@@ -783,16 +838,12 @@ enum SectionType {
         }
     }
     
-    
-    func getTodos(todoMode: TodoMode) -> [Block] {
+    func getTodoGroupBlock() -> Block? {
         switch self {
-        case .todo(let todoBlocks, let mode):
-            if mode == todoMode {
-                return todoBlocks
-            }
-            return []
+        case .todo(let todoGroupBlock):
+            return todoGroupBlock
         default:
-            return []
+            return nil
         }
     }
 }
