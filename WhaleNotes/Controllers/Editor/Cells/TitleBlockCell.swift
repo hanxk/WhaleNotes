@@ -42,7 +42,7 @@ class TitleBlockCell: UITableViewCell {
             make.leading.equalToSuperview().offset(EditorViewController.space)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.equalToSuperview().offset(14)
-            make.bottom.equalToSuperview().offset(-10)
+            make.bottom.equalToSuperview().offset(0)
         }
         textField.delegate = self
         self.selectionStyle = .none

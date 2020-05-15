@@ -1,14 +1,14 @@
 //
-//  TodoHeaderView.swift
+//  TodoGroupCell.swift
 //  WhaleNotes
 //
-//  Created by hanxk on 2020/4/26.
+//  Created by hanxk on 2020/5/15.
 //  Copyright © 2020 hanxk. All rights reserved.
 //
 
 import UIKit
 
-class TodoHeaderView: UIView {
+class TodoGroupCell: UITableViewCell {
     
     private lazy var arrowDownImage:UIImage = {
         let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
@@ -50,11 +50,7 @@ class TodoHeaderView: UIView {
          $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
          $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
      }
-     
     
-    var note:Note!
-    var addButtonTapped:((UIButton) ->Void)?
-    var arrowButtonTapped:(() ->Void)?
     var todoGroupBlock:Block! {
         didSet {
             let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
@@ -63,49 +59,52 @@ class TodoHeaderView: UIView {
         }
     }
     
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.setup()
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init() {
-        super.init(frame: CGRect.zero)
-        self.setup()
-        self.backgroundColor = .white
+    private func setup() {
+        self.selectionStyle = .none
+
+        self.setupUI()
     }
     
-    private func setup() {
-//        self.backgroundColor = .red
-        self.addSubview(arrowButton)
+    private func setupUI() {
+        self.contentView.addSubview(arrowButton)
         arrowButton.snp.makeConstraints { (make) in
             make.width.height.equalTo(30)
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview().offset(10)
         }
         
-        self.addSubview(titleField)
-        self.addSubview(menuButton)
+        self.contentView.addSubview(titleField)
+        self.contentView.addSubview(menuButton)
         titleField.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
             make.leading.equalTo(arrowButton.snp.trailing).offset(6)
             make.trailing.equalTo(menuButton.snp.leading).offset(-3)
         }
-        
         menuButton.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
             make.width.height.equalTo(30)
-//            make.leading.equalTo(titleField.snp.trailing)
             make.trailing.equalToSuperview().offset(-12)
         }
-        
-        
+                
     }
+}
+
+extension TodoGroupCell {
     
     @objc private func handleArrowButtonTapped() {
-        self.arrowButtonTapped?()
+//        self.arrowButtonTapped?()
     }
     
     @objc private func handleAddTodoButtonTapped() {
-        self.addButtonTapped?(self.menuButton)
+//        self.addButtonTapped?(self.menuButton)
     }
-    
 }

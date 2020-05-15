@@ -60,12 +60,14 @@ class EditorViewController: UIViewController {
     private var noteNotificationToken: NotificationToken?
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then { [weak self] in
+        
         $0.estimatedRowHeight = 50
         $0.separatorColor = .clear
-        $0.register(TitleBlockCell.self, forCellReuseIdentifier: "title")
-        $0.register(TextBlockCell.self, forCellReuseIdentifier:  "text")
-        $0.register(TodoBlockCell.self, forCellReuseIdentifier: "todo")
-        $0.register(AttachmentsBlockCell.self, forCellReuseIdentifier: "attachments")
+        $0.register(TitleBlockCell.self, forCellReuseIdentifier:CellReuseIdentifier.title.rawValue)
+        $0.register(TextBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.text.rawValue)
+        $0.register(TodoBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.todo.rawValue)
+        $0.register(TodoGroupCell.self, forCellReuseIdentifier: CellReuseIdentifier.todo_group.rawValue)
+        $0.register(AttachmentsBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.attachments.rawValue)
         $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         
         $0.backgroundColor = .clear
@@ -160,6 +162,7 @@ class EditorViewController: UIViewController {
     
 }
 
+// context menu
 extension EditorViewController {
     @objc func handleAddButtonTapped() {
         let popMenuVC = PopBlocksViewController()
@@ -339,7 +342,7 @@ extension EditorViewController {
         
         let firstSectionIndex = self.firstTodoSectionIndex
         
-        // 更新数据源
+        // 更新数据源-observer
         updateObserver(insertionIndices:insertionIndices,deletionIndices:deletionIndices)
         
         tableView.performBatchUpdates({
@@ -354,19 +357,27 @@ extension EditorViewController {
         }
     }
     
+    // 只会“删除” 或 “添加” 一次的场景
     fileprivate func updateObserver(insertionIndices:[Int],deletionIndices:[Int]) {
         
         deletionIndices.forEach {
             self.todoBlocksNotifiToken[$0].invalidate()
             self.todoBlocksNotifiToken.remove(at: $0)
+            self.sections.remove(at: $0)
         }
         
         let firstSectionIndex = self.firstTodoSectionIndex
         insertionIndices.forEach { sectionIndex in
+            
             let sIndex = sectionIndex + firstSectionIndex
             let todoGroupBlocks = self.note.todoBlocks
             let todoGroupBlock = todoGroupBlocks[sectionIndex]
-            self.sections.insert( SectionType.todo(todoGroupBlock: todoGroupBlock), at: sIndex)
+            
+            // 修改数据源
+            var todoBlocks = Array(todoGroupBlock.blocks)
+            todoBlocks.insert(todoGroupBlock, at: 0)
+            self.sections.insert(SectionType.todo(todoBlocks: todoBlocks), at: sIndex)
+            
             let notificationToken =  todoGroupBlock.blocks.observe { changes in
                 self.handleTodoChanges(todoGroupBlock:todoGroupBlock, changes: changes)
             }
@@ -378,8 +389,14 @@ extension EditorViewController {
         
         let todoGroupBlocks = self.note.todoBlocks
         let sectionIndex = self.firstTodoSectionIndex
-        // 生成section
-        self.sections.insert(contentsOf: todoGroupBlocks.map { SectionType.todo(todoGroupBlock: $0)}, at: sectionIndex)
+        
+        // 生成sections
+        let sections:[SectionType] = todoGroupBlocks.map {
+            var todoBlocks = Array($0.blocks)
+            todoBlocks.insert($0, at: 0)
+            return  SectionType.todo(todoBlocks:todoBlocks )
+        }
+        self.sections.insert(contentsOf: sections, at: sectionIndex)
         
         self.todoBlocksNotifiToken = todoGroupBlocks.map { todoGroupBlock in
             todoGroupBlock.blocks.observe { changes in
@@ -393,9 +410,17 @@ extension EditorViewController {
         case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, _):
             guard let sectionIndex = self.note.todoBlocks.index(of: todoGroupBlock)  else { return }
             let sIndex = sectionIndex + self.firstTodoSectionIndex
+            
+            // 更新 section 数据源
+            if insertionIndices.count > 0 || deletionIndices.count>0 {
+                var todoBlocks = Array(note.todoBlocks[sectionIndex].blocks)
+                todoBlocks.insert(todoGroupBlock, at: 0)
+                self.sections[sIndex] = SectionType.todo(todoBlocks: todoBlocks)
+            }
+//
             tableView.performBatchUpdates({
-                tableView.deleteRows(at: deletionIndices.map{ IndexPath(row: $0, section: sIndex)}, with: .automatic)
-                tableView.insertRows(at: insertionIndices.map{ IndexPath(row: $0, section: sIndex)}, with: .automatic)
+                tableView.deleteRows(at: deletionIndices.map{ IndexPath(row: $0+1, section: sIndex)}, with: .automatic)
+                tableView.insertRows(at: insertionIndices.map{ IndexPath(row: $0+1, section: sIndex)}, with: .automatic)
             }) { _ in
                 if !insertionIndices.isEmpty { // 弹出键盘
                     self.tryGetFocus(sectionIndex: sIndex)
@@ -469,9 +494,12 @@ extension EditorViewController {
     
     
     private func tryGetFocus(sectionIndex: Int) {
-        if let  emptyBlockIndex = self.sections[sectionIndex].getTodoGroupBlock()?.blocks.firstIndex(where: { $0.text.isEmpty }) {
-            if let cell = tableView.cellForRow(at: IndexPath(row: emptyBlockIndex, section: sectionIndex)) as? TodoBlockCell {
-                cell.textView.becomeFirstResponder()
+        let sectionType = self.sections[sectionIndex]
+        if  case .todo(let todoBlocks) = sectionType {
+            if let rowIndex = todoBlocks.lastIndex(where: { $0.text.isEmpty }) {
+                if let cell = tableView.cellForRow(at: IndexPath(row: rowIndex, section: sectionIndex)) as? TodoBlockCell {
+                    cell.textView.becomeFirstResponder()
+                }
             }
         }
     }
@@ -493,9 +521,9 @@ extension EditorViewController {
 extension EditorViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch sections[section] {
-        case .todo(let todoGroupBlock):
-            if todoGroupBlock.isExpand {
-                return todoGroupBlock.blocks.count
+        case .todo(let todoBlocks):
+            if todoBlocks[0].isExpand {
+                return todoBlocks.count
             }
             return 0
         default:
@@ -506,10 +534,22 @@ extension EditorViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return sections.count
     }
+    func getCellIdentifier(sectionObj:SectionType,indexPath:IndexPath) -> String{
+        switch sectionObj {
+        case .todo:
+            return indexPath.row == 0 ? CellReuseIdentifier.todo_group.rawValue : CellReuseIdentifier.todo.rawValue
+        case .text:
+            return CellReuseIdentifier.text.rawValue
+        case .title:
+            return CellReuseIdentifier.title.rawValue
+        case .attachments:
+            return CellReuseIdentifier.attachments.rawValue
+        }
+    }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let sectionObj = sections[indexPath.section]
-        let cell = tableView.dequeueReusableCell(withIdentifier: sectionObj.identifier, for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier:getCellIdentifier(sectionObj: sectionObj, indexPath: indexPath), for: indexPath)
         switch sectionObj {
         case .title(let titleBlock):
             let titleCell = (cell as! TitleBlockCell).then {
@@ -533,23 +573,29 @@ extension EditorViewController: UITableViewDataSource {
             }
             self.textCell = textCell
             break
-        case .todo(let todoGroupBlock):
-            let todoCell = cell as! TodoBlockCell
-            todoCell.todoGroupBlock = todoGroupBlock
-            todoCell.todoBlock = todoGroupBlock.blocks[indexPath.row]
-            todoCell.textChanged =  {[weak tableView] textView in
-                DispatchQueue.main.async {
-                    UIView.performWithoutAnimation {
-                        tableView?.beginUpdates()
-                        tableView?.endUpdates()
+        case .todo(let todoBlocks):
+            let todoBlock = todoBlocks[indexPath.row]
+            if indexPath.row == 0 { // group cell
+                let todoGroupCell = cell as! TodoGroupCell
+                todoGroupCell.todoGroupBlock = todoBlock
+            }else {
+                let todoCell = cell as! TodoBlockCell
+                todoCell.todoGroupBlock = todoBlocks[0]
+                todoCell.todoBlock = todoBlock
+                todoCell.textChanged =  {[weak tableView] textView in
+                    DispatchQueue.main.async {
+                        UIView.performWithoutAnimation {
+                            tableView?.beginUpdates()
+                            tableView?.endUpdates()
+                        }
                     }
                 }
-            }
-            todoCell.textShouldBeginChange = {[weak self] in
-                self?.todoBlockCell = todoCell
-            }
-            todoCell.textViewShouldEndEditing = {[weak self] in
-                self?.todoBlockCell = nil
+                todoCell.textShouldBeginChange = {[weak self] in
+                    self?.todoBlockCell = todoCell
+                }
+                todoCell.textViewShouldEndEditing = {[weak self] in
+                    self?.todoBlockCell = nil
+                }
             }
             break
         case .attachments:
@@ -596,42 +642,12 @@ extension EditorViewController: UITableViewDataSource {
         }
     }
     
-    
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let sectionType = sections[section]
-        switch sectionType {
-        case .todo(let todoGroupBlock):
-            let todoHeaderView = TodoHeaderView()
-            todoHeaderView.note = self.note
-            todoHeaderView.todoGroupBlock = todoGroupBlock
-            todoHeaderView.arrowButtonTapped = {
-                DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
-                    todoGroupBlock.isExpand = !todoGroupBlock.isExpand
-                }
-                if let sectionIndex = self.note.todoBlocks.index(of: todoGroupBlock) {
-                    self.tableView.reloadSections(IndexSet(integer: sectionIndex+self.firstTodoSectionIndex), with: .automatic)
-                }
-            }
-            todoHeaderView.addButtonTapped = { btn in
-                let items = [
-                    ContextMenuItem(label: "删除", icon: "trash")
-                ]
-                ContextMenuViewController.show(sourceView: btn, sourceVC: self, items: items) { [weak self] menuItem in
-                    self?.deleteBlock(sectionIndex: section)
-                }
-            }
-            return todoHeaderView
-        default:
-            return nil
-        }
-    }
-    
     func deleteBlock(sectionIndex: Int) {
         DBManager.sharedInstance.update{
             let sectionType = self.sections[sectionIndex]
             switch sectionType {
-            case .todo(let todoGroupBlock):
-                if let deletedIndex = self.note.todoBlocks.index(of: todoGroupBlock) {
+            case .todo(let todoBlocks):
+                if let deletedIndex = self.note.todoBlocks.index(of: todoBlocks[0]) {
                     self.note.todoBlocks.remove(at: deletedIndex)
                     self.sections.remove(at: sectionIndex)
                 }
@@ -643,15 +659,16 @@ extension EditorViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let sectionType = sections[section]
-          switch sectionType {
-          case .todo(let todoGroupBlock):
-              let todoFooterView = TodoFooterView()
-              todoFooterView.todoGroupBlock = todoGroupBlock
-              return todoFooterView
-          default:
-              return nil
-          }
+//        let sectionType = sections[section]
+//          switch sectionType {
+//          case .todo(let todoGroupBlock):
+//              let todoFooterView = TodoFooterView()
+//              todoFooterView.todoGroupBlock = todoGroupBlock
+//              return todoFooterView
+//          default:
+//              return nil
+//          }
+          return nil
     }
     
 }
@@ -671,55 +688,107 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch sections[section] {
         case .todo:
-            return 34
+            return 36
+        case .attachments:
+            let sectionPreIndex = section - 1
+            if self.sections[sectionPreIndex].identifier == "todo" {
+                return 16
+            }
+            return CGFloat.leastNormalMagnitude
+        case .text:
+            return 16
         default:
             return CGFloat.leastNormalMagnitude
         }
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-       switch sections[section] {
-        case .todo(let todoGroupBlock):
-            return todoGroupBlock.isExpand ? 32 : CGFloat.leastNormalMagnitude
-        default:
-            return CGFloat.leastNormalMagnitude
-        }
+//       switch sections[section] {
+////        case .todo(let todoGroupBlock):
+////            return todoGroupBlock.isExpand ? 32 : CGFloat.leastNormalMagnitude
+//       case .text:
+//            return 16
+//        default:
+//            return CGFloat.leastNormalMagnitude
+//        }
+        return CGFloat.leastNormalMagnitude
     }
     
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
         case .todo:
-            return true
+            return indexPath.row > 0 //第一行是 group title
         default:
             return false
         }
     }
+    
+
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         
-        guard  let todoGroupBlock = self.sections[sourceIndexPath.section].getTodoGroupBlock() else { return }
+        let fromSection = sourceIndexPath.section
+        let toSection = destinationIndexPath.section
         
-        let blocks = todoGroupBlock.blocks
+        let fromRow = sourceIndexPath.row
+        let toRow = destinationIndexPath.row
         
-        let fromIndex = sourceIndexPath.row
-        let toIndex = destinationIndexPath.row
-        DBManager.sharedInstance.update(withoutNotifying: [self.todoGroupBlocksNotifiToken!]) {
-            blocks.move(from: fromIndex, to: toIndex)
+        if fromSection != toSection {
+            swapRowCrossSection(fromSection: fromSection, toSection: toSection, fromRow: fromRow, toRow: toRow)
+        }else {
+            swapRowInSameSection(section: fromSection, fromRow: fromRow, toRow: toRow)
+        }
+    }
+    
+    func swapRowInSameSection(section:Int,fromRow:Int,toRow:Int) {
+        if case .todo(var todoBlocks) =  self.sections[section] {
+            todoBlocks.swapAt(fromRow, toRow)
+            self.sections[section] = SectionType.todo(todoBlocks: todoBlocks)
         }
         
-        // 交换顺序
-        let todoBlock = blocks[fromIndex]
-        blocks.remove(at: fromIndex)
-        blocks.insert(todoBlock, at: toIndex)
+        let todoBlocks = self.note.todoBlocks[section -  self.firstTodoSectionIndex].blocks
+        DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
+            todoBlocks.move(from: fromRow-1, to: toRow-1)
+        }
+    }
+    
+    func swapRowCrossSection(fromSection:Int,toSection:Int,fromRow:Int,toRow:Int) {
+        var fromTodoBlock:Block?
         
-        //        self.sections[sourceIndexPath.section] = SectionType.todo(todoGroupBlock: blocks)
-        //        self.sections[sourceIndexPath.section] =  SectionType.todo(todoBlocks: newUnCheckedTodos, mode: .unchecked)
+        // from : remove
+        if case .todo(var todoBlocks) =  self.sections[fromSection] {
+            fromTodoBlock = todoBlocks[fromRow]
+            todoBlocks.remove(at: fromRow)
+            self.sections[fromSection] = SectionType.todo(todoBlocks: todoBlocks)
+        }
+        
+        // to : insert
+        if case .todo(var todoBlocks) =  self.sections[toSection] {
+            if let fromTodoBlock = fromTodoBlock {
+               todoBlocks.insert(fromTodoBlock, at: toRow)
+            }
+            self.sections[toSection] = SectionType.todo(todoBlocks: todoBlocks)
+        }
+        
+        // 更新数据库
+        let fromBlocks = self.note.todoBlocks[fromSection -  self.firstTodoSectionIndex].blocks
+        let toBlocks = self.note.todoBlocks[toSection -  self.firstTodoSectionIndex].blocks
+        DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
+            let todoBlock = fromBlocks[fromRow-1]
+            fromBlocks.remove(at: fromRow-1)
+            toBlocks.insert(todoBlock, at: toRow-1)
+        }
     }
     
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+       
         let sourceSection = sourceIndexPath.section
         let destSection = proposedDestinationIndexPath.section
+        
+        if case .todo = self.sections[destSection]  {
+            return proposedDestinationIndexPath
+        }
         
         if destSection < sourceSection {
             return IndexPath(row: 0, section: sourceSection)
@@ -873,7 +942,7 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
 enum SectionType {
     case title(titleBlock: Block)
     case text(textBlock: Block)
-    case todo(todoGroupBlock:Block)
+    case todo(todoBlocks:[Block])
     case attachments(attachmentBlocks: [Block])
     
     var identifier: String {
@@ -889,14 +958,22 @@ enum SectionType {
         }
     }
     
-    func getTodoGroupBlock() -> Block? {
-        switch self {
-        case .todo(let todoGroupBlock):
-            return todoGroupBlock
-        default:
-            return nil
-        }
-    }
+//    func getTodoGroupBlock() -> Block? {
+//        switch self {
+//        case .todo(let todoGroupBlock):
+//            return todoGroupBlock
+//        default:
+//            return nil
+//        }
+//    }
+}
+
+enum CellReuseIdentifier: String {
+    case title = "title"
+    case text = "text"
+    case todo = "todo"
+    case todo_group = "todo_group"
+    case attachments = "attachments"
 }
 
 enum TodoMode {
