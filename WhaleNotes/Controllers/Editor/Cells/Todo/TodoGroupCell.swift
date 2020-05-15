@@ -10,6 +10,9 @@ import UIKit
 
 class TodoGroupCell: UITableViewCell {
     
+    var arrowButtonTapped:((Block) ->Void)?
+    var menuButtonTapped:((UIButton,Block) ->Void)?
+    
     private lazy var arrowDownImage:UIImage = {
         let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
         var image = UIImage(systemName: "chevron.down", withConfiguration: config)
@@ -24,13 +27,14 @@ class TodoGroupCell: UITableViewCell {
     
     private lazy var arrowButton: UIButton = UIButton().then {
         $0.contentMode = .center
+        $0.imageView?.tintColor  = UIColor(hexString: "#616264")
         $0.imageView?.contentMode = .scaleAspectFit
         $0.addTarget(self, action: #selector(self.handleArrowButtonTapped), for: .touchUpInside)
     }
     
     private lazy var titleField: UITextField = UITextField().then {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .primaryText
+        $0.textColor = .primaryText2
     }
     
     
@@ -46,7 +50,7 @@ class TodoGroupCell: UITableViewCell {
          $0.contentMode = .center
          $0.imageView?.contentMode = .scaleAspectFit
          $0.tintColor  = .thirdColor
-         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .light)
+         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .light)
          $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
          $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
      }
@@ -101,10 +105,10 @@ class TodoGroupCell: UITableViewCell {
 extension TodoGroupCell {
     
     @objc private func handleArrowButtonTapped() {
-//        self.arrowButtonTapped?()
+        self.arrowButtonTapped?(self.todoGroupBlock)
     }
     
     @objc private func handleAddTodoButtonTapped() {
-//        self.addButtonTapped?(self.menuButton)
+        self.menuButtonTapped?(self.menuButton,self.todoGroupBlock)
     }
 }
