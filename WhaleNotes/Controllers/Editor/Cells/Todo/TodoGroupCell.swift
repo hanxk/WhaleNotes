@@ -90,7 +90,7 @@ class TodoGroupCell: UITableViewCell {
         self.contentView.addSubview(menuButton)
         titleField.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
-            make.leading.equalTo(arrowButton.snp.trailing).offset(6)
+            make.leading.equalTo(arrowButton.snp.trailing).offset(4)
             make.trailing.equalTo(menuButton.snp.leading).offset(-3)
         }
         menuButton.snp.makeConstraints { (make) in

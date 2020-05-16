@@ -113,7 +113,7 @@ class TodoBlockCell: UITableViewCell {
         
         self.contentView.addSubview(textView)
         textView.snp.makeConstraints { (make) in
-            make.leading.equalTo(chkbtn.snp.trailing).offset(6)
+            make.leading.equalTo(chkbtn.snp.trailing).offset(4)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
             make.top.equalToSuperview().offset(topSpace)
             make.bottom.equalToSuperview().offset(-topSpace)
@@ -163,7 +163,7 @@ extension TodoBlockCell: UITextViewDelegate {
         return true
     }
     
-    private func updateTodo() {
+    func updateTodo() {
         DBManager.sharedInstance.update { [weak self] in
             guard let self = self else { return }
             self.todoBlock.text = self.textView.text.trimmingCharacters(in: .whitespaces)
@@ -177,6 +177,7 @@ extension TodoBlockCell {
     
     private func handleEnterReturn(textView: UITextView) {
         let text = textView.text ?? ""
+        print("哈哈哈："+text)
         if text.isEmpty {
             // 删除todo
             self.deleteTodo()

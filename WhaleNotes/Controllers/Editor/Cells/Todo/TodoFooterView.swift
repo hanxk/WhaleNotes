@@ -12,16 +12,31 @@ class TodoFooterView: UIView {
     
     private lazy var addButton: UIButton = UIButton().then {
         $0.setTitle("添加清单项", for: .normal)
-        $0.setTitleColor(.brand, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        $0.setTitleColor(UIColor(hexString: "#858687"), for: .normal)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        $0.tintColor = .thirdColor
+        
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        var image = UIImage(systemName: "plus", withConfiguration: config)
+        $0.setImage(image, for: .normal)
+        
         $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
         $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
+        
+        let imageTitlePadding:CGFloat = 6
+        $0.titleEdgeInsets = UIEdgeInsets(
+            top: 0,
+            left: imageTitlePadding,
+            bottom: 0,
+            right: -imageTitlePadding
+        )
     }
+    
     
     
     var todoGroupBlock:Block!
     
-    var addButtonTapped:(() ->Void)?
+    var addButtonTapped:((Block) ->Void)?
 
     
     required init?(coder: NSCoder) {
@@ -38,19 +53,11 @@ class TodoFooterView: UIView {
         self.addSubview(addButton)
         addButton.snp.makeConstraints { (make) in
             make.top.bottom.equalToSuperview()
-            make.leading.equalToSuperview().offset(47)
+            make.leading.equalToSuperview().offset(16)
         }
         
     }
     @objc private func handleAddButtonTapped() {
-        self.addButtonTapped?() // 防止还有未保存的 todo
-        if self.todoGroupBlock.blocks.firstIndex(where: { $0.text.isEmpty && !$0.isChecked }) != nil {
-            return
-        }
-        DBManager.sharedInstance.update { [weak self] in
-            if let self = self {
-                self.todoGroupBlock.blocks.insert(Block.newTodoBlock(),at: todoGroupBlock.blocks.count)
-            }
-        }
+        self.addButtonTapped?(self.todoGroupBlock)
     }
 }

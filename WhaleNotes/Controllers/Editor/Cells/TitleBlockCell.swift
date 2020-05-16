@@ -41,7 +41,7 @@ class TitleBlockCell: UITableViewCell {
         textField.snp.makeConstraints { (make) in
             make.leading.equalToSuperview().offset(EditorViewController.space)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
-            make.top.equalToSuperview().offset(14)
+            make.top.equalToSuperview().offset(2)
             make.bottom.equalToSuperview().offset(0)
         }
         textField.delegate = self

@@ -504,8 +504,20 @@ extension EditorViewController {
         let sectionType = self.sections[sectionIndex]
         if  case .todo(let todoBlocks) = sectionType {
             if let rowIndex = todoBlocks.lastIndex(where: { $0.text.isEmpty }) {
-                if let cell = tableView.cellForRow(at: IndexPath(row: rowIndex, section: sectionIndex)) as? TodoBlockCell {
-                    cell.textView.becomeFirstResponder()
+                let indexPath =  IndexPath(row: rowIndex, section: sectionIndex)
+                let cell = tableView.cellForRow(at:indexPath)
+                if cell == nil {
+                    tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                        guard let self = self else { return }
+                        if  let newCell = self.tableView.cellForRow(at:indexPath) as? TodoBlockCell{
+                            newCell.textView.becomeFirstResponder()
+                        }
+                    }
+                    return
+                }
+                if let todoCell = cell as? TodoBlockCell {
+                    todoCell.textView.becomeFirstResponder()
                 }
             }
         }
@@ -647,12 +659,6 @@ extension EditorViewController: UITableViewDataSource {
         DBManager.sharedInstance.update{
             self.note.todoBlocks.remove(at: sectionIndex)
         }
-//        let sectionType = self.sections[sectionIndex]
-//        if case .todo(let todoBlocks) = sectionType {
-//            if let deletedIndex = self.note.todoBlocks.index(of: todoBlocks[0]) {
-//                self.note.todoBlocks.remove(at: deletedIndex)
-//            }
-//        }
     }
     
     fileprivate func handleTextViewEnterKey(textView: UITextView){
@@ -684,16 +690,29 @@ extension EditorViewController: UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        //        let sectionType = sections[section]
-        //          switch sectionType {
-        //          case .todo(let todoGroupBlock):
-        //              let todoFooterView = TodoFooterView()
-        //              todoFooterView.todoGroupBlock = todoGroupBlock
-        //              return todoFooterView
-        //          default:
-        //              return nil
-        //          }
-        return nil
+        let sectionType = sections[section]
+          switch sectionType {
+          case .todo(let todoBlocks):
+            let todoFooterView = TodoFooterView()
+            todoFooterView.todoGroupBlock = todoBlocks[0]
+            todoFooterView.addButtonTapped = { todoGroupBlock in
+                if let index = todoGroupBlock.blocks.lastIndex(where: { $0.text.isEmpty && !$0.isChecked }) {
+                    let sectionIndex = self.firstTodoSectionIndex + (self.note.todoBlocks.index(of: todoGroupBlock) ?? 0)
+                    let cell = tableView.cellForRow(at: IndexPath(row: index+1, section: sectionIndex)) as! TodoBlockCell
+                    if cell.textView.text.isEmpty {
+                        cell.textView.becomeFirstResponder()
+                        return
+                    }
+                    cell.updateTodo()
+                }
+                DBManager.sharedInstance.update {
+                    todoGroupBlock.blocks.insert(Block.newTodoBlock(),at: todoGroupBlock.blocks.count)
+                }
+            }
+            return todoFooterView
+          default:
+              return nil
+        }
     }
     
 }
@@ -728,15 +747,12 @@ extension EditorViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        //       switch sections[section] {
-        ////        case .todo(let todoGroupBlock):
-        ////            return todoGroupBlock.isExpand ? 32 : CGFloat.leastNormalMagnitude
-        //       case .text:
-        //            return 16
-        //        default:
-        //            return CGFloat.leastNormalMagnitude
-        //        }
-        return CGFloat.leastNormalMagnitude
+       switch sections[section] {
+        case .todo(let todoBlocks):
+            return todoBlocks[0].isExpand ? 30 : CGFloat.leastNormalMagnitude
+        default:
+            return CGFloat.leastNormalMagnitude
+        }
     }
     
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
