@@ -10,6 +10,8 @@ import UIKit
 
 class TodoGroupCell: UITableViewCell {
     
+    static let CELL_HEIGHT:CGFloat = 28
+    
     var arrowButtonTapped:((Block) ->Void)?
     var menuButtonTapped:((UIButton,Block) ->Void)?
     
@@ -35,6 +37,7 @@ class TodoGroupCell: UITableViewCell {
     private lazy var titleField: UITextField = UITextField().then {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         $0.textColor = .primaryText2
+        $0.delegate = self
     }
     
     
@@ -74,14 +77,15 @@ class TodoGroupCell: UITableViewCell {
     
     private func setup() {
         self.selectionStyle = .none
-
+//        self.backgroundColor = .red
         self.setupUI()
     }
     
     private func setupUI() {
         self.contentView.addSubview(arrowButton)
         arrowButton.snp.makeConstraints { (make) in
-            make.width.height.equalTo(30)
+            make.width.equalTo(30)
+            make.height.equalTo(TodoGroupCell.CELL_HEIGHT)
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview().offset(10)
         }
@@ -95,7 +99,7 @@ class TodoGroupCell: UITableViewCell {
         }
         menuButton.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(30)
+            make.width.height.equalTo(TodoGroupCell.CELL_HEIGHT)
             make.trailing.equalToSuperview().offset(-12)
         }
                 
@@ -103,12 +107,35 @@ class TodoGroupCell: UITableViewCell {
 }
 
 extension TodoGroupCell {
-    
     @objc private func handleArrowButtonTapped() {
         self.arrowButtonTapped?(self.todoGroupBlock)
     }
     
     @objc private func handleAddTodoButtonTapped() {
         self.menuButtonTapped?(self.menuButton,self.todoGroupBlock)
+    }
+}
+
+extension TodoGroupCell: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+//        if let enterkeyTapped = self.enterkeyTapped {
+//            enterkeyTapped(textField.text ?? "")
+//            return false
+//        }
+        return true
+    }
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        var title = textField.text?.trimmingCharacters(in: .whitespaces) ?? ""
+        if title.isEmpty {
+            title = "清单"
+            textField.text = title
+        }
+        if  title != todoGroupBlock.text {
+            DBManager.sharedInstance.update {
+                todoGroupBlock.text =  title
+            }
+        }
+        return true
     }
 }

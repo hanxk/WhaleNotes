@@ -24,6 +24,7 @@ class TextBlockCell: UITableViewCell {
     var textBlock: Block! {
         didSet {
             textView.text = textBlock.text
+            placeholderLabel.isHidden = textBlock.text.isNotEmpty
         }
     }
     

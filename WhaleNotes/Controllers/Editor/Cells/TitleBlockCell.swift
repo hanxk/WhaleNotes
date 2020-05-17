@@ -41,8 +41,8 @@ class TitleBlockCell: UITableViewCell {
         textField.snp.makeConstraints { (make) in
             make.leading.equalToSuperview().offset(EditorViewController.space)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
-            make.top.equalToSuperview().offset(2)
-            make.bottom.equalToSuperview().offset(0)
+            make.top.equalToSuperview().offset(-4)
+            make.bottom.equalToSuperview().offset(-4)
         }
         textField.delegate = self
         self.selectionStyle = .none

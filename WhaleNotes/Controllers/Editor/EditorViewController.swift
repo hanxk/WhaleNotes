@@ -27,19 +27,12 @@ class EditorViewController: UIViewController {
     private var textCell: TextBlockCell?
     private var todoBlockCell: TodoBlockCell?
     
-    
     private var attachmentsCell: AttachmentsBlockCell?
     
     
     var createMode: CreateMode?
     
-    private var note: Note! {
-        didSet {
-            self.setupSectionsTypes(note: note)
-            self.tableView.reloadData()
-        }
-    }
-    // todoindex:(checkoruncheckindex:sectionindex)
+    var note: Note!
     var todoRowIndexMap:[Int:(Int,Int)] = [:]
     
     var sections:[SectionType] = []
@@ -68,11 +61,14 @@ class EditorViewController: UIViewController {
         $0.register(TodoBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.todo.rawValue)
         $0.register(TodoGroupCell.self, forCellReuseIdentifier: CellReuseIdentifier.todo_group.rawValue)
         $0.register(AttachmentsBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.attachments.rawValue)
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
+        $0.contentInset = UIEdgeInsets(top: -1.0, left: 0, bottom: bottomExtraSpace, right: 0)
         
         $0.backgroundColor = .clear
         $0.delegate = self
         $0.dataSource = self
+        
+        $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
+        $0.sectionFooterHeight = CGFloat.leastNormalMagnitude
         
         $0.dragInteractionEnabled = true
         $0.dragDelegate = self
@@ -98,6 +94,7 @@ class EditorViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.setupUI()
         self.setupData()
     }
@@ -165,6 +162,9 @@ class EditorViewController: UIViewController {
 // context menu
 extension EditorViewController {
     @objc func handleAddButtonTapped() {
+        
+        self.view.endEditing(true)
+        
         let popMenuVC = PopBlocksViewController()
         popMenuVC.cellTapped = { [weak self] type in
             popMenuVC.dismiss(animated: true, completion: {
@@ -229,8 +229,15 @@ extension EditorViewController {
 // 数据处理
 extension EditorViewController {
     
+    private func showData() {
+        self.setupSectionsTypes(note: note)
+        self.tableView.reloadData()
+        
+    }
+    
     fileprivate func setupData() {
         guard let createMode = self.createMode else {
+            self.showData()
             return
         }
         let note = self.generateNote(createMode: createMode)
@@ -248,6 +255,7 @@ extension EditorViewController {
             }
         }
         self.note = note
+        self.showData()
     }
     fileprivate func handlePropertyChange(propertyChange: PropertyChange) {
         switch propertyChange.name {
@@ -265,7 +273,7 @@ extension EditorViewController {
             let sectionIndex = 1
             self.sections.insert(SectionType.text(textBlock: textBlock), at: sectionIndex)
             self.tableView.performBatchUpdates({
-                self.tableView.insertSections(IndexSet([sectionIndex]), with: .automatic)
+                self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
             }) { _ in
                 self.textCell?.textView.becomeFirstResponder()
             }
@@ -346,8 +354,8 @@ extension EditorViewController {
         updateObserver(insertionIndices:insertionIndices,deletionIndices:deletionIndices)
         
         tableView.performBatchUpdates({
-            tableView.deleteSections(IndexSet(deletionIndices.map{ $0 + firstSectionIndex }), with: .automatic)
-            tableView.insertSections(IndexSet(insertionIndices.map{ $0 + firstSectionIndex }), with: .automatic)
+            tableView.deleteSections(IndexSet(deletionIndices.map{ $0 + firstSectionIndex }), with: .bottom)
+            tableView.insertSections(IndexSet(insertionIndices.map{ $0 + firstSectionIndex }), with: .top)
         }) { _ in
             if insertionIndices.count > 0 {
                 if let lastTodoSection = insertionIndices.max() {
@@ -421,9 +429,6 @@ extension EditorViewController {
                     return
                 }
             }
-            
-            
-            
             // 防止 ui 出错
             tableView.performBatchUpdates({
                 tableView.deleteRows(at: deletionIndices.map{ IndexPath(row: $0+1, section: sIndex)}, with: .automatic)
@@ -731,18 +736,27 @@ extension EditorViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch sections[section] {
-        case .todo:
-            return 34
-        case .attachments:
-            let sectionPreIndex = section - 1
-            if self.sections[sectionPreIndex].identifier == "todo" {
-                return 16
-            }
-            return CGFloat.leastNormalMagnitude
+        case .title:
+            return 13
         case .text:
-            return 16
-        default:
-            return CGFloat.leastNormalMagnitude
+            return 10
+        case .todo:
+            let sectionPreIndex = section - 1
+            let preSectionType =  self.sections[sectionPreIndex]
+            switch preSectionType {
+            case .title:
+                return 2
+            case .todo(let todoBlocks):
+                return todoBlocks[0].isExpand ? 8 : 0
+            default:
+                return 10
+            }
+        case .attachments:
+//            let sectionPreIndex = section - 1
+//            if self.sections[sectionPreIndex].identifier == "todo" {
+//                return 16
+//            }
+            return 18
         }
     }
     
@@ -998,15 +1012,6 @@ enum SectionType {
             return "attachments"
         }
     }
-    
-    //    func getTodoGroupBlock() -> Block? {
-    //        switch self {
-    //        case .todo(let todoGroupBlock):
-    //            return todoGroupBlock
-    //        default:
-    //            return nil
-    //        }
-    //    }
 }
 
 enum CellReuseIdentifier: String {

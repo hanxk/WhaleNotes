@@ -23,7 +23,7 @@ class TodoFooterView: UIView {
         $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
         $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
         
-        let imageTitlePadding:CGFloat = 6
+        let imageTitlePadding:CGFloat = 10
         $0.titleEdgeInsets = UIEdgeInsets(
             top: 0,
             left: imageTitlePadding,

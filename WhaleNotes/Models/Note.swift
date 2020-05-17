@@ -25,10 +25,4 @@ class Note: Object {
     override static func primaryKey() -> String? {
         return "id"
     }
-    
-//    var todoBlock: Block? {
-//        return blocks.first { (block) -> Bool in
-//            return block.blockType == .todo
-//        }
-//    }
 }

@@ -21,6 +21,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
+    private var notesView:NotesView?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setup()
@@ -29,14 +31,26 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private func setup() {
         self.setupNavgationBar()
         self.setupSideMenu()
+        
+        let notesView = NotesView()
+        notesView.delegate = self
+        
+        self.notesView = notesView
+        self.view.addSubview(notesView)
+        notesView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         self.setupFloatButtons()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        notesView?.viewWillAppear(animated)
     }
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        notesView?.viewWillDisappear(animated)
+    }
 }
 
 
@@ -276,5 +290,14 @@ extension HomeViewController: UIImagePickerControllerDelegate {
                 }
             }
         .disposed(by: disposeBag)
+    }
+}
+
+
+extension HomeViewController: NotesViewDelegate {
+    func didSelectItemAt(note: Note, indexPath: IndexPath) {
+        let noteVC  = EditorViewController()
+        noteVC.note = note
+        navigationController?.pushViewController(noteVC, animated: true)
     }
 }

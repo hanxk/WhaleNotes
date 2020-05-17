@@ -23,8 +23,9 @@ final class DBManager {
         }
     }
     
-    func getNote() {
-        
+    func getAllNotes() -> Results<Note> {
+        let notes = database.objects(Note.self).sorted(byKeyPath: "createAt")
+        return notes
     }
     
     func deleteNote( _ note: Note) {
