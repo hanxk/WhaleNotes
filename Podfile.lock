@@ -7,6 +7,21 @@ PODS:
   - Kingfisher/Core (5.13.4)
   - MBProgressHUD (1.2.0)
   - NewPopMenu (2.1.2)
+  - PINCache (3.0.1-beta.6):
+    - PINCache/Arc-exception-safe (= 3.0.1-beta.6)
+    - PINCache/Core (= 3.0.1-beta.6)
+  - PINCache/Arc-exception-safe (3.0.1-beta.6):
+    - PINCache/Core
+  - PINCache/Core (3.0.1-beta.6):
+    - PINOperation (~> 1.1.0)
+  - PINOperation (1.1.2)
+  - PINRemoteImage/Core (3.0.0-beta.13):
+    - PINOperation
+  - PINRemoteImage/iOS (3.0.0-beta.13):
+    - PINRemoteImage/Core
+  - PINRemoteImage/PINCache (3.0.0-beta.13):
+    - PINCache (= 3.0.1-beta.6)
+    - PINRemoteImage/Core
   - Realm (4.4.1):
     - Realm/Headers (= 4.4.1)
   - Realm/Headers (4.4.1)
@@ -24,6 +39,26 @@ PODS:
     - SQLite.swift/standard (= 0.12.2)
   - SQLite.swift/standard (0.12.2)
   - SwiftDate (5.1.0)
+  - Texture (2.8.1):
+    - Texture/AssetsLibrary (= 2.8.1)
+    - Texture/Core (= 2.8.1)
+    - Texture/MapKit (= 2.8.1)
+    - Texture/Photos (= 2.8.1)
+    - Texture/PINRemoteImage (= 2.8.1)
+    - Texture/Video (= 2.8.1)
+  - Texture/AssetsLibrary (2.8.1):
+    - Texture/Core
+  - Texture/Core (2.8.1)
+  - Texture/MapKit (2.8.1):
+    - Texture/Core
+  - Texture/Photos (2.8.1):
+    - Texture/Core
+  - Texture/PINRemoteImage (2.8.1):
+    - PINRemoteImage/iOS (= 3.0.0-beta.13)
+    - PINRemoteImage/PINCache
+    - Texture/Core
+  - Texture/Video (2.8.1):
+    - Texture/Core
   - Then (2.6.0)
   - TLPhotoPicker (2.0.11)
 
@@ -41,6 +76,7 @@ DEPENDENCIES:
   - SnapKit (~> 5.0.0)
   - SQLite.swift (~> 0.12.0)
   - SwiftDate (~> 5.0)
+  - Texture
   - Then
   - TLPhotoPicker
 
@@ -52,6 +88,9 @@ SPEC REPOS:
     - Kingfisher
     - MBProgressHUD
     - NewPopMenu
+    - PINCache
+    - PINOperation
+    - PINRemoteImage
     - Realm
     - RealmSwift
     - RxCocoa
@@ -61,6 +100,7 @@ SPEC REPOS:
     - SnapKit
     - SQLite.swift
     - SwiftDate
+    - Texture
     - Then
     - TLPhotoPicker
 
@@ -71,6 +111,9 @@ SPEC CHECKSUMS:
   Kingfisher: d2279a7abece3c7f25a80cd2b7f363ca5cf3f44c
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   NewPopMenu: c6129e08e8192f6257ceb5f9a4357e1b59c6e2e7
+  PINCache: d195fdba255283f7e9900a55e3cced377f431f9b
+  PINOperation: 24b774353ca248fcf87d67b2d61eef42087c125a
+  PINRemoteImage: d6d51c5d2adda55f1ce30c96e850b6c4ebd2856a
   Realm: 4eb04d7487bd43c0581256f40b424eafb711deff
   RealmSwift: 3eb8924ff7100df5928c7602f71d0fec51e7c9c5
   RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
@@ -80,9 +123,10 @@ SPEC CHECKSUMS:
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   SwiftDate: 6329e58969a2de31cea7f1ee1143b247693196e7
+  Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
   TLPhotoPicker: a5c339732b8326bb16cbb4e00ed01a86f2bfbbb3
 
-PODFILE CHECKSUM: a82d3ade3c16d3ae33056ef3d3f5df2d94b07a59
+PODFILE CHECKSUM: 6b413709ee478f2be708afeb61a51cb14442eb4c
 
 COCOAPODS: 1.9.1

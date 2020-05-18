@@ -32,14 +32,14 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         
-        let notesView = NotesView()
+        let notesView = NotesView(frame: self.view.frame)
         notesView.delegate = self
         
         self.notesView = notesView
         self.view.addSubview(notesView)
-        notesView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+//        notesView.snp.makeConstraints { make in
+//            make.edges.equalToSuperview()
+//        }
         self.setupFloatButtons()
     }
     
@@ -299,5 +299,7 @@ extension HomeViewController: NotesViewDelegate {
         let noteVC  = EditorViewController()
         noteVC.note = note
         navigationController?.pushViewController(noteVC, animated: true)
+        
+        
     }
 }

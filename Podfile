@@ -19,5 +19,6 @@ target 'WhaleNotes' do
   pod 'Kingfisher', '~> 5.0'
   pod 'DeepDiff'
   pod 'CHTCollectionViewWaterfallLayout/Swift'
+  pod "Texture"
   # Pods for WhaleNotes
 end

@@ -7,3 +7,10 @@
 //
 
 import Foundation
+
+struct NoteClone {
+    public var id: String 
+    public var title:String
+    public var text:String
+    public var updateAt: Date
+}

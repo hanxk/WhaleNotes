@@ -10,6 +10,7 @@ import UIKit
 import CHTCollectionViewWaterfallLayout
 import RealmSwift
 import SnapKit
+import AsyncDisplayKit
 
 
 protocol NotesViewDelegate: AnyObject {
@@ -25,22 +26,32 @@ class NotesView: UIView {
         static let cellHorizontalSpace: CGFloat = 12
     }
     
-    private let flowLayout = CHTCollectionViewWaterfallLayout().then {
-        $0.minimumColumnSpacing = NotesViewConstants.cellSpace
-        $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
+    
+    private lazy var  flowNodesLayout = MosaicCollectionViewLayout().then {
+        $0.numberOfColumns = 2;
+        $0.delegate = self
+        $0.headerHeight = 0;
+        
+        let horizontalSpace = NotesViewConstants.cellHorizontalSpace
+        let verticalSpace = NotesViewConstants.cellSpace
+        $0._sectionInset = UIEdgeInsets.init(top: verticalSpace, left: horizontalSpace, bottom: verticalSpace, right: horizontalSpace)
+        $0.interItemSpacing = UIEdgeInsets.init(top: 10.0, left: 0, bottom: 10.0, right: 0)
     }
     
-    private(set) lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
+    private(set) lazy var collectionNode = ASCollectionNode(frame: CGRect.zero,collectionViewLayout:flowNodesLayout).then { [weak self] in
         guard let self = self else {return}
+        $0.alwaysBounceVertical = true
+        let _layoutInspector = MosaicCollectionViewLayoutInspector()
         $0.delegate = self
         $0.dataSource = self
-        $0.register(NoteCardCell.self, forCellWithReuseIdentifier:"NoteCardCell")
-        $0.backgroundColor = .white
-        $0.alwaysBounceVertical = true
+        $0.layoutInspector = _layoutInspector
+        
     }
     
-//    private var notes:[Note] = []
-    private var notes:Results<Note>?
+    
+    private var notesResult:Results<Note>!
+    private var notesClone:[NoteClone] = []
+    //    private var notes:Results<Note>?
     private var cardsSize:[String:CGFloat] = [:]
     private var notesToken:NotificationToken?
     private var columnCount = 0
@@ -49,25 +60,42 @@ class NotesView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    init() {
-        super.init(frame: CGRect.zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         self.columnCount = 2
         let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(columnCount-1)
         self.cardWidth = validWidth / CGFloat(columnCount)
-        
         self.setupUI()
         self.setupData()
     }
     
     private func setupUI() {
         self.backgroundColor = .white
-        
-        addSubview(collectionView)
-        collectionView.snp.makeConstraints { (make) in
-            make.top.bottom.equalToSuperview()
-            make.leading.equalToSuperview().offset(NotesViewConstants.cellHorizontalSpace)
-            make.trailing.equalToSuperview().offset(-NotesViewConstants.cellHorizontalSpace)
+        collectionNode.frame = self.frame
+        self.addSubnode(collectionNode)
+    }
+    
+    private func setupData() {
+        self.notesResult = DBManager.sharedInstance.getAllNotes()
+        notesToken = notesResult.observe { [weak self] (changes: RealmCollectionChange) in
+            guard let self = self else { return }
+            switch changes {
+            case .initial:
+                self.cloneNotes()
+                self.calcCardSize()
+                self.collectionNode.reloadData()
+            case .update(_, let deletions, let insertions, let modifications):
+                self.collectionNode.performBatchUpdates({
+                    // 更新数据源
+                    self.updateDataSource(deletions: deletions, insertions: insertions, modifications: modifications)
+                    self.collectionNode.insertItems(at: insertions.map({ IndexPath(row: $0, section: 0)}))
+                    self.collectionNode.deleteItems(at: deletions.map({ IndexPath(row: $0, section: 0)}))
+                    self.collectionNode.reloadItems(at: modifications.map({ IndexPath(row: $0, section: 0)}))
+                }, completion: nil)
+                break
+            case .error(let error):
+                fatalError("\(error)")
+            }
         }
     }
 }
@@ -75,50 +103,31 @@ class NotesView: UIView {
 extension NotesView {
     
     func viewWillAppear(_ animated: Bool) {
-        notesToken = notes?.observe { [weak self] (changes: RealmCollectionChange) in
-            guard let self = self else { return }
-            let collectionView = self.collectionView
-            switch changes {
-            case .initial:
-                self.calcCardSize()
-                collectionView.reloadData()
-            case .update(_, let deletions, let insertions, let modifications):
-                collectionView.performBatchUpdates({
-                    // 更新数据源
-                    self.updateDataSource(deletions: deletions, insertions: insertions, modifications: modifications)
-                    
-                    collectionView.insertItems(at: insertions.map({ IndexPath(row: $0, section: 0)}))
-                    collectionView.deleteItems(at: deletions.map({ IndexPath(row: $0, section: 0)}))
-                    collectionView.reloadItems(at: modifications.map({ IndexPath(row: $0, section: 0)}))
-                    
-                }, completion: nil)
-            case .error(let error):
-                // An error occurred while opening the Realm file on the background worker thread
-                fatalError("\(error)")
-            }
-        }
-    }
-    func viewWillDisappear(_ animated: Bool) {
-        notesToken?.invalidate()
+        
     }
     
-    private func setupData() {
-        let notesResult = DBManager.sharedInstance.getAllNotes()
-        self.notes = notesResult
+    private func cloneNotes() {
+        self.notesClone.removeAll()
+        self.notesClone = self.notesResult.map({
+            return NoteClone(id: $0.id, title: $0.titleBlock?.text ?? "", text: $0.textBlock?.text ?? "", updateAt: $0.updateAt)
+        })
     }
-
+    
+    func viewWillDisappear(_ animated: Bool) {
+        //        notesToken?.invalidate()
+    }
     
     private func updateDataSource(deletions: [Int], insertions: [Int], modifications: [Int]) {
-        guard let notes = self.notes else { return }
+        self.cloneNotes()
         for index in insertions.sorted(by: >) {
-            let note = notes[index]
+            let note = notesClone[index]
             let cardHeight = NoteCardCell.calculateHeight(cardWidth: cardWidth, note: note)
             let key = generateCardSizeKey(note: note)
             cardsSize[key] = cardHeight
         }
         
         for index in modifications.sorted(by: >) {
-            let note = notes[index]
+            let note = notesClone[index]
             let cardHeight = NoteCardCell.calculateHeight(cardWidth: cardWidth, note: note)
             let key = generateCardSizeKey(note: note)
             cardsSize[key] = cardHeight
@@ -126,8 +135,7 @@ extension NotesView {
     }
     
     private func calcCardSize() {
-        guard let notes = self.notes else { return }
-        for (_,note) in notes.enumerated() {
+        for (_,note) in notesClone.enumerated() {
             let key = generateCardSizeKey(note: note)
             if cardsSize[key] == nil {
                 let cardHeight = NoteCardCell.calculateHeight(cardWidth: cardWidth, note: note)
@@ -136,42 +144,40 @@ extension NotesView {
         }
     }
     
-    private func generateCardSizeKey(note: Note) -> String {
+    private func generateCardSizeKey(note: NoteClone) -> String {
         return String(note.updateAt.timeIntervalSince1970) + "*" + note.id
     }
 }
 
-extension NotesView: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NoteCardCell", for: indexPath) as! NoteCardCell
-        cell.note = self.notes![indexPath.row]
-        return cell
+extension NotesView: MosaicCollectionViewLayoutDelegate {
+    func collectionView(_ collectionView: UICollectionView, layout: MosaicCollectionViewLayout, originalItemSizeAtIndexPath: IndexPath) -> CGSize {
+        
+        let cardHeight = self.cardsSize[generateCardSizeKey(note: notesClone[originalItemSizeAtIndexPath.row])] ?? 0
+        let size = CGSize(width: cardWidth, height: cardHeight)
+        
+        return size
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return notes?.count ?? 0
+    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
+        let note = self.notesClone[indexPath.row]
+        Logger.info(Thread.current.isMainThread ? "mail" : "----> child")
+        return {
+            return NoteCellNode(title: note.title, text: note.text)
+        }
     }
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
+}
+
+
+extension NotesView: ASCollectionDataSource {
+    func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
         return 1
     }
+    
+    func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
+        return notesClone.count
+    }
+    
 }
 
 
-extension NotesView: CHTCollectionViewDelegateWaterfallLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let notes = notes else { return .zero }
-        let cardHeight = self.cardsSize[generateCardSizeKey(note: notes[indexPath.row])] ?? 0
-        return CGSize(width: cardWidth, height: cardHeight)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, columnCountFor section: Int) -> Int {
-        return columnCount
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard  let notes = self.notes else { return }
-        delegate?.didSelectItemAt(note: notes[indexPath.row], indexPath: indexPath)
-        
-    }
-}

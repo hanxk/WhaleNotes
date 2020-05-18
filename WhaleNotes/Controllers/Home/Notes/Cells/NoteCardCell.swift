@@ -30,51 +30,49 @@ class NoteCardCell: UICollectionViewCell {
         $0.numberOfLines = 0
     }
     
-    var note:Note! {
+    var note:NoteClone! {
         didSet {
             self.setupUI()
         }
     }
     
     private func setupUI() {
-        if let titleBlock = note.titleBlock {
-            self.contentView.addSubview(titleLabel)
-            titleLabel.snp.makeConstraints { make in
-                make.leading.equalToSuperview().offset(CardUIConstants.horizontalPadding)
-                make.trailing.equalToSuperview().offset(-CardUIConstants.horizontalPadding)
-                make.top.equalToSuperview().offset(CardUIConstants.verticalPadding)
-            }
-            titleLabel.text = titleBlock.text
-        }
-        if let textBlock = note.textBlock {
-            self.contentView.addSubview(textLabel)
-            textLabel.snp.makeConstraints { make in
-                make.leading.equalToSuperview().offset(CardUIConstants.horizontalPadding)
-                make.trailing.equalToSuperview().offset(-CardUIConstants.horizontalPadding)
-                make.top.equalTo(titleLabel.snp.bottom).offset(CardUIConstants.verticalPadding)
-            }
-            textLabel.text = textBlock.text
-        }
-        
-        self.contentView.backgroundColor = .white
-        _ = self.contentView.layer.then {
-            $0.cornerRadius = 6
-            $0.borderWidth = 1
-            $0.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
-        }
+//        if let titleBlock = note.titleBlock {
+//            self.contentView.addSubview(titleLabel)
+//            titleLabel.snp.makeConstraints { make in
+//                make.leading.equalToSuperview().offset(CardUIConstants.horizontalPadding)
+//                make.trailing.equalToSuperview().offset(-CardUIConstants.horizontalPadding)
+//                make.top.equalToSuperview().offset(CardUIConstants.verticalPadding)
+//            }
+//            titleLabel.text = titleBlock.text
+//        }
+//        if let textBlock = note.textBlock {
+//            self.contentView.addSubview(textLabel)
+//            textLabel.snp.makeConstraints { make in
+//                make.leading.equalToSuperview().offset(CardUIConstants.horizontalPadding)
+//                make.trailing.equalToSuperview().offset(-CardUIConstants.horizontalPadding)
+//                make.top.equalTo(titleLabel.snp.bottom).offset(CardUIConstants.verticalPadding)
+//            }
+//            textLabel.text = textBlock.text
+//        }
+//        
+//        self.contentView.backgroundColor = .white
+//        _ = self.contentView.layer.then {
+//            $0.cornerRadius = 6
+//            $0.borderWidth = 1
+//            $0.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
+//        }
     }
     
-    static func calculateHeight(cardWidth: CGFloat,note: Note) -> CGFloat {
+    static func calculateHeight(cardWidth: CGFloat,note: NoteClone) -> CGFloat {
         let contentWidth = cardWidth - CardUIConstants.horizontalPadding*2
         var height:CGFloat = 0
-        if let title = note.titleBlock?.text,title.isNotEmpty {
-            height +=  title.height(withWidth: contentWidth, font: UIFont.systemFont(ofSize: 15))
-        }
-        if let text = note.textBlock?.text,text.isNotEmpty {
-            let attrStr  = getTextLabelAttributes(text: text)
-            height += CardUIConstants.verticalSpace
-            height += attrStr.height(withConstrainedWidth: cardWidth)
-        }
+        height +=  note.title.height(withWidth: contentWidth, font: UIFont.systemFont(ofSize: 15))
+   
+        
+        let attrStr  = getTextLabelAttributes(text: note.text)
+        height += CardUIConstants.verticalSpace
+             height += attrStr.height(withConstrainedWidth: cardWidth)
         height += CardUIConstants.verticalPadding*2
         return height
     }
