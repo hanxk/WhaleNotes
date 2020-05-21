@@ -34,12 +34,11 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         
         let notesView = NotesView(frame: self.view.frame)
         notesView.delegate = self
-        
         self.notesView = notesView
         self.view.addSubview(notesView)
-//        notesView.snp.makeConstraints { make in
-//            make.edges.equalToSuperview()
-//        }
+            notesView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
         self.setupFloatButtons()
     }
     
@@ -159,6 +158,7 @@ extension HomeViewController {
     
     @objc func btnNewNoteTapped (sender:UIButton) {
         //        self.openNoteEditor(createMode: .text)
+        self.openEditor(createMode: .text)
         
     }
     
@@ -188,11 +188,20 @@ extension HomeViewController {
     }
     
     func openEditor(createMode: CreateMode) {
-        let noteVC  = EditorViewController()
-        noteVC.createMode = createMode
-        navigationController?.pushViewController(noteVC, animated: true)
+        if let note = notesView?.createNote(createMode: createMode) {
+            openEditorVC(note: note,isEdit: true)
+        }
     }
     
+    func openEditorVC(note: Note,isEdit:Bool = false) {
+        let noteVC  = EditorViewController()
+        noteVC.note = note
+        noteVC.isEdit = isEdit
+        noteVC.callbackNoteUpdate = {updateMode in
+            self.notesView?.noteEditorUpdated(mode: updateMode)
+        }
+        navigationController?.pushViewController(noteVC, animated: true)
+    }
     
     @objc func btnMoreTapped (sender:UIButton) {
         let popMenuVC = PopBlocksViewController()
@@ -253,7 +262,7 @@ extension HomeViewController: TLPhotosPickerViewControllerDelegate {
                 if let blocks  = $0.element {
                     self.openEditor(createMode: .attachment(blocks: blocks))
                 }
-            }
+        }
         .disposed(by: disposeBag)
     }
 }
@@ -288,7 +297,7 @@ extension HomeViewController: UIImagePickerControllerDelegate {
                 if let blocks  = $0.element {
                     self.openEditor(createMode: .attachment(blocks: blocks))
                 }
-            }
+        }
         .disposed(by: disposeBag)
     }
 }
@@ -296,10 +305,6 @@ extension HomeViewController: UIImagePickerControllerDelegate {
 
 extension HomeViewController: NotesViewDelegate {
     func didSelectItemAt(note: Note, indexPath: IndexPath) {
-        let noteVC  = EditorViewController()
-        noteVC.note = note
-        navigationController?.pushViewController(noteVC, animated: true)
-        
-        
+        self.openEditorVC(note: note)
     }
 }

@@ -57,14 +57,16 @@ class TodoGroupCell: UITableViewCell {
          $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
          $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
      }
-    
-    var todoGroupBlock:Block! {
+    var note:Note!
+     var todoGroupBlock:Block! {
+
         didSet {
             let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
-            arrowButton.setImage(btnImage, for: .normal)
-            titleField.text = todoGroupBlock.text
+                       arrowButton.setImage(btnImage, for: .normal)
+                       titleField.text = todoGroupBlock.text
         }
     }
+    
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -132,7 +134,7 @@ extension TodoGroupCell: UITextFieldDelegate {
             textField.text = title
         }
         if  title != todoGroupBlock.text {
-            DBManager.sharedInstance.update {
+            DBManager.sharedInstance.update(note: self.note) {
                 todoGroupBlock.text =  title
             }
         }

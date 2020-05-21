@@ -17,12 +17,22 @@ class TitleBlockCell: UITableViewCell {
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
     }
-    var titleBlock: Block! {
+//    var titleBlock: Block! {
+//        didSet {
+//            textField.text = titleBlock.text
+//        }
+//    }
+    
+    var note:Note! {
         didSet {
-            textField.text = titleBlock.text
+            if let titleBlock = note.titleBlock {
+                textField.text = titleBlock.text
+            }
         }
     }
-        
+    
+
+    
     
     var enterkeyTapped: ((String) -> Void)?
     
@@ -70,9 +80,10 @@ extension TitleBlockCell: UITextFieldDelegate {
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        guard let titleBlock = note.titleBlock else { return true }
         let title = textField.text ?? ""
         if  title != titleBlock.text {
-            DBManager.sharedInstance.update {
+            DBManager.sharedInstance.update(note: note) {
                 titleBlock.text =  title.trimmingCharacters(in: .whitespaces)
                 Logger.info("update title for block: ",titleBlock.id)
             }

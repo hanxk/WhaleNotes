@@ -13,7 +13,7 @@ class PopBlocksViewController: UIViewController {
     private let cellHeight: CGFloat = 55
     
     private var items:[MenuItem] = [
-        MenuItem(label: "文本", icon: "textbox", type: .text),
+//        MenuItem(label: "文本", icon: "textbox", type: .text),
         MenuItem(label: "待办事项", icon: "checkmark.square", type: .todo),
         MenuItem(label: "从相册选择", icon: "photo.on.rectangle", type: .image),
         MenuItem(label: "拍照", icon: "camera", type: .camera),

@@ -16,6 +16,13 @@ import RxSwift
 import MBProgressHUD
 import DeepDiff
 
+
+enum EditorUpdateMode {
+    case insert(note:Note)
+    case update(note:Note)
+    case delete(note:Note)
+}
+
 class EditorViewController: UIViewController {
     
     static let space: CGFloat = 14
@@ -30,9 +37,14 @@ class EditorViewController: UIViewController {
     private var attachmentsCell: AttachmentsBlockCell?
     
     
-    var createMode: CreateMode?
+    var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
     
+    
+    
+    // 索引
     var note: Note!
+    var isNoteUpdated:Bool = false
+    
     var todoRowIndexMap:[Int:(Int,Int)] = [:]
     
     var sections:[SectionType] = []
@@ -90,6 +102,7 @@ class EditorViewController: UIViewController {
     
     var keyboardHeight: CGFloat = 0
     var keyboardHeight2: CGFloat = 0
+    var isEdit = false
     private var keyboardIsHide = true
     
     override func viewDidLoad() {
@@ -99,12 +112,16 @@ class EditorViewController: UIViewController {
         self.setupData()
     }
     
+    var updateAt:Date!
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHideNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
+        
+        updateAt = self.note.updateAt
     }
     @objc func rotated() {
         self.attachmentsCell?.handleScreenRotation()
@@ -114,6 +131,10 @@ class EditorViewController: UIViewController {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
         tableView.endEditing(true)
+        
+        if self.updateAt != note.updateAt {
+            self.callbackNoteUpdate?(self.isEdit ? EditorUpdateMode.insert(note: self.note) : EditorUpdateMode.update(note: self.note))
+        }
     }
     
     private func setupUI() {
@@ -141,14 +162,13 @@ class EditorViewController: UIViewController {
     }
     
     private func setFirstResponder() {
-        guard let createMode = createMode else { return }
-        switch createMode {
-        case .text: 
-            textCell?.textView.becomeFirstResponder()
-        case .todo:
-            self.todoBlockCell?.textView.becomeFirstResponder()
-        default:
-            break
+        if !isEdit {
+            return
+        }
+        if let textCell = textCell {
+            textCell.textView.becomeFirstResponder()
+        } else if let todoBlockCell = todoBlockCell {
+            todoBlockCell.textView.becomeFirstResponder()
         }
     }
     
@@ -211,14 +231,16 @@ extension EditorViewController {
             return
         }
         // 新增 textblock
-        DBManager.sharedInstance.update {
+        DBManager.sharedInstance.update(note: note) {
+            isNoteUpdated = true
             note.textBlock = Block.newTextBlock()
         }
     }
     
     fileprivate func handleTodoBlock() {
         // 新增 todo block
-        DBManager.sharedInstance.update {
+        DBManager.sharedInstance.update(note: note) {
+            isNoteUpdated = true
             note.todoBlocks.append(Block.newTodoGroupBlock())
         }
         
@@ -236,26 +258,20 @@ extension EditorViewController {
     }
     
     fileprivate func setupData() {
-        guard let createMode = self.createMode else {
-            self.showData()
-            return
-        }
-        let note = self.generateNote(createMode: createMode)
-        DBManager.sharedInstance.addNote(note)
+        self.showData()
         self.noteNotificationToken = note.observe { change in
             switch change {
             case .change(let properties):
                 for property in properties {
                     self.handlePropertyChange(propertyChange: property)
                 }
+                self.isNoteUpdated = true
             case .error(let error):
                 print("An error occurred: \(error)")
             case .deleted:
                 print("The object was deleted.")
             }
         }
-        self.note = note
-        self.showData()
     }
     fileprivate func handlePropertyChange(propertyChange: PropertyChange) {
         switch propertyChange.name {
@@ -294,22 +310,7 @@ extension EditorViewController {
     }
     
     
-    fileprivate func generateNote(createMode: CreateMode) -> Note {
-        let note: Note = Note()
-        note.titleBlock = Block.newTitleBlock()
-        switch createMode {
-        case .text:
-            note.textBlock = Block.newTextBlock()
-            break
-        case .todo:
-            note.todoBlocks.append(Block.newTodoGroupBlock())
-            break
-        case .attachment(let blocks):
-            note.attachBlocks.append(objectsIn: blocks)
-            break
-        }
-        return note
-    }
+  
     
     fileprivate func setupSectionsTypes(note: Note) {
         if let titleBlock = note.titleBlock {
@@ -575,18 +576,18 @@ extension EditorViewController: UITableViewDataSource {
         let sectionObj = sections[indexPath.section]
         let cell = tableView.dequeueReusableCell(withIdentifier:getCellIdentifier(sectionObj: sectionObj, indexPath: indexPath), for: indexPath)
         switch sectionObj {
-        case .title(let titleBlock):
+        case .title:
             let titleCell = (cell as! TitleBlockCell).then {
-                $0.titleBlock = titleBlock
+                $0.note = note
                 $0.enterkeyTapped { [weak self] _ in
                     self?.textCell?.textView.becomeFirstResponder()
                 }
             }
             self.titleCell = titleCell
             break
-        case .text(let textBlock):
+        case .text:
             let textCell = cell as! TextBlockCell
-            textCell.textBlock = textBlock
+            textCell.note = note
             textCell.textChanged {[weak tableView] newText in
                 DispatchQueue.main.async {
                     UIView.performWithoutAnimation {
@@ -601,12 +602,14 @@ extension EditorViewController: UITableViewDataSource {
             let todoBlock = todoBlocks[indexPath.row]
             if indexPath.row == 0 { // group cell
                 let todoGroupCell = cell as! TodoGroupCell
+                todoGroupCell.note = note
                 todoGroupCell.todoGroupBlock = todoBlock
                 setupTodoGroupCell(todoGroupCell: todoGroupCell)
             }else {
                 let todoCell = cell as! TodoBlockCell
                 todoCell.todoGroupBlock = todoBlocks[0]
                 todoCell.todoBlock = todoBlock
+                todoCell.note = note
                 todoCell.textChanged =  {[weak tableView] textView in
                     DispatchQueue.main.async {
                         UIView.performWithoutAnimation {
@@ -642,7 +645,7 @@ extension EditorViewController: UITableViewDataSource {
     
     fileprivate func setupTodoGroupCell(todoGroupCell: TodoGroupCell) {
         todoGroupCell.arrowButtonTapped = { todoGroupBlock in
-            DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
+            DBManager.sharedInstance.update(note:self.note,withoutNotifying: self.todoBlocksNotifiToken) {
                 todoGroupBlock.isExpand = !todoGroupBlock.isExpand
             }
             if let sectionIndex = self.note.todoBlocks.index(of: todoGroupBlock) {
@@ -661,7 +664,8 @@ extension EditorViewController: UITableViewDataSource {
     }
     
     fileprivate func deleteBlockByIndex(sectionIndex: Int) {
-        DBManager.sharedInstance.update{
+        DBManager.sharedInstance.update(note: note){
+            self.isNoteUpdated = true
             self.note.todoBlocks.remove(at: sectionIndex)
         }
     }
@@ -710,7 +714,7 @@ extension EditorViewController: UITableViewDataSource {
                     }
                     cell.updateTodo()
                 }
-                DBManager.sharedInstance.update {
+                DBManager.sharedInstance.update(note: self.note) {
                     todoGroupBlock.blocks.insert(Block.newTodoBlock(),at: todoGroupBlock.blocks.count)
                 }
             }
@@ -802,7 +806,7 @@ extension EditorViewController: UITableViewDelegate {
         }
         
         let todoBlocks = self.note.todoBlocks[section -  self.firstTodoSectionIndex].blocks
-        DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
+        DBManager.sharedInstance.update(note:note,withoutNotifying: self.todoBlocksNotifiToken) {
             todoBlocks.move(from: fromRow-1, to: toRow-1)
         }
     }
@@ -828,7 +832,7 @@ extension EditorViewController: UITableViewDelegate {
         // 更新数据库
         let fromBlocks = self.note.todoBlocks[fromSection -  self.firstTodoSectionIndex].blocks
         let toBlocks = self.note.todoBlocks[toSection -  self.firstTodoSectionIndex].blocks
-        DBManager.sharedInstance.update(withoutNotifying: self.todoBlocksNotifiToken) {
+        DBManager.sharedInstance.update(note:self.note,withoutNotifying: self.todoBlocksNotifiToken) {
             let todoBlock = fromBlocks[fromRow-1]
             fromBlocks.remove(at: fromRow-1)
             toBlocks.insert(todoBlock, at: toRow-1)
@@ -944,7 +948,7 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
             .subscribe {
                 self.hideHUD()
                 if let blocks  = $0.element {
-                    DBManager.sharedInstance.update {
+                    DBManager.sharedInstance.update(note: self.note) {
                         self.note.attachBlocks.append(objectsIn: blocks)
                     }
                 }
@@ -981,7 +985,7 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
             .subscribe {
                 self.hideHUD()
                 if let blocks  = $0.element {
-                    DBManager.sharedInstance.update {
+                    DBManager.sharedInstance.update(note: self.note) {
                         self.note.attachBlocks.append(objectsIn: blocks)
                     }
                 }

@@ -10,7 +10,7 @@ import Foundation
 import RealmSwift
 
 final class DBManager {
-    private var database:Realm!
+    private(set) var database:Realm!
     static let sharedInstance = DBManager()
     
     private init(){
@@ -42,10 +42,22 @@ final class DBManager {
         }
     }
     
-    func update(withoutNotifying: [NotificationToken]=[],callback:()->Void) {
+    
+    func update(note:Note,withoutNotifying: [NotificationToken]=[],callback:()->Void) {
         try! database.write(withoutNotifying: withoutNotifying) {
             Logger.info("update")
+            // 更新时间
+            note.updateAt = Date()
             callback()
         }
     }
+    
+  
+    
+//    func update(withoutNotifying: [NotificationToken]=[],callback:()->Void) {
+//        try! database.write(withoutNotifying: withoutNotifying) {
+//            Logger.info("update")
+//            callback()
+//        }
+//    }
 }

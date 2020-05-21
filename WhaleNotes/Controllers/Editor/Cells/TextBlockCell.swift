@@ -21,10 +21,18 @@ class TextBlockCell: UITableViewCell {
         $0.textContainer.lineFragmentPadding = 0
     }
     
-    var textBlock: Block! {
+    private var textBlock: Block! {
         didSet {
             textView.text = textBlock.text
             placeholderLabel.isHidden = textBlock.text.isNotEmpty
+        }
+    }
+    
+    var note:Note! {
+        didSet {
+            if let textBlock = note.textBlock {
+                self.textBlock = textBlock
+            }
         }
     }
     
@@ -108,7 +116,7 @@ extension TextBlockCell: UITextViewDelegate {
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         let text = textView.text ?? ""
         if  text != textBlock.text {
-            DBManager.sharedInstance.update {
+            DBManager.sharedInstance.update(note: self.note) {
                 textBlock.text =  text
                 Logger.info("update text for block: ",textBlock.id)
             }

@@ -123,7 +123,7 @@ class TodoBlockCell: UITableViewCell {
     @objc private func handleChkButtonTapped() {
         self.isChecked = !self.isChecked
         self.textView.resignFirstResponder()
-        DBManager.sharedInstance.update { [weak self] in
+        DBManager.sharedInstance.update(note: self.note) { [weak self] in
             guard let self = self else { return }
             self.todoBlock.text = textView.text.trimmingCharacters(in: .whitespaces)
             self.todoBlock.isChecked = self.isChecked
@@ -164,7 +164,7 @@ extension TodoBlockCell: UITextViewDelegate {
     }
     
     func updateTodo() {
-        DBManager.sharedInstance.update { [weak self] in
+        DBManager.sharedInstance.update(note: self.note) { [weak self] in
             guard let self = self else { return }
             self.todoBlock.text = self.textView.text.trimmingCharacters(in: .whitespaces)
         }
@@ -187,7 +187,7 @@ extension TodoBlockCell {
             
             // 新增todo
             Logger.info("新增todo")
-            DBManager.sharedInstance.update { [weak self] in
+            DBManager.sharedInstance.update(note: note) { [weak self] in
                 guard let self = self else { return }
                 self.todoBlock.text = text
                 todoBlocks.insert(Block.newTodoBlock(), at: destIndex)
@@ -197,7 +197,7 @@ extension TodoBlockCell {
     
     private func deleteTodo() {
         Logger.info("删除todo")
-        DBManager.sharedInstance.update { [weak self] in
+        DBManager.sharedInstance.update(note: note){ [weak self] in
             guard let self = self else { return }
             if let index = todoBlocks.firstIndex(of: self.todoBlock) {
                 todoBlocks.remove(at: index)

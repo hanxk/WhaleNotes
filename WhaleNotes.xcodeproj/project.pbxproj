@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		072F6FF56795E2A22DB4EFBA /* Pods_WhaleNotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */; };
+		18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */; };
+		18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */; };
 		182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
@@ -58,6 +60,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
+		18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutInfo.swift; sourceTree = "<group>"; };
 		182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoFooterView.swift; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
@@ -246,6 +250,8 @@
 				188942AC24702A2B006173F8 /* Cells */,
 				188942AA246FDC1F006173F8 /* NotesView.swift */,
 				18E9D6C024714ADA001E41A0 /* MosaicCollectionViewLayout.swift */,
+				18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */,
+				18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */,
 			);
 			path = Notes;
 			sourceTree = "<group>";
@@ -480,6 +486,7 @@
 				18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
+				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */,
@@ -489,6 +496,7 @@
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18E9D6C5247167A8001E41A0 /* NoteClone.swift in Sources */,
+				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
 				1865AF16244DCB850006B48D /* TextBlockCell.swift in Sources */,
 				1865AF01244D403B0006B48D /* Note.swift in Sources */,
