@@ -34,7 +34,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
-        $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: 2, columnSpacing: 12, interItemSpacing: 8, sectionInsets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12), scrollDirection: ASScrollDirectionVerticalDirections)
+        $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: 2, columnSpacing: 10, interItemSpacing: 10, sectionInsets: UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12), scrollDirection: ASScrollDirectionVerticalDirections)
     }
     
     

@@ -60,17 +60,20 @@ extension HomeViewController {
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         let barButton = UIBarButtonItem(customView: button)
         
-        let label = UILabel()
-        label.text = "东京旅行"
-        label.textAlignment = .left
-        label.backgroundColor = UIColor.clear
-        let labelItem = UIBarButtonItem(customView: label)
+//        let label = UILabel()
+//        label.text = "东京旅行"
+//        label.textAlignment = .left
+//        label.backgroundColor = UIColor.clear
+//        let labelItem = UIBarButtonItem(customView: label)
+        self.navigationItem.title = "东京旅行"
+        self.navigationItem.largeTitleDisplayMode = .automatic
+        self.navigationItem.leftBarButtonItems = [barButton]
         
-        self.navigationItem.leftBarButtonItems = [barButton,labelItem]
+        self.navigationController?.navigationBar.barTintColor  = UIColor.white
         
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
-        navigationItem.rightBarButtonItems = [more,search]
+        navigationItem.rightBarButtonItems = [search]
     }
     
     @objc func toggleSideMenu (sender:UIButton) {
@@ -96,7 +99,7 @@ extension HomeViewController {
         //        presentationStyle.presentingScaleFactor = CGFloat(presentingScaleFactorSlider.value)
         var settings = SideMenuSettings()
         settings.presentationStyle = presentationStyle
-        settings.menuWidth = view.frame.width - 41*UIScreen.main.scale
+        settings.menuWidth = view.frame.width - 52
         settings.statusBarEndAlpha = 0
         //        let styles:[UIBlurEffect.Style?] = [nil, .dark, .light, .extraLight]
         //        settings.blurEffectStyle = styles[blurSegmentControl.selectedSegmentIndex]

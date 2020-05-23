@@ -13,7 +13,7 @@ import RealmSwift
 enum AttachmentsConstants {
     static let cellSpace: CGFloat = 8
     static let height: CGFloat = 50
-    static let radius: CGFloat = 10
+    static let radius: CGFloat = 6
 }
 
 class AttachmentsBlockCell: UITableViewCell {

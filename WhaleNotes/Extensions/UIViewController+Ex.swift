@@ -31,3 +31,7 @@ extension UIViewController {
         MBProgressHUD.hide(for: self.view, animated: true)
     }
 }
+
+extension UIViewController {
+
+}

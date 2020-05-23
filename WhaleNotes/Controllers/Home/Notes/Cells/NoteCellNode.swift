@@ -29,7 +29,8 @@ class NoteCellNode: ASCellNode {
         
         if  noteContent.title.isNotEmpty {
             let titleNode = ASTextNode()
-            titleNode.attributedText = getTextLabelAttributes(text: noteContent.title)
+            titleNode.attributedText = getTitleLabelAttributes(text: noteContent.title)
+            titleNode.maximumNumberOfLines = 2
             self.addSubnode(titleNode)
             self.elements.append(titleNode)
         }
@@ -68,7 +69,8 @@ class NoteCellNode: ASCellNode {
             
             for block in  blockg.blocks {
                 let imageNode = ASImageNode()
-                imageNode.image = UIImage(systemName: block.isChecked ? "checkmark.square" :  "square"  )
+                let config = UIImage.SymbolConfiguration(pointSize:14, weight: .light)
+                imageNode.image = UIImage(systemName: block.isChecked ? "checkmark.square" :  "square",withConfiguration: config )?.withTintColor(UIColor.init(hexString: "#999999"))
                 imageNode.contentMode = .scaleAspectFill
                 self.addSubnode(imageNode)
                 self.chkElements.append(imageNode)
@@ -91,7 +93,7 @@ class NoteCellNode: ASCellNode {
     
     private func addImageNodes(with imageBlocks:List<Block>) {
         
-        for (index,imageBlock) in imageBlocks.enumerated() {
+        for imageBlock in imageBlocks.reversed() {
             let imageNode = ASImageNode().then {
                 $0.contentMode = .scaleAspectFill
                 let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
@@ -101,9 +103,10 @@ class NoteCellNode: ASCellNode {
             self.imageNodes.append(imageNode)
             self.addSubnode(imageNode)
             
-            if index == 4 { // 最大显示4张图
+            if  self.imageNodes.count == 4 { // 最大显示4张图
                 break
             }
+            
         }
     }
     
@@ -114,7 +117,7 @@ class NoteCellNode: ASCellNode {
         stackLayout.style.flexShrink = 1.0
         
         let contentLayout = ASStackLayoutSpec.vertical()
-        contentLayout.spacing = NoteCardCell.CardUIConstants.verticalSpace
+        contentLayout.spacing = 4
         contentLayout.justifyContent = .start
         contentLayout.alignItems = .start
         contentLayout.style.flexShrink = 1.0
@@ -227,17 +230,17 @@ class NoteCellNode: ASCellNode {
         
         //左：1
         let leftTwoImagesLayout = ASStackLayoutSpec(direction: .vertical,
-                                                spacing: spacing,
-                                                justifyContent: .start,
-                                                alignItems: .start,
-                                                children:  [imageNodes[0], imageNodes[1]])
+                                                    spacing: spacing,
+                                                    justifyContent: .start,
+                                                    alignItems: .start,
+                                                    children:  [imageNodes[0], imageNodes[1]])
         
         //右：2
         let rightTwoImagesLayout = ASStackLayoutSpec(direction: .vertical,
-                                                spacing: spacing,
-                                                justifyContent: .start,
-                                                alignItems: .start,
-                                                children: [imageNodes[2], imageNodes[3]])
+                                                     spacing: spacing,
+                                                     justifyContent: .start,
+                                                     alignItems: .start,
+                                                     children: [imageNodes[2], imageNodes[3]])
         
         imageNodes.forEach {
             $0.style.width = ASDimensionMake(singleWidth)
@@ -262,14 +265,35 @@ class NoteCellNode: ASCellNode {
         }
     }
     
-    func getTextLabelAttributes(text: String) -> NSAttributedString {
-        let font = UIFont.systemFont(ofSize: 15)
+    func getTitleLabelAttributes(text: String) -> NSAttributedString {
+        let font = UIFont.systemFont(ofSize: 15, weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 1.0
         paragraphStyle.lineHeightMultiple = 0.7
         let attrString = NSMutableAttributedString()
-        attrString.append(NSMutableAttributedString(string:text))
-        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: UIColor.init(hexString: "#444444")
+        ]
+        attrString.append(NSMutableAttributedString(string:text,attributes: attributes))
+        //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
+        return attrString
+    }
+    
+    func getTextLabelAttributes(text: String) -> NSAttributedString {
+        let font = UIFont.systemFont(ofSize: 14)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 1.0
+        paragraphStyle.lineHeightMultiple = 0.8
+        let attrString = NSMutableAttributedString()
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: UIColor.init(hexString: "#444444")
+        ]
+        attrString.append(NSMutableAttributedString(string:text,attributes: attributes))
+        //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
         return attrString
     }
     
