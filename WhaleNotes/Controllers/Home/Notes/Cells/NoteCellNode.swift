@@ -22,28 +22,37 @@ class NoteCellNode: ASCellNode {
     
     var chkElements:[ASLayoutElement] = []
     var todosElements:[ASLayoutElement] = []
+    var imageNodes:[ASImageNode] = []
     
-    required init(title:String,text:String,todosRef:ThreadSafeReference<List<Block>>?) {
+    required init(noteContent:NoteContent) {
         super.init()
         
-        if  title.isNotEmpty {
+        if  noteContent.title.isNotEmpty {
             let titleNode = ASTextNode()
-            titleNode.attributedText = getTextLabelAttributes(text: title)
+            titleNode.attributedText = getTextLabelAttributes(text: noteContent.title)
             self.addSubnode(titleNode)
             self.elements.append(titleNode)
         }
-        if text.isNotEmpty {
+        if noteContent.text.isNotEmpty {
             let textNode = ASTextNode()
-            textNode.attributedText = getTextLabelAttributes(text: text)
+            textNode.attributedText = getTextLabelAttributes(text: noteContent.text)
             self.addSubnode(textNode)
             self.elements.append(textNode)
         }
         
-        if let todosRef = todosRef {
+        if let todosRef = noteContent.todosRef {
             let realm = try! Realm()
             guard let todoBlocks = realm.resolve(todosRef) else { return }
             if !todoBlocks.isEmpty {
                 addTodoNodes(with: todoBlocks)
+            }
+        }
+        
+        if let imagesRef = noteContent.imagesRef {
+            let realm = try! Realm()
+            guard let imageBlocks = realm.resolve(imagesRef) else { return }
+            if !imageBlocks.isEmpty {
+                addImageNodes(with: imageBlocks)
             }
         }
         
@@ -80,16 +89,40 @@ class NoteCellNode: ASCellNode {
         
     }
     
+    private func addImageNodes(with imageBlocks:List<Block>) {
+        
+        for (index,imageBlock) in imageBlocks.enumerated() {
+            let imageNode = ASImageNode().then {
+                $0.contentMode = .scaleAspectFill
+                let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
+                let image   = UIImage(contentsOfFile: imageUrlPath)
+                $0.image = image
+            }
+            self.imageNodes.append(imageNode)
+            self.addSubnode(imageNode)
+            
+            if index == 4 { // 最大显示4张图
+                break
+            }
+        }
+    }
+    
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         let stackLayout = ASStackLayoutSpec.vertical()
         stackLayout.justifyContent = .start
         stackLayout.alignItems = .start
         stackLayout.style.flexShrink = 1.0
-        stackLayout.spacing = NoteCardCell.CardUIConstants.verticalSpace
         
-        let insets =  UIEdgeInsets.init(top: CardUIConstants.verticalPadding, left: CardUIConstants.horizontalPadding, bottom: CardUIConstants.verticalPadding, right:  CardUIConstants.horizontalPadding)
+        let contentLayout = ASStackLayoutSpec.vertical()
+        contentLayout.spacing = NoteCardCell.CardUIConstants.verticalSpace
+        contentLayout.justifyContent = .start
+        contentLayout.alignItems = .start
+        contentLayout.style.flexShrink = 1.0
+        contentLayout.children = self.elements
         
-        stackLayout.children = self.elements
+        if self.elements.count > 0 {
+            contentLayout.children = self.elements
+        }
         
         if todosElements.count > 0 {
             let todosVLayout = ASStackLayoutSpec.vertical()
@@ -97,7 +130,6 @@ class NoteCellNode: ASCellNode {
             todosVLayout.alignItems = .start
             todosVLayout.style.flexShrink = 1.0
             todosVLayout.spacing = 2
-            
             for i in 0..<todosElements.count {
                 
                 let todoStackSpec = ASStackLayoutSpec(direction: .horizontal,
@@ -108,11 +140,118 @@ class NoteCellNode: ASCellNode {
                 todoStackSpec.style.flexShrink = 1.0
                 todosVLayout.children?.append(todoStackSpec)
             }
-
-            stackLayout.children?.append(todosVLayout)
+            contentLayout.children?.append(todosVLayout)
         }
-        return  ASInsetLayoutSpec(insets: insets, child: stackLayout)
+        
+        if let count = contentLayout.children?.count,count > 0 {
+            let insets =  UIEdgeInsets.init(top: CardUIConstants.verticalPadding, left: CardUIConstants.horizontalPadding, bottom: CardUIConstants.verticalPadding, right:  CardUIConstants.horizontalPadding)
+            let children =  ASInsetLayoutSpec(insets: insets, child: contentLayout)
+            stackLayout.children = [children]
+        }
+        
+        if imageNodes.isNotEmpty {
+            let imagesElement = renderImageNodes(constrainedSize:constrainedSize)
+            stackLayout.children?.append(imagesElement)
+        }
+        return  stackLayout
     }
+    
+    private func renderImageNodes(constrainedSize:ASSizeRange) -> ASLayoutElement {
+        let height:CGFloat = 120
+        let width:CGFloat = constrainedSize.max.width
+        let spacing:CGFloat = 2
+        
+        let singleWidth = (width - spacing)/2
+        let singleHeight = (height - spacing)/2
+        
+        if imageNodes.count == 1 {
+            let imageNode = imageNodes[0]
+            imageNode.style.width = ASDimensionMake(constrainedSize.max.width)
+            imageNode.style.height = ASDimensionMake(height)
+            return imageNode
+        }
+        
+        
+        if imageNodes.count == 2 {
+            imageNodes.forEach {
+                $0.style.width = ASDimensionMake(singleWidth)
+                $0.style.height = ASDimensionMake(height)
+            }
+            let imagesStackSpec = ASStackLayoutSpec(direction: .horizontal,
+                                                    spacing: spacing,
+                                                    justifyContent: .start,
+                                                    alignItems: .start,
+                                                    children: imageNodes)
+            imagesStackSpec.style.flexShrink = 1.0
+            return imagesStackSpec
+        }
+        
+        if imageNodes.count == 3 {
+            
+            
+            let imagesStackSpec = ASStackLayoutSpec(direction: .horizontal,
+                                                    spacing: 2,
+                                                    justifyContent: .start,
+                                                    alignItems: .start,
+                                                    children: [])
+            imagesStackSpec.style.flexShrink = 1.0
+            
+            //左：1
+            let imageNode = imageNodes[0]
+            imageNode.style.width = ASDimensionMake(singleWidth)
+            imageNode.style.height = ASDimensionMake(height)
+            
+            
+            //右：2
+            let twoImageNodes = [imageNodes[1], imageNodes[2]]
+            let twoImagesLayout = ASStackLayoutSpec(direction: .vertical,
+                                                    spacing: 2,
+                                                    justifyContent: .start,
+                                                    alignItems: .start,
+                                                    children: twoImageNodes)
+            twoImagesLayout.style.flexShrink = 1.0
+            
+            twoImageNodes.forEach {
+                $0.style.width = ASDimensionMake(singleWidth)
+                $0.style.height = ASDimensionMake(singleHeight)
+            }
+            
+            
+            
+            imagesStackSpec.children = [imageNode,twoImagesLayout]
+            
+            return imagesStackSpec
+        }
+        
+        // 4
+        
+        //左：1
+        let leftTwoImagesLayout = ASStackLayoutSpec(direction: .vertical,
+                                                spacing: spacing,
+                                                justifyContent: .start,
+                                                alignItems: .start,
+                                                children:  [imageNodes[0], imageNodes[1]])
+        
+        //右：2
+        let rightTwoImagesLayout = ASStackLayoutSpec(direction: .vertical,
+                                                spacing: spacing,
+                                                justifyContent: .start,
+                                                alignItems: .start,
+                                                children: [imageNodes[2], imageNodes[3]])
+        
+        imageNodes.forEach {
+            $0.style.width = ASDimensionMake(singleWidth)
+            $0.style.height = ASDimensionMake(singleHeight)
+        }
+        
+        let imagesStackSpec = ASStackLayoutSpec(direction: .horizontal,
+                                                spacing: spacing,
+                                                justifyContent: .start,
+                                                alignItems: .start,
+                                                children: [leftTwoImagesLayout,rightTwoImagesLayout])
+        return imagesStackSpec
+    }
+    
     override func didLoad() {
         
         self.view.backgroundColor = .white

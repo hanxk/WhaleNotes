@@ -23,6 +23,11 @@ enum EditorUpdateMode {
     case delete(note:Note)
 }
 
+enum EditorMode {
+    case browser(note:Note)
+    case create(note:Note)
+}
+
 class EditorViewController: UIViewController {
     
     static let space: CGFloat = 14
@@ -39,11 +44,24 @@ class EditorViewController: UIViewController {
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
     
-    
-    
     // 索引
-    var note: Note!
+    private var note: Note!
+    var mode: EditorMode! {
+        didSet {
+            switch mode {
+            case .browser(let note):
+                self.note = note
+            case .create(let note):
+                self.note = note
+            default:
+                break
+            }
+        }
+    }
+    var isNew = false
+    
     var isNoteUpdated:Bool = false
+    
     
     var todoRowIndexMap:[Int:(Int,Int)] = [:]
     
@@ -102,7 +120,7 @@ class EditorViewController: UIViewController {
     
     var keyboardHeight: CGFloat = 0
     var keyboardHeight2: CGFloat = 0
-    var isEdit = false
+    //    var isNew = false
     private var keyboardIsHide = true
     
     override func viewDidLoad() {
@@ -110,6 +128,7 @@ class EditorViewController: UIViewController {
         
         self.setupUI()
         self.setupData()
+        
     }
     
     var updateAt:Date!
@@ -132,8 +151,31 @@ class EditorViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
         tableView.endEditing(true)
         
-        if self.updateAt != note.updateAt {
-            self.callbackNoteUpdate?(self.isEdit ? EditorUpdateMode.insert(note: self.note) : EditorUpdateMode.update(note: self.note))
+        tryNotifiNoteUpdated()
+    }
+    
+    
+    private func tryNotifiNoteUpdated() {
+        
+        switch mode {
+        case .browser:
+            if self.updateAt != note.updateAt{
+                if note.isEmpty {
+                    DBManager.sharedInstance.deleteNote(note)
+                    self.callbackNoteUpdate?(EditorUpdateMode.delete(note: self.note))
+                    return
+                }
+                // 如果数据更新过，通知列表页刷新
+                self.callbackNoteUpdate?(EditorUpdateMode.update(note: self.note))
+            }
+        case .create:
+            if note.isEmpty {
+                DBManager.sharedInstance.deleteNote(note)
+                return
+            }
+            self.callbackNoteUpdate?(EditorUpdateMode.insert(note: self.note))
+        case .none:
+            break
         }
     }
     
@@ -162,13 +204,16 @@ class EditorViewController: UIViewController {
     }
     
     private func setFirstResponder() {
-        if !isEdit {
-            return
-        }
-        if let textCell = textCell {
-            textCell.textView.becomeFirstResponder()
-        } else if let todoBlockCell = todoBlockCell {
-            todoBlockCell.textView.becomeFirstResponder()
+        switch mode {
+        case .create:
+            if let textCell = textCell {
+                textCell.textView.becomeFirstResponder()
+            } else if let todoBlockCell = todoBlockCell {
+                todoBlockCell.textView.becomeFirstResponder()
+            }
+        default:
+            break
+            
         }
     }
     
@@ -310,7 +355,7 @@ extension EditorViewController {
     }
     
     
-  
+    
     
     fileprivate func setupSectionsTypes(note: Note) {
         if let titleBlock = note.titleBlock {
@@ -653,9 +698,9 @@ extension EditorViewController: UITableViewDataSource {
             }
         }
         todoGroupCell.menuButtonTapped = { btn,todoGroupBlock in
-              let items = [
-                  ContextMenuItem(label: "删除", icon: "trash")
-              ]
+            let items = [
+                ContextMenuItem(label: "删除", icon: "trash")
+            ]
             guard let todoSectionIndex = self.note.todoBlocks.index(of: todoGroupBlock) else { return }
             ContextMenuViewController.show(sourceView: btn, sourceVC: self, items: items) { [weak self] menuItem in
                 self?.deleteBlockByIndex(sectionIndex: todoSectionIndex)
@@ -700,8 +745,8 @@ extension EditorViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let sectionType = sections[section]
-          switch sectionType {
-          case .todo(let todoBlocks):
+        switch sectionType {
+        case .todo(let todoBlocks):
             let todoFooterView = TodoFooterView()
             todoFooterView.todoGroupBlock = todoBlocks[0]
             todoFooterView.addButtonTapped = { todoGroupBlock in
@@ -719,8 +764,8 @@ extension EditorViewController: UITableViewDataSource {
                 }
             }
             return todoFooterView
-          default:
-              return nil
+        default:
+            return nil
         }
     }
     
@@ -756,16 +801,16 @@ extension EditorViewController: UITableViewDelegate {
                 return 10
             }
         case .attachments:
-//            let sectionPreIndex = section - 1
-//            if self.sections[sectionPreIndex].identifier == "todo" {
-//                return 16
-//            }
+            //            let sectionPreIndex = section - 1
+            //            if self.sections[sectionPreIndex].identifier == "todo" {
+            //                return 16
+            //            }
             return 18
         }
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-       switch sections[section] {
+        switch sections[section] {
         case .todo(let todoBlocks):
             return todoBlocks[0].isExpand ? 30 : CGFloat.leastNormalMagnitude
         default:

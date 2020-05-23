@@ -25,4 +25,11 @@ class Note: Object {
     override static func primaryKey() -> String? {
         return "id"
     }
+    
+    var isEmpty:Bool {
+        return titleBlock?.text.isEmpty ?? true &&
+        textBlock?.text.isEmpty ?? true &&
+        todoBlocks.isEmpty &&
+        attachBlocks.isEmpty
+    }
 }

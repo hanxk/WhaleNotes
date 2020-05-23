@@ -43,6 +43,9 @@
 		18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */; };
 		18C59C6D2455236C00F5CBB0 /* TodoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C59C6C2455236C00F5CBB0 /* TodoHeaderView.swift */; };
 		18C59C6F2455AFF700F5CBB0 /* TodoCompleteHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C59C6E2455AFF700F5CBB0 /* TodoCompleteHeaderView.swift */; };
+		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
+		18E6E65F24780C2C00D598C5 /* NoteContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65E24780C2C00D598C5 /* NoteContent.swift */; };
+		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
 		18E956712449A3F0003755BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E956702449A3F0003755BF /* AppDelegate.swift */; };
 		18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 18E956792449A3F0003755BF /* WhaleNotes.xcdatamodeld */; };
 		18E9567D2449A3F2003755BF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18E9567C2449A3F2003755BF /* Assets.xcassets */; };
@@ -96,6 +99,9 @@
 		18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMenuCell.swift; sourceTree = "<group>"; };
 		18C59C6C2455236C00F5CBB0 /* TodoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoHeaderView.swift; sourceTree = "<group>"; };
 		18C59C6E2455AFF700F5CBB0 /* TodoCompleteHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCompleteHeaderView.swift; sourceTree = "<group>"; };
+		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
+		18E6E65E24780C2C00D598C5 /* NoteContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteContent.swift; sourceTree = "<group>"; };
+		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
 		18E9566D2449A3F0003755BF /* WhaleNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhaleNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18E956702449A3F0003755BF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		18E9567A2449A3F0003755BF /* WhaleNotes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WhaleNotes.xcdatamodel; sourceTree = "<group>"; };
@@ -151,6 +157,8 @@
 				18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */,
 				18902909245E82720017814A /* UIImage+Ex.swift */,
 				18E9D6BE2470D985001E41A0 /* String+Ex.swift */,
+				18E6E65C2478067800D598C5 /* URL+Ex.swift */,
+				18E6E6612478E2F400D598C5 /* Array+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -247,6 +255,7 @@
 		188942A9246FDBAB006173F8 /* Notes */ = {
 			isa = PBXGroup;
 			children = (
+				18E6E66024780CE600D598C5 /* Models */,
 				188942AC24702A2B006173F8 /* Cells */,
 				188942AA246FDC1F006173F8 /* NotesView.swift */,
 				18E9D6C024714ADA001E41A0 /* MosaicCollectionViewLayout.swift */,
@@ -263,6 +272,14 @@
 				18E9D6C224715112001E41A0 /* NoteCellNode.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		18E6E66024780CE600D598C5 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				18E6E65E24780C2C00D598C5 /* NoteContent.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		18E956642449A3EF003755BF = {
@@ -478,11 +495,13 @@
 				18E9D6BF2470D985001E41A0 /* String+Ex.swift in Sources */,
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
+				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
 				1865AEFC244C7D1C0006B48D /* TitleBlockCell.swift in Sources */,
 				188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				188942AE24702A3C006173F8 /* NoteCardCell.swift in Sources */,
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
+				18E6E65F24780C2C00D598C5 /* NoteContent.swift in Sources */,
 				18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
@@ -504,6 +523,7 @@
 				18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */,
 				188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */,
 				18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */,
+				18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,

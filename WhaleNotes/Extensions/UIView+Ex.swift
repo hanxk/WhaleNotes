@@ -13,12 +13,23 @@ extension UIView {
     
     var safeArea: ConstraintBasicAttributesDSL {
         #if swift(>=3.2)
-            if #available(iOS 11.0, *) {
-                return self.safeAreaLayoutGuide.snp
-            }
-            return self.snp
+        if #available(iOS 11.0, *) {
+            return self.safeAreaLayoutGuide.snp
+        }
+        return self.snp
         #else
-            return self.snp
+        return self.snp
         #endif
     }
+    
+    var controller:UIViewController? {
+        if let nextResponder = self.next as? UIViewController {
+            return nextResponder
+        } else if let nextResponder = self.next as? UIView {
+            return nextResponder.controller
+        } else {
+            return nil
+        }
+    }
+    
 }
