@@ -101,8 +101,9 @@ class TodoGroupCell: UITableViewCell {
         }
         menuButton.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(TodoGroupCell.CELL_HEIGHT)
-            make.trailing.equalToSuperview().offset(-12)
+            make.height.equalTo(TodoGroupCell.CELL_HEIGHT)
+            make.width.equalTo(TodoGroupCell.CELL_HEIGHT+4)
+            make.trailing.equalToSuperview().offset(-10)
         }
                 
     }

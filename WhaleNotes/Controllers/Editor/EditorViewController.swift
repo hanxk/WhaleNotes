@@ -26,6 +26,7 @@ enum EditorUpdateMode {
 enum EditorMode {
     case browser(note:Note)
     case create(note:Note)
+    case delete(note:Note)
 }
 
 class EditorViewController: UIViewController {
@@ -129,6 +130,22 @@ class EditorViewController: UIViewController {
         self.setupUI()
         self.setupData()
         
+        //        let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
+        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: #selector(handleMenuTapped))
+        navigationItem.rightBarButtonItems = [more]
+        
+    }
+    
+    
+    @objc func handleMenuTapped(sender:UIBarButtonItem) {
+        //        self.attachmentsCell?.handleScreenRotation()
+        let items = [
+            ContextMenuItem(label: "移动到废纸篓", icon: "trash")
+        ]
+        ContextMenuViewController.show(sourceView:sender.view!, sourceVC: self, items: items) { [weak self] menuItem in
+            guard let self = self else { return }
+            self.moveNote2Trash()
+        }
     }
     
     var updateAt:Date!
@@ -174,6 +191,8 @@ class EditorViewController: UIViewController {
                 return
             }
             self.callbackNoteUpdate?(EditorUpdateMode.insert(note: self.note))
+        case .delete:
+            self.callbackNoteUpdate?(EditorUpdateMode.delete(note: self.note))
         case .none:
             break
         }
@@ -216,17 +235,25 @@ class EditorViewController: UIViewController {
             
         }
     }
-    
-    @objc func handleMoreButtonTapped() {
-        self.tableView.endEditing(true)
-        //        self.tableView.scrollToBottom()
-    }
-    
 }
 
 // context menu
 extension EditorViewController {
-    @objc func handleAddButtonTapped() {
+    
+    @objc func handleMoreButtonTapped(sender: UIButton) {
+        self.view.endEditing(true)
+    }
+    
+    private func moveNote2Trash() {
+        guard let noteNotificationToken = self.noteNotificationToken else { return }
+        DBManager.sharedInstance.moveNote2Trash(self.note, withoutNotifying: [noteNotificationToken]) {
+            self.mode = EditorMode.delete(note: self.note)
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    
+    @objc func handleAddButtonTapped(sender: UIButton) {
         
         self.view.endEditing(true)
         
@@ -240,7 +267,7 @@ extension EditorViewController {
             sourceViewController: self,
             viewController: popMenuVC,
             options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
-            sourceView: bottombar.addButton
+            sourceView: sender
         )
     }
     
@@ -257,6 +284,8 @@ extension EditorViewController {
             photoVC.delegate = self
             var configure = TLPhotosPickerConfigure()
             configure.allowedVideo = false
+            configure.doneTitle = "完成"
+            configure.cancelTitle="取消"
             configure.allowedLivePhotos = false
             configure.allowedVideoRecording = false
             photoVC.configure = configure
@@ -929,6 +958,7 @@ extension EditorViewController {
             }
             UIView.animate(withDuration: animationDuration) { [weak self] in
                 self?.view.layoutIfNeeded()
+                self?.bottombar.keyboardShow = true
             }
             
             var contentInset = self.tableView.contentInset
@@ -956,6 +986,7 @@ extension EditorViewController {
             }
             UIView.animate(withDuration: animationDuration) { [weak self] in
                 self?.view.layoutIfNeeded()
+                self?.bottombar.keyboardShow = false
             }
             var contentInset = self.tableView.contentInset
             contentInset.bottom = bottomExtraSpace

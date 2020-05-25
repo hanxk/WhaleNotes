@@ -177,7 +177,6 @@ extension TodoBlockCell {
     
     private func handleEnterReturn(textView: UITextView) {
         let text = textView.text ?? ""
-        print("哈哈哈："+text)
         if text.isEmpty {
             // 删除todo
             self.deleteTodo()

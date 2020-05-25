@@ -238,6 +238,8 @@ extension NotesView {
             viewController.delegate = self
             var configure = TLPhotosPickerConfigure()
             configure.allowedVideo = false
+            configure.doneTitle = "完成"
+            configure.cancelTitle="取消"
             configure.allowedLivePhotos = false
             configure.allowedVideoRecording = false
             viewController.configure = configure

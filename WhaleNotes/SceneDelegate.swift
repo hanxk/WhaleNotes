@@ -24,21 +24,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         _ = UINavigationBar.appearance().then {
             $0.tintColor = UIColor.init(hexString: "#444444")
+            $0.barTintColor = .white
             $0.isTranslucent = false
             $0.layer.borderWidth = 0.0
             $0.shadowImage = UIImage()
             
-            
-//            let imgBackArrow = UIImage(systemName: "chevron.left")
-//
-//            $0.backIndicatorImage = imgBackArrow
-//            $0.backIndicatorTransitionMaskImage = imgBackArrow
-
-            let yourBackImage =  UIImage(systemName: "chevron.left")
+            let yourBackImage =  UIImage(systemName: "chevron.left")?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0))
             $0.backIndicatorImage = yourBackImage
             $0.backIndicatorTransitionMaskImage = yourBackImage
-//            $0.backItem?.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-            
             
             
             let textAttributes = [NSAttributedString.Key.foregroundColor:UIColor.init(hexString: "#333333"),
@@ -48,10 +41,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
         }
         
-//        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
-        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
-        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .highlighted)
-        
         // Define the menus
         let sideMenuViewController = SideMenuViewController()
         let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
@@ -59,7 +48,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
         
         let homeVC = HomeViewController()
-        let navVC = UINavigationController(rootViewController: homeVC)
+        let navVC = MyNavigationController(rootViewController: homeVC)
         
         
         leftMenuNavigationController.statusBarEndAlpha = 0

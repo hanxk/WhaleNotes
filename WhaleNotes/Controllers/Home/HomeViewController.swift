@@ -69,7 +69,7 @@ extension HomeViewController {
         self.navigationItem.largeTitleDisplayMode = .automatic
         self.navigationItem.leftBarButtonItems = [barButton]
         
-        self.navigationController?.navigationBar.barTintColor  = UIColor.white
+//        self.navigationController?.navigationBar.barTintColor  = UIColor.white
         
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)

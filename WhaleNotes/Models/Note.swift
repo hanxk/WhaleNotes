@@ -16,6 +16,8 @@ class Note: Object {
     
     @objc dynamic var titleBlock: Block? = nil
     @objc dynamic var textBlock: Block? = nil
+    // -1: 删除, 1: 正常
+    @objc dynamic var status:Int = 1
     
     let todoBlocks  = List<Block> ()
     

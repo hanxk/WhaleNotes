@@ -91,10 +91,9 @@ class TodoHeaderView: UIView {
         }
         
         menuButton.snp.makeConstraints { (make) in
-            make.centerY.equalToSuperview()
-            make.width.height.equalTo(30)
-//            make.leading.equalTo(titleField.snp.trailing)
-            make.trailing.equalToSuperview().offset(-12)
+            make.width.equalTo(34)
+            make.top.bottom.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-10)
         }
         
         

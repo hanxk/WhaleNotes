@@ -24,7 +24,7 @@ final class DBManager {
     }
     
     func getAllNotes() -> Results<Note> {
-        let notes = database.objects(Note.self).sorted(byKeyPath: "createAt")
+        let notes = database.objects(Note.self).filter("status=1").sorted(byKeyPath: "createAt")
         return notes
     }
     
@@ -32,6 +32,16 @@ final class DBManager {
         try! database.write {
             Logger.info("delete note",note.id)
             database.delete(note)
+        }
+    }
+    
+    func moveNote2Trash(_ note:Note,withoutNotifying: [NotificationToken]=[],callback:()->Void) {
+        try! database.write(withoutNotifying: withoutNotifying) {
+            Logger.info("update")
+            // 更新时间
+            note.status = -1
+            note.updateAt = Date()
+            callback()
         }
     }
     

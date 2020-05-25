@@ -46,6 +46,8 @@
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
 		18E6E65F24780C2C00D598C5 /* NoteContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65E24780C2C00D598C5 /* NoteContent.swift */; };
 		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
+		18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */; };
+		18E6E666247A88CC00D598C5 /* MyNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E665247A88CC00D598C5 /* MyNavigationController.swift */; };
 		18E956712449A3F0003755BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E956702449A3F0003755BF /* AppDelegate.swift */; };
 		18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 18E956792449A3F0003755BF /* WhaleNotes.xcdatamodeld */; };
 		18E9567D2449A3F2003755BF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18E9567C2449A3F2003755BF /* Assets.xcassets */; };
@@ -101,6 +103,8 @@
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
 		18E6E65E24780C2C00D598C5 /* NoteContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteContent.swift; sourceTree = "<group>"; };
 		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
+		18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Ex.swift"; sourceTree = "<group>"; };
+		18E6E665247A88CC00D598C5 /* MyNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNavigationController.swift; sourceTree = "<group>"; };
 		18E9566D2449A3F0003755BF /* WhaleNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhaleNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18E956702449A3F0003755BF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		18E9567A2449A3F0003755BF /* WhaleNotes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WhaleNotes.xcdatamodel; sourceTree = "<group>"; };
@@ -157,6 +161,7 @@
 				18E9D6BE2470D985001E41A0 /* String+Ex.swift */,
 				18E6E65C2478067800D598C5 /* URL+Ex.swift */,
 				18E6E6612478E2F400D598C5 /* Array+Ex.swift */,
+				18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -328,6 +333,7 @@
 				188942A9246FDBAB006173F8 /* Notes */,
 				18E956932449B493003755BF /* SideMenuViewController.swift */,
 				18E9568B2449AC45003755BF /* HomeViewController.swift */,
+				18E6E665247A88CC00D598C5 /* MyNavigationController.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -512,6 +518,7 @@
 				188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */,
 				18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */,
 				18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */,
+				18E6E666247A88CC00D598C5 /* MyNavigationController.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
@@ -527,6 +534,7 @@
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18C59C6D2455236C00F5CBB0 /* TodoHeaderView.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
+				18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
