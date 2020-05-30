@@ -24,69 +24,72 @@ class NoteCellNode: ASCellNode {
     var todosElements:[ASLayoutElement] = []
     var imageNodes:[ASImageNode] = []
     
-    required init(noteContent:NoteContent) {
+    required init(noteInfo:NoteInfo) {
         super.init()
         
-        if  noteContent.title.isNotEmpty {
+        
+        if  let titleBlock = noteInfo.titleBlock,titleBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
-            titleNode.attributedText = getTitleLabelAttributes(text: noteContent.title)
+            titleNode.attributedText = getTitleLabelAttributes(text: titleBlock.text)
             titleNode.maximumNumberOfLines = 2
             self.addSubnode(titleNode)
             self.elements.append(titleNode)
         }
-        if noteContent.text.isNotEmpty {
+        if let textBlock = noteInfo.textBlock,textBlock.text.isNotEmpty {
             let textNode = ASTextNode()
-            textNode.attributedText = getTextLabelAttributes(text: noteContent.text)
+            textNode.attributedText = getTextLabelAttributes(text: textBlock.text)
             self.addSubnode(textNode)
             self.elements.append(textNode)
         }
         
-        if let todosRef = noteContent.todosRef {
-            let realm = try! Realm()
-            guard let todoBlocks = realm.resolve(todosRef) else { return }
-            if !todoBlocks.isEmpty {
-                addTodoNodes(with: todoBlocks)
+        if noteInfo.todoBlockInfos.isNotEmpty {
+            var todoBlocks:[Block2] = []
+            for blockInfo in noteInfo.todoBlockInfos {
+                for block in blockInfo.childBlocks {
+                    todoBlocks.append(block)
+                    if todoBlocks.count == 6 {
+                        break
+                    }
+                }
             }
+            addTodoNodes(with: todoBlocks)
         }
         
-        if let imagesRef = noteContent.imagesRef {
-            let realm = try! Realm()
-            guard let imageBlocks = realm.resolve(imagesRef) else { return }
-            if !imageBlocks.isEmpty {
-                addImageNodes(with: imageBlocks)
-            }
-        }
+        //        if let todosRef = noteContent.todosRef {
+        //            let realm = try! Realm()
+        //            guard let todoBlocks = realm.resolve(todosRef) else { return }
+        //            if !todoBlocks.isEmpty {
+        //                addTodoNodes(with: todoBlocks)
+        //            }
+        //        }
+        
+        //        if let imagesRef = noteContent.imagesRef {
+        //            let realm = try! Realm()
+        //            guard let imageBlocks = realm.resolve(imagesRef) else { return }
+        //            if !imageBlocks.isEmpty {
+        //                addImageNodes(with: imageBlocks)
+        //            }
+        //        }
         
     }
     
-    private func addTodoNodes(with todoBlocks:List<Block>) {
+    private func addTodoNodes(with todoBlocks:[Block2]) {
         
-        for (_,blockg) in todoBlocks.enumerated() {
+        for (_,block) in todoBlocks.enumerated() {
+            let imageNode = ASImageNode()
+            let config = UIImage.SymbolConfiguration(pointSize:14, weight: .light)
+            imageNode.image = UIImage(systemName: block.isChecked ? "checkmark.square" :  "square",withConfiguration: config )?.withTintColor(UIColor.init(hexString: "#999999"))
+            imageNode.contentMode = .scaleAspectFill
+            self.addSubnode(imageNode)
+            self.chkElements.append(imageNode)
             
-            if blockg.blocks.isEmpty {
-                continue
-            }
             
-            for block in  blockg.blocks {
-                let imageNode = ASImageNode()
-                let config = UIImage.SymbolConfiguration(pointSize:14, weight: .light)
-                imageNode.image = UIImage(systemName: block.isChecked ? "checkmark.square" :  "square",withConfiguration: config )?.withTintColor(UIColor.init(hexString: "#999999"))
-                imageNode.contentMode = .scaleAspectFill
-                self.addSubnode(imageNode)
-                self.chkElements.append(imageNode)
-                
-                
-                let todoNode = ASTextNode()
-                todoNode.attributedText = getTextLabelAttributes(text: block.text)
-                todoNode.style.flexShrink = 1.0
-                todoNode.maximumNumberOfLines = 2
-                self.addSubnode(todoNode)
-                self.todosElements.append(todoNode)
-                
-                if self.todosElements.count == 6 {
-                    break
-                }
-            }
+            let todoNode = ASTextNode()
+            todoNode.attributedText = getTextLabelAttributes(text: block.text)
+            todoNode.style.flexShrink = 1.0
+            todoNode.maximumNumberOfLines = 2
+            self.addSubnode(todoNode)
+            self.todosElements.append(todoNode)
         }
         
     }

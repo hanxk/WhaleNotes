@@ -10,10 +10,10 @@ import UIKit
 
 class TodoGroupCell: UITableViewCell {
     
-    static let CELL_HEIGHT:CGFloat = 28
+    static let CELL_HEIGHT:CGFloat = 34
     
-    var arrowButtonTapped:((Block) ->Void)?
-    var menuButtonTapped:((UIButton,Block) ->Void)?
+    var arrowButtonTapped:((Block2) ->Void)?
+    var menuButtonTapped:((UIButton,Block2) ->Void)?
     
     private lazy var arrowDownImage:UIImage = {
         let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
@@ -57,13 +57,12 @@ class TodoGroupCell: UITableViewCell {
          $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
          $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
      }
-    var note:Note!
-     var todoGroupBlock:Block! {
+    var todoGroupBlock:Block2! {
 
         didSet {
             let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
                        arrowButton.setImage(btnImage, for: .normal)
-                       titleField.text = todoGroupBlock.text
+            titleField.text = todoGroupBlock.text.isEmpty ? "清单" : todoGroupBlock.text
         }
     }
     
@@ -134,11 +133,11 @@ extension TodoGroupCell: UITextFieldDelegate {
             title = "清单"
             textField.text = title
         }
-        if  title != todoGroupBlock.text {
-            DBManager.sharedInstance.update(note: self.note) {
-                todoGroupBlock.text =  title
-            }
-        }
+//        if  title != todoGroupBlock.text {
+//            DBManager.sharedInstance.update(note: self.note) {
+//                todoGroupBlock.text =  title
+//            }
+//        }
         return true
     }
 }

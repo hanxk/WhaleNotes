@@ -9,6 +9,13 @@ import UIKit
 import SnapKit
 import RealmSwift
 
+protocol TodoBlockCellDelegate: AnyObject {
+    func textDidChange()
+    func todoBlockEnterKeyInput(newBlock:Block2)
+    func todoBlockNeedDelete(newBlock:Block2)
+    func todoBlockContentChange(newBlock:Block2)
+}
+
 class TodoBlockCell: UITableViewCell {
     
     let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .light)
@@ -18,22 +25,22 @@ class TodoBlockCell: UITableViewCell {
     
     var cellHeight: CGFloat = 0
     
+    weak var delegate:TodoBlockCellDelegate?
     
-    var todoGroupBlock:Block!
     
-    private var todoBlocks: List<Block> {
-        return self.todoGroupBlock.blocks
-    }
+//    var enterkeyTapped: ((Block2) -> Void)?
+//    var blockUpdated:((Block2) -> Void)?
+//    var blockNeedDeleted:((Block2) -> Void)?
     
-    var todoBlock: Block!{
+    var todoBlock: Block2!{
         didSet {
-            textView.text = todoBlock.text
+//            textView.text = todoBlock.text + "******* " + String(todoBlock.sort)
+             textView.text = todoBlock.text
             isChecked = todoBlock.isChecked
             isEmpty = todoBlock.text.isEmpty
         }
     }
-    var note:Note!
-    
+    var note:NoteInfo!
     
     var isChecked: Bool = false {
         didSet {
@@ -80,9 +87,6 @@ class TodoBlockCell: UITableViewCell {
         
         $0.delegate = self
     }
-    var textChanged: ((UITextView) -> Void)?
-    var textShouldBeginChange: (() -> Void)?
-    var textViewShouldEndEditing: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -122,86 +126,43 @@ class TodoBlockCell: UITableViewCell {
     
     @objc private func handleChkButtonTapped() {
         self.isChecked = !self.isChecked
-        self.textView.resignFirstResponder()
-        DBManager.sharedInstance.update(note: self.note) { [weak self] in
-            guard let self = self else { return }
-            self.todoBlock.text = textView.text.trimmingCharacters(in: .whitespaces)
-            self.todoBlock.isChecked = self.isChecked
-        }
+        self.todoBlock.isChecked = self.isChecked
+        delegate?.todoBlockContentChange(newBlock: self.todoBlock)
     }
 }
 
 extension TodoBlockCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        textChanged?(textView)
         isEmpty = textView.text.isEmpty
+        delegate?.textDidChange()
     }
+    
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        textShouldBeginChange?()
         return true
     }
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
-        textViewShouldEndEditing?()
-        if isEmpty {
-            self.deleteTodo()
-            return true
+        let text = textView.text ?? ""
+        if  text != todoBlock.text {
+            self.todoBlock.text = text
+            delegate?.todoBlockContentChange(newBlock: self.todoBlock)
         }
-        self.updateTodo()
         return true
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
-            self.handleEnterReturn(textView: textView)
+            let text = textView.text ?? ""
+            self.todoBlock.text = text
+            delegate?.todoBlockEnterKeyInput(newBlock: self.todoBlock)
             return false
         }
         if text.isEmpty && textView.text.isEmpty {
-            self.deleteTodo()
+            self.todoBlock.text = ""
+            delegate?.todoBlockNeedDelete(newBlock: self.todoBlock)
             return false
         }
         return true
-    }
-    
-    func updateTodo() {
-        DBManager.sharedInstance.update(note: self.note) { [weak self] in
-            guard let self = self else { return }
-            self.todoBlock.text = self.textView.text.trimmingCharacters(in: .whitespaces)
-        }
-    }
-    
-}
-
-// uitextview enter return key
-extension TodoBlockCell {
-    
-    private func handleEnterReturn(textView: UITextView) {
-        let text = textView.text ?? ""
-        if text.isEmpty {
-            // 删除todo
-            self.deleteTodo()
-        }else{
-            guard  let currentIndex = self.todoBlocks.index(of: self.todoBlock) else { return }
-            let destIndex = currentIndex + 1
-            
-            // 新增todo
-            Logger.info("新增todo")
-            DBManager.sharedInstance.update(note: note) { [weak self] in
-                guard let self = self else { return }
-                self.todoBlock.text = text
-                todoBlocks.insert(Block.newTodoBlock(), at: destIndex)
-            }
-        }
-    }
-    
-    private func deleteTodo() {
-        Logger.info("删除todo")
-        DBManager.sharedInstance.update(note: note){ [weak self] in
-            guard let self = self else { return }
-            if let index = todoBlocks.firstIndex(of: self.todoBlock) {
-                todoBlocks.remove(at: index)
-            }
-        }
     }
     
 }

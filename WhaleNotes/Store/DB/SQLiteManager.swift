@@ -22,6 +22,7 @@ class SQLiteManager: NSObject {
       let path = NSSearchPathForDirectoriesInDomains(
         .documentDirectory, .userDomainMask, true
         ).first!
+        Logger.info("dbpath",path)
       db = try! Connection("\(path)/WhaleNotes.sqlite3")
       db?.busyTimeout = 5.0
       

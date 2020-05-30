@@ -23,8 +23,10 @@ import ContextMenu
 
 class NotesView: UIView, UINavigationControllerDelegate {
     
-//    weak var delegate: NotesViewDelegate?
+    //    weak var delegate: NotesViewDelegate?
     private lazy var disposeBag = DisposeBag()
+    
+    private let usecase = NotesUseCase()
     
     private var selectedIndexPath:IndexPath?
     
@@ -51,7 +53,8 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     
-    private var notesResult:Results<Note>!
+//    private var notesResult:Results<Note>!
+    private var noteInfos:[NoteInfo]!
     //    private var notesClone:[NoteClone] = []
     //    private var notes:Results<Note>?
     //    private var cardsSize:[String:CGFloat] = [:]
@@ -80,7 +83,10 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     private func setupData() {
-        self.notesResult = DBManager.sharedInstance.getAllNotes()
+        usecase.getAllNotes { noteInfos in
+            self.noteInfos = noteInfos
+            self.collectionNode.reloadData()
+        }
         //        self.notesToken = notesResult.observe { [weak self] (changes: RealmCollectionChange) in
         //            guard let self = self else { return }
         //            switch changes {
@@ -105,42 +111,69 @@ extension NotesView {
     
     func viewWillAppear(_ animated: Bool) {
         
-        print(String(self.notesResult.count))
     }
     
     
     func viewWillDisappear(_ animated: Bool) {
         //        notesToken?.invalidate()
-        print(String(self.notesResult.count))
     }
     
     func noteEditorUpdated(mode:EditorUpdateMode) {
-        guard let indexPath = self.selectedIndexPath else { return }
+//
         switch mode {
-        case .insert:
+        case .insert(let noteInfo):
+            self.noteInfos.insert(noteInfo, at: 0)
             self.collectionNode.performBatchUpdates({
-                self.collectionNode.insertItems(at: [indexPath])
+                self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
             }, completion: nil)
-        case .update:
-            self.collectionNode.performBatchUpdates({
-                self.collectionNode.reloadItems(at: [indexPath])
-            }, completion: nil)
-        case .delete:
-            self.collectionNode.performBatchUpdates({
-                self.collectionNode.deleteItems(at: [indexPath])
-            }, completion: nil)
-            break
+        case .update(let noteInfo):
+            if let row = noteInfos.firstIndex(where: { $0.note.id == noteInfo.note.id }) {
+                self.noteInfos[row] = noteInfo
+                self.collectionNode.performBatchUpdates({
+                    self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
+                }, completion: nil)
+            }
+        case .delete(let noteInfo):
+            if let row = noteInfos.firstIndex(where: { $0.note.id == noteInfo.note.id }) {
+                self.noteInfos.remove(at: row)
+                self.collectionNode.performBatchUpdates({
+                    self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
+                }, completion: nil)
+            }
         }
     }
 }
 
 extension NotesView {
     
-    func createNote(createMode: CreateMode) -> Note{
-        let note = self.generateNote(createMode: createMode)
-        DBManager.sharedInstance.addNote(note)
-        return note
+    private func createNewNote(createMode: CreateMode,callback: @escaping (NoteInfo)->Void) {
+        let blocks = generateNote2(createMode: createMode)
+        usecase.createNewNote(blocks: blocks) { [weak self] noteInfo in
+//            self?.noteInfos.insert(noteInfo, at: 0)
+            callback(noteInfo)
+        }
     }
+    
+    fileprivate func generateNote2(createMode: CreateMode) -> [Block2]{
+        
+//        let note: Note2 =  Note2()
+        var blocks:[Block2] = []
+        blocks.append(Block2.newTitleBlock())
+        switch createMode {
+        case .text:
+            blocks.append(Block2.newTextBlock())
+            break
+        case .todo:
+            blocks.append(Block2.newTodoGroupBlock())
+            break
+        case .attachment:
+            //            note.attachBlocks.append(objectsIn: blocks)
+            break
+        }
+//        let noteInfo = NoteInfo(note: note, blocks: blocks)
+        return blocks
+    }
+    
     
     fileprivate func generateNote(createMode: CreateMode) -> Note {
         let note: Note = Note()
@@ -167,15 +200,14 @@ extension NotesView: ASCollectionDataSource {
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-        return self.notesResult.count
+        return self.noteInfos.count
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
-        let note = self.notesResult[indexPath.row]
+        let noteInfo = self.noteInfos[indexPath.row]
         
-        let noteContent = NoteContent(note:note)
         return {
-            return NoteCellNode(noteContent: noteContent)
+            return NoteCellNode(noteInfo: noteInfo)
         }
     }
 }
@@ -183,7 +215,7 @@ extension NotesView: ASCollectionDataSource {
 
 extension NotesView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
-        let note = self.notesResult[indexPath.row]
+        let note = self.noteInfos[indexPath.row]
         self.openEditorVC(note: note)
     }
 }
@@ -222,7 +254,6 @@ extension NotesView {
     }
     
     @objc func btnNewNoteTapped (sender:UIButton) {
-        //        self.openNoteEditor(createMode: .text)
         self.openEditor(createMode: .text)
         
     }
@@ -255,16 +286,14 @@ extension NotesView {
     }
     
     func openEditor(createMode: CreateMode) {
-        let note = createNote(createMode: createMode)
-        openEditorVC(note:note, isNew: true)
+        createNewNote(createMode: createMode) { [weak self] in
+            self?.openEditorVC(note:$0, isNew: true)
+        }
     }
     
-    func openEditorVC(note: Note,isNew:Bool = false) {
-        guard let row = notesResult.firstIndex(of: note) else { return }
-        self.selectedIndexPath = IndexPath(row: row, section: 0)
-        
+    func openEditorVC(note: NoteInfo,isNew:Bool = false) {
         let noteVC  = EditorViewController()
-        noteVC.mode = isNew ? EditorMode.create(note: note) :  EditorMode.browser(note: note)
+        noteVC.mode = isNew ? EditorMode.create(noteInfo: note) :  EditorMode.browser(noteInfo: note)
         noteVC.callbackNoteUpdate = {updateMode in
             self.noteEditorUpdated(mode: updateMode)
         }

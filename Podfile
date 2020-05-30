@@ -20,6 +20,6 @@ target 'WhaleNotes' do
   pod 'DeepDiff'
   pod 'CHTCollectionViewWaterfallLayout/Swift'
   pod "Texture"
-  pod 'AMScrollingNavbar'
+  pod 'SQLite.swift', '~> 0.12.0'
   # Pods for WhaleNotes
 end

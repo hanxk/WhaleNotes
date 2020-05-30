@@ -18,7 +18,7 @@ enum AttachmentsConstants {
 
 class AttachmentsBlockCell: UITableViewCell {
     
-    private var blocks:[Block] = [] {
+    private var blocks:[Block2] = [] {
         didSet {
             self.columnCount = blocks.count > 1 ? 2 : 1
         }
@@ -53,31 +53,31 @@ class AttachmentsBlockCell: UITableViewCell {
     
     var note:Note! {
         didSet {
-            let results = note.attachBlocks.sorted(byKeyPath: "updateAt", ascending: false)
-            self.attachmentBlocksNotifiToken = results.observe {[weak self] changes in
-                guard let self = self else { return }
-                switch changes {
-                case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, modifications: let modIndices):
-                    self.blocks = Array(results)
-                    self.handleDataChanged(deletionIndices: deletionIndices, insertionIndices: insertionIndices, modIndices: modIndices)
-                case .error(let error):
-                    print(error)
-                case .initial(_):
-                    self.blocks = Array(results)
-                    self.blocksSize =  self.caculateItemsSize(blocks:  self.blocks)
-                    self.collectionView.reloadData()
-                }
-            }
+//            let results = note.attachBlocks.sorted(byKeyPath: "updateAt", ascending: false)
+//            self.attachmentBlocksNotifiToken = results.observe {[weak self] changes in
+//                guard let self = self else { return }
+//                switch changes {
+//                case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, modifications: let modIndices):
+//                    self.blocks = Array(results)
+//                    self.handleDataChanged(deletionIndices: deletionIndices, insertionIndices: insertionIndices, modIndices: modIndices)
+//                case .error(let error):
+//                    print(error)
+//                case .initial(_):
+//                    self.blocks = Array(results)
+//                    self.blocksSize =  self.caculateItemsSize(blocks:  self.blocks)
+//                    self.collectionView.reloadData()
+//                }
+//            }
         }
     }
     
     func handleScreenRotation() {
-        let count = UIDevice.current.orientation.isLandscape ? 3 : 2
-        self.columnCount = blocks.count > 1 ? count : 1
-        self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
-        
-        self.collectionView.reloadData()
-        self.collectionView.collectionViewLayout.invalidateLayout()
+//        let count = UIDevice.current.orientation.isLandscape ? 3 : 2
+//        self.columnCount = blocks.count > 1 ? count : 1
+//        self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
+//
+//        self.collectionView.reloadData()
+//        self.collectionView.collectionViewLayout.invalidateLayout()
     }
     
     
@@ -93,16 +93,16 @@ class AttachmentsBlockCell: UITableViewCell {
         
         if !insertionIndices.isEmpty {
             
-            if self.blocksSize.count == 1 { // 1个 item 的时候是 full screen, 需要重新计算所有 item
-                self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
-            }else {
-                let insertedBlocks = insertionIndices.map { index -> Block in
-                    return blocks[index]
-                }
-                let newSizes = self.caculateItemsSize(blocks: insertedBlocks)
-                // 刷新总高度
-                self.blocksSize.insert(contentsOf: newSizes, at: 0)
-            }
+//            if self.blocksSize.count == 1 { // 1个 item 的时候是 full screen, 需要重新计算所有 item
+//                self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
+//            }else {
+//                let insertedBlocks = insertionIndices.map { index -> Block in
+//                    return blocks[index]
+//                }
+//                let newSizes = self.caculateItemsSize(blocks: insertedBlocks)
+//                // 刷新总高度
+//                self.blocksSize.insert(contentsOf: newSizes, at: 0)
+//            }
             
         }
         
@@ -214,7 +214,7 @@ class AttachmentsBlockCell: UITableViewCell {
 extension AttachmentsBlockCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentType.image.rawValue, for: indexPath) as! ImageCell
-        cell.imageBlock = self.blocks[indexPath.row]
+//        cell.imageBlock = self.blocks[indexPath.row]
         return cell
     }
     

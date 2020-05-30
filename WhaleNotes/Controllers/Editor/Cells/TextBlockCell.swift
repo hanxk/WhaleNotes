@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class TextBlockCell: UITableViewCell {
     
@@ -20,15 +21,19 @@ class TextBlockCell: UITableViewCell {
         $0.textContainerInset = UIEdgeInsets.zero
         $0.textContainer.lineFragmentPadding = 0
     }
+    var textChanged: ((String) -> Void)?
+    var blockUpdated:((Block2) -> Void)?
     
-    private var textBlock: Block! {
+    private lazy var disposebag = DisposeBag()
+    
+    private var textBlock: Block2! {
         didSet {
             textView.text = textBlock.text
             placeholderLabel.isHidden = textBlock.text.isNotEmpty
         }
     }
     
-    var note:Note! {
+    var note:NoteInfo! {
         didSet {
             if let textBlock = note.textBlock {
                 self.textBlock = textBlock
@@ -43,7 +48,6 @@ class TextBlockCell: UITableViewCell {
         $0.text = "写点什么..."
     }
     
-    var textChanged: ((String) -> Void)?
     var textShouldBeginChange: ((UITextView) -> Void)?
     var textEnterReturnKey: (() -> Void)?
     
@@ -116,10 +120,8 @@ extension TextBlockCell: UITextViewDelegate {
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         let text = textView.text ?? ""
         if  text != textBlock.text {
-            DBManager.sharedInstance.update(note: self.note) {
-                textBlock.text =  text
-                Logger.info("update text for block: ",textBlock.id)
-            }
+            self.textBlock.text = text
+            blockUpdated?(self.textBlock)
         }
         return true
     }

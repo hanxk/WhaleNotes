@@ -22,5 +22,8 @@ class Logger {
     static func error( _ error: NSError) {
         print(error)
     }
+    static func error( _ error: Error) {
+        print(error)
+    }
 }
 

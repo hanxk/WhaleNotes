@@ -34,9 +34,7 @@ class TodoFooterView: UIView {
     
     
     
-    var todoGroupBlock:Block!
-    
-    var addButtonTapped:((Block) ->Void)?
+    var addButtonTapped:(() ->Void)?
 
     
     required init?(coder: NSCoder) {
@@ -58,6 +56,6 @@ class TodoFooterView: UIView {
         
     }
     @objc private func handleAddButtonTapped() {
-        self.addButtonTapped?(self.todoGroupBlock)
+        self.addButtonTapped?()
     }
 }

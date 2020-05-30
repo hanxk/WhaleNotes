@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class TitleBlockCell: UITableViewCell {
     
@@ -17,24 +18,21 @@ class TitleBlockCell: UITableViewCell {
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
     }
-//    var titleBlock: Block! {
-//        didSet {
-//            textField.text = titleBlock.text
-//        }
-//    }
     
-    var note:Note! {
+    var noteInfo:NoteInfo! {
         didSet {
-            if let titleBlock = note.titleBlock {
-                textField.text = titleBlock.text
-            }
+            titleBlock = noteInfo.titleBlock
+            textField.text = titleBlock.text
         }
     }
+    private var note:Note2 {
+        return noteInfo.note
+    }
     
-
-    
+    var titleBlock:Block2!
     
     var enterkeyTapped: ((String) -> Void)?
+    var blockUpdated:((Block2) -> Void)?
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -80,14 +78,12 @@ extension TitleBlockCell: UITextFieldDelegate {
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        guard let titleBlock = note.titleBlock else { return true }
         let title = textField.text ?? ""
         if  title != titleBlock.text {
-            DBManager.sharedInstance.update(note: note) {
-                titleBlock.text =  title.trimmingCharacters(in: .whitespaces)
-                Logger.info("update title for block: ",titleBlock.id)
-            }
+            self.titleBlock.text = title
+            blockUpdated?(self.titleBlock)
         }
         return true
     }
+    
 }
