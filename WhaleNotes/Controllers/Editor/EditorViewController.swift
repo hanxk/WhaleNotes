@@ -9,7 +9,6 @@
 import UIKit
 import SnapKit
 import ContextMenu
-import RealmSwift
 import MobileCoreServices
 import TLPhotoPicker
 import RxSwift
@@ -87,14 +86,6 @@ class EditorViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     
-    private var todoGroupBlocksNotifiToken: NotificationToken?
-    private var attachmentBlocksNotifiToken: NotificationToken?
-    
-    
-    private var todoBlocksNotifiToken: [NotificationToken] = []
-    
-    private var noteNotificationToken: NotificationToken?
-    
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then { [weak self] in
         
         $0.estimatedRowHeight = 50
@@ -126,10 +117,6 @@ class EditorViewController: UIViewController {
     }
     
     
-    deinit {
-        noteNotificationToken?.invalidate()
-        todoGroupBlocksNotifiToken?.invalidate()
-    }
     
     var keyboardHeight: CGFloat = 0
     var keyboardHeight2: CGFloat = 0
@@ -398,49 +385,11 @@ extension EditorViewController {
         if noteInfo.todoBlockInfos.isNotEmpty {
             self.setupTodoSections(todoBlockInfos: noteInfo.todoBlockInfos)
         }
-        //        if noteInfo.imageBlocks.isNotEmpty {
-        //            self.sections.append(SectionType.images)
-        //        }
-    }
-    
-    fileprivate func handlePropertyChange(propertyChange: PropertyChange) {
-        switch propertyChange.name {
-        case  "textBlock":
-            self.handleTextBlockUpdate(change: propertyChange)
-        case "attachBlocks":
-            self.handleAttachBlockUpdate(change:propertyChange)
-        default:
-            break
+        
+        if noteInfo.imageBlocks.isNotEmpty {
+            self.sections.append(SectionType.images)
         }
     }
-    
-    fileprivate func handleTextBlockUpdate(change: PropertyChange) {
-        //        if let textBlock = (change.newValue as? Block), change.oldValue == nil { // 新增 text
-        //            let sectionIndex = 1
-        //            self.sections.insert(SectionType.text(textBlock: textBlock), at: sectionIndex)
-        //            self.tableView.performBatchUpdates({
-        //                self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
-        //            }) { _ in
-        //                self.textCell?.textView.becomeFirstResponder()
-        //            }
-        //        }
-    }
-    
-    
-    fileprivate func handleAttachBlockUpdate(change: PropertyChange) {
-        //        let attachBlocks = change.newValue as! List<Block>
-        //        if attachmentsCell == nil && attachBlocks.count > 0 { // 新增
-        //            let sectionIndex = self.sections.count
-        //            self.sections.append(SectionType.attachments(attachmentBlocks: Array(attachBlocks)))
-        //            self.tableView.performBatchUpdates({
-        //                self.tableView.insertSections(IndexSet([sectionIndex]), with: .automatic)
-        //            }) { _ in
-        //            }
-        //        }
-    }
-    
-    
-    
     
     fileprivate func setupTodoSections(todoBlockInfos: [BlockInfo]){
         for todoBlock in todoBlockInfos {
@@ -448,130 +397,11 @@ extension EditorViewController {
         }
     }
     
-    fileprivate func handleTodoSectionUpdate(insertionIndices: [Int],deletionIndices:[Int] ) {
-        
-        let firstSectionIndex = self.firstTodoSectionIndex
-        
-        // 更新数据源-observer
-        updateObserver(insertionIndices:insertionIndices,deletionIndices:deletionIndices)
-        
-        tableView.performBatchUpdates({
-            tableView.deleteSections(IndexSet(deletionIndices.map{ $0 + firstSectionIndex }), with: .bottom)
-            tableView.insertSections(IndexSet(insertionIndices.map{ $0 + firstSectionIndex }), with: .top)
-        }) { _ in
-            if insertionIndices.count > 0 {
-                if let lastTodoSection = insertionIndices.max() {
-                    self.tryGetFocus(sectionIndex:(lastTodoSection + firstSectionIndex))
-                }
-            }
-        }
-    }
-    
-    // 只会“删除” 或 “添加” 一次的场景
-    fileprivate func updateObserver(insertionIndices:[Int],deletionIndices:[Int]) {
-        
-        //        deletionIndices.forEach {
-        //            self.todoBlocksNotifiToken[$0].invalidate()
-        //            self.todoBlocksNotifiToken.remove(at: $0)
-        //            self.sections.remove(at: $0+firstTodoSectionIndex)
-        //        }
-        //
-        //        let firstSectionIndex = self.firstTodoSectionIndex
-        //        insertionIndices.forEach { sectionIndex in
-        //
-        //            let sIndex = sectionIndex + firstSectionIndex
-        //            let todoGroupBlocks = self.note.todoBlocks
-        //            let todoGroupBlock = todoGroupBlocks[sectionIndex]
-        //
-        //            // 修改数据源
-        //            var todoBlocks = Array(todoGroupBlock.blocks)
-        //            todoBlocks.insert(todoGroupBlock, at: 0)
-        //            self.sections.insert(SectionType.todo(todoBlocks: todoBlocks), at: sIndex)
-        //
-        //            let notificationToken =  todoGroupBlock.blocks.observe { changes in
-        //                self.handleTodoChanges(todoGroupBlock:todoGroupBlock, changes: changes)
-        //            }
-        //            self.todoBlocksNotifiToken.insert(notificationToken, at: sectionIndex)
-        //        }
-    }
-    
-    fileprivate func observeSectionTodos() {
-        
-        //        let todoGroupBlocks = self.note.todoBlocks
-        //        let sectionIndex = self.firstTodoSectionIndex
-        //
-        //        // 生成sections
-        //        let sections:[SectionType] = todoGroupBlocks.map {
-        //            var todoBlocks = Array($0.blocks)
-        //            todoBlocks.insert($0, at: 0)
-        //            return  SectionType.todo(todoBlocks:todoBlocks )
-        //        }
-        //        self.sections.insert(contentsOf: sections, at: sectionIndex)
-        //
-        //        self.todoBlocksNotifiToken = todoGroupBlocks.map { todoGroupBlock in
-        //            todoGroupBlock.blocks.observe { changes in
-        //                self.handleTodoChanges(todoGroupBlock:todoGroupBlock, changes: changes)
-        //            }
-        //        }
-    }
-    
-    fileprivate func handleTodoChanges(todoGroupBlock: Block,changes: RealmCollectionChange<List<Block>>) {
-        //        switch changes {
-        //        case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, _):
-        //            guard let sectionIndex = self.note.todoBlocks.index(of: todoGroupBlock)  else { return }
-        //            let sIndex = sectionIndex + self.firstTodoSectionIndex
-        //
-        //            // 更新 section 数据源
-        //            if insertionIndices.count > 0 || deletionIndices.count>0 {
-        //                var todoBlocks = Array(note.todoBlocks[sectionIndex].blocks)
-        //                todoBlocks.insert(todoGroupBlock, at: 0)
-        //                self.sections[sIndex] = SectionType.todo(todoBlocks: todoBlocks)
-        //
-        //                if(!todoGroupBlock.isExpand) { // 已经折叠，不需要再更新 ui 了
-        //                    return
-        //                }
-        //            }
-        //            // 防止 ui 出错
-        //            tableView.performBatchUpdates({
-        //                tableView.deleteRows(at: deletionIndices.map{ IndexPath(row: $0+1, section: sIndex)}, with: .automatic)
-        //                tableView.insertRows(at: insertionIndices.map{ IndexPath(row: $0+1, section: sIndex)}, with: .automatic)
-        //            }) { _ in
-        //                if !insertionIndices.isEmpty { // 弹出键盘
-        //                    self.tryGetFocus(sectionIndex: sIndex)
-        //                }
-        //            }
-        //            break
-        //        case .error(let error):
-        //            print(error)
-        //        case .initial(let type):
-        //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-        //                self.tryGetFocus(sectionIndex: self.firstTodoSectionIndex)
-        //            }
-        //            print(type)
-        //        }
-    }
     
 }
 
 // 数据处理-todo
 extension EditorViewController {
-    
-    //    func getFirstTodoBlockSectionIndex() -> Int {
-    //        var index = 0
-    //        self.sections.forEach {
-    //            switch $0 {
-    //            case .title:
-    //                index += 1
-    //                break
-    //            case .text:
-    //                index += 1
-    //                break
-    //            default:
-    //                break
-    //            }
-    //        }
-    //        return index
-    //    }
     
     var firstTodoSectionIndex: Int {
         var index = 0
@@ -586,25 +416,6 @@ extension EditorViewController {
         return index
     }
     
-    
-    private func getUncheckedAndCheckedTodos(todoBlocks: List<Block>,unCheckedSectionIndex:Int,checkedSectionIndex:Int) -> ([Block],[Block]) {
-        
-        var unCheckedBlocks:[Block] = []
-        var checkedBlocks:[Block] = []
-        
-        self.todoRowIndexMap.removeAll()
-        
-        for (index, block) in Array(todoBlocks).enumerated() {
-            if block.isChecked {
-                self.todoRowIndexMap[index] = (checkedBlocks.count,checkedSectionIndex)
-                checkedBlocks.append(block)
-            }else {
-                self.todoRowIndexMap[index] = (unCheckedBlocks.count,unCheckedSectionIndex)
-                unCheckedBlocks.append(block)
-            }
-        }
-        return (unCheckedBlocks,checkedBlocks)
-    }
     
     
     private func tryGetFocus(sectionIndex: Int) {
@@ -765,17 +576,17 @@ extension EditorViewController: UITableViewDataSource {
             }
             break
         case .images:
-            //            let imagesCell = cell as! AttachmentsBlockCell
-            //            imagesCell.heightChanged = { [weak tableView]  in
-            //                DispatchQueue.main.async {
-            //                    UIView.performWithoutAnimation {
-            //                        tableView?.beginUpdates()
-            //                        tableView?.endUpdates()
-            //                    }
-            //                }
-            //            }
-            //            imagesCell.note = self.note
-            //            self.attachmentsCell = imagesCell
+            let imagesCell = cell as! AttachmentsBlockCell
+            imagesCell.heightChanged = { [weak tableView]  in
+                DispatchQueue.main.async {
+                    UIView.performWithoutAnimation {
+                        tableView?.beginUpdates()
+                        tableView?.endUpdates()
+                    }
+                }
+            }
+            imagesCell.note = self.note
+            self.attachmentsCell = imagesCell
             break
         }
         return cell
@@ -1229,31 +1040,31 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     }
     func handlePicker(images: [TLPHAsset]) {
         self.showHud()
-        Observable<[TLPHAsset]>.just(images)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(images)  -> [Block] in
-                var imageBlocks:[Block] = []
-                images.forEach {
-                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
-                        let imageName =  $0.uuidName
-                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
-                        if success {
-                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
-                        }
-                    }
-                }
-                return imageBlocks
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe {
-                self.hideHUD()
-                //                if let blocks  = $0.element {
-                //                    DBManager.sharedInstance.update(note: self.note) {
-                //                        self.note.attachBlocks.append(objectsIn: blocks)
-                //                    }
-                //                }
-        }
-        .disposed(by: disposeBag)
+//        Observable<[TLPHAsset]>.just(images)
+//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+//            .map({(images)  -> [Block] in
+//                var imageBlocks:[Block] = []
+//                images.forEach {
+//                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
+//                        let imageName =  $0.uuidName
+//                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
+//                        if success {
+//                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
+//                        }
+//                    }
+//                }
+//                return imageBlocks
+//            })
+//            .observeOn(MainScheduler.instance)
+//            .subscribe {
+//                self.hideHUD()
+//                //                if let blocks  = $0.element {
+//                //                    DBManager.sharedInstance.update(note: self.note) {
+//                //                        self.note.attachBlocks.append(objectsIn: blocks)
+//                //                    }
+//                //                }
+//        }
+//        .disposed(by: disposeBag)
     }
 }
 
@@ -1269,28 +1080,28 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
     
     func handlePicker(image: UIImage) {
         self.showHud()
-        Observable<UIImage>.just(image)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(image)  -> [Block] in
-                let imageName = UUID().uuidString+".png"
-                if let rightImage = image.fixedOrientation() {
-                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
-                    if success {
-                        return [Block.newImageBlock(imageUrl: imageName)]
-                    }
-                }
-                return []
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe {
-                self.hideHUD()
-                //                if let blocks  = $0.element {
-                //                    DBManager.sharedInstance.update(note: self.note) {
-                //                        self.note.attachBlocks.append(objectsIn: blocks)
-                //                    }
-                //                }
-        }
-        .disposed(by: disposeBag)
+//        Observable<UIImage>.just(image)
+//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+//            .map({(image)  -> [Block] in
+//                let imageName = UUID().uuidString+".png"
+//                if let rightImage = image.fixedOrientation() {
+//                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+//                    if success {
+//                        return [Block.newImageBlock(imageUrl: imageName)]
+//                    }
+//                }
+//                return []
+//            })
+//            .observeOn(MainScheduler.instance)
+//            .subscribe {
+//                self.hideHUD()
+//                //                if let blocks  = $0.element {
+//                //                    DBManager.sharedInstance.update(note: self.note) {
+//                //                        self.note.attachBlocks.append(objectsIn: blocks)
+//                //                    }
+//                //                }
+//        }
+//        .disposed(by: disposeBag)
     }
     
     
@@ -1324,5 +1135,5 @@ enum TodoMode {
 enum CreateMode {
     case text
     case todo
-    case attachment(blocks:[Block])
+    case images(blocks:[Block2])
 }

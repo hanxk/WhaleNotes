@@ -9,7 +9,6 @@ target 'WhaleNotes' do
   pod 'Then'
   pod 'SQLite.swift', '~> 0.12.0'
   pod 'SwiftDate', '~> 5.0'
-  pod 'RealmSwift'
   pod 'ContextMenu'
   pod 'NewPopMenu', '~> 2.0'
   pod "TLPhotoPicker"

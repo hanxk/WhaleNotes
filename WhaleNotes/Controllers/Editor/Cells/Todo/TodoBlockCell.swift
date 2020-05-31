@@ -7,7 +7,6 @@
 //
 import UIKit
 import SnapKit
-import RealmSwift
 
 protocol TodoBlockCellDelegate: AnyObject {
     func textDidChange()

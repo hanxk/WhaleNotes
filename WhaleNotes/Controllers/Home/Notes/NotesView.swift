@@ -8,7 +8,6 @@
 
 import UIKit
 import CHTCollectionViewWaterfallLayout
-import RealmSwift
 import SnapKit
 import AsyncDisplayKit
 import TLPhotoPicker
@@ -53,12 +52,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     
-//    private var notesResult:Results<Note>!
     private var noteInfos:[NoteInfo]!
-    //    private var notesClone:[NoteClone] = []
-    //    private var notes:Results<Note>?
-    //    private var cardsSize:[String:CGFloat] = [:]
-    private var notesToken:NotificationToken?
     private var columnCount = 0
     private var cardWidth:CGFloat = 0
     
@@ -87,23 +81,6 @@ class NotesView: UIView, UINavigationControllerDelegate {
             self.noteInfos = noteInfos
             self.collectionNode.reloadData()
         }
-        //        self.notesToken = notesResult.observe { [weak self] (changes: RealmCollectionChange) in
-        //            guard let self = self else { return }
-        //            switch changes {
-        //            case .initial:
-        //                self.collectionNode.reloadData()
-        //            case .update(_, let deletions, let insertions, let modifications):
-        //                self.collectionNode.performBatchUpdates({
-        //                    // 更新数据源
-        //                    self.collectionNode.insertItems(at: insertions.map({ IndexPath(row: $0, section: 0)}))
-        //                    self.collectionNode.deleteItems(at: deletions.map({ IndexPath(row: $0, section: 0)}))
-        //                    self.collectionNode.reloadItems(at: modifications.map({ IndexPath(row: $0, section: 0)}))
-        //                }, completion: nil)
-        //                break
-        //            case .error(let error):
-        //                fatalError("\(error)")
-        //            }
-        //        }
     }
 }
 
@@ -148,8 +125,7 @@ extension NotesView {
     
     private func createNewNote(createMode: CreateMode,callback: @escaping (NoteInfo)->Void) {
         let blocks = generateNote2(createMode: createMode)
-        usecase.createNewNote(blocks: blocks) { [weak self] noteInfo in
-//            self?.noteInfos.insert(noteInfo, at: 0)
+        usecase.createNewNote(blocks: blocks) { noteInfo in
             callback(noteInfo)
         }
     }
@@ -166,7 +142,7 @@ extension NotesView {
         case .todo:
             blocks.append(Block2.newTodoGroupBlock())
             break
-        case .attachment:
+        case .images:
             //            note.attachBlocks.append(objectsIn: blocks)
             break
         }
@@ -174,23 +150,6 @@ extension NotesView {
         return blocks
     }
     
-    
-    fileprivate func generateNote(createMode: CreateMode) -> Note {
-        let note: Note = Note()
-        note.titleBlock = Block.newTitleBlock()
-        switch createMode {
-        case .text:
-            note.textBlock = Block.newTextBlock()
-            break
-        case .todo:
-            note.todoBlocks.append(Block.newTodoGroupBlock())
-            break
-        case .attachment(let blocks):
-            note.attachBlocks.append(objectsIn: blocks)
-            break
-        }
-        return note
-    }
 }
 
 
@@ -340,29 +299,29 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
     }
     func handlePicker(images: [TLPHAsset]) {
         self.controller?.showHud()
-        Observable<[TLPHAsset]>.just(images)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(images)  -> [Block] in
-                var imageBlocks:[Block] = []
-                images.forEach {
-                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
-                        let imageName =  $0.uuidName
-                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
-                        if success {
-                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
-                        }
-                    }
-                }
-                return imageBlocks
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe {
-                self.controller?.hideHUD()
-                if let blocks  = $0.element {
-                    self.openEditor(createMode: .attachment(blocks: blocks))
-                }
-        }
-        .disposed(by: disposeBag)
+//        Observable<[TLPHAsset]>.just(images)
+//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+//            .map({(images)  -> [Block] in
+//                var imageBlocks:[Block] = []
+//                images.forEach {
+//                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
+//                        let imageName =  $0.uuidName
+//                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
+//                        if success {
+//                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
+//                        }
+//                    }
+//                }
+//                return imageBlocks
+//            })
+//            .observeOn(MainScheduler.instance)
+//            .subscribe {
+//                self.controller?.hideHUD()
+//                if let blocks  = $0.element {
+//                    self.openEditor(createMode: .attachment(blocks: blocks))
+//                }
+//        }
+//        .disposed(by: disposeBag)
     }
 }
 
@@ -378,25 +337,25 @@ extension NotesView: UIImagePickerControllerDelegate {
     
     func handlePicker(image: UIImage) {
         self.controller?.showHud()
-        Observable<UIImage>.just(image)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(image)  -> [Block] in
-                let imageName = UUID().uuidString+".png"
-                if let rightImage = image.fixedOrientation() {
-                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
-                    if success {
-                        return [Block.newImageBlock(imageUrl: imageName)]
-                    }
-                }
-                return []
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe {
-                self.controller?.hideHUD()
-                if let blocks  = $0.element {
-                    self.openEditor(createMode: .attachment(blocks: blocks))
-                }
-        }
-        .disposed(by: disposeBag)
+//        Observable<UIImage>.just(image)
+//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+//            .map({(image)  -> [Block] in
+//                let imageName = UUID().uuidString+".png"
+//                if let rightImage = image.fixedOrientation() {
+//                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+//                    if success {
+//                        return [Block.newImageBlock(imageUrl: imageName)]
+//                    }
+//                }
+//                return []
+//            })
+//            .observeOn(MainScheduler.instance)
+//            .subscribe {
+//                self.controller?.hideHUD()
+//                if let blocks  = $0.element {
+//                    self.openEditor(createMode: .attachment(blocks: blocks))
+//                }
+//        }
+//        .disposed(by: disposeBag)
     }
 }

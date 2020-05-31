@@ -71,7 +71,13 @@ struct Block2 {
     
 }
 
-
+enum BlockType: String {
+    case title = "title"
+    case text = "text"
+    case todo = "todo"
+    case todo_group = "todo_group"
+    case image = "image"
+}
 //@objc dynamic var id: String = UUID().uuidString
 //@objc dynamic var type: String  = ""
 //

@@ -8,7 +8,6 @@
 
 import UIKit
 import CHTCollectionViewWaterfallLayout
-import RealmSwift
 
 enum AttachmentsConstants {
     static let cellSpace: CGFloat = 8
@@ -48,10 +47,9 @@ class AttachmentsBlockCell: UITableViewCell {
         $0.minimumColumnSpacing = AttachmentsConstants.cellSpace
         $0.minimumInteritemSpacing = AttachmentsConstants.cellSpace
     }
-    private var attachmentBlocksNotifiToken: NotificationToken?
     
     
-    var note:Note! {
+    var note:Note2! {
         didSet {
 //            let results = note.attachBlocks.sorted(byKeyPath: "updateAt", ascending: false)
 //            self.attachmentBlocksNotifiToken = results.observe {[weak self] changes in
@@ -158,7 +156,7 @@ class AttachmentsBlockCell: UITableViewCell {
     
     
     
-    private func caculateItemsSize(blocks:[Block]) -> [CGSize] {
+    private func caculateItemsSize(blocks:[Block2]) -> [CGSize] {
         
         let imageWidth = self.imageWidth
         let imagesSize:[CGSize] = blocks.map {

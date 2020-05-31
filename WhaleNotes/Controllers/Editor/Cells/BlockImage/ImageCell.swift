@@ -26,7 +26,7 @@ class ImageCell: UICollectionViewCell {
         $0.backgroundColor = .placeHolderColor
     }
     
-    var imageBlock:Block! {
+    var imageBlock:Block2! {
         didSet {
             imageView.setLocalImage(filePath: ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString)
         }

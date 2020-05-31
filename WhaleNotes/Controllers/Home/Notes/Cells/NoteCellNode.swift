@@ -7,7 +7,6 @@
 //
 import UIKit
 import AsyncDisplayKit
-import RealmSwift
 
 class NoteCellNode: ASCellNode {
     
@@ -94,7 +93,7 @@ class NoteCellNode: ASCellNode {
         
     }
     
-    private func addImageNodes(with imageBlocks:List<Block>) {
+    private func addImageNodes(with imageBlocks:[Block2]) {
         
         for imageBlock in imageBlocks.reversed() {
             let imageNode = ASImageNode().then {

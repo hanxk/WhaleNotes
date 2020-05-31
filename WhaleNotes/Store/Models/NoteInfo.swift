@@ -22,6 +22,7 @@ struct NoteInfo {
         self.todoBlockInfos.forEach {
             mapTodoBlockInfos[$0.block.id] = $0
         }
+        self.imageBlocks = blocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt < $1.createdAt})
         
     }
     
@@ -40,6 +41,8 @@ struct NoteInfo {
             textBlock?.text.isEmpty ?? true &&
             todoBlockInfos.isEmpty
     }
+    
+    private(set) var imageBlocks:[Block2] = []
 }
 
 // todo handler
