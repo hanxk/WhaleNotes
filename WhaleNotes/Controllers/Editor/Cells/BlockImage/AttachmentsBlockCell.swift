@@ -17,7 +17,7 @@ enum AttachmentsConstants {
 
 class AttachmentsBlockCell: UITableViewCell {
     
-    private var blocks:[Block2] = [] {
+    private var blocks:[Block] = [] {
         didSet {
             self.columnCount = blocks.count > 1 ? 2 : 1
         }
@@ -49,7 +49,7 @@ class AttachmentsBlockCell: UITableViewCell {
     }
     
     
-    var note:Note2! {
+    var noteInfo:NoteInfo! {
         didSet {
 //            let results = note.attachBlocks.sorted(byKeyPath: "updateAt", ascending: false)
 //            self.attachmentBlocksNotifiToken = results.observe {[weak self] changes in
@@ -156,7 +156,7 @@ class AttachmentsBlockCell: UITableViewCell {
     
     
     
-    private func caculateItemsSize(blocks:[Block2]) -> [CGSize] {
+    private func caculateItemsSize(blocks:[Block]) -> [CGSize] {
         
         let imageWidth = self.imageWidth
         let imagesSize:[CGSize] = blocks.map {

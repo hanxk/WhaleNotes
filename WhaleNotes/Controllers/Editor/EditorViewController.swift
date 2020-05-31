@@ -54,7 +54,7 @@ class EditorViewController: UIViewController {
         }
     }
     
-    private var note: Note2!
+    private var note: Note!
     private var oldUpdatedAt:Date!
     
     var mode: EditorMode! {
@@ -304,7 +304,7 @@ extension EditorViewController {
         }
         let sectionIndex = 1
         
-        usecase.createBlock(block: Block2.newTextBlock(noteId: self.noteInfo.note.id)) { newBlock in
+        usecase.createBlock(block: Block.newTextBlock(noteId: self.noteInfo.note.id)) { newBlock in
             self.noteInfo.addBlock(block: newBlock)
             self.sections.insert(SectionType.text, at:sectionIndex)
             self.tableView.performBatchUpdates({
@@ -318,19 +318,14 @@ extension EditorViewController {
                         
               }
         }
-        // 新增 textblock
-        //        DBManager.sharedInstance.update(note: note) {
-        //            isNoteUpdated = true
-        //            note.textBlock = Block.newTextBlock()
-        //        }
     }
     
     fileprivate func handleTodoBlock() {
         
         let sectionIndex = self.getTodoInsertedIndex()
         
-        let blockInfo = BlockInfo(block: Block2.newTodoBlock(text: "清单",noteId: self.noteInfo.note.id,sort: Double(sectionIndex)),
-                                  childBlocks: [Block2.newTodoBlock()])
+        let blockInfo = BlockInfo(block: Block.newTodoBlock(text: "清单",noteId: self.noteInfo.note.id,sort: Double(sectionIndex)),
+                                  childBlocks: [Block.newTodoBlock()])
         usecase.createBlockInfo(blockInfo: blockInfo) { [weak self] newBlockInfo in
             guard let self = self else { return }
             self.noteInfo.addBlockInfo(blocksInfo: newBlockInfo)
@@ -469,7 +464,7 @@ extension EditorViewController: UITableViewDataSource {
         return self.noteInfo.todoBlockInfos[index]
     }
     
-    func getSectionIndexByBlock(block:Block2) -> Int{
+    func getSectionIndexByBlock(block:Block) -> Int{
         
         switch block.type {
         case BlockType.title.rawValue:
@@ -481,7 +476,7 @@ extension EditorViewController: UITableViewDataSource {
             if noteInfo.textBlock != nil {
                 section += 1
             }
-            if let row =  self.noteInfo.todoBlockInfos.firstIndex(where: {$0.id == block.blockId}){
+            if let row =  self.noteInfo.todoBlockInfos.firstIndex(where: {$0.id == block.parentBlockId}){
                 return row + section
             }
             return section
@@ -585,32 +580,32 @@ extension EditorViewController: UITableViewDataSource {
                     }
                 }
             }
-            imagesCell.note = self.note
+            imagesCell.noteInfo = self.noteInfo
             self.attachmentsCell = imagesCell
             break
         }
         return cell
     }
     
-    fileprivate func handleTodoEnterKeyTapped(block:Block2) {
+    fileprivate func handleTodoEnterKeyTapped(block:Block) {
         
         let section:Int = self.getSectionIndexByBlock(block: block)
         
         if block.text.isEmpty { // 删除
             self.tryDeleteBlock(block: block)
         }else { // 新增
-            guard let row = self.noteInfo.mapTodoBlockInfos[block.blockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
+            guard let row = self.noteInfo.mapTodoBlockInfos[block.parentBlockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
             
             // 先更新
             self.tryUpdateBlock(block: block) {
                 //新增
                 let nextIndexPath = IndexPath(row: row+2, section: section)
-                self.createNewTodoBlock(noteId: block.noteId, groupBlockId: block.blockId, targetIndex: nextIndexPath)
+                self.createNewTodoBlock(noteId: block.noteId, groupBlockId: block.parentBlockId, targetIndex: nextIndexPath)
             }
         }
     }
     
-    fileprivate func tryUpdateBlock(block:Block2,completion:(()->Void)? = nil) {
+    fileprivate func tryUpdateBlock(block:Block,completion:(()->Void)? = nil) {
         usecase.updateBlock(block: block) { _ in
             self.noteInfo.updateBlock(block: block)
             completion?()
@@ -618,12 +613,12 @@ extension EditorViewController: UITableViewDataSource {
     }
     
     
-    fileprivate func tryDeleteBlock(block:Block2) {
+    fileprivate func tryDeleteBlock(block:Block) {
         usecase.deleteBlock(block: block) { [weak self] (isSuccess) in
             guard let self = self else { return }
             
             let section = self.getSectionIndexByBlock(block: block)
-            guard let row = self.noteInfo.mapTodoBlockInfos[block.blockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
+            guard let row = self.noteInfo.mapTodoBlockInfos[block.parentBlockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
             
             self.noteInfo.removeBlock(block: block)
             let indexPath = IndexPath(row: row+1, section: section)
@@ -651,7 +646,7 @@ extension EditorViewController: UITableViewDataSource {
             }
         }
     }
-    fileprivate func expandOrFoldTodoSection(todoGroupBlock:Block2) {
+    fileprivate func expandOrFoldTodoSection(todoGroupBlock:Block) {
         guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
             if case .todos(let todoBlockId) = sectionType {
                 return todoBlockId == todoGroupBlock.id
@@ -667,19 +662,9 @@ extension EditorViewController: UITableViewDataSource {
                 self.tableView.reloadSections(IndexSet([todoSectionIndex]), with: .automatic)
             },completion: nil)
         }
-        
-        //        usecase.deleteBlock(block: todoGroupBlock) { isSuccess  in
-        //             if isSuccess {
-        //                 self.noteInfo.removeBlock(block: todoGroupBlock)
-        //                 self.sections.remove(at: todoSectionIndex)
-        //                 self.tableView.performBatchUpdates({
-        //                     self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .bottom)
-        //                 }, completion: nil)
-        //             }
-        //         }
     }
     
-    fileprivate func deleteSection(todoGroupBlock:Block2) {
+    fileprivate func deleteSection(todoGroupBlock:Block) {
         
         guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
             if case .todos(let todoBlockId) = sectionType {
@@ -773,7 +758,7 @@ extension EditorViewController: UITableViewDataSource {
         let sort = calcNewSort(groupBlockId: groupBlockId, newRowIndex: targetIndex.row)
         
         // 新增
-        let todoBlock = Block2.newTodoBlock(text: "", noteId: noteId, parent: groupBlockId,sort: sort)
+        let todoBlock = Block.newTodoBlock(text: "", noteId: noteId, parent: groupBlockId,sort: sort)
         usecase.createBlock(block: todoBlock) { newBlock in
             // 更新数据源
             self.noteInfo.addBlock(block: newBlock)
@@ -804,15 +789,15 @@ extension EditorViewController: TodoBlockCellDelegate {
                }
     }
     
-    func todoBlockEnterKeyInput(newBlock: Block2) {
+    func todoBlockEnterKeyInput(newBlock: Block) {
         self.handleTodoEnterKeyTapped(block:newBlock)
     }
     
-    func todoBlockNeedDelete(newBlock: Block2) {
+    func todoBlockNeedDelete(newBlock: Block) {
         self.tryDeleteBlock(block: newBlock)
     }
     
-    func todoBlockContentChange(newBlock: Block2) {
+    func todoBlockContentChange(newBlock: Block) {
         self.tryUpdateBlock(block: newBlock)
     }
     
@@ -940,7 +925,7 @@ extension EditorViewController: UITableViewDelegate {
         
         let sort = calcNewSort(groupBlockId: toTodoBlockInfo.id, newRowIndex: toRow)
         newTodoBlock.sort = sort
-        newTodoBlock.blockId = toTodoBlockInfo.id
+        newTodoBlock.parentBlockId = toTodoBlockInfo.id
         
         usecase.updateBlock(block: newTodoBlock) { isSuccess in
             self.noteInfo.removeBlock(block: fromTodoBlock)
@@ -1034,37 +1019,31 @@ extension EditorViewController {
 
 // 相册
 extension EditorViewController: TLPhotosPickerViewControllerDelegate {
+    
     func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
         self.handlePicker(images: withTLPHAssets)
         return true
     }
+    
     func handlePicker(images: [TLPHAsset]) {
         self.showHud()
-//        Observable<[TLPHAsset]>.just(images)
-//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//            .map({(images)  -> [Block] in
-//                var imageBlocks:[Block] = []
-//                images.forEach {
-//                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
-//                        let imageName =  $0.uuidName
-//                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
-//                        if success {
-//                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
-//                        }
-//                    }
-//                }
-//                return imageBlocks
-//            })
-//            .observeOn(MainScheduler.instance)
-//            .subscribe {
-//                self.hideHUD()
-//                //                if let blocks  = $0.element {
-//                //                    DBManager.sharedInstance.update(note: self.note) {
-//                //                        self.note.attachBlocks.append(objectsIn: blocks)
-//                //                    }
-//                //                }
-//        }
-//        .disposed(by: disposeBag)
+        usecase.createImageBlocks(noteId: self.note.id, images: images, success: { [weak self] imageBlocks in
+            if let self = self {
+                self.hideHUD()
+                self.handleSectionImage(imageBlocks: imageBlocks)
+            }
+        }) { [weak self]  in
+            self?.hideHUD()
+        }
+    }
+    
+    private func handleSectionImage(imageBlocks:[Block]) {
+        self.sections.append(SectionType.images)
+        self.noteInfo.setupImageBlocks(imageBlocks)
+        let sectionIndex = self.sections.count - 1
+        self.tableView.performBatchUpdates({
+            self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
+        }, completion: nil)
     }
 }
 
@@ -1135,5 +1114,5 @@ enum TodoMode {
 enum CreateMode {
     case text
     case todo
-    case images(blocks:[Block2])
+    case images(blocks:[Block])
 }

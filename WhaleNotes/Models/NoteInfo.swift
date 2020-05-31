@@ -10,11 +10,11 @@ import Foundation
 
 struct NoteInfo {
     
-    var note:Note2
-    var titleBlock:Block2?
-    var textBlock:Block2?
+    var note:Note
+    var titleBlock:Block?
+    var textBlock:Block?
     
-    init(note:Note2,blocks:[Block2]) {
+    init(note:Note,blocks:[Block]) {
         self.note = note
         self.titleBlock = blocks[0]
         self.textBlock = blocks.first { $0.type == BlockType.text.rawValue }
@@ -42,23 +42,30 @@ struct NoteInfo {
             todoBlockInfos.isEmpty
     }
     
-    private(set) var imageBlocks:[Block2] = []
+    private(set) var imageBlocks:[Block] = []
+}
+
+extension NoteInfo {
+    mutating func setupImageBlocks(_ imageBlocks:[Block]) {
+        self.imageBlocks.removeAll()
+        self.imageBlocks.append(contentsOf: imageBlocks)
+    }
 }
 
 // todo handler
 extension NoteInfo {
     
-    private  func setupTodoBlocks(blocks:[Block2]) -> [BlockInfo] {
+    private  func setupTodoBlocks(blocks:[Block]) -> [BlockInfo] {
         if blocks.isEmpty {
             return []
         }
-        let todoGroups:[Block2] = blocks.filter { $0.type == BlockType.todo.rawValue && $0.blockId == 0 }.sorted(by: {$0.sort > $1.sort})
+        let todoGroups:[Block] = blocks.filter { $0.type == BlockType.todo.rawValue && $0.parentBlockId == 0 }.sorted(by: {$0.sort > $1.sort})
         if todoGroups.isEmpty {
             return []
         }
         var todoBlockInfos:[BlockInfo] = []
         for groupBlock in todoGroups {
-            let childBlocks = blocks.filter { $0.type == BlockType.todo.rawValue && $0.blockId == groupBlock.id }
+            let childBlocks = blocks.filter { $0.type == BlockType.todo.rawValue && $0.parentBlockId == groupBlock.id }
                 .sorted { $0.sort < $1.sort  }
             let blockInfo = BlockInfo(block: groupBlock,childBlocks: childBlocks)
             todoBlockInfos.append(blockInfo)
@@ -84,7 +91,7 @@ extension NoteInfo {
 
 extension NoteInfo {
     
-    mutating func updateBlock(block:Block2) {
+    mutating func updateBlock(block:Block) {
         self.note.updatedAt = Date()
         let blockType = BlockType.init(rawValue: block.type)
         switch  blockType{
@@ -103,16 +110,16 @@ extension NoteInfo {
         }
     }
     
-    private mutating func updateTodoBlock(todoBlock:Block2) {
+    private mutating func updateTodoBlock(todoBlock:Block) {
         
         self.note.updatedAt = Date()
-        if todoBlock.blockId == 0 { // 更新 group
+        if todoBlock.parentBlockId == 0 { // 更新 group
             guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.id}) else { return }
             self.todoBlockInfos[index].block = todoBlock
             return
         }
         
-        guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.blockId}),
+        guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.parentBlockId}),
             let todoIndex = self.todoBlockInfos[index].childBlocks.firstIndex(where: {$0.id == todoBlock.id})
             else { return }
         
@@ -126,15 +133,15 @@ extension NoteInfo {
         
     }
     
-    private mutating func removeTodoBlock(todoBlock:Block2) {
+    private mutating func removeTodoBlock(todoBlock:Block) {
         self.note.updatedAt = Date()
-        if todoBlock.blockId == 0 {
+        if todoBlock.parentBlockId == 0 {
             self.todoBlockInfos = self.todoBlockInfos.filter({
                 $0.id != todoBlock.id
             })
             return
         }
-        guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.blockId}),
+        guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.parentBlockId}),
             let todoIndex = self.todoBlockInfos[index].childBlocks.firstIndex(where: {$0.id == todoBlock.id})
             else { return }
         
@@ -147,7 +154,7 @@ extension NoteInfo {
         self.todoBlockInfos.append(blocksInfo)
     }
     
-    mutating func addBlock(block:Block2) {
+    mutating func addBlock(block:Block) {
         self.note.updatedAt = Date()
         let blockType = BlockType.init(rawValue: block.type)
         switch  blockType{
@@ -167,8 +174,8 @@ extension NoteInfo {
     }
     
     
-    private mutating func addTodoBlock(todoBlock:Block2) {
-        guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.blockId})
+    private mutating func addTodoBlock(todoBlock:Block) {
+        guard let index = todoBlockInfos.firstIndex(where: {$0.id == todoBlock.parentBlockId})
             else { return }
         self.note.updatedAt = Date()
         var insertIndex = self.todoBlockInfos[index].childBlocks.firstIndex(where: {$0.sort > todoBlock.sort}) ?? -1
@@ -177,7 +184,7 @@ extension NoteInfo {
     }
     
     
-    mutating func removeBlock(block:Block2) {
+    mutating func removeBlock(block:Block) {
         self.note.updatedAt = Date()
         let blockType = BlockType.init(rawValue: block.type)
         switch  blockType{

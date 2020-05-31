@@ -28,10 +28,10 @@ class DBStore {
     }
     
     
-    func createNote(blocks:[Block2]) -> DBResult<NoteInfo> {
+    func createNote(blocks:[Block]) -> DBResult<NoteInfo> {
         do {
-            var newBlocks:[Block2] = []
-            var note = Note2()
+            var newBlocks:[Block] = []
+            var note = Note()
             try db.transaction {
                 let noteId = try notesDao.insert(note)
                 note.id = noteId
@@ -46,8 +46,8 @@ class DBStore {
                     newBlocks.append(newBlock)
 
                     // todo 默认添加一个空 todo
-                    if newBlock.type == BlockType.todo.rawValue &&  newBlock.blockId == 0{
-                        var todoBlock = Block2.newTodoBlock(text: "", noteId: noteId, parent: blockId, sort: 65536)
+                    if newBlock.type == BlockType.todo.rawValue &&  newBlock.parentBlockId == 0{
+                        var todoBlock = Block.newTodoBlock(text: "", noteId: noteId, parent: blockId, sort: 65536)
                         let blockId = try blocksDao.insert(todoBlock)
                         todoBlock.id = blockId
                         newBlocks.append(todoBlock)
@@ -89,14 +89,28 @@ class DBStore {
         }
     }
     
-    func createBlock(block: Block2) -> DBResult<Block2> {
+    func createBlock(block: Block) -> DBResult<Block> {
         do {
             var insertedBlock = block
             let blockId = try blocksDao.insert(block)
             insertedBlock.id = blockId
-            return DBResult<Block2>.success(insertedBlock)
+            return DBResult<Block>.success(insertedBlock)
         } catch _ {
-            return DBResult<Block2>.failure(DBError(code: .None))
+            return DBResult<Block>.failure(DBError(code: .None))
+        }
+    }
+    
+    func createBlocks(blocks: [Block]) -> DBResult<[Block]> {
+        do {
+            var newBlocks:[Block] = blocks
+            for (index,_) in blocks.enumerated() {
+                let blockId = try blocksDao.insert(newBlocks[index])
+                newBlocks[index].id = blockId
+                newBlocks[index].sort = Double(65536*(index+1))
+            }
+            return DBResult<[Block]>.success(newBlocks)
+        } catch _ {
+            return DBResult<[Block]>.failure(DBError(code: .None))
         }
     }
     
@@ -114,9 +128,9 @@ class DBStore {
                 block.id = blockId
                 
                 
-                var childBlocks:[Block2] = blockInfo.childBlocks
+                var childBlocks:[Block] = blockInfo.childBlocks
                 for (index,_) in childBlocks.enumerated() {
-                    childBlocks[index].blockId = blockId
+                    childBlocks[index].parentBlockId = blockId
                     childBlocks[index].noteId = block.noteId
                     childBlocks[index].sort = Double(65536*(index+1))
                     let childBlockId = try blocksDao.insert( childBlocks[index])
@@ -146,7 +160,7 @@ class DBStore {
         }
     }
     
-    func updateBlock(block: Block2) -> DBResult<Bool> {
+    func updateBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {
@@ -159,7 +173,7 @@ class DBStore {
         }
     }
     
-    func updateAndInsertBlock(updatedBlock: Block2,insertedBlock: Block2) -> DBResult<Block2> {
+    func updateAndInsertBlock(updatedBlock: Block,insertedBlock: Block) -> DBResult<Block> {
         do {
             var isSuccess = false
             var newBlock = insertedBlock
@@ -173,15 +187,15 @@ class DBStore {
             if newBlock.id == 0 {
                 throw DBError(code: .None,message: "新增失败")
             }
-            return DBResult<Block2>.success(newBlock)
+            return DBResult<Block>.success(newBlock)
         } catch let error  {
-            return DBResult<Block2>.failure(DBError(code: .None,message: error.localizedDescription))
+            return DBResult<Block>.failure(DBError(code: .None,message: error.localizedDescription))
         }
     }
     
     
     
-    func deleteBlock(block: Block2) -> DBResult<Bool> {
+    func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {

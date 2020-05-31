@@ -8,8 +8,8 @@
 
 import Foundation
 struct BlockInfo {
-    var block:Block2
-    var childBlocks:[Block2] = []
+    var block:Block
+    var childBlocks:[Block] = []
     
     var id:Int64 {
         return block.id

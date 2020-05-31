@@ -43,8 +43,8 @@
 		18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */; };
 		18E6E666247A88CC00D598C5 /* MyNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E665247A88CC00D598C5 /* MyNavigationController.swift */; };
 		18E6E668247B98A100D598C5 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E667247B98A100D598C5 /* Board.swift */; };
-		18E6E66E247BB73000D598C5 /* Note2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E66D247BB73000D598C5 /* Note2.swift */; };
-		18E6E670247BB9D700D598C5 /* Block2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E66F247BB9D700D598C5 /* Block2.swift */; };
+		18E6E66E247BB73000D598C5 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E66D247BB73000D598C5 /* Note.swift */; };
+		18E6E670247BB9D700D598C5 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E66F247BB9D700D598C5 /* Block.swift */; };
 		18E6E672247BBB6200D598C5 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E671247BBB6200D598C5 /* Section.swift */; };
 		18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E673247BBC5800D598C5 /* DBStore.swift */; };
 		18E6E677247BBDBF00D598C5 /* BlocksDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E676247BBDBF00D598C5 /* BlocksDao.swift */; };
@@ -103,8 +103,8 @@
 		18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Ex.swift"; sourceTree = "<group>"; };
 		18E6E665247A88CC00D598C5 /* MyNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNavigationController.swift; sourceTree = "<group>"; };
 		18E6E667247B98A100D598C5 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
-		18E6E66D247BB73000D598C5 /* Note2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note2.swift; sourceTree = "<group>"; };
-		18E6E66F247BB9D700D598C5 /* Block2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block2.swift; sourceTree = "<group>"; };
+		18E6E66D247BB73000D598C5 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		18E6E66F247BB9D700D598C5 /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
 		18E6E671247BBB6200D598C5 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		18E6E673247BBC5800D598C5 /* DBStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBStore.swift; sourceTree = "<group>"; };
 		18E6E676247BBDBF00D598C5 /* BlocksDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksDao.swift; sourceTree = "<group>"; };
@@ -214,7 +214,6 @@
 		1865AF02244D4D040006B48D /* Store */ = {
 			isa = PBXGroup;
 			children = (
-				18E6E66C247BB71F00D598C5 /* Models */,
 				18E6E66B247BA1B900D598C5 /* DB */,
 				1865AF07244D4DC40006B48D /* TypedRow.swift */,
 			);
@@ -224,6 +223,12 @@
 		1865AF10244D4FBE0006B48D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				18E6E667247B98A100D598C5 /* Board.swift */,
+				18E6E671247BBB6200D598C5 /* Section.swift */,
+				18E6E66D247BB73000D598C5 /* Note.swift */,
+				18E6E66F247BB9D700D598C5 /* Block.swift */,
+				18E6E67A247BCCD700D598C5 /* NoteInfo.swift */,
+				18397D55247F953000C53CD0 /* BlockInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -286,19 +291,6 @@
 				18E6E673247BBC5800D598C5 /* DBStore.swift */,
 			);
 			path = DB;
-			sourceTree = "<group>";
-		};
-		18E6E66C247BB71F00D598C5 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				18E6E667247B98A100D598C5 /* Board.swift */,
-				18E6E671247BBB6200D598C5 /* Section.swift */,
-				18E6E66D247BB73000D598C5 /* Note2.swift */,
-				18E6E66F247BB9D700D598C5 /* Block2.swift */,
-				18E6E67A247BCCD700D598C5 /* NoteInfo.swift */,
-				18397D55247F953000C53CD0 /* BlockInfo.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		18E6E675247BBD0100D598C5 /* Dao */ = {
@@ -523,7 +515,7 @@
 				18397D56247F953000C53CD0 /* BlockInfo.swift in Sources */,
 				18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */,
 				18E6E679247BC65600D598C5 /* NotesDao.swift in Sources */,
-				18E6E670247BB9D700D598C5 /* Block2.swift in Sources */,
+				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
 				18E6E672247BBB6200D598C5 /* Section.swift in Sources */,
@@ -531,7 +523,7 @@
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
 				18EEF674247D2FD100E2E3BA /* EditorUseCase.swift in Sources */,
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
-				18E6E66E247BB73000D598C5 /* Note2.swift in Sources */,
+				18E6E66E247BB73000D598C5 /* Note.swift in Sources */,
 				1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */,
 				18E6E67B247BCCD700D598C5 /* NoteInfo.swift in Sources */,
 				1890290A245E82720017814A /* UIImage+Ex.swift in Sources */,

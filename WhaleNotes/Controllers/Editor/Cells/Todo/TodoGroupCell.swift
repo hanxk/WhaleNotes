@@ -12,8 +12,8 @@ class TodoGroupCell: UITableViewCell {
     
     static let CELL_HEIGHT:CGFloat = 34
     
-    var arrowButtonTapped:((Block2) ->Void)?
-    var menuButtonTapped:((UIButton,Block2) ->Void)?
+    var arrowButtonTapped:((Block) ->Void)?
+    var menuButtonTapped:((UIButton,Block) ->Void)?
     
     private lazy var arrowDownImage:UIImage = {
         let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
@@ -57,7 +57,7 @@ class TodoGroupCell: UITableViewCell {
          $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
          $0.addTarget(self, action: #selector(self.handleAddTodoButtonTapped), for: .touchUpInside)
      }
-    var todoGroupBlock:Block2! {
+    var todoGroupBlock:Block! {
 
         didSet {
             let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage

@@ -130,17 +130,17 @@ extension NotesView {
         }
     }
     
-    fileprivate func generateNote2(createMode: CreateMode) -> [Block2]{
+    fileprivate func generateNote2(createMode: CreateMode) -> [Block]{
         
 //        let note: Note2 =  Note2()
-        var blocks:[Block2] = []
-        blocks.append(Block2.newTitleBlock())
+        var blocks:[Block] = []
+        blocks.append(Block.newTitleBlock())
         switch createMode {
         case .text:
-            blocks.append(Block2.newTextBlock())
+            blocks.append(Block.newTextBlock())
             break
         case .todo:
-            blocks.append(Block2.newTodoGroupBlock())
+            blocks.append(Block.newTodoGroupBlock())
             break
         case .images:
             //            note.attachBlocks.append(objectsIn: blocks)

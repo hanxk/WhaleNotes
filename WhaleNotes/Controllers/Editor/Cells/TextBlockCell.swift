@@ -22,11 +22,11 @@ class TextBlockCell: UITableViewCell {
         $0.textContainer.lineFragmentPadding = 0
     }
     var textChanged: ((String) -> Void)?
-    var blockUpdated:((Block2) -> Void)?
+    var blockUpdated:((Block) -> Void)?
     
     private lazy var disposebag = DisposeBag()
     
-    private var textBlock: Block2! {
+    private var textBlock: Block! {
         didSet {
             textView.text = textBlock.text
             placeholderLabel.isHidden = textBlock.text.isNotEmpty

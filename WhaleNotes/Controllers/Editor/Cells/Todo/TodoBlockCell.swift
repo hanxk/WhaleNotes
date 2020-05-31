@@ -10,9 +10,9 @@ import SnapKit
 
 protocol TodoBlockCellDelegate: AnyObject {
     func textDidChange()
-    func todoBlockEnterKeyInput(newBlock:Block2)
-    func todoBlockNeedDelete(newBlock:Block2)
-    func todoBlockContentChange(newBlock:Block2)
+    func todoBlockEnterKeyInput(newBlock:Block)
+    func todoBlockNeedDelete(newBlock:Block)
+    func todoBlockContentChange(newBlock:Block)
 }
 
 class TodoBlockCell: UITableViewCell {
@@ -31,7 +31,7 @@ class TodoBlockCell: UITableViewCell {
 //    var blockUpdated:((Block2) -> Void)?
 //    var blockNeedDeleted:((Block2) -> Void)?
     
-    var todoBlock: Block2!{
+    var todoBlock: Block!{
         didSet {
 //            textView.text = todoBlock.text + "******* " + String(todoBlock.sort)
              textView.text = todoBlock.text

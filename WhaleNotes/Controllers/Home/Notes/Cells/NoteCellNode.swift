@@ -42,7 +42,7 @@ class NoteCellNode: ASCellNode {
         }
         
         if noteInfo.todoBlockInfos.isNotEmpty {
-            var todoBlocks:[Block2] = []
+            var todoBlocks:[Block] = []
             for blockInfo in noteInfo.todoBlockInfos {
                 for block in blockInfo.childBlocks {
                     todoBlocks.append(block)
@@ -72,7 +72,7 @@ class NoteCellNode: ASCellNode {
         
     }
     
-    private func addTodoNodes(with todoBlocks:[Block2]) {
+    private func addTodoNodes(with todoBlocks:[Block]) {
         
         for (_,block) in todoBlocks.enumerated() {
             let imageNode = ASImageNode()
@@ -93,7 +93,7 @@ class NoteCellNode: ASCellNode {
         
     }
     
-    private func addImageNodes(with imageBlocks:[Block2]) {
+    private func addImageNodes(with imageBlocks:[Block]) {
         
         for imageBlock in imageBlocks.reversed() {
             let imageNode = ASImageNode().then {

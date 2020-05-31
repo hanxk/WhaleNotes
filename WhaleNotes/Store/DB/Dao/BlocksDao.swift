@@ -19,7 +19,8 @@ enum Field_Blocks{
     static let source = Expression<String>("source")
     static let createdAt = Expression<Date>("created_at")
     static let noteId = Expression<Int64>("note_id")
-    static let blockId = Expression<Int64>("block_id")
+    static let parentBlockId = Expression<Int64>("parent_block_id")
+    static let properties = Expression<String>("properties")
 }
 
 class BlocksDao {
@@ -33,7 +34,7 @@ class BlocksDao {
         table = self.createTable()
     }
     
-    func insert( _ block:Block2) throws -> Int64 {
+    func insert( _ block:Block) throws -> Int64 {
         let insertBlock = self.generateBookInsert(block: block,conflict: .ignore)
         let rowId = try db.run(insertBlock)
         return rowId
@@ -47,7 +48,7 @@ class BlocksDao {
     }
     
     
-    func updateBlock(block:Block2) throws -> Bool {
+    func updateBlock(block:Block) throws -> Bool {
         let blockTable = table.filter(Field_Blocks.id == block.id)
         let rows = try db.run(blockTable.update(
                                               Field_Blocks.type <- block.type,
@@ -57,7 +58,8 @@ class BlocksDao {
                                               Field_Blocks.isExpand <- block.isExpand,
                                               Field_Blocks.source <- block.source,
                                               Field_Blocks.noteId <- block.noteId,
-                                              Field_Blocks.blockId <- block.blockId
+                                              Field_Blocks.parentBlockId <- block.parentBlockId,
+                                              Field_Blocks.properties <- block.properties
                                             ))
         
         return rows == 1
@@ -76,10 +78,10 @@ class BlocksDao {
       return rows > 0
     }
     
-    func query(noteId:Int64) throws ->[Block2] {
+    func query(noteId:Int64) throws ->[Block] {
         let query = table.filter(Field_Blocks.noteId == noteId).order(Field_Blocks.sort.asc)
         let blockRows = try db.prepare(query)
-        var blocks:[Block2] = []
+        var blocks:[Block] = []
         for row in blockRows {
             let block = generateBlock(row: row)
             blocks.append(block)
@@ -105,7 +107,8 @@ extension BlocksDao {
                     builder.column(Field_Blocks.source)
                     builder.column(Field_Blocks.createdAt)
                     builder.column(Field_Blocks.noteId)
-                    builder.column(Field_Blocks.blockId)
+                    builder.column(Field_Blocks.parentBlockId)
+                    builder.column(Field_Blocks.properties)
                 })
             )
         }
@@ -113,7 +116,7 @@ extension BlocksDao {
     }
     
     
-    func generateBookInsert(block: Block2,conflict:OnConflict = OnConflict.fail) -> Insert {
+    func generateBookInsert(block: Block,conflict:OnConflict = OnConflict.fail) -> Insert {
         
         if block.id > 0 {
             return table.insert(or: conflict,
@@ -126,7 +129,8 @@ extension BlocksDao {
                                 Field_Blocks.source <- block.source,
                                 Field_Blocks.createdAt <- block.createdAt,
                                 Field_Blocks.noteId <- block.noteId,
-                                Field_Blocks.blockId <- block.blockId
+                                Field_Blocks.parentBlockId <- block.parentBlockId,
+                                Field_Blocks.properties <- block.properties
             )
         }
         return table.insert(or: conflict,
@@ -138,13 +142,14 @@ extension BlocksDao {
                             Field_Blocks.source <- block.source,
                             Field_Blocks.createdAt <- block.createdAt,
                             Field_Blocks.noteId <- block.noteId,
-                            Field_Blocks.blockId <- block.blockId
+                            Field_Blocks.parentBlockId <- block.parentBlockId,
+                            Field_Blocks.properties <- block.properties
         )
         
     }
     
-    fileprivate func generateBlock(row: Row) -> Block2 {
-        let block = Block2(id: row[Field_Blocks.id], type: row[Field_Blocks.type], text: row[Field_Blocks.text], isChecked: row[Field_Blocks.isChecked], isExpand: row[Field_Blocks.isExpand], source: row[Field_Blocks.source], createdAt: row[Field_Blocks.createdAt],sort: row[Field_Blocks.sort], noteId: row[Field_Blocks.noteId],blockId:row[Field_Blocks.blockId] )
+    fileprivate func generateBlock(row: Row) -> Block {
+        let block = Block(id: row[Field_Blocks.id], type: row[Field_Blocks.type], text: row[Field_Blocks.text], isChecked: row[Field_Blocks.isChecked], isExpand: row[Field_Blocks.isExpand], source: row[Field_Blocks.source], createdAt: row[Field_Blocks.createdAt],sort: row[Field_Blocks.sort], noteId: row[Field_Blocks.noteId],parentBlockId:row[Field_Blocks.parentBlockId],properties: row[Field_Blocks.properties])
         return block
     }
 }

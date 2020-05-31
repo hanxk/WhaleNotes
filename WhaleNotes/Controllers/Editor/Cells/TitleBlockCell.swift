@@ -25,14 +25,14 @@ class TitleBlockCell: UITableViewCell {
             textField.text = titleBlock.text
         }
     }
-    private var note:Note2 {
+    private var note:Note {
         return noteInfo.note
     }
     
-    var titleBlock:Block2!
+    var titleBlock:Block!
     
     var enterkeyTapped: ((String) -> Void)?
-    var blockUpdated:((Block2) -> Void)?
+    var blockUpdated:((Block) -> Void)?
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

@@ -35,9 +35,9 @@ class NotesUseCase {
             .disposed(by: disposebag)
     }
     
-    func createNewNote(blocks: [Block2],callback:@escaping (NoteInfo)->Void) {
+    func createNewNote(blocks: [Block],callback:@escaping (NoteInfo)->Void) {
         
-        Observable<[Block2]>.just(blocks)
+        Observable<[Block]>.just(blocks)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(noteInfo)  -> NoteInfo in
                 let reuslt =  DBStore.shared.createNote(blocks: noteInfo)

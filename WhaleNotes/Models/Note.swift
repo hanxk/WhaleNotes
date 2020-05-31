@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Note2 {
+struct Note {
     var id:Int64 = 0
     var createdAt:Date = Date()
     var updatedAt:Date = Date()
