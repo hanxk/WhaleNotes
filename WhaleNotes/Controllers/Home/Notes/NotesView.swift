@@ -26,6 +26,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     private lazy var disposeBag = DisposeBag()
     
     private let usecase = NotesUseCase()
+    private let editorUseCase = EditorUseCase()
     
     private var selectedIndexPath:IndexPath?
     
@@ -96,7 +97,7 @@ extension NotesView {
     }
     
     func noteEditorUpdated(mode:EditorUpdateMode) {
-//
+        //
         switch mode {
         case .insert(let noteInfo):
             self.noteInfos.insert(noteInfo, at: 0)
@@ -132,7 +133,7 @@ extension NotesView {
     
     fileprivate func generateNote2(createMode: CreateMode) -> [Block]{
         
-//        let note: Note2 =  Note2()
+        //        let note: Note2 =  Note2()
         var blocks:[Block] = []
         blocks.append(Block.newTitleBlock())
         switch createMode {
@@ -146,7 +147,7 @@ extension NotesView {
             //            note.attachBlocks.append(objectsIn: blocks)
             break
         }
-//        let noteInfo = NoteInfo(note: note, blocks: blocks)
+        //        let noteInfo = NoteInfo(note: note, blocks: blocks)
         return blocks
     }
     
@@ -297,31 +298,25 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
         self.handlePicker(images: withTLPHAssets)
         return true
     }
+    
     func handlePicker(images: [TLPHAsset]) {
         self.controller?.showHud()
-//        Observable<[TLPHAsset]>.just(images)
-//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//            .map({(images)  -> [Block] in
-//                var imageBlocks:[Block] = []
-//                images.forEach {
-//                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
-//                        let imageName =  $0.uuidName
-//                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
-//                        if success {
-//                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName))
-//                        }
-//                    }
-//                }
-//                return imageBlocks
-//            })
-//            .observeOn(MainScheduler.instance)
-//            .subscribe {
-//                self.controller?.hideHUD()
-//                if let blocks  = $0.element {
-//                    self.openEditor(createMode: .attachment(blocks: blocks))
-//                }
-//        }
-//        .disposed(by: disposeBag)
+        createNewNote(createMode: .images(blocks: [])) { [weak self] in
+            self?.createImageBlocksAndOpen(noteInfo:$0, images: images)
+        }
+    }
+    
+    private func createImageBlocksAndOpen(noteInfo:NoteInfo,images: [TLPHAsset]) {
+        editorUseCase.createImageBlocks(noteId: noteInfo.id, images: images, success: { [weak self] imageBlocks in
+            if let self = self {
+                self.controller?.hideHUD()
+                var newNoteInfo = noteInfo
+                newNoteInfo.addImageBlocks(imageBlocks)
+                self.openEditorVC(note:newNoteInfo, isNew: true)
+            }
+        }) { [weak self]  in
+            self?.controller?.hideHUD()
+        }
     }
 }
 
@@ -337,25 +332,20 @@ extension NotesView: UIImagePickerControllerDelegate {
     
     func handlePicker(image: UIImage) {
         self.controller?.showHud()
-//        Observable<UIImage>.just(image)
-//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//            .map({(image)  -> [Block] in
-//                let imageName = UUID().uuidString+".png"
-//                if let rightImage = image.fixedOrientation() {
-//                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
-//                    if success {
-//                        return [Block.newImageBlock(imageUrl: imageName)]
-//                    }
-//                }
-//                return []
-//            })
-//            .observeOn(MainScheduler.instance)
-//            .subscribe {
-//                self.controller?.hideHUD()
-//                if let blocks  = $0.element {
-//                    self.openEditor(createMode: .attachment(blocks: blocks))
-//                }
-//        }
-//        .disposed(by: disposeBag)
+        createNewNote(createMode: .images(blocks: [])) { [weak self] in
+            self?.createImageBlocksAndOpen(noteInfo:$0, image: image)
+        }
+    }
+    private func createImageBlocksAndOpen(noteInfo:NoteInfo,image:UIImage) {
+        editorUseCase.createImageBlocks(noteId: noteInfo.id, image: image, success: { [weak self] imageBlock in
+            if let self = self {
+                self.controller?.hideHUD()
+                var newNoteInfo = noteInfo
+                newNoteInfo.addImageBlocks([imageBlock])
+                self.openEditorVC(note:newNoteInfo, isNew: true)
+            }
+        }) { [weak self]  in
+            self?.controller?.hideHUD()
+        }
     }
 }

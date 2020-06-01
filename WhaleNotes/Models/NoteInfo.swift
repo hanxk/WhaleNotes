@@ -14,6 +14,10 @@ struct NoteInfo {
     var titleBlock:Block?
     var textBlock:Block?
     
+    var id:Int64 {
+        return note.id
+    }
+    
     init(note:Note,blocks:[Block]) {
         self.note = note
         self.titleBlock = blocks[0]
@@ -39,6 +43,7 @@ struct NoteInfo {
     var isContentEmpry:Bool {
         return titleBlock?.text.isEmpty ?? true &&
             textBlock?.text.isEmpty ?? true &&
+        imageBlocks.isEmpty &&
             todoBlockInfos.isEmpty
     }
     
@@ -47,8 +52,10 @@ struct NoteInfo {
 
 extension NoteInfo {
     mutating func addImageBlocks(_ imageBlocks:[Block]) {
-        self.imageBlocks.insert(contentsOf: imageBlocks, at: 0)
-        self.imageBlocks.sort(by: {$0.createdAt > $1.createdAt})
+        self.note.updatedAt = Date()
+        var sortedImageBlocks = imageBlocks
+        sortedImageBlocks.sort(by: {$0.createdAt > $1.createdAt})
+        self.imageBlocks.insert(contentsOf: sortedImageBlocks, at: 0)
     }
 }
 

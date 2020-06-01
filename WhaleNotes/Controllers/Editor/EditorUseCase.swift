@@ -183,4 +183,38 @@ class EditorUseCase {
             }, onCompleted: nil, onDisposed: nil)
         .disposed(by: disposebag)
     }
+    
+    func createImageBlocks(noteId:Int64,image: UIImage,success:@escaping ((Block)->Void),failed:@escaping()->Void) {
+        Observable<UIImage>.just(image)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(image)  -> Block in
+                let imageName = UUID().uuidString+".png"
+                if let rightImage = image.fixedOrientation() {
+                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+                    if success {
+                        let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
+                        return Block.newImageBlock(imageUrl: imageName,noteId: noteId,properties:properties)
+                    }
+                }
+                throw DBError(code: .None, message: "createImageBlocks error")
+            })
+            .map({ (imageBlock) -> Block in
+                   let result = DBStore.shared.createBlock(block: imageBlock)
+                   switch result {
+                   case .success(let blocks):
+                       return blocks
+                   case .failure(let err):
+                      throw err
+                   }
+            })
+            .observeOn(MainScheduler.instance)
+             .subscribe(onNext:{
+                success($0)
+            }, onError: {
+                Logger.error($0)
+                failed()
+            }, onCompleted: nil, onDisposed: nil)
+            .disposed(by: disposebag)
+    }
+    
 }

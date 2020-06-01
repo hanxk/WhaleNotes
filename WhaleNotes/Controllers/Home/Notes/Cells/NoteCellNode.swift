@@ -23,6 +23,8 @@ class NoteCellNode: ASCellNode {
     var todosElements:[ASLayoutElement] = []
     var imageNodes:[ASImageNode] = []
     
+    var emptyTextNode:ASTextNode?
+    
     required init(noteInfo:NoteInfo) {
         super.init()
         
@@ -52,6 +54,17 @@ class NoteCellNode: ASCellNode {
                 }
             }
             addTodoNodes(with: todoBlocks)
+        }
+        
+        if noteInfo.imageBlocks.isNotEmpty {
+            self.addImageNodes(with: noteInfo.imageBlocks)
+        }
+        
+        if elements.isEmpty &&  todosElements.isEmpty && imageNodes.count == 0 {
+              let textNode = ASTextNode()
+              textNode.attributedText = getEmptyTextLabelAttributes(text: "未填写任何内容")
+              self.addSubnode(textNode)
+            self.emptyTextNode = textNode
         }
         
         //        if let todosRef = noteContent.todosRef {
@@ -125,6 +138,14 @@ class NoteCellNode: ASCellNode {
         contentLayout.style.flexShrink = 1.0
         contentLayout.children = self.elements
         
+
+        let insets =  UIEdgeInsets.init(top: CardUIConstants.verticalPadding, left: CardUIConstants.horizontalPadding, bottom: CardUIConstants.verticalPadding, right:  CardUIConstants.horizontalPadding)
+        
+        if let emptyTextNode = self.emptyTextNode {
+            let emptyLayout =  ASInsetLayoutSpec(insets: insets, child: emptyTextNode)
+            return emptyLayout
+        }
+        
         if self.elements.count > 0 {
             contentLayout.children = self.elements
         }
@@ -149,7 +170,6 @@ class NoteCellNode: ASCellNode {
         }
         
         if let count = contentLayout.children?.count,count > 0 {
-            let insets =  UIEdgeInsets.init(top: CardUIConstants.verticalPadding, left: CardUIConstants.horizontalPadding, bottom: CardUIConstants.verticalPadding, right:  CardUIConstants.horizontalPadding)
             let children =  ASInsetLayoutSpec(insets: insets, child: contentLayout)
             stackLayout.children = [children]
         }
@@ -298,6 +318,22 @@ class NoteCellNode: ASCellNode {
         //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
         return attrString
     }
+    
+    func getEmptyTextLabelAttributes(text: String) -> NSAttributedString {
+           let font = UIFont.systemFont(ofSize: 14)
+           let paragraphStyle = NSMutableParagraphStyle()
+           paragraphStyle.lineSpacing = 1.0
+           paragraphStyle.lineHeightMultiple = 0.8
+           let attrString = NSMutableAttributedString()
+           
+           let attributes: [NSAttributedString.Key: Any] = [
+               .font: font,
+               .foregroundColor: UIColor.init(hexString: "#999999")
+           ]
+           attrString.append(NSMutableAttributedString(string:text,attributes: attributes))
+           //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
+           return attrString
+       }
     
     func getTodoTextAttributes(text: String) -> NSAttributedString {
         

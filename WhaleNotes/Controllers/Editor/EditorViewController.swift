@@ -308,15 +308,15 @@ extension EditorViewController {
             self.noteInfo.addBlock(block: newBlock)
             self.sections.insert(SectionType.text, at:sectionIndex)
             self.tableView.performBatchUpdates({
-                           self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
-                       }) { _ in
-                       
-                          //获取焦点
-                          if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: sectionIndex)) as? TextBlockCell {
-                              cell.textView.becomeFirstResponder()
-                          }
-                        
-              }
+                self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
+            }) { _ in
+                
+                //获取焦点
+                if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: sectionIndex)) as? TextBlockCell {
+                    cell.textView.becomeFirstResponder()
+                }
+                
+            }
         }
     }
     
@@ -781,12 +781,12 @@ extension EditorViewController: UITableViewDataSource {
 
 extension EditorViewController: TodoBlockCellDelegate {
     func textDidChange() {
-         DispatchQueue.main.async {
-                   UIView.performWithoutAnimation {[weak self] in
-                       self?.tableView.beginUpdates()
-                       self?.tableView.endUpdates()
-                   }
-               }
+        DispatchQueue.main.async {
+            UIView.performWithoutAnimation {[weak self] in
+                self?.tableView.beginUpdates()
+                self?.tableView.endUpdates()
+            }
+        }
     }
     
     func todoBlockEnterKeyInput(newBlock: Block) {
@@ -1071,28 +1071,14 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
     
     func handlePicker(image: UIImage) {
         self.showHud()
-//        Observable<UIImage>.just(image)
-//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//            .map({(image)  -> [Block] in
-//                let imageName = UUID().uuidString+".png"
-//                if let rightImage = image.fixedOrientation() {
-//                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
-//                    if success {
-//                        return [Block.newImageBlock(imageUrl: imageName)]
-//                    }
-//                }
-//                return []
-//            })
-//            .observeOn(MainScheduler.instance)
-//            .subscribe {
-//                self.hideHUD()
-//                //                if let blocks  = $0.element {
-//                //                    DBManager.sharedInstance.update(note: self.note) {
-//                //                        self.note.attachBlocks.append(objectsIn: blocks)
-//                //                    }
-//                //                }
-//        }
-//        .disposed(by: disposeBag)
+        usecase.createImageBlocks(noteId: self.note.id, image: image, success: { [weak self] imageBlock in
+            if let self = self {
+                self.hideHUD()
+                self.handleSectionImage(imageBlocks: [imageBlock])
+            }
+        }) { [weak self]  in
+            self?.hideHUD()
+        }
     }
     
     
