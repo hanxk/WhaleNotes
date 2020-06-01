@@ -22,7 +22,7 @@ struct NoteInfo {
         self.todoBlockInfos.forEach {
             mapTodoBlockInfos[$0.block.id] = $0
         }
-        self.imageBlocks = blocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt < $1.createdAt})
+        self.imageBlocks = blocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
         
     }
     
@@ -46,9 +46,9 @@ struct NoteInfo {
 }
 
 extension NoteInfo {
-    mutating func setupImageBlocks(_ imageBlocks:[Block]) {
-        self.imageBlocks.removeAll()
-        self.imageBlocks.append(contentsOf: imageBlocks)
+    mutating func addImageBlocks(_ imageBlocks:[Block]) {
+        self.imageBlocks.insert(contentsOf: imageBlocks, at: 0)
+        self.imageBlocks.sort(by: {$0.createdAt > $1.createdAt})
     }
 }
 

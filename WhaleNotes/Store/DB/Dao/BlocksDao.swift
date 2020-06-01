@@ -149,7 +149,8 @@ extension BlocksDao {
     }
     
     fileprivate func generateBlock(row: Row) -> Block {
-        let block = Block(id: row[Field_Blocks.id], type: row[Field_Blocks.type], text: row[Field_Blocks.text], isChecked: row[Field_Blocks.isChecked], isExpand: row[Field_Blocks.isExpand], source: row[Field_Blocks.source], createdAt: row[Field_Blocks.createdAt],sort: row[Field_Blocks.sort], noteId: row[Field_Blocks.noteId],parentBlockId:row[Field_Blocks.parentBlockId],properties: row[Field_Blocks.properties])
+        var block = Block(id: row[Field_Blocks.id], type: row[Field_Blocks.type], text: row[Field_Blocks.text], isChecked: row[Field_Blocks.isChecked], isExpand: row[Field_Blocks.isExpand], source: row[Field_Blocks.source], createdAt: row[Field_Blocks.createdAt],sort: row[Field_Blocks.sort], noteId: row[Field_Blocks.noteId],parentBlockId:row[Field_Blocks.parentBlockId])
+        block.properties = row[Field_Blocks.properties]
         return block
     }
 }

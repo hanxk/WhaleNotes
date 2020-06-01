@@ -20,14 +20,10 @@ class AttachmentsBlockCell: UITableViewCell {
     private var blocks:[Block] = [] {
         didSet {
             self.columnCount = blocks.count > 1 ? 2 : 1
+            self.totalHeight =  self.calculateTotalHeight()
         }
     }
     
-    private var blocksSize:[CGSize] = [] {
-        didSet {
-            self.totalHeight =  self.calculateTotalHeight(sizes: blocksSize)
-        }
-    }
     
     var columnCount = 2 {
         didSet {
@@ -51,21 +47,7 @@ class AttachmentsBlockCell: UITableViewCell {
     
     var noteInfo:NoteInfo! {
         didSet {
-//            let results = note.attachBlocks.sorted(byKeyPath: "updateAt", ascending: false)
-//            self.attachmentBlocksNotifiToken = results.observe {[weak self] changes in
-//                guard let self = self else { return }
-//                switch changes {
-//                case .update(_, deletions: let deletionIndices, insertions: let insertionIndices, modifications: let modIndices):
-//                    self.blocks = Array(results)
-//                    self.handleDataChanged(deletionIndices: deletionIndices, insertionIndices: insertionIndices, modIndices: modIndices)
-//                case .error(let error):
-//                    print(error)
-//                case .initial(_):
-//                    self.blocks = Array(results)
-//                    self.blocksSize =  self.caculateItemsSize(blocks:  self.blocks)
-//                    self.collectionView.reloadData()
-//                }
-//            }
+            self.blocks = noteInfo.imageBlocks
         }
     }
     
@@ -79,35 +61,16 @@ class AttachmentsBlockCell: UITableViewCell {
     }
     
     
-    fileprivate func handleDataChanged(deletionIndices: [Int], insertionIndices: [Int], modIndices: [Int]) {
-        
-        // 刷新高度数据
-        if !deletionIndices.isEmpty {
-            self.blocksSize = blocksSize
-                .enumerated()
-                .filter { !deletionIndices.contains($0.offset) }
-                .map { $0.element }
-        }
+    func handleDataChanged(insertionIndices: [Int]) {
         
         if !insertionIndices.isEmpty {
-            
-//            if self.blocksSize.count == 1 { // 1个 item 的时候是 full screen, 需要重新计算所有 item
-//                self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
-//            }else {
-//                let insertedBlocks = insertionIndices.map { index -> Block in
-//                    return blocks[index]
-//                }
-//                let newSizes = self.caculateItemsSize(blocks: insertedBlocks)
-//                // 刷新总高度
-//                self.blocksSize.insert(contentsOf: newSizes, at: 0)
-//            }
             
         }
         
         collectionView.performBatchUpdates({
-            collectionView.deleteItems(at: deletionIndices.map({ IndexPath(row: $0, section: 0)}))
+//            collectionView.deleteItems(at: deletionIndices.map({ IndexPath(row: $0, section: 0)}))
             collectionView.insertItems(at: insertionIndices.map({ IndexPath(row: $0, section: 0)}))
-            collectionView.reloadItems(at: modIndices.map({ IndexPath(row: $0, section: 0)}))
+//            collectionView.reloadItems(at: modIndices.map({ IndexPath(row: $0, section: 0)}))
         }, completion: nil)
     }
     
@@ -119,7 +82,7 @@ class AttachmentsBlockCell: UITableViewCell {
         }
     }
     
-    func calculateTotalHeight(sizes:[CGSize]) -> CGFloat{
+    func calculateTotalHeight() -> CGFloat{
         var cellsHeight:[Int: CGFloat] = {
             var cellsHeight:[Int: CGFloat] = [:]
             for index in 0..<columnCount {
@@ -127,13 +90,16 @@ class AttachmentsBlockCell: UITableViewCell {
             }
             return cellsHeight
         }()
-        for (_,size) in sizes.enumerated() {
+        for (_,block) in blocks.enumerated() {
+            
+            let imageSize = self.getImageCGSize(block: block)
+            
             let columnIndex = getCurrentMinValueIndex(cellsHeight: cellsHeight)
             let oldHeight = cellsHeight[columnIndex] ?? 0
             let bottomSpace = ((oldHeight == 0) ? CGFloat.zero : AttachmentsConstants.cellSpace)
             Logger.info("columnIndex",columnIndex)
             Logger.info("bottomSpace",bottomSpace)
-            cellsHeight[columnIndex] = oldHeight + size.height + bottomSpace
+            cellsHeight[columnIndex] = oldHeight + imageSize.height + bottomSpace
         }
         return cellsHeight.values.max() ?? 0
     }
@@ -142,7 +108,6 @@ class AttachmentsBlockCell: UITableViewCell {
         if cellsHeight.count == 0 {
             return 0
         }
-        
         var tempVal = CGFloat.greatestFiniteMagnitude
         var index = 0
         for (cellIndex, columnHeight) in cellsHeight {
@@ -154,7 +119,12 @@ class AttachmentsBlockCell: UITableViewCell {
         return index
     }
     
-    
+    private func getImageCGSize(block:Block) -> CGSize {
+        let width = block.propertiesDic["width"] as? CGFloat ?? 1000
+        let height = block.propertiesDic["height"] as? CGFloat ?? 1000
+        let fitHeight = self.imageWidth * height / width
+        return CGSize(width: self.imageWidth, height: fitHeight)
+    }
     
     private func caculateItemsSize(blocks:[Block]) -> [CGSize] {
         
@@ -176,17 +146,13 @@ class AttachmentsBlockCell: UITableViewCell {
     
     
     lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
-        
         guard let self = self else {return}
-        
         $0.delegate = self
         $0.dataSource = self
         $0.isScrollEnabled = false
         $0.allowsSelection = false
         $0.register(ImageCell.self, forCellWithReuseIdentifier: AttachmentType.image.rawValue)
         $0.backgroundColor = .clear
-        //        $0.backgroundColor = .blue
-        
     }
     
     
@@ -212,7 +178,7 @@ class AttachmentsBlockCell: UITableViewCell {
 extension AttachmentsBlockCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentType.image.rawValue, for: indexPath) as! ImageCell
-//        cell.imageBlock = self.blocks[indexPath.row]
+        cell.imageBlock = self.blocks[indexPath.row]
         return cell
     }
     
@@ -232,9 +198,7 @@ enum AttachmentType:String {
 
 extension AttachmentsBlockCell: CHTCollectionViewDelegateWaterfallLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let itemWidth = blocksSize[indexPath.row].width
-        let itemHeight = blocksSize[indexPath.row].height
-        return CGSize(width: itemWidth, height: itemHeight)
+        return self.getImageCGSize(block: self.blocks[indexPath.row])
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, columnCountFor section: Int) -> Int {

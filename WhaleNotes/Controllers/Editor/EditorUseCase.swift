@@ -158,7 +158,8 @@ class EditorUseCase {
                         let imageName =  $0.uuidName
                         let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
                         if success {
-                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,noteId: noteId))
+                            let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
+                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,noteId: noteId,properties:properties))
                         }
                     }
                 }

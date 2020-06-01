@@ -20,9 +20,15 @@ struct Block {
     var noteId:Int64 = 0
     var parentBlockId:Int64  = 0
     
+    
     // block 的附加属性
-    var properties:String = "{}"
-    lazy var propertiesDic:[String:Any]? = properties.convertToDictionary(text: self.properties)
+    var properties:String = "{}"{
+        didSet {
+            propertiesDic = properties.convertToDictionary(text: self.properties)
+        }
+    }
+    
+    var propertiesDic:[String:Any] = [:]
     
     static func newTitleBlock() -> Block {
         var block = Block()
@@ -49,6 +55,9 @@ struct Block {
         return block
     }
     
+    mutating func getProperty(key: String) -> Any? {
+        return propertiesDic[key]
+    }
     
     static func newTodoBlock(text: String = "",noteId:Int64 = 0,parent:Int64 = 0,sort:Double = 0) -> Block {
         var block = Block()
@@ -61,12 +70,13 @@ struct Block {
         return block
     }
     
-    static func newImageBlock(imageUrl: String,noteId:Int64 = 0) -> Block {
+    static func newImageBlock(imageUrl: String,noteId:Int64 = 0,properties:[String:Any] = [:]) -> Block {
         var block = Block()
         block.type = BlockType.image.rawValue
         block.sort = 4
         block.noteId = noteId
         block.source = imageUrl
+        block.properties = properties.toJSON()
         return block
     }
     
@@ -81,6 +91,8 @@ enum BlockType: String {
     case todo_group = "todo_group"
     case image = "image"
 }
+
+
 //@objc dynamic var id: String = UUID().uuidString
 //@objc dynamic var type: String  = ""
 //

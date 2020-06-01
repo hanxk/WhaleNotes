@@ -1038,8 +1038,20 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     }
     
     private func handleSectionImage(imageBlocks:[Block]) {
+        
+        if let imagesCell =  self.attachmentsCell  {
+            //附加
+            self.noteInfo.addImageBlocks(imageBlocks)
+            imagesCell.noteInfo = self.noteInfo
+            let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
+            
+            // 刷新 collection
+            imagesCell.handleDataChanged(insertionIndices: insertionIndices)
+            return
+        }
+        
         self.sections.append(SectionType.images)
-        self.noteInfo.setupImageBlocks(imageBlocks)
+        self.noteInfo.addImageBlocks(imageBlocks)
         let sectionIndex = self.sections.count - 1
         self.tableView.performBatchUpdates({
             self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
