@@ -32,8 +32,7 @@ class EditorViewController: UIViewController {
     
     static let space: CGFloat = 14
     let bottombarHeight: CGFloat = 42.0
-    let bottomExtraSpace: CGFloat = 42.0 + 10
-    
+    let bottomExtraSpace: CGFloat = 42.0
     
     private var titleCell:TitleBlockCell?
     private var textCell: TextBlockCell?
@@ -225,12 +224,32 @@ class EditorViewController: UIViewController {
     
     private func setFirstResponder() {
         switch mode {
-        case .create:
-            if let textCell = textCell {
-                textCell.textView.becomeFirstResponder()
+        case .create(let noteInfo):
+            if noteInfo.textBlock != nil {
+                textCell?.textView.becomeFirstResponder()
+            }else if noteInfo.todoBlockInfos.isNotEmpty {
+                self.tryFocusTodoSection()
             }
         default:
             break
+        }
+    }
+    
+    private func tryFocusTodoSection() {
+        
+        guard let sectionIndex = self.sections.firstIndex(where: { sectionType in
+            if case .todos = sectionType {
+                return true
+            }
+            return false
+            
+        }) else {
+            return
+        }
+        
+        //获取焦点
+        if let cell = self.tableView.cellForRow(at:IndexPath(row: 1, section: sectionIndex)) as? TodoBlockCell {
+            cell.textView.becomeFirstResponder()
         }
     }
 }
@@ -335,6 +354,11 @@ extension EditorViewController {
             self.tableView.performBatchUpdates({
                 self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
             }) { _ in
+                
+                //获取焦点
+                if let cell = self.tableView.cellForRow(at:IndexPath(row: 1, section: sectionIndex)) as? TodoBlockCell {
+                    cell.textView.becomeFirstResponder()
+                }
                 
             }
         }
@@ -561,7 +585,7 @@ extension EditorViewController: UITableViewDataSource {
             if indexPath.row == 0 { // group cell
                 let todoGroupCell = cell as! TodoGroupCell
                 todoGroupCell.todoGroupBlock = todoBlockInfo.block
-                setupTodoGroupCell(todoGroupCell: todoGroupCell)
+                todoGroupCell.delegate = self
             }else {
                 let todoBlock = todoBlockInfo.childBlocks[indexPath.row-1]
                 let todoCell = cell as! TodoBlockCell
@@ -585,6 +609,33 @@ extension EditorViewController: UITableViewDataSource {
             break
         }
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        let sectionType = self.sections[indexPath.section]
+        switch sectionType {
+        case .todos:
+            return indexPath.row > 0
+        default:
+            return false
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let contextItem = UIContextualAction(style: .destructive, title: "删除") {  (contextualAction, view, boolValue) in
+            
+            if case .todos(let todoGroupId) = self.sections[indexPath.section]
+            {
+                if let todoBlockInfo =  self.noteInfo.mapTodoBlockInfos[todoGroupId] {
+                    self.tryDeleteBlock(block: todoBlockInfo.childBlocks[indexPath.row-1])
+                }
+                
+            }
+            
+        }
+        let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
+        
+        return swipeActions
     }
     
     fileprivate func handleTodoEnterKeyTapped(block:Block) {
@@ -628,61 +679,6 @@ extension EditorViewController: UITableViewDataSource {
                 //获取焦点
             })
         }
-    }
-    
-    
-    fileprivate func setupTodoGroupCell(todoGroupCell: TodoGroupCell) {
-        todoGroupCell.arrowButtonTapped = { todoGroupBlock in
-            self.expandOrFoldTodoSection(todoGroupBlock:todoGroupBlock)
-        }
-        todoGroupCell.menuButtonTapped = { btn,todoGroupBlock in
-            let items = [
-                ContextMenuItem(label: "删除", icon: "trash")
-            ]
-            
-            ContextMenuViewController.show(sourceView: btn, sourceVC: self, items: items) { [weak self] menuItem in
-                self?.deleteSection(todoGroupBlock: todoGroupBlock)
-                
-            }
-        }
-    }
-    fileprivate func expandOrFoldTodoSection(todoGroupBlock:Block) {
-        guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
-            if case .todos(let todoBlockId) = sectionType {
-                return todoBlockId == todoGroupBlock.id
-            }
-            return false
-        }) else { return }
-        
-        var newBlock = todoGroupBlock
-        newBlock.isExpand = !newBlock.isExpand
-        usecase.updateBlock(block: newBlock) {_ in
-            self.noteInfo.updateBlock(block: newBlock)
-            self.tableView.performBatchUpdates({
-                self.tableView.reloadSections(IndexSet([todoSectionIndex]), with: .automatic)
-            },completion: nil)
-        }
-    }
-    
-    fileprivate func deleteSection(todoGroupBlock:Block) {
-        
-        guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
-            if case .todos(let todoBlockId) = sectionType {
-                return todoBlockId == todoGroupBlock.id
-            }
-            return false
-        }) else { return }
-        
-        usecase.deleteBlock(block: todoGroupBlock) { isSuccess  in
-            if isSuccess {
-                self.noteInfo.removeBlock(block: todoGroupBlock)
-                self.sections.remove(at: todoSectionIndex)
-                self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .bottom)
-                }, completion: nil)
-            }
-        }
-        
     }
     
     fileprivate func handleTextViewEnterKey(textView: UITextView){
@@ -801,6 +797,81 @@ extension EditorViewController: TodoBlockCellDelegate {
         self.tryUpdateBlock(block: newBlock)
     }
     
+}
+
+extension EditorViewController: TodoGroupCellDelegate {
+    func todoGroupArrowButtonTapped(todoGroupBlock: Block) {
+        self.expandOrFoldTodoSection(todoGroupBlock:todoGroupBlock)
+    }
+    
+    func todoGroupMenuButtonTapped(menuButton: UIButton, todoGroupBlock: Block) {
+        let items = [
+            ContextMenuItem(label: "删除", icon: "trash")
+        ]
+        ContextMenuViewController.show(sourceView: menuButton, sourceVC: self, items: items) { [weak self] menuItem in
+            self?.deleteSection(todoGroupBlock: todoGroupBlock)
+        }
+    }
+    
+    func todoGroupTextChanged(todoGroupBlock: Block) {
+        self.tryUpdateBlock(block: todoGroupBlock)
+    }
+    
+    func todoGroupEnterKeyInput(todoGroupBlock: Block) {
+        
+        if !todoGroupBlock.isExpand {//先展开
+             self.expandOrFoldTodoSection(todoGroupBlock:todoGroupBlock)
+        }
+        
+        // 顶部创建新的 todo
+        guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
+            if case .todos(let todoBlockId) = sectionType {
+                return todoBlockId == todoGroupBlock.id
+            }
+            return false
+        }) else { return }
+        let nextIndexPath = IndexPath(row: 1, section: todoSectionIndex)
+        self.createNewTodoBlock(noteId: todoGroupBlock.noteId, groupBlockId: todoGroupBlock.id, targetIndex: nextIndexPath)
+    }
+    
+    fileprivate func expandOrFoldTodoSection(todoGroupBlock:Block) {
+        guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
+            if case .todos(let todoBlockId) = sectionType {
+                return todoBlockId == todoGroupBlock.id
+            }
+            return false
+        }) else { return }
+        
+        var newBlock = todoGroupBlock
+        newBlock.isExpand = !newBlock.isExpand
+        usecase.updateBlock(block: newBlock) {_ in
+            self.noteInfo.updateBlock(block: newBlock)
+            self.tableView.performBatchUpdates({
+                self.tableView.reloadSections(IndexSet([todoSectionIndex]), with: .automatic)
+            },completion: nil)
+        }
+    }
+    
+    fileprivate func deleteSection(todoGroupBlock:Block) {
+        
+        guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
+            if case .todos(let todoBlockId) = sectionType {
+                return todoBlockId == todoGroupBlock.id
+            }
+            return false
+        }) else { return }
+        
+        usecase.deleteBlock(block: todoGroupBlock) { isSuccess  in
+            if isSuccess {
+                self.noteInfo.removeBlock(block: todoGroupBlock)
+                self.sections.remove(at: todoSectionIndex)
+                self.tableView.performBatchUpdates({
+                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .bottom)
+                }, completion: nil)
+            }
+        }
+        
+    }
 }
 
 extension EditorViewController: UITableViewDelegate {
@@ -940,11 +1011,15 @@ extension EditorViewController: UITableViewDelegate {
         let destSection = proposedDestinationIndexPath.section
         
         if case .todos = self.sections[destSection]  {
+            if proposedDestinationIndexPath.row == 0 { // 第 0 行是 title
+                return IndexPath(row: 1, section: proposedDestinationIndexPath.section)
+            }
             return proposedDestinationIndexPath
         }
         
+        // 跨 section
         if destSection < sourceSection {
-            return IndexPath(row: 0, section: sourceSection)
+            return IndexPath(row: 1, section: sourceSection)
         } else if destSection > sourceSection {
             return IndexPath(row: self.tableView(tableView, numberOfRowsInSection:sourceSection)-1, section: sourceSection)
         }
@@ -982,7 +1057,7 @@ extension EditorViewController {
             }
             
             var contentInset = self.tableView.contentInset
-            contentInset.bottom = rect.height + bottomExtraSpace
+            contentInset.bottom = rect.height + bottomExtraSpace + TodoGroupCell.CELL_HEIGHT
             
             self.tableView.contentInset = contentInset
             self.tableView.scrollIndicatorInsets = contentInset

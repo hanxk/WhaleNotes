@@ -114,6 +114,7 @@ class NoteCellNode: ASCellNode {
                 let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
                 let image   = UIImage(contentsOfFile: imageUrlPath)
                 $0.image = image
+                $0.backgroundColor = .placeHolderColor
             }
             self.imageNodes.append(imageNode)
             self.addSubnode(imageNode)

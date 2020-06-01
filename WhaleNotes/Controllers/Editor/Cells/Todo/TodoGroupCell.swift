@@ -8,12 +8,23 @@
 
 import UIKit
 
+
+
+protocol TodoGroupCellDelegate: AnyObject {
+    func todoGroupArrowButtonTapped(todoGroupBlock:Block)
+    func todoGroupMenuButtonTapped(menuButton: UIButton,todoGroupBlock:Block)
+    func todoGroupTextChanged(todoGroupBlock:Block)
+    func todoGroupEnterKeyInput(todoGroupBlock:Block)
+}
+
 class TodoGroupCell: UITableViewCell {
     
-    static let CELL_HEIGHT:CGFloat = 34
+    static let CELL_HEIGHT:CGFloat = 38
     
-    var arrowButtonTapped:((Block) ->Void)?
-    var menuButtonTapped:((UIButton,Block) ->Void)?
+    weak var delegate:TodoGroupCellDelegate?
+    
+//    var arrowButtonTapped:((Block) ->Void)?
+//    var menuButtonTapped:((UIButton,Block) ->Void)?
     
     private lazy var arrowDownImage:UIImage = {
         let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
@@ -110,20 +121,17 @@ class TodoGroupCell: UITableViewCell {
 
 extension TodoGroupCell {
     @objc private func handleArrowButtonTapped() {
-        self.arrowButtonTapped?(self.todoGroupBlock)
+        self.delegate?.todoGroupArrowButtonTapped(todoGroupBlock: self.todoGroupBlock)
     }
     
     @objc private func handleAddTodoButtonTapped() {
-        self.menuButtonTapped?(self.menuButton,self.todoGroupBlock)
+        self.delegate?.todoGroupMenuButtonTapped(menuButton: self.menuButton, todoGroupBlock: self.todoGroupBlock)
     }
 }
 
 extension TodoGroupCell: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        if let enterkeyTapped = self.enterkeyTapped {
-//            enterkeyTapped(textField.text ?? "")
-//            return false
-//        }
+        self.delegate?.todoGroupEnterKeyInput(todoGroupBlock: self.todoGroupBlock)
         return true
     }
     
@@ -133,11 +141,10 @@ extension TodoGroupCell: UITextFieldDelegate {
             title = "清单"
             textField.text = title
         }
-//        if  title != todoGroupBlock.text {
-//            DBManager.sharedInstance.update(note: self.note) {
-//                todoGroupBlock.text =  title
-//            }
-//        }
+        if  title != todoGroupBlock.text {
+            self.todoGroupBlock.text = title
+            self.delegate?.todoGroupTextChanged(todoGroupBlock: self.todoGroupBlock)
+        }
         return true
     }
 }
