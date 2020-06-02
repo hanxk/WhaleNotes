@@ -13,4 +13,5 @@ struct Board {
     let icon:String
     let title:String
     let createAt:Date
+    let sort:Double
 }

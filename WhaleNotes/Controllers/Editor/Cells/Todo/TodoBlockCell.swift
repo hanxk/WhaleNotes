@@ -37,6 +37,9 @@ class TodoBlockCell: UITableViewCell {
              textView.text = todoBlock.text
             isChecked = todoBlock.isChecked
             isEmpty = todoBlock.text.isEmpty
+            
+             Logger.info("刷新--->")
+            Logger.info(String(todoBlock.sort),todoBlock.text)
         }
     }
     var note:NoteInfo!

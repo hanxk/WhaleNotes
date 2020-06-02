@@ -37,6 +37,7 @@
 		188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942A7246E845D006173F8 /* TodoGroupCell.swift */; };
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
+		189D962C24861318000E04C9 /* SectionAndNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189D962B24861318000E04C9 /* SectionAndNote.swift */; };
 		18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
 		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
@@ -62,7 +63,7 @@
 		18E9D6C324715112001E41A0 /* NoteCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E9D6C224715112001E41A0 /* NoteCellNode.swift */; };
 		18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A1245D4A9900E8CE14 /* TLPHAsset+Ex.swift */; };
 		18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */; };
-		18EEF674247D2FD100E2E3BA /* EditorUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF673247D2FD100E2E3BA /* EditorUseCase.swift */; };
+		18EEF674247D2FD100E2E3BA /* NoteRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF673247D2FD100E2E3BA /* NoteRepo.swift */; };
 		18EEF676247DF92600E2E3BA /* NotesUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF675247DF92600E2E3BA /* NotesUseCase.swift */; };
 /* End PBXBuildFile section */
 
@@ -97,6 +98,7 @@
 		188942A7246E845D006173F8 /* TodoGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroupCell.swift; sourceTree = "<group>"; };
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
+		189D962B24861318000E04C9 /* SectionAndNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionAndNote.swift; sourceTree = "<group>"; };
 		18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMenuCell.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
 		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
@@ -124,7 +126,7 @@
 		18E9D6C224715112001E41A0 /* NoteCellNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCellNode.swift; sourceTree = "<group>"; };
 		18ECA6A1245D4A9900E8CE14 /* TLPHAsset+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TLPHAsset+Ex.swift"; sourceTree = "<group>"; };
 		18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Ex.swift"; sourceTree = "<group>"; };
-		18EEF673247D2FD100E2E3BA /* EditorUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorUseCase.swift; sourceTree = "<group>"; };
+		18EEF673247D2FD100E2E3BA /* NoteRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepo.swift; sourceTree = "<group>"; };
 		18EEF675247DF92600E2E3BA /* NotesUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUseCase.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -184,9 +186,7 @@
 		1865AEF7244C79400006B48D /* Editor */ = {
 			isa = PBXGroup;
 			children = (
-				1865AEFD244C82E40006B48D /* Models */,
 				1865AEFA244C7CFC0006B48D /* Cells */,
-				18EEF673247D2FD100E2E3BA /* EditorUseCase.swift */,
 				1865AEF8244C79870006B48D /* EditorViewController.swift */,
 				1865AF17244ED46D0006B48D /* BottomBarView.swift */,
 			);
@@ -204,16 +204,10 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
-		1865AEFD244C82E40006B48D /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		1865AF02244D4D040006B48D /* Store */ = {
 			isa = PBXGroup;
 			children = (
+				189D962D2486185C000E04C9 /* Repos */,
 				18E6E66B247BA1B900D598C5 /* DB */,
 				1865AF07244D4DC40006B48D /* TypedRow.swift */,
 			);
@@ -229,6 +223,7 @@
 				18E6E66F247BB9D700D598C5 /* Block.swift */,
 				18E6E67A247BCCD700D598C5 /* NoteInfo.swift */,
 				18397D55247F953000C53CD0 /* BlockInfo.swift */,
+				189D962B24861318000E04C9 /* SectionAndNote.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -280,6 +275,14 @@
 				18E9D6C224715112001E41A0 /* NoteCellNode.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		189D962D2486185C000E04C9 /* Repos */ = {
+			isa = PBXGroup;
+			children = (
+				18EEF673247D2FD100E2E3BA /* NoteRepo.swift */,
+			);
+			path = Repos;
 			sourceTree = "<group>";
 		};
 		18E6E66B247BA1B900D598C5 /* DB */ = {
@@ -521,8 +524,9 @@
 				18E6E672247BBB6200D598C5 /* Section.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
-				18EEF674247D2FD100E2E3BA /* EditorUseCase.swift in Sources */,
+				18EEF674247D2FD100E2E3BA /* NoteRepo.swift in Sources */,
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
+				189D962C24861318000E04C9 /* SectionAndNote.swift in Sources */,
 				18E6E66E247BB73000D598C5 /* Note.swift in Sources */,
 				1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */,
 				18E6E67B247BCCD700D598C5 /* NoteInfo.swift in Sources */,

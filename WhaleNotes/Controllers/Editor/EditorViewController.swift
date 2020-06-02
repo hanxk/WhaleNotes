@@ -37,13 +37,15 @@ class EditorViewController: UIViewController {
     private var titleCell:TitleBlockCell?
     private var textCell: TextBlockCell?
     //    private var todoBlockCell: TodoBlockCell?
+    var disposebag = DisposeBag()
+    
     
     private var attachmentsCell: AttachmentsBlockCell?
     
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
     
-    private let usecase = EditorUseCase()
+    private let noteRepo = NoteRepo()
     
     
     // 索引
@@ -175,9 +177,7 @@ class EditorViewController: UIViewController {
         case .browser:
             if self.oldUpdatedAt != note.updatedAt{
                 if noteInfo.isContentEmpry {
-                    usecase.deleteNote(noteId: note.id) { isSuccess in
-                        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.noteInfo))
-                    }
+                    self.deleteNote()
                     return
                 }
                 self.callbackNoteUpdate?(EditorUpdateMode.update(noteInfo: self.noteInfo))
@@ -185,9 +185,7 @@ class EditorViewController: UIViewController {
             break
         case .create:
             if noteInfo.isContentEmpry {
-                usecase.deleteNote(noteId: note.id) { isSuccess in
-                    self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.noteInfo))
-                }
+                self.deleteNote()
                 return
             }
             self.callbackNoteUpdate?(EditorUpdateMode.insert(noteInfo: self.noteInfo))
@@ -322,20 +320,18 @@ extension EditorViewController {
             return
         }
         let sectionIndex = 1
-        
-        usecase.createBlock(block: Block.newTextBlock(noteId: self.noteInfo.note.id)) { newBlock in
-            self.noteInfo.addBlock(block: newBlock)
-            self.sections.insert(SectionType.text, at:sectionIndex)
-            self.tableView.performBatchUpdates({
-                self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
-            }) { _ in
-                
-                //获取焦点
-                if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: sectionIndex)) as? TextBlockCell {
-                    cell.textView.becomeFirstResponder()
-                }
-                
-            }
+        self.createBlock(block: Block.newTextBlock(text: "", noteId: self.noteInfo.id)) { _ in
+                     self.sections.insert(SectionType.text, at:1)
+                     self.tableView.performBatchUpdates({
+                         self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
+                     }) { _ in
+                         
+                         //获取焦点
+                         if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: sectionIndex)) as? TextBlockCell {
+                             cell.textView.becomeFirstResponder()
+                         }
+                         
+                     }
         }
     }
     
@@ -345,7 +341,7 @@ extension EditorViewController {
         
         let blockInfo = BlockInfo(block: Block.newTodoBlock(text: "清单",noteId: self.noteInfo.note.id,sort: Double(sectionIndex)),
                                   childBlocks: [Block.newTodoBlock()])
-        usecase.createBlockInfo(blockInfo: blockInfo) { [weak self] newBlockInfo in
+        noteRepo.createBlockInfo(blockInfo: blockInfo) { [weak self] newBlockInfo in
             guard let self = self else { return }
             self.noteInfo.addBlockInfo(blocksInfo: newBlockInfo)
             
@@ -656,30 +652,6 @@ extension EditorViewController: UITableViewDataSource {
         }
     }
     
-    fileprivate func tryUpdateBlock(block:Block,completion:(()->Void)? = nil) {
-        usecase.updateBlock(block: block) { _ in
-            self.noteInfo.updateBlock(block: block)
-            completion?()
-        }
-    }
-    
-    
-    fileprivate func tryDeleteBlock(block:Block) {
-        usecase.deleteBlock(block: block) { [weak self] (isSuccess) in
-            guard let self = self else { return }
-            
-            let section = self.getSectionIndexByBlock(block: block)
-            guard let row = self.noteInfo.mapTodoBlockInfos[block.parentBlockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
-            
-            self.noteInfo.removeBlock(block: block)
-            let indexPath = IndexPath(row: row+1, section: section)
-            self.tableView.performBatchUpdates({
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-            }, completion: { _ in
-                //获取焦点
-            })
-        }
-    }
     
     fileprivate func handleTextViewEnterKey(textView: UITextView){
         let tableView = self.tableView
@@ -691,18 +663,10 @@ extension EditorViewController: UITableViewDataSource {
             
             let cursorY = inWindowRect.origin.y +  caretPositionRect.height
             
-            Logger.info("cursorY", cursorY)
-            Logger.info("visibleHeight", visibleHeight)
             if cursorY > visibleHeight { // 光标隐藏
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     let newOffsetY =  tableView.contentOffset.y +  (cursorY - self.keyboardHeight2)
-                    Logger.info("tableView.contentOffset.y", tableView.contentOffset.y)
-                    Logger.info("newOffsetYy", newOffsetY)
-                    // your code here
                     tableView.contentOffset.y = newOffsetY
-                    //                    tableView.scrollRectToVisible(CGRect.init(x: 0, y: cursorY, width: 0, height: 0), animated: false)
-                    //                    tableView.scroll
-                    //                    tableView.scrollToBottom()
                 }
             }
         }
@@ -726,28 +690,6 @@ extension EditorViewController: UITableViewDataSource {
         }
     }
     
-    private func calcNewSort(groupBlockId:Int64,newRowIndex:Int) -> Double {
-        guard let todoBlocks = noteInfo.mapTodoBlockInfos[groupBlockId] else { return 0 }
-        let rightIndex = newRowIndex - 1
-        
-        let sort = { () -> Double in
-            if todoBlocks.childBlocks.isEmpty {
-                return 65536
-            }
-            // 第一个
-            if rightIndex == 0 {
-                return todoBlocks.childBlocks[rightIndex].sort/2
-            }
-            // 尾部
-            if rightIndex >= todoBlocks.childBlocks.count {
-                return todoBlocks.childBlocks[todoBlocks.childBlocks.count-1].sort + 65536
-            }
-            // mid
-            return (todoBlocks.childBlocks[rightIndex].sort + todoBlocks.childBlocks[rightIndex-1].sort) / 2
-        }()
-        
-        return sort
-    }
     
     private func createNewTodoBlock(noteId:Int64,groupBlockId:Int64,targetIndex:IndexPath) {
         
@@ -755,9 +697,7 @@ extension EditorViewController: UITableViewDataSource {
         
         // 新增
         let todoBlock = Block.newTodoBlock(text: "", noteId: noteId, parent: groupBlockId,sort: sort)
-        usecase.createBlock(block: todoBlock) { newBlock in
-            // 更新数据源
-            self.noteInfo.addBlock(block: newBlock)
+        self.createBlock(block: todoBlock) { _ in
             self.tableView.performBatchUpdates({
                 self.tableView.insertRows(at: [targetIndex], with: .automatic)
             }, completion: { _ in
@@ -765,16 +705,13 @@ extension EditorViewController: UITableViewDataSource {
                 if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
                     cell.textView.becomeFirstResponder()
                 }
-                
-                
             })
-            
-        }
-    }
+        }    }
     
 }
 
 
+//MARK: TodoBlockCellDelegate
 extension EditorViewController: TodoBlockCellDelegate {
     func textDidChange() {
         DispatchQueue.main.async {
@@ -799,6 +736,7 @@ extension EditorViewController: TodoBlockCellDelegate {
     
 }
 
+//MARK: TodoGroupCellDelegate
 extension EditorViewController: TodoGroupCellDelegate {
     func todoGroupArrowButtonTapped(todoGroupBlock: Block) {
         self.expandOrFoldTodoSection(todoGroupBlock:todoGroupBlock)
@@ -809,7 +747,7 @@ extension EditorViewController: TodoGroupCellDelegate {
             ContextMenuItem(label: "删除", icon: "trash")
         ]
         ContextMenuViewController.show(sourceView: menuButton, sourceVC: self, items: items) { [weak self] menuItem in
-            self?.deleteSection(todoGroupBlock: todoGroupBlock)
+            self?.deleteTodoSection(todoGroupBlock: todoGroupBlock)
         }
     }
     
@@ -820,7 +758,7 @@ extension EditorViewController: TodoGroupCellDelegate {
     func todoGroupEnterKeyInput(todoGroupBlock: Block) {
         
         if !todoGroupBlock.isExpand {//先展开
-             self.expandOrFoldTodoSection(todoGroupBlock:todoGroupBlock)
+            self.expandOrFoldTodoSection(todoGroupBlock:todoGroupBlock)
         }
         
         // 顶部创建新的 todo
@@ -844,34 +782,14 @@ extension EditorViewController: TodoGroupCellDelegate {
         
         var newBlock = todoGroupBlock
         newBlock.isExpand = !newBlock.isExpand
-        usecase.updateBlock(block: newBlock) {_ in
-            self.noteInfo.updateBlock(block: newBlock)
+        
+        self.tryUpdateBlock(block: newBlock) {
             self.tableView.performBatchUpdates({
                 self.tableView.reloadSections(IndexSet([todoSectionIndex]), with: .automatic)
             },completion: nil)
         }
     }
     
-    fileprivate func deleteSection(todoGroupBlock:Block) {
-        
-        guard let todoSectionIndex = self.sections.firstIndex(where: { sectionType in
-            if case .todos(let todoBlockId) = sectionType {
-                return todoBlockId == todoGroupBlock.id
-            }
-            return false
-        }) else { return }
-        
-        usecase.deleteBlock(block: todoGroupBlock) { isSuccess  in
-            if isSuccess {
-                self.noteInfo.removeBlock(block: todoGroupBlock)
-                self.sections.remove(at: todoSectionIndex)
-                self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .bottom)
-                }, completion: nil)
-            }
-        }
-        
-    }
 }
 
 extension EditorViewController: UITableViewDelegate {
@@ -907,10 +825,6 @@ extension EditorViewController: UITableViewDelegate {
                 return 10
             }
         case .images:
-            //            let sectionPreIndex = section - 1
-            //            if self.sections[sectionPreIndex].identifier == "todo" {
-            //                return 16
-            //            }
             return 18
         }
     }
@@ -951,6 +865,32 @@ extension EditorViewController: UITableViewDelegate {
         }
     }
     
+    
+    private func calcNewSort(groupBlockId:Int64,newRowIndex:Int) -> Double {
+        guard let todoBlocks = noteInfo.mapTodoBlockInfos[groupBlockId] else { return 0 }
+        let rightIndex = newRowIndex - 1
+        
+        let sort = { () -> Double in
+            if todoBlocks.childBlocks.isEmpty {
+                return 65536
+            }
+            // 第一个(记得第一个是 group)
+            if rightIndex == 0 {
+                return todoBlocks.childBlocks[rightIndex].sort/2
+            }
+            // 尾部
+            if rightIndex >= todoBlocks.childBlocks.count - 1 {
+                return todoBlocks.childBlocks[todoBlocks.childBlocks.count-1].sort + 65536
+            }
+            
+            
+            // mid
+            return (todoBlocks.childBlocks[rightIndex].sort + todoBlocks.childBlocks[rightIndex-1].sort) / 2
+        }()
+        
+        return sort
+    }
+    
     func swapRowInSameSection(section:Int,fromRow:Int,toRow:Int) {
         
         var blockInfo:BlockInfo?
@@ -970,10 +910,22 @@ extension EditorViewController: UITableViewDelegate {
         //            }
         //            return
         //        }
-        
         var todoBlock = todoBlockInfo.childBlocks[fromRow-1]
         todoBlock.sort = sort
-        self.tryUpdateBlock(block: todoBlock)
+        self.tryUpdateBlock(block: todoBlock) {
+            //            print("***********************"+String(toRow))
+            //            self.noteInfo.todoBlockInfos[0].childBlocks.forEach({
+            //                Logger.info(String($0.sort),$0.text)
+            //            })
+            //            print("***********************")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                if let cell = self.tableView.cellForRow(at: IndexPath(row: toRow, section: section)) as? TodoBlockCell {
+                    cell.todoBlock = todoBlock
+                }
+            }
+        }
+        
+        
     }
     
     func swapRowCrossSection(fromSection:Int,toSection:Int,fromRow:Int,toRow:Int) {
@@ -998,10 +950,16 @@ extension EditorViewController: UITableViewDelegate {
         newTodoBlock.sort = sort
         newTodoBlock.parentBlockId = toTodoBlockInfo.id
         
-        usecase.updateBlock(block: newTodoBlock) { isSuccess in
-            self.noteInfo.removeBlock(block: fromTodoBlock)
-            self.noteInfo.addBlock(block: newTodoBlock)
-        }
+        noteRepo.updateBlock(block: newTodoBlock)
+            .subscribe(onNext: {[weak self] _ in
+                self?.noteInfo.removeBlock(block: fromTodoBlock)
+                self?.noteInfo.addBlock(block: newTodoBlock)
+                
+                
+                }, onError: {
+                    Logger.error($0)
+            })
+            .disposed(by: disposeBag)
     }
     
     
@@ -1092,7 +1050,90 @@ extension EditorViewController {
     }
 }
 
-// 相册
+// MARK: Repo handler
+extension EditorViewController {
+    private func deleteNote() {
+        noteRepo.deleteNote(noteId: note.id)
+            .subscribe(onNext: { [weak self] _  in
+                if let self = self {
+                    self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.noteInfo))
+                }
+                },onError: {
+                    Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func tryUpdateBlock(block:Block,completion: (()->Void)? = nil) {
+        noteRepo.updateBlock(block: block)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                self.noteInfo.updateBlock(block: block)
+                if let completion = completion {
+                    completion()
+                    return
+                }
+                }, onError: {
+                    Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func tryDeleteBlock(block:Block) {
+        noteRepo.deleteBlock(block: block)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                
+                let section = self.getSectionIndexByBlock(block: block)
+                guard let row = self.noteInfo.mapTodoBlockInfos[block.parentBlockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
+                
+                self.noteInfo.removeBlock(block: block)
+                let indexPath = IndexPath(row: row+1, section: section)
+                self.tableView.performBatchUpdates({
+                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                }, completion: { _ in
+                    
+                })
+                }, onError: {
+                    Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func deleteTodoSection(todoGroupBlock:Block) {
+        
+        noteRepo.deleteBlock(block: todoGroupBlock)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                
+                let todoSectionIndex = self.getSectionIndexByBlock(block: todoGroupBlock)
+                
+                self.noteInfo.removeBlock(block: todoGroupBlock)
+                self.sections.remove(at: todoSectionIndex)
+                self.tableView.performBatchUpdates({
+                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .bottom)
+                }, completion: nil)
+                }, onError: {
+                    Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+        
+    }
+    
+    private func createBlock(block:Block,callback:((Block)->Void)?) {
+        
+        noteRepo.createBlock(block: block)
+            .subscribe(onNext: { newBlock in
+                self.noteInfo.addBlock(block: newBlock)
+                callback?(newBlock)
+            },onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+}
+
+// MARK: 相册
 extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     
     func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
@@ -1102,7 +1143,7 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     
     func handlePicker(images: [TLPHAsset]) {
         self.showHud()
-        usecase.createImageBlocks(noteId: self.note.id, images: images, success: { [weak self] imageBlocks in
+        noteRepo.createImageBlocks(noteId: self.note.id, images: images, success: { [weak self] imageBlocks in
             if let self = self {
                 self.hideHUD()
                 self.handleSectionImage(imageBlocks: imageBlocks)
@@ -1146,7 +1187,7 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
     
     func handlePicker(image: UIImage) {
         self.showHud()
-        usecase.createImageBlocks(noteId: self.note.id, image: image, success: { [weak self] imageBlock in
+        noteRepo.createImageBlocks(noteId: self.note.id, image: image, success: { [weak self] imageBlock in
             if let self = self {
                 self.hideHUD()
                 self.handleSectionImage(imageBlocks: [imageBlock])

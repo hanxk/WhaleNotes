@@ -11,37 +11,28 @@ import RxSwift
 import TLPhotoPicker
 
 
-class EditorUseCase {
+class NoteRepo {
     
     var disposebag = DisposeBag()
     
-    func deleteNote(noteId: Int64,callback:@escaping (Bool)->Void) {
-        Observable<Int64>.just(noteId)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(noteId)  -> Bool in
-                let result =  DBStore.shared.deleteNote(id: noteId)
-                switch result {
-                case .success(let isSuccess):
-                    return isSuccess
-                case .failure(let err):
-                    throw err
-                }
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext: {
-                callback($0)
-            }, onError: { err in
-                Logger.error(err)
-            }, onCompleted: {
-                
-            }, onDisposed: nil)
-            .disposed(by: disposebag)
-    }
+    func deleteNote(noteId: Int64) -> Observable<Bool> {
+         return Observable<Int64>.just(noteId)
+             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+             .map({(noteId)  -> Bool in
+                 let result =  DBStore.shared.deleteNote(id: noteId)
+                 switch result {
+                 case .success(let isSuccess):
+                     return isSuccess
+                 case .failure(let err):
+                     throw err
+                 }
+             })
+             .observeOn(MainScheduler.instance)
+     }
     
     
-    
-    func updateBlock(block:Block,callback:@escaping (Bool)->Void) {
-        Observable<Bool>.create {  observer -> Disposable in
+    func updateBlock(block:Block) -> Observable<Bool> {
+        return Observable<Bool>.create {  observer -> Disposable in
             let result = DBStore.shared.updateBlock(block:block)
             switch result {
             case .success(let isSuccess):
@@ -53,17 +44,11 @@ class EditorUseCase {
             return Disposables.create()
         }
         .observeOn(MainScheduler.instance)
-        .subscribe(onNext: {
-            callback($0)
-        }, onError: {
-            Logger.error($0)
-        }, onCompleted: nil, onDisposed: nil)
-            .disposed(by: disposebag)
     }
     
     
-    func deleteBlock(block:Block,callback:@escaping (Bool)->Void) {
-        Observable<Block>.just(block)
+    func deleteBlock(block:Block) -> Observable<Bool>{
+        return Observable<Block>.just(block)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(block)  -> Bool in
                 let result =  DBStore.shared.deleteBlock(block: block)
@@ -75,16 +60,10 @@ class EditorUseCase {
                 }
             })
             .observeOn(MainScheduler.instance)
-            .subscribe(onNext:{
-                callback($0)
-            }, onError: {
-                Logger.error($0)
-            }, onCompleted: nil, onDisposed: nil)
-            .disposed(by: disposebag)
     }
     
     
-    func createBlock(block:Block,callback:@escaping (Block)->Void) {
+    func createBlock(block:Block)-> Observable<Block> {
         Observable<Block>.just(block)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(block)  -> Block in
@@ -97,12 +76,6 @@ class EditorUseCase {
                 }
             })
             .observeOn(MainScheduler.instance)
-            .subscribe(onNext:{
-                callback($0)
-            }, onError: {
-                Logger.error($0)
-            }, onCompleted: nil, onDisposed: nil)
-            .disposed(by: disposebag)
     }
     
     func createBlockInfo(blockInfo:BlockInfo,callback:@escaping (BlockInfo)->Void) {

@@ -26,7 +26,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     private lazy var disposeBag = DisposeBag()
     
     private let usecase = NotesUseCase()
-    private let editorUseCase = EditorUseCase()
+    private let editorUseCase = NoteRepo()
     
     private var selectedIndexPath:IndexPath?
     
