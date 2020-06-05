@@ -19,12 +19,18 @@ class DBStore {
         return SQLiteManager.manager.getDB()
     }
     
-    fileprivate var notesDao:NotesDao!
-    fileprivate var blocksDao:BlocksDao!
+    fileprivate var noteDao:NoteDao!
+    fileprivate var blockDao:BlockDao!
+    
+    fileprivate var boardDao:BoardDao!
+    fileprivate var boardCategoryDao:BoardCategoryDao!
     
     func setup() {
-        blocksDao = BlocksDao(dbCon: db)
-        notesDao = NotesDao(dbCon: db)
+        blockDao = BlockDao(dbCon: db)
+        noteDao = NoteDao(dbCon: db)
+        
+        boardDao = BoardDao(dbCon: db)
+        boardCategoryDao = BoardCategoryDao(dbCon: db)
     }
     
     
@@ -33,14 +39,14 @@ class DBStore {
             var newBlocks:[Block] = []
             var note = Note()
             try db.transaction {
-                let noteId = try notesDao.insert(note)
+                let noteId = try noteDao.insert(note)
                 note.id = noteId
                 
                 for block in blocks {
                     var newBlock = block
                     newBlock.noteId = noteId
 
-                    let blockId = try blocksDao.insert(newBlock)
+                    let blockId = try blockDao.insert(newBlock)
                     newBlock.id = blockId
 
                     newBlocks.append(newBlock)
@@ -48,7 +54,7 @@ class DBStore {
                     // todo 默认添加一个空 todo
                     if newBlock.type == BlockType.todo.rawValue &&  newBlock.parentBlockId == 0{
                         var todoBlock = Block.newTodoBlock(text: "", noteId: noteId, parent: blockId, sort: 65536)
-                        let blockId = try blocksDao.insert(todoBlock)
+                        let blockId = try blockDao.insert(todoBlock)
                         todoBlock.id = blockId
                         newBlocks.append(todoBlock)
                     }
@@ -64,9 +70,9 @@ class DBStore {
     func deleteNote(id:Int64) -> DBResult<Bool> {
         do {
             try db.transaction {
-                let isSuccess =  try notesDao.delete(id: id)
+                let isSuccess =  try noteDao.delete(id: id)
                 if isSuccess {
-                    _ = try blocksDao.deleteBlocksByNoteId(noteId: id)
+                    _ = try blockDao.deleteBlocksByNoteId(noteId: id)
                 }
             }
             return DBResult<Bool>.success(true)
@@ -77,9 +83,9 @@ class DBStore {
     
     func getAllNotes() -> DBResult<[NoteInfo]>  {
         do {
-            let notes = try notesDao.queryAll()
+            let notes = try noteDao.queryAll()
             let noteInfos:[NoteInfo] = try notes.map {
-                let blocks = try blocksDao.query(noteId: $0.id)
+                let blocks = try blockDao.query(noteId: $0.id)
                 return NoteInfo(note: $0, blocks: blocks)
             }
             return DBResult<[NoteInfo]>.success(noteInfos)
@@ -92,7 +98,7 @@ class DBStore {
     func createBlock(block: Block) -> DBResult<Block> {
         do {
             var insertedBlock = block
-            let blockId = try blocksDao.insert(block)
+            let blockId = try blockDao.insert(block)
             insertedBlock.id = blockId
             return DBResult<Block>.success(insertedBlock)
         } catch _ {
@@ -104,7 +110,7 @@ class DBStore {
         do {
             var newBlocks:[Block] = blocks
             for (index,_) in blocks.enumerated() {
-                let blockId = try blocksDao.insert(newBlocks[index])
+                let blockId = try blockDao.insert(newBlocks[index])
                 newBlocks[index].id = blockId
                 newBlocks[index].sort = Double(65536*(index+1))
             }
@@ -124,7 +130,7 @@ class DBStore {
                     throw DBError(code: .None, message: "noteid is 0")
                 }
                 
-                let blockId = try blocksDao.insert(block)
+                let blockId = try blockDao.insert(block)
                 block.id = blockId
                 
                 
@@ -133,7 +139,7 @@ class DBStore {
                     childBlocks[index].parentBlockId = blockId
                     childBlocks[index].noteId = block.noteId
                     childBlocks[index].sort = Double(65536*(index+1))
-                    let childBlockId = try blocksDao.insert( childBlocks[index])
+                    let childBlockId = try blockDao.insert( childBlocks[index])
                     childBlocks[index].id = childBlockId
                 }
                 
@@ -151,8 +157,8 @@ class DBStore {
         do {
             var isSuccess = false
             try db.transaction {
-                _ = try notesDao.updateUpdatedAt(id: noteId)
-                isSuccess = try blocksDao.updateText(id: id, text: text)
+                _ = try noteDao.updateUpdatedAt(id: noteId)
+                isSuccess = try blockDao.updateText(id: id, text: text)
             }
             return DBResult<Bool>.success(isSuccess)
         } catch let error  {
@@ -164,8 +170,8 @@ class DBStore {
         do {
             var isSuccess = false
             try db.transaction {
-                _ = try notesDao.updateUpdatedAt(id: block.noteId)
-                isSuccess = try blocksDao.updateBlock(block: block)
+                _ = try noteDao.updateUpdatedAt(id: block.noteId)
+                isSuccess = try blockDao.updateBlock(block: block)
             }
             return DBResult<Bool>.success(isSuccess)
         } catch let error  {
@@ -178,10 +184,10 @@ class DBStore {
             var isSuccess = false
             var newBlock = insertedBlock
             try db.transaction {
-                _ = try notesDao.updateUpdatedAt(id: updatedBlock.noteId)
-                isSuccess = try blocksDao.updateBlock(block: updatedBlock)
+                _ = try noteDao.updateUpdatedAt(id: updatedBlock.noteId)
+                isSuccess = try blockDao.updateBlock(block: updatedBlock)
                 if isSuccess {
-                    newBlock.id = try blocksDao.insert(insertedBlock)
+                    newBlock.id = try blockDao.insert(insertedBlock)
                 }
             }
             if newBlock.id == 0 {
@@ -194,18 +200,39 @@ class DBStore {
     }
     
     
-    
     func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {
-                _ = try notesDao.updateUpdatedAt(id: block.noteId)
-                isSuccess = try blocksDao.deleteBlock(blockId: block.id)
+                _ = try noteDao.updateUpdatedAt(id: block.noteId)
+                isSuccess = try blockDao.deleteBlock(blockId: block.id)
             }
             return DBResult<Bool>.success(isSuccess)
         } catch let error  {
             return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
         }
     }
+}
+
+
+extension DBStore {
+    
+    func getBoardCategoryInfos() -> DBResult<[BoardCategoryInfo]>  {
+        do {
+            var boardCategoryInfos:[BoardCategoryInfo] = []
+            try db.transaction {
+                boardCategoryInfos = try boardCategoryDao.queryAll().map({
+                    let boards = try boardDao.queryAll(categoryId: $0.id)
+                    return BoardCategoryInfo(category: $0, boards: boards)
+                })
+            }
+            return DBResult<[BoardCategoryInfo]>.success(boardCategoryInfos)
+        } catch let err {
+            print(err)
+            return DBResult<[BoardCategoryInfo]>.failure(DBError(code: .None))
+        }
+    }
+    
+    
     
 }

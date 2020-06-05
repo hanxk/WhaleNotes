@@ -13,5 +13,5 @@ struct Section {
     let title:String
     let sort:Double
     let boardId:Int64
-    let createAt:Date
+    let createdAt:Date
 }

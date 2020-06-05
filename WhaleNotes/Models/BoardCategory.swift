@@ -1,18 +1,16 @@
 //
-//  Board.swift
+//  BoardCategory.swift
 //  WhaleNotes
 //
-//  Created by hanxk on 2020/5/25.
+//  Created by hanxk on 2020/6/5.
 //  Copyright © 2020 hanxk. All rights reserved.
 //
+
 import Foundation
 
-// 记事板
-struct Board {
+struct BoardCategory {
     let id:Int64
-    let icon:String
     let title:String
     let sort:Double
-    let categoryId:Int64 // 分类id
     let createdAt:Date
 }
