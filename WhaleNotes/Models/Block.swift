@@ -18,7 +18,7 @@ struct Block {
     var sort:Double = 0
     
     var noteId:Int64 = 0
-    var parentBlockId:Int64  = 0
+    var parent:Int64  = 0
     
     
     // block 的附加属性
@@ -64,7 +64,7 @@ struct Block {
         block.type = BlockType.todo.rawValue
         block.isChecked = false
         block.noteId = noteId
-        block.parentBlockId = parent
+        block.parent = parent
         block.sort = sort
         block.text = text
         return block

@@ -13,6 +13,7 @@
 		181D63DA248A226D00B34E20 /* BoardCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63D9248A226D00B34E20 /* BoardCategory.swift */; };
 		181D63DC248A240200B34E20 /* BoardCategoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63DB248A240200B34E20 /* BoardCategoryInfo.swift */; };
 		181D63DE248A256300B34E20 /* BoardCategoryDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63DD248A256300B34E20 /* BoardCategoryDao.swift */; };
+		181D63E2248B119A00B34E20 /* NoteDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E1248B119A00B34E20 /* NoteDao.swift */; };
 		182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */; };
 		18397D56247F953000C53CD0 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18397D55247F953000C53CD0 /* BlockInfo.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
@@ -56,7 +57,6 @@
 		18E6E672247BBB6200D598C5 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E671247BBB6200D598C5 /* Section.swift */; };
 		18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E673247BBC5800D598C5 /* DBStore.swift */; };
 		18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E676247BBDBF00D598C5 /* BlockDao.swift */; };
-		18E6E679247BC65600D598C5 /* NoteDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E678247BC65600D598C5 /* NoteDao.swift */; };
 		18E6E67B247BCCD700D598C5 /* NoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E67A247BCCD700D598C5 /* NoteInfo.swift */; };
 		18E956712449A3F0003755BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E956702449A3F0003755BF /* AppDelegate.swift */; };
 		18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 18E956792449A3F0003755BF /* WhaleNotes.xcdatamodeld */; };
@@ -80,6 +80,7 @@
 		181D63D9248A226D00B34E20 /* BoardCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardCategory.swift; sourceTree = "<group>"; };
 		181D63DB248A240200B34E20 /* BoardCategoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardCategoryInfo.swift; sourceTree = "<group>"; };
 		181D63DD248A256300B34E20 /* BoardCategoryDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardCategoryDao.swift; sourceTree = "<group>"; };
+		181D63E1248B119A00B34E20 /* NoteDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDao.swift; sourceTree = "<group>"; };
 		182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoFooterView.swift; sourceTree = "<group>"; };
 		18397D55247F953000C53CD0 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
@@ -124,7 +125,6 @@
 		18E6E671247BBB6200D598C5 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		18E6E673247BBC5800D598C5 /* DBStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBStore.swift; sourceTree = "<group>"; };
 		18E6E676247BBDBF00D598C5 /* BlockDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDao.swift; sourceTree = "<group>"; };
-		18E6E678247BC65600D598C5 /* NoteDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDao.swift; sourceTree = "<group>"; };
 		18E6E67A247BCCD700D598C5 /* NoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInfo.swift; sourceTree = "<group>"; };
 		18E9566D2449A3F0003755BF /* WhaleNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhaleNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18E956702449A3F0003755BF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -317,11 +317,11 @@
 			isa = PBXGroup;
 			children = (
 				18E6E676247BBDBF00D598C5 /* BlockDao.swift */,
-				18E6E678247BC65600D598C5 /* NoteDao.swift */,
 				1859A0FB248684CA008D51B4 /* SectionDao.swift */,
 				1859A0FD248689B1008D51B4 /* BoardDao.swift */,
 				181D63DD248A256300B34E20 /* BoardCategoryDao.swift */,
 				1859A0FF24868C8B008D51B4 /* SectionAndNoteDao.swift */,
+				181D63E1248B119A00B34E20 /* NoteDao.swift */,
 			);
 			path = Dao;
 			sourceTree = "<group>";
@@ -540,7 +540,6 @@
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
 				18397D56247F953000C53CD0 /* BlockInfo.swift in Sources */,
 				18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */,
-				18E6E679247BC65600D598C5 /* NoteDao.swift in Sources */,
 				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
@@ -570,6 +569,7 @@
 				18E6E666247A88CC00D598C5 /* MyNavigationController.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
+				181D63E2248B119A00B34E20 /* NoteDao.swift in Sources */,
 				1859A0FE248689B1008D51B4 /* BoardDao.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
 				181D63DE248A256300B34E20 /* BoardCategoryDao.swift in Sources */,

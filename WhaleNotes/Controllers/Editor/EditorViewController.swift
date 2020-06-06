@@ -496,7 +496,7 @@ extension EditorViewController: UITableViewDataSource {
             if noteInfo.textBlock != nil {
                 section += 1
             }
-            if let row =  self.noteInfo.todoBlockInfos.firstIndex(where: {$0.id == block.parentBlockId}){
+            if let row =  self.noteInfo.todoBlockInfos.firstIndex(where: {$0.id == block.parent}){
                 return row + section
             }
             return section
@@ -641,13 +641,13 @@ extension EditorViewController: UITableViewDataSource {
         if block.text.isEmpty { // 删除
             self.tryDeleteBlock(block: block)
         }else { // 新增
-            guard let row = self.noteInfo.mapTodoBlockInfos[block.parentBlockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
+            guard let row = self.noteInfo.mapTodoBlockInfos[block.parent]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
             
             // 先更新
             self.tryUpdateBlock(block: block) {
                 //新增
                 let nextIndexPath = IndexPath(row: row+2, section: section)
-                self.createNewTodoBlock(noteId: block.noteId, groupBlockId: block.parentBlockId, targetIndex: nextIndexPath)
+                self.createNewTodoBlock(noteId: block.noteId, groupBlockId: block.parent, targetIndex: nextIndexPath)
             }
         }
     }
@@ -948,7 +948,7 @@ extension EditorViewController: UITableViewDelegate {
         
         let sort = calcNewSort(groupBlockId: toTodoBlockInfo.id, newRowIndex: toRow)
         newTodoBlock.sort = sort
-        newTodoBlock.parentBlockId = toTodoBlockInfo.id
+        newTodoBlock.parent = toTodoBlockInfo.id
         
         noteRepo.updateBlock(block: newTodoBlock)
             .subscribe(onNext: {[weak self] _ in
@@ -1085,7 +1085,7 @@ extension EditorViewController {
                 guard let self = self else { return }
                 
                 let section = self.getSectionIndexByBlock(block: block)
-                guard let row = self.noteInfo.mapTodoBlockInfos[block.parentBlockId]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
+                guard let row = self.noteInfo.mapTodoBlockInfos[block.parent]?.childBlocks.firstIndex(where: {$0.id == block.id}) else { return }
                 
                 self.noteInfo.removeBlock(block: block)
                 let indexPath = IndexPath(row: row+1, section: section)

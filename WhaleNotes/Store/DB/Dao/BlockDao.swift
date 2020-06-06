@@ -19,7 +19,7 @@ fileprivate enum Field_Block{
     static let source = Expression<String>("source")
     static let createdAt = Expression<Date>("created_at")
     static let noteId = Expression<Int64>("note_id")
-    static let parentBlockId = Expression<Int64>("parent_block_id")
+    static let parent = Expression<Int64>("parent")
     static let properties = Expression<String>("properties")
 }
 
@@ -58,7 +58,7 @@ class BlockDao {
                                               Field_Block.isExpand <- block.isExpand,
                                               Field_Block.source <- block.source,
                                               Field_Block.noteId <- block.noteId,
-                                              Field_Block.parentBlockId <- block.parentBlockId,
+                                              Field_Block.parent <- block.parent,
                                               Field_Block.properties <- block.properties
                                             ))
         
@@ -107,7 +107,7 @@ extension BlockDao {
                     builder.column(Field_Block.source)
                     builder.column(Field_Block.createdAt)
                     builder.column(Field_Block.noteId)
-                    builder.column(Field_Block.parentBlockId)
+                    builder.column(Field_Block.parent)
                     builder.column(Field_Block.properties)
                 })
             )
@@ -129,7 +129,7 @@ extension BlockDao {
                                 Field_Block.source <- block.source,
                                 Field_Block.createdAt <- block.createdAt,
                                 Field_Block.noteId <- block.noteId,
-                                Field_Block.parentBlockId <- block.parentBlockId,
+                                Field_Block.parent <- block.parent,
                                 Field_Block.properties <- block.properties
             )
         }
@@ -142,14 +142,14 @@ extension BlockDao {
                             Field_Block.source <- block.source,
                             Field_Block.createdAt <- block.createdAt,
                             Field_Block.noteId <- block.noteId,
-                            Field_Block.parentBlockId <- block.parentBlockId,
+                            Field_Block.parent <- block.parent,
                             Field_Block.properties <- block.properties
         )
         
     }
     
     fileprivate func generateBlock(row: Row) -> Block {
-        var block = Block(id: row[Field_Block.id], type: row[Field_Block.type], text: row[Field_Block.text], isChecked: row[Field_Block.isChecked], isExpand: row[Field_Block.isExpand], source: row[Field_Block.source], createdAt: row[Field_Block.createdAt],sort: row[Field_Block.sort], noteId: row[Field_Block.noteId],parentBlockId:row[Field_Block.parentBlockId])
+        var block = Block(id: row[Field_Block.id], type: row[Field_Block.type], text: row[Field_Block.text], isChecked: row[Field_Block.isChecked], isExpand: row[Field_Block.isExpand], source: row[Field_Block.source], createdAt: row[Field_Block.createdAt],sort: row[Field_Block.sort], noteId: row[Field_Block.noteId],parent:row[Field_Block.parent])
         block.properties = row[Field_Block.properties]
         return block
     }

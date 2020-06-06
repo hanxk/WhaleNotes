@@ -52,7 +52,7 @@ class DBStore {
                     newBlocks.append(newBlock)
 
                     // todo 默认添加一个空 todo
-                    if newBlock.type == BlockType.todo.rawValue &&  newBlock.parentBlockId == 0{
+                    if newBlock.type == BlockType.todo.rawValue &&  newBlock.parent == 0{
                         var todoBlock = Block.newTodoBlock(text: "", noteId: noteId, parent: blockId, sort: 65536)
                         let blockId = try blockDao.insert(todoBlock)
                         todoBlock.id = blockId
@@ -136,7 +136,7 @@ class DBStore {
                 
                 var childBlocks:[Block] = blockInfo.childBlocks
                 for (index,_) in childBlocks.enumerated() {
-                    childBlocks[index].parentBlockId = blockId
+                    childBlocks[index].parent = blockId
                     childBlocks[index].noteId = block.noteId
                     childBlocks[index].sort = Double(65536*(index+1))
                     let childBlockId = try blockDao.insert( childBlocks[index])
