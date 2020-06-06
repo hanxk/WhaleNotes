@@ -42,7 +42,7 @@ class TodoBlockCell: UITableViewCell {
             Logger.info(String(todoBlock.sort),todoBlock.text)
         }
     }
-    var note:NoteInfo!
+    var note:Note!
     
     var isChecked: Bool = false {
         didSet {
@@ -145,6 +145,11 @@ extension TodoBlockCell: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         let text = textView.text ?? ""
+        if text.isEmpty {
+            self.todoBlock.text = text
+            delegate?.todoBlockNeedDelete(newBlock: self.todoBlock)
+            return true
+        }
         if  text != todoBlock.text {
             self.todoBlock.text = text
             delegate?.todoBlockContentChange(newBlock: self.todoBlock)

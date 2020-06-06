@@ -15,8 +15,8 @@ struct Block {
     var isExpand:Bool = true
     var source:String = ""
     var createdAt:Date = Date()
+    var updatedAt:Date = Date()
     var sort:Double = 0
-    
     var noteId:Int64 = 0
     var parent:Int64  = 0
     
@@ -30,28 +30,27 @@ struct Block {
     
     var propertiesDic:[String:Any] = [:]
     
-    static func newTitleBlock() -> Block {
+    static func newNoteBlock() -> Block {
         var block = Block()
         block.text = ""
-        block.sort = 1
-        block.type = BlockType.title.rawValue
+        block.type = BlockType.note.rawValue
         return block
     }
     
-    static func newTextBlock(text: String = "",noteId:Int64=0) -> Block {
+    static func newTextBlock(text: String = "",noteId:Int64) -> Block {
         var block = Block()
         block.text = ""
-        block.sort = 2
         block.noteId = noteId
         block.type = BlockType.text.rawValue
         return block
     }
     
-    static func newTodoGroupBlock(text: String = "清单") -> Block {
+    static func newToggleBlock(noteId:Int64,text: String = "清单",sort:Double = 65536) -> Block {
         var block = Block()
-        block.type = BlockType.todo.rawValue
+        block.type = BlockType.toggle.rawValue
         block.text = text
-        block.sort = 3
+        block.noteId = noteId
+        block.sort = sort
         return block
     }
     
@@ -59,7 +58,7 @@ struct Block {
         return propertiesDic[key]
     }
     
-    static func newTodoBlock(text: String = "",noteId:Int64 = 0,parent:Int64 = 0,sort:Double = 0) -> Block {
+    static func newTodoBlock(noteId:Int64,parent:Int64,sort:Double,text: String = "") -> Block {
         var block = Block()
         block.type = BlockType.todo.rawValue
         block.isChecked = false
@@ -70,7 +69,7 @@ struct Block {
         return block
     }
     
-    static func newImageBlock(imageUrl: String,noteId:Int64 = 0,properties:[String:Any] = [:]) -> Block {
+    static func newImageBlock(imageUrl: String,noteId:Int64,properties:[String:Any] = [:]) -> Block {
         var block = Block()
         block.type = BlockType.image.rawValue
         block.sort = 4
@@ -85,10 +84,10 @@ struct Block {
 }
 
 enum BlockType: String {
-    case title = "title"
+    case note = "note"
     case text = "text"
     case todo = "todo"
-    case todo_group = "todo_group"
+    case toggle = "toggle"
     case image = "image"
 }
 

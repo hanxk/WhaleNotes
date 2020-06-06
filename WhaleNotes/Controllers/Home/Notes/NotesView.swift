@@ -53,7 +53,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     
-    private var noteInfos:[NoteInfo]!
+    private var noteInfos:[Note]!
     private var columnCount = 0
     private var cardWidth:CGFloat = 0
     
@@ -105,14 +105,14 @@ extension NotesView {
                 self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
             }, completion: nil)
         case .update(let noteInfo):
-            if let row = noteInfos.firstIndex(where: { $0.note.id == noteInfo.note.id }) {
+            if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
                 self.noteInfos[row] = noteInfo
                 self.collectionNode.performBatchUpdates({
                     self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
                 }, completion: nil)
             }
         case .delete(let noteInfo):
-            if let row = noteInfos.firstIndex(where: { $0.note.id == noteInfo.note.id }) {
+            if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
                 self.noteInfos.remove(at: row)
                 self.collectionNode.performBatchUpdates({
                     self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
@@ -124,31 +124,27 @@ extension NotesView {
 
 extension NotesView {
     
-    private func createNewNote(createMode: CreateMode,callback: @escaping (NoteInfo)->Void) {
-        let blocks = generateNote2(createMode: createMode)
-        usecase.createNewNote(blocks: blocks) { noteInfo in
+    private func createNewNote(createMode: CreateMode,callback: @escaping (Note)->Void) {
+        let blockTypes = generateNewNoteBlockTypes(createMode: createMode)
+        usecase.createNewNote(blockTypes:blockTypes) { noteInfo in
             callback(noteInfo)
         }
     }
     
-    fileprivate func generateNote2(createMode: CreateMode) -> [Block]{
+    fileprivate func generateNewNoteBlockTypes(createMode: CreateMode) -> [BlockType]{
         
-        //        let note: Note2 =  Note2()
-        var blocks:[Block] = []
-        blocks.append(Block.newTitleBlock())
+        var blockTypes:[BlockType] = []
         switch createMode {
         case .text:
-            blocks.append(Block.newTextBlock())
+            blockTypes.append(BlockType.text)
             break
         case .todo:
-            blocks.append(Block.newTodoGroupBlock())
+            blockTypes.append(BlockType.toggle)
             break
         case .images:
-            //            note.attachBlocks.append(objectsIn: blocks)
             break
         }
-        //        let noteInfo = NoteInfo(note: note, blocks: blocks)
-        return blocks
+        return blockTypes
     }
     
 }
@@ -251,7 +247,7 @@ extension NotesView {
         }
     }
     
-    func openEditorVC(note: NoteInfo,isNew:Bool = false) {
+    func openEditorVC(note: Note,isNew:Bool = false) {
         let noteVC  = EditorViewController()
         noteVC.mode = isNew ? EditorMode.create(noteInfo: note) :  EditorMode.browser(noteInfo: note)
         noteVC.callbackNoteUpdate = {updateMode in
@@ -306,7 +302,7 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
         }
     }
     
-    private func createImageBlocksAndOpen(noteInfo:NoteInfo,images: [TLPHAsset]) {
+    private func createImageBlocksAndOpen(noteInfo:Note,images: [TLPHAsset]) {
         editorUseCase.createImageBlocks(noteId: noteInfo.id, images: images, success: { [weak self] imageBlocks in
             if let self = self {
                 self.controller?.hideHUD()
@@ -336,7 +332,7 @@ extension NotesView: UIImagePickerControllerDelegate {
             self?.createImageBlocksAndOpen(noteInfo:$0, image: image)
         }
     }
-    private func createImageBlocksAndOpen(noteInfo:NoteInfo,image:UIImage) {
+    private func createImageBlocksAndOpen(noteInfo:Note,image:UIImage) {
         editorUseCase.createImageBlocks(noteId: noteInfo.id, image: image, success: { [weak self] imageBlock in
             if let self = self {
                 self.controller?.hideHUD()

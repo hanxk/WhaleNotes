@@ -45,7 +45,7 @@ class AttachmentsBlockCell: UITableViewCell {
     }
     
     
-    var noteInfo:NoteInfo! {
+    var noteInfo:Note! {
         didSet {
             self.blocks = noteInfo.imageBlocks
         }

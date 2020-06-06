@@ -19,17 +19,21 @@ class TitleBlockCell: UITableViewCell {
         $0.spellCheckingType = .no
     }
     
-    var noteInfo:NoteInfo! {
-        didSet {
-            titleBlock = noteInfo.titleBlock
-            textField.text = titleBlock.text
-        }
-    }
-    private var note:Note {
-        return noteInfo.note
-    }
+//    var noteInfo:NoteInfo! {
+//        didSet {
+//            titleBlock = noteInfo.titleBlock
+//            textField.text = titleBlock.text
+//        }
+//    }
+//    private var note:Note {
+//        return noteInfo.note
+//    }
     
-    var titleBlock:Block!
+    var titleBlock:Block!{
+            didSet {
+                textField.text = titleBlock.text
+            }
+    }
     
     var enterkeyTapped: ((String) -> Void)?
     var blockUpdated:((Block) -> Void)?

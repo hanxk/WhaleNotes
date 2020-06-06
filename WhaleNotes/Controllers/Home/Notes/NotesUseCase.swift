@@ -14,8 +14,8 @@ class NotesUseCase {
     
     var disposebag = DisposeBag()
     
-    func getAllNotes(callback:@escaping ([NoteInfo])->Void) {
-        Observable<[NoteInfo]>.create { observer -> Disposable in
+    func getAllNotes(callback:@escaping ([Note])->Void) {
+        Observable<[Note]>.create { observer -> Disposable in
             let result =  DBStore.shared.getAllNotes()
             switch result {
             case .success(let notes):
@@ -35,12 +35,12 @@ class NotesUseCase {
             .disposed(by: disposebag)
     }
     
-    func createNewNote(blocks: [Block],callback:@escaping (NoteInfo)->Void) {
+    func createNewNote(blockTypes: [BlockType],callback:@escaping (Note)->Void) {
         
-        Observable<[Block]>.just(blocks)
+        Observable<[BlockType]>.just(blockTypes)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(noteInfo)  -> NoteInfo in
-                let reuslt =  DBStore.shared.createNote(blocks: noteInfo)
+            .map({(noteInfo)  -> Note in
+            let reuslt =  DBStore.shared.createNote(blockTypes:blockTypes)
                 switch reuslt {
                 case .success(let noteInfo):
                     return noteInfo

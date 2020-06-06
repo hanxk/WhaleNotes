@@ -31,12 +31,15 @@ class NoteRepo {
      }
     
     
-    func updateBlock(block:Block) -> Observable<Bool> {
-        return Observable<Bool>.create {  observer -> Disposable in
+    func updateBlock(block:Block) -> Observable<Block> {
+        var updatedBlock = block
+        updatedBlock.updatedAt = Date()
+        return Observable<Block>.create {  observer -> Disposable in
+            
             let result = DBStore.shared.updateBlock(block:block)
             switch result {
-            case .success(let isSuccess):
-                observer.onNext(isSuccess)
+            case .success(let newBlock):
+                observer.onNext(newBlock)
                 observer.onCompleted()
             case .failure(let err):
                 observer.onError(err)
@@ -78,11 +81,11 @@ class NoteRepo {
             .observeOn(MainScheduler.instance)
     }
     
-    func createBlockInfo(blockInfo:BlockInfo,callback:@escaping (BlockInfo)->Void) {
-        Observable<BlockInfo>.just(blockInfo)
+    func createToggleBlock(toggleBlock:Block,callback:@escaping ((Block,[Block]))->Void) {
+        Observable<(Block)>.just(toggleBlock)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(blockInfo)  -> BlockInfo in
-                let result =  DBStore.shared.createBlockInfo(blockInfo: blockInfo)
+            .map({(toggleBlock)  -> (Block,[Block]) in
+                let result =  DBStore.shared.createToggleBlock(toggleBlock: toggleBlock)
                 switch result {
                 case .success(let newBlockInfo):
                     return newBlockInfo
@@ -99,27 +102,6 @@ class NoteRepo {
             .disposed(by: disposebag)
     }
     
-    
-    func updateAndInsertBlock(updatedBlock:Block,insertedblock:Block,callback:@escaping (Block)->Void) {
-        Observable<Block>.create {  observer -> Disposable in
-                let result = DBStore.shared.updateAndInsertBlock(updatedBlock: updatedBlock, insertedBlock: insertedblock)
-                switch result {
-                case .success(let insertedBlock):
-                    observer.onNext(insertedBlock)
-                    observer.onCompleted()
-                case .failure(let err):
-                    observer.onError(err)
-                }
-                return Disposables.create()
-            }
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext:{
-                callback($0)
-            }, onError: {
-                Logger.error($0)
-            }, onCompleted: nil, onDisposed: nil)
-            .disposed(by: disposebag)
-    }
     
     func createImageBlocks(noteId:Int64,images:[TLPHAsset],success:@escaping (([Block])->Void),failed:@escaping()->Void) {
         Observable<[TLPHAsset]>.just(images)

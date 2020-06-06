@@ -25,17 +25,18 @@ class NoteCellNode: ASCellNode {
     
     var emptyTextNode:ASTextNode?
     
-    required init(noteInfo:NoteInfo) {
+    required init(noteInfo:Note) {
         super.init()
         
         
-        if  let titleBlock = noteInfo.titleBlock,titleBlock.text.isNotEmpty {
+        if  noteInfo.rootBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
-            titleNode.attributedText = getTitleLabelAttributes(text: titleBlock.text)
+            titleNode.attributedText = getTitleLabelAttributes(text: noteInfo.rootBlock.text)
             titleNode.maximumNumberOfLines = 2
             self.addSubnode(titleNode)
             self.elements.append(titleNode)
         }
+        
         if let textBlock = noteInfo.textBlock,textBlock.text.isNotEmpty {
             let textNode = ASTextNode()
             textNode.attributedText = getTextLabelAttributes(text: textBlock.text)
@@ -43,10 +44,10 @@ class NoteCellNode: ASCellNode {
             self.elements.append(textNode)
         }
         
-        if noteInfo.todoBlockInfos.isNotEmpty {
+        if noteInfo.todoToggleBlocks.isNotEmpty {
             var todoBlocks:[Block] = []
-            for blockInfo in noteInfo.todoBlockInfos {
-                for block in blockInfo.childBlocks {
+            for toggleBlock in noteInfo.todoToggleBlocks {
+                for block in noteInfo.getChildTodoBlocks(parent: toggleBlock.id) {
                     todoBlocks.append(block)
                     if todoBlocks.count == 6 {
                         break

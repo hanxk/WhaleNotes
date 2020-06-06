@@ -19,7 +19,6 @@ class DBStore {
         return SQLiteManager.manager.getDB()
     }
     
-    fileprivate var noteDao:NoteDao!
     fileprivate var blockDao:BlockDao!
     
     fileprivate var boardDao:BoardDao!
@@ -27,52 +26,59 @@ class DBStore {
     
     func setup() {
         blockDao = BlockDao(dbCon: db)
-        noteDao = NoteDao(dbCon: db)
         
         boardDao = BoardDao(dbCon: db)
         boardCategoryDao = BoardCategoryDao(dbCon: db)
     }
     
     
-    func createNote(blocks:[Block]) -> DBResult<NoteInfo> {
+    func createNote(blockTypes:[BlockType]) -> DBResult<Note> {
         do {
             var newBlocks:[Block] = []
-            var note = Note()
+            var noteBlock = Block.newNoteBlock()
             try db.transaction {
-                let noteId = try noteDao.insert(note)
-                note.id = noteId
                 
-                for block in blocks {
-                    var newBlock = block
-                    newBlock.noteId = noteId
-
-                    let blockId = try blockDao.insert(newBlock)
-                    newBlock.id = blockId
-
-                    newBlocks.append(newBlock)
-
-                    // todo 默认添加一个空 todo
-                    if newBlock.type == BlockType.todo.rawValue &&  newBlock.parent == 0{
-                        var todoBlock = Block.newTodoBlock(text: "", noteId: noteId, parent: blockId, sort: 65536)
-                        let blockId = try blockDao.insert(todoBlock)
-                        todoBlock.id = blockId
-                        newBlocks.append(todoBlock)
+                let noteId = try blockDao.insert(noteBlock)
+                noteBlock.id = noteId
+                
+                for blockType in blockTypes {
+                    var block:Block?
+                    switch blockType {
+                    case .text:
+                        block = Block.newTextBlock(noteId: noteId)
+                    case .toggle:
+                        block = Block.newToggleBlock(noteId: noteId)
+                    default:
+                        break
+                    }
+                    if var block = block {
+                        let blockId = try blockDao.insert(block)
+                        block.id = blockId
+                        
+                        // todo 默认添加一个空 todo
+                        if block.type == BlockType.toggle.rawValue {
+                            var todoBlock = Block.newTodoBlock(noteId: noteId, parent: blockId, sort: 65536)
+                            let blockId = try blockDao.insert(todoBlock)
+                            todoBlock.id = blockId
+                            newBlocks.append(todoBlock)
+                        }
+                            
+                        newBlocks.append(block)
                     }
                 }
             }
-            
-            return DBResult<NoteInfo>.success(NoteInfo(note: note, blocks:newBlocks))
+            return DBResult<Note>.success(Note(rootBlock: noteBlock, childBlocks:newBlocks))
         } catch let error  {
-            return DBResult<NoteInfo>.failure(DBError(code: .None,message: error.localizedDescription))
+            return DBResult<Note>.failure(DBError(code: .None,message: error.localizedDescription))
         }
     }
     
     func deleteNote(id:Int64) -> DBResult<Bool> {
         do {
             try db.transaction {
-                let isSuccess =  try noteDao.delete(id: id)
+                let isSuccess =  try blockDao.delete(id: id)
                 if isSuccess {
-                    _ = try blockDao.deleteBlocksByNoteId(noteId: id)
+                    _ = try blockDao.deleteByNoteId(noteId: id)
                 }
             }
             return DBResult<Bool>.success(true)
@@ -81,25 +87,31 @@ class DBStore {
         }
     }
     
-    func getAllNotes() -> DBResult<[NoteInfo]>  {
+    func getAllNotes() -> DBResult<[Note]>  {
         do {
-            let notes = try noteDao.queryAll()
-            let noteInfos:[NoteInfo] = try notes.map {
+            let noteBlocks = try blockDao.queryByType(type: BlockType.note.rawValue)
+            let noteInfos:[Note] = try noteBlocks.map {
                 let blocks = try blockDao.query(noteId: $0.id)
-                return NoteInfo(note: $0, blocks: blocks)
+                return Note(rootBlock: $0, childBlocks: blocks)
             }
-            return DBResult<[NoteInfo]>.success(noteInfos)
+            return DBResult<[Note]>.success(noteInfos)
         } catch let err {
             print(err)
-            return DBResult<[NoteInfo]>.failure(DBError(code: .None))
+            return DBResult<[Note]>.failure(DBError(code: .None))
         }
     }
     
     func createBlock(block: Block) -> DBResult<Block> {
         do {
             var insertedBlock = block
-            let blockId = try blockDao.insert(block)
-            insertedBlock.id = blockId
+            try db.transaction {
+                
+                _ = try tryUpdateBlockDate(block: block)
+                
+                let blockId = try blockDao.insert(block)
+                insertedBlock.id = blockId
+                
+            }
             return DBResult<Block>.success(insertedBlock)
         } catch _ {
             return DBResult<Block>.failure(DBError(code: .None))
@@ -108,6 +120,9 @@ class DBStore {
     
     func createBlocks(blocks: [Block]) -> DBResult<[Block]> {
         do {
+
+            _ = try tryUpdateBlockDate(block: blocks[0])
+            
             var newBlocks:[Block] = blocks
             for (index,_) in blocks.enumerated() {
                 let blockId = try blockDao.insert(newBlocks[index])
@@ -120,97 +135,76 @@ class DBStore {
         }
     }
     
-    func createBlockInfo(blockInfo: BlockInfo) -> DBResult<BlockInfo> {
+    func createToggleBlock(toggleBlock: Block) -> DBResult<(Block,[Block])> {
         do {
-            var newBlockInfo:BlockInfo!
+            var block = toggleBlock
+            var childBlocks:[Block] = []
             try db.transaction {
-                var block = blockInfo.block
-                
-                if block.noteId == 0 {
+                if toggleBlock.noteId == 0 {
                     throw DBError(code: .None, message: "noteid is 0")
                 }
+                
+                _ = try tryUpdateBlockDate(block: block)
                 
                 let blockId = try blockDao.insert(block)
                 block.id = blockId
                 
-                
-                var childBlocks:[Block] = blockInfo.childBlocks
-                for (index,_) in childBlocks.enumerated() {
-                    childBlocks[index].parent = blockId
-                    childBlocks[index].noteId = block.noteId
-                    childBlocks[index].sort = Double(65536*(index+1))
-                    let childBlockId = try blockDao.insert( childBlocks[index])
-                    childBlocks[index].id = childBlockId
-                }
-                
-                newBlockInfo = BlockInfo(block: block, childBlocks: childBlocks)
+                // todo 默认添加一个空 todo
+                var todoBlock = Block.newTodoBlock(noteId: toggleBlock.noteId, parent: blockId, sort: 65536)
+                let todoBlockId = try blockDao.insert(todoBlock)
+                todoBlock.id = todoBlockId
+                childBlocks.append(todoBlock)
+
             }
-            return DBResult<BlockInfo>.success(newBlockInfo)
+            return DBResult<(Block,[Block])>.success((block,childBlocks))
         } catch _ {
-            return DBResult<BlockInfo>.failure(DBError(code: .None))
+            return DBResult<(Block,[Block])>.failure(DBError(code: .None))
         }
     }
     
-    
-    
-    func updateBlockText(id: Int64,noteId:Int64, text: String) -> DBResult<Bool> {
+    func updateBlock(block: Block) -> DBResult<Block> {
         do {
             var isSuccess = false
+            var updatedBlock = block
             try db.transaction {
-                _ = try noteDao.updateUpdatedAt(id: noteId)
-                isSuccess = try blockDao.updateText(id: id, text: text)
-            }
-            return DBResult<Bool>.success(isSuccess)
-        } catch let error  {
-            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
-        }
-    }
-    
-    func updateBlock(block: Block) -> DBResult<Bool> {
-        do {
-            var isSuccess = false
-            try db.transaction {
-                _ = try noteDao.updateUpdatedAt(id: block.noteId)
-                isSuccess = try blockDao.updateBlock(block: block)
-            }
-            return DBResult<Bool>.success(isSuccess)
-        } catch let error  {
-            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
-        }
-    }
-    
-    func updateAndInsertBlock(updatedBlock: Block,insertedBlock: Block) -> DBResult<Block> {
-        do {
-            var isSuccess = false
-            var newBlock = insertedBlock
-            try db.transaction {
-                _ = try noteDao.updateUpdatedAt(id: updatedBlock.noteId)
-                isSuccess = try blockDao.updateBlock(block: updatedBlock)
+                isSuccess = try tryUpdateBlockDate(block: block)
                 if isSuccess {
-                    newBlock.id = try blockDao.insert(insertedBlock)
+                    updatedBlock.updatedAt = Date()
+                    isSuccess = try blockDao.updateBlock(block: updatedBlock)
                 }
             }
-            if newBlock.id == 0 {
-                throw DBError(code: .None,message: "新增失败")
-            }
-            return DBResult<Block>.success(newBlock)
+            return DBResult<Block>.success(updatedBlock)
         } catch let error  {
             return DBResult<Block>.failure(DBError(code: .None,message: error.localizedDescription))
         }
     }
     
     
+    
     func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {
-                _ = try noteDao.updateUpdatedAt(id: block.noteId)
-                isSuccess = try blockDao.deleteBlock(blockId: block.id)
+                isSuccess = try tryUpdateBlockDate(block: block)
+                if isSuccess {
+                    isSuccess = try blockDao.deleteByNoteId(noteId: block.id)
+                }
             }
             return DBResult<Bool>.success(isSuccess)
         } catch let error  {
             return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
         }
+    }
+    
+    private func tryUpdateBlockDate(block:Block) throws -> Bool  {
+        var isSuccess = true
+        if block.parent > 0 {
+            isSuccess = try blockDao.updateUpdatedAt(id: block.parent, updatedAt: Date())
+        }
+        if block.noteId > 0 {
+            isSuccess = try blockDao.updateUpdatedAt(id: block.noteId, updatedAt: Date())
+        }
+        return isSuccess
     }
 }
 

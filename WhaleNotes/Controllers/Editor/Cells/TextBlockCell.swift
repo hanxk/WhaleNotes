@@ -33,7 +33,7 @@ class TextBlockCell: UITableViewCell {
         }
     }
     
-    var note:NoteInfo! {
+    var note:Note! {
         didSet {
             if let textBlock = note.textBlock {
                 self.textBlock = textBlock
