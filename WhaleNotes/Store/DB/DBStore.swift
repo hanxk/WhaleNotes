@@ -179,7 +179,21 @@ class DBStore {
         }
     }
     
-    
+    func deleteToggleBlock(toggleBlock: Block) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                isSuccess = try tryUpdateBlockDate(block: toggleBlock)
+                if isSuccess {
+                    _ = try blockDao.deleteByParent(parent: toggleBlock.id)
+                    _ =  try blockDao.delete(id: toggleBlock.id)
+                }
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch let error  {
+            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
+        }
+    }
     
     func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
@@ -210,7 +224,6 @@ class DBStore {
 
 
 extension DBStore {
-    
     func getBoardCategoryInfos() -> DBResult<[BoardCategoryInfo]>  {
         do {
             var boardCategoryInfos:[BoardCategoryInfo] = []
@@ -227,6 +240,14 @@ extension DBStore {
         }
     }
     
-    
+    func getNoCategoryBoards() -> DBResult<[Board]>  {
+        do {
+            let boards:[Board] = try boardDao.queryAll(categoryId: 0)
+            return DBResult<[Board]>.success(boards)
+        } catch let err {
+            print(err)
+            return DBResult<[Board]>.failure(DBError(code: .None))
+        }
+    }
     
 }

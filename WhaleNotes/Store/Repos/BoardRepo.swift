@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RxSwift
 
 
 class BoardeRepo {
@@ -28,5 +29,36 @@ class BoardeRepo {
     
     func getBoardNotes() {
         
+    }
+    
+    func getBoardCategoryInfos() -> Observable<([Board] ,[BoardCategoryInfo])> {
+        return Observable<([Board] ,[BoardCategoryInfo])>.create {  observer -> Disposable in
+            
+            let boardsResult = DBStore.shared.getNoCategoryBoards()
+            let boardCategoryInfoResult = DBStore.shared.getBoardCategoryInfos()
+            
+            var boards:[Board] = []
+            var boardCategoryInfos:[BoardCategoryInfo] = []
+            
+            switch boardsResult {
+            case .success(let newBoards):
+                boards = newBoards
+            case .failure(let err):
+                observer.onError(err)
+            }
+            
+            switch boardCategoryInfoResult {
+            case .success(let result):
+                boardCategoryInfos = result
+            case .failure(let err):
+                observer.onError(err)
+            }
+
+            observer.onNext((boards,boardCategoryInfos))
+            observer.onCompleted()
+            
+            return Disposables.create()
+        }
+        .observeOn(MainScheduler.instance)
     }
 }

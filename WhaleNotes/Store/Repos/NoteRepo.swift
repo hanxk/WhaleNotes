@@ -49,6 +49,21 @@ class NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    func deleteToogleBlock(toggleBlock: Block) -> Observable<Block> {
+        return Observable<Block>.just(toggleBlock)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(block)  -> Block in
+                let result =  DBStore.shared.deleteToggleBlock(toggleBlock: toggleBlock)
+                switch result {
+                case .success:
+                    return toggleBlock
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
+    
     
     func deleteBlock(block:Block) -> Observable<Bool>{
         return Observable<Block>.just(block)

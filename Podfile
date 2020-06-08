@@ -20,5 +20,6 @@ target 'WhaleNotes' do
   pod 'CHTCollectionViewWaterfallLayout/Swift'
   pod "Texture"
   pod 'SQLite.swift', '~> 0.12.0'
+  pod "SwiftCSV"
   # Pods for WhaleNotes
 end

@@ -137,6 +137,15 @@ extension Note {
         }
     }
     
+    
+    private mutating func removeToggleBlock(toggleBlock:Block) {
+        self.rootBlock.updatedAt = Date()
+        if let index = self.todoToggleBlocks.firstIndex(where: {$0.id == toggleBlock.id}) {
+            self.todoToggleBlocks.remove(at: index)
+        }
+        self.mapTodoBlocks.removeValue(forKey: toggleBlock.id)
+    }
+    
     mutating func addTodoToggleBlock(blockInfo: (Block,[Block])) {
         self.rootBlock.updatedAt = Date()
         self.todoToggleBlocks.append(blockInfo.0)
@@ -183,7 +192,7 @@ extension Note {
         case .todo:
             self.removeTodoBlock(todoBlock: block)
         case .toggle:
-            break
+            self.removeToggleBlock(toggleBlock: block)
         case .image:
             break
         case .none:

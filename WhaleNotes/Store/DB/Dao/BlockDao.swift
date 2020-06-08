@@ -87,6 +87,11 @@ class BlockDao {
       return rows > 0
     }
     
+    func deleteByParent(parent: Int64)  throws -> Bool {
+      let blockTable = table.filter(Field_Block.parent == parent)
+      let rows = try db.run(blockTable.delete())
+      return rows > 0
+    }
     
     func queryByType(type:String) throws ->[Block] {
         let query = table.filter(Field_Block.type == type).order(Field_Block.sort.asc)

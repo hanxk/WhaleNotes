@@ -70,8 +70,9 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     private func setupUI() {
-        self.backgroundColor = .white
+        self.backgroundColor = .red
         collectionNode.frame = self.frame
+//        collectionNode.backgroundColor = UIColor.init(hexString: "#FBFBFB")
         self.addSubnode(collectionNode)
         
         self.setupFloatButtons()

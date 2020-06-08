@@ -39,6 +39,14 @@ extension UIColor {
     }
     
     
+    open class var tappedColor: UIColor {
+        get {
+            return UIColor(hexString: "#F8F8F8")
+        }
+    }
+    
+    
+    
     open class var placeHolderColor: UIColor {
         get {
             return UIColor(named: "PlaceHolder")!

@@ -28,6 +28,7 @@ class NoteCellNode: ASCellNode {
     required init(noteInfo:Note) {
         super.init()
         
+        self.backgroundColor = .white
         
         if  noteInfo.rootBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
@@ -83,6 +84,19 @@ class NoteCellNode: ASCellNode {
         //                addImageNodes(with: imageBlocks)
         //            }
         //        }
+    
+        let cornerRadius:CGFloat = 8
+        
+        self.borderWidth = 1
+        self.cornerRadius = cornerRadius
+//        self.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
+        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
+        
+//        self.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
+//        self.shadowOffset =  CGSize(width: 1, height: 1)
+//        self.shadowOpacity = 1;
+//        self.shadowRadius = cornerRadius;
+//        self.clipsToBounds = false;
         
     }
     
@@ -227,7 +241,7 @@ class NoteCellNode: ASCellNode {
             let imageNode = imageNodes[0]
             imageNode.style.width = ASDimensionMake(singleWidth)
             imageNode.style.height = ASDimensionMake(height)
-            
+//            imageNode.cornerRadius
             
             //右：2
             let twoImageNodes = [imageNodes[1], imageNodes[2]]
@@ -281,12 +295,17 @@ class NoteCellNode: ASCellNode {
     
     override func didLoad() {
         
-        self.view.backgroundColor = .white
-        _ = self.view.layer.then {
-            $0.cornerRadius = 6
-            $0.borderWidth = 1
-            $0.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
-        }
+//        self.view.backgroundColor = .white
+//        self.view.addShadow(offset: CGSize(width: 1, height: 1), opacity: 1, radius: 6, color:  UIColor(red: 0, green: 0, blue: 0, alpha: 0.02))
+//        _ = self.view.layer.then {
+//            $0.cornerRadius = 6
+//            $0.borderWidth = 1
+//            $0.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
+//        }
+//        self.cornerRadius = 6
+//        self.clipsToBounds = true
+//        self.backgroundColor = .white
+//        self.view.clipsToBounds = true
     }
     
     func getTitleLabelAttributes(text: String) -> NSAttributedString {
@@ -306,7 +325,7 @@ class NoteCellNode: ASCellNode {
     }
     
     func getTextLabelAttributes(text: String) -> NSAttributedString {
-        let font = UIFont.systemFont(ofSize: 14)
+        let font = UIFont.systemFont(ofSize: 15)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 1.0
         paragraphStyle.lineHeightMultiple = 0.8
@@ -322,7 +341,7 @@ class NoteCellNode: ASCellNode {
     }
     
     func getEmptyTextLabelAttributes(text: String) -> NSAttributedString {
-           let font = UIFont.systemFont(ofSize: 14)
+           let font = UIFont.systemFont(ofSize: 15)
            let paragraphStyle = NSMutableParagraphStyle()
            paragraphStyle.lineSpacing = 1.0
            paragraphStyle.lineHeightMultiple = 0.8

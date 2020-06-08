@@ -76,7 +76,7 @@ class EditorViewController: UIViewController {
     
     var todoRowIndexMap:[Int:(Int,Int)] = [:]
     
-    var sections:[SectionType] = []
+    private var sections:[SectionType] = []
     
     var isTodoExpand = true
     
@@ -475,6 +475,15 @@ extension EditorViewController: UITableViewDataSource {
                 return row + section
             }
             return 2
+        case BlockType.toggle.rawValue:
+            var section = 1
+            if note.textBlock != nil {
+                section += 1
+            }
+            if let row = self.note.todoToggleBlocks.firstIndex(where: {$0.id == block.id}){
+                return row + section
+            }
+            return 2
         default:
             return 0
         }
@@ -500,7 +509,7 @@ extension EditorViewController: UITableViewDataSource {
         return sections.count
     }
     
-    func getCellIdentifier(sectionType:SectionType,indexPath:IndexPath) -> String {
+    private func getCellIdentifier(sectionType:SectionType,indexPath:IndexPath) -> String {
         
         switch sectionType {
         case .title:
@@ -714,7 +723,7 @@ extension EditorViewController: TodoGroupCellDelegate {
             ContextMenuItem(label: "删除", icon: "trash")
         ]
         ContextMenuViewController.show(sourceView: menuButton, sourceVC: self, items: items) { [weak self] menuItem in
-            self?.deleteTodoSection(todoGroupBlock: todoGroupBlock)
+            self?.deleteTodoSection(toggleBlock: todoGroupBlock)
         }
     }
     
@@ -1068,15 +1077,15 @@ extension EditorViewController {
             .disposed(by: disposeBag)
     }
     
-    private func deleteTodoSection(todoGroupBlock:Block) {
+    private func deleteTodoSection(toggleBlock:Block) {
         
-        noteRepo.deleteBlock(block: todoGroupBlock)
+        noteRepo.deleteToogleBlock(toggleBlock: toggleBlock)
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
                 
-                let todoSectionIndex = self.getSectionIndexByBlock(block: todoGroupBlock)
+                let todoSectionIndex = self.getSectionIndexByBlock(block: toggleBlock)
                 
-                self.note.removeBlock(block: todoGroupBlock)
+                self.note.removeBlock(block: toggleBlock)
                 self.sections.remove(at: todoSectionIndex)
                 self.tableView.performBatchUpdates({
                     self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .bottom)
@@ -1170,14 +1179,14 @@ extension EditorViewController: UIImagePickerControllerDelegate,UINavigationCont
 
 
 
-enum SectionType {
+private enum SectionType {
     case title
     case text
     case todoToggle(id:Int64)
     case images
 }
 
-enum CellReuseIdentifier: String {
+fileprivate enum CellReuseIdentifier: String {
     case title = "title"
     case text = "text"
     case todo = "todo"
@@ -1185,7 +1194,7 @@ enum CellReuseIdentifier: String {
     case images = "images"
 }
 
-enum TodoMode {
+fileprivate enum TodoMode {
     case unchecked
     case checked
 }
