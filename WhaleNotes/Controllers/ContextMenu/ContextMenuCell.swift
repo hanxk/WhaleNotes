@@ -28,7 +28,7 @@ class ContextMenuCell: UITableViewCell {
     
     private lazy var iconView: UIImageView = UIImageView().then {
         $0.contentMode = .center
-        $0.tintColor = .primaryText
+        $0.tintColor = UIColor.init(hexString: "#444444")
     }
     
     required init?(coder: NSCoder) {
@@ -42,26 +42,30 @@ class ContextMenuCell: UITableViewCell {
     
     
     private func setup() {
-        self.selectionStyle = .none
-        contentView.addSubview(iconView)
-        iconView.snp.makeConstraints { (make) in
-            make.width.equalTo(26)
-            make.leading.equalToSuperview().offset(16)
-            make.top.bottom.equalToSuperview()
-        }
+        
+        
+        let padding:CGFloat = 10
         
         contentView.addSubview(labelView)
         labelView.snp.makeConstraints { (make) in
+            make.leading.equalToSuperview().offset(padding)
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(iconView.snp.trailing).offset(14)
-            make.trailing.equalToSuperview().offset(-16)
+            make.top.bottom.equalToSuperview()
         }
+        
+        contentView.addSubview(iconView)
+        iconView.snp.makeConstraints { (make) in
+            make.width.equalTo(26)
+            make.height.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-padding)
+        }
+        
     }
     
     
     static func caculateTextWidth(text: String) -> CGFloat {
         let size = text.size(withAttributes:[.font: ContextMenuCell.labelTextFont])
-        return size.width + 58 + 14
+        return size.width + 58 + 20
     }
     
 }

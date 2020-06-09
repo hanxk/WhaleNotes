@@ -10,17 +10,17 @@ import UIKit
 
 class SideMenuBottomView: UIView {
     
-    var callbackNewBlock:(()->Void)?
+    var callbackNewBlock:((UIButton)->Void)?
     
     private lazy var newBlockBtn: UIButton = UIButton().then {
-        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
         let image = UIImage(systemName: "plus", withConfiguration: config)
         $0.tintColor =  UIColor.init(hexString: "#666666")
         $0.setTitleColor(UIColor.init(hexString: "#666666"), for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16)
         $0.setImage(image, for: .normal)
         $0.setImageTitleSpace(5)
-        $0.setTitle("添加便签板", for: .normal)
+        $0.setTitle("", for: .normal)
         $0.addTarget(self, action: #selector(self.newBlockBtnTapped), for: .touchUpInside)
     }
     
@@ -47,8 +47,8 @@ class SideMenuBottomView: UIView {
         
         self.addSubview(newBlockBtn)
         newBlockBtn.snp.makeConstraints { (make) in
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(24)
+            make.height.equalToSuperview()
+            make.leading.equalToSuperview().offset(20)
         }
         
         self.addSubview(settingBlockBtn)
@@ -68,7 +68,7 @@ class SideMenuBottomView: UIView {
 }
 
 extension SideMenuBottomView {
-    @objc func newBlockBtnTapped() {
-        callbackNewBlock?()
+    @objc func newBlockBtnTapped(sender:UIButton) {
+        callbackNewBlock?(sender)
     }
 }

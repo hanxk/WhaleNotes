@@ -30,6 +30,9 @@ class NotesView: UIView, UINavigationControllerDelegate {
     
     private var selectedIndexPath:IndexPath?
     
+
+ 
+    
     enum NotesViewConstants {
         static let cellSpace: CGFloat = 8
         static let cellHorizontalSpace: CGFloat = 12
@@ -258,19 +261,36 @@ extension NotesView {
     }
     
     @objc func btnMoreTapped (sender:UIButton) {
-        let popMenuVC = PopBlocksViewController()
-        popMenuVC.isFromHome = true
-        popMenuVC.cellTapped = { [weak self] type in
-            popMenuVC.dismiss(animated: true, completion: {
-                self?.openNoteEditor(type:type)
-            })
+//        let popMenuVC = PopBlocksViewController()
+//        popMenuVC.isFromHome = true
+//        popMenuVC.cellTapped = { [weak self] type in
+//            popMenuVC.dismiss(animated: true, completion: {
+//                self?.openNoteEditor(type:type)
+//            })
+//        }
+//        ContextMenu.shared.show(
+//            sourceViewController: self.controller!,
+//            viewController: popMenuVC,
+//            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
+//            sourceView: sender
+//        )
+        NotesView.showNotesMenu(sourceView: sender, sourceVC: self.controller!) { [weak self]  menuType in
+              self?.openNoteEditor(type:menuType)
         }
-        ContextMenu.shared.show(
-            sourceViewController: self.controller!,
-            viewController: popMenuVC,
-            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
-            sourceView: sender
-        )
+    }
+    
+    static func showNotesMenu(sourceView: UIView,sourceVC:UIViewController,callback: @escaping (MenuType)->Void) {
+        let items = [
+            ContextMenuItem(label: "文本", icon: "textbox", tag: MenuType.text),
+            ContextMenuItem(label: "待办事项", icon: "checkmark.square", tag: MenuType.todo),
+            ContextMenuItem(label: "文本", icon: "textbox", tag: MenuType.image),
+            ContextMenuItem(label: "拍照", icon: "camera", tag: MenuType.camera),
+        ]
+        ContextMenuViewController.show(sourceView:sourceView, sourceVC: sourceVC, items: items) {
+            if let menuType = $0.tag as? MenuType {
+                callback(menuType)
+            }
+        }
     }
     
     private func makeButton() -> UIButton {
@@ -345,4 +365,18 @@ extension NotesView: UIImagePickerControllerDelegate {
             self?.controller?.hideHUD()
         }
     }
+}
+
+
+struct MenuItem  {
+    var label: String
+    var icon: String
+    var type: MenuType
+}
+
+enum MenuType {
+    case text
+    case image
+    case camera
+    case todo
 }

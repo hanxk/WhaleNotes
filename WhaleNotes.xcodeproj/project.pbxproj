@@ -50,16 +50,15 @@
 		1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF19244EDF790006B48D /* UIView+Ex.swift */; };
 		1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF1B244F43D30006B48D /* UITableView+Ex.swift */; };
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
+		1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */; };
 		188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328EF24531F530097A01D /* AttachmentsBlockCell.swift */; };
 		188328F2245320740097A01D /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F1245320740097A01D /* ImageCell.swift */; };
 		188328F624540FB40097A01D /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F524540FB40097A01D /* Logger.swift */; };
-		188328FB24541E1C0097A01D /* PopBlocksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328FA24541E1C0097A01D /* PopBlocksViewController.swift */; };
 		188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942A7246E845D006173F8 /* TodoGroupCell.swift */; };
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
 		189D962C24861318000E04C9 /* SectionAndNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189D962B24861318000E04C9 /* SectionAndNote.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
-		18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
 		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
 		18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */; };
@@ -145,16 +144,15 @@
 		1865AF19244EDF790006B48D /* UIView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF1B244F43D30006B48D /* UITableView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
+		1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAlertViewController.swift; sourceTree = "<group>"; };
 		188328EF24531F530097A01D /* AttachmentsBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsBlockCell.swift; sourceTree = "<group>"; };
 		188328F1245320740097A01D /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		188328F524540FB40097A01D /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		188328FA24541E1C0097A01D /* PopBlocksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopBlocksViewController.swift; sourceTree = "<group>"; };
 		188942A7246E845D006173F8 /* TodoGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroupCell.swift; sourceTree = "<group>"; };
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		189D962B24861318000E04C9 /* SectionAndNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionAndNote.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
-		18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMenuCell.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
 		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
 		18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Ex.swift"; sourceTree = "<group>"; };
@@ -367,8 +365,6 @@
 		188328FC2454206D0097A01D /* BlocksMenu */ = {
 			isa = PBXGroup;
 			children = (
-				188328FA24541E1C0097A01D /* PopBlocksViewController.swift */,
-				18C59C6A24542BE100F5CBB0 /* BlockMenuCell.swift */,
 			);
 			path = BlocksMenu;
 			sourceTree = "<group>";
@@ -460,6 +456,7 @@
 				18E7BF82248C8B6400B8AEC1 /* MyTextField.swift */,
 				18E7BF8B248C94F300B8AEC1 /* IconLabel.swift */,
 				18E7BF8D248C994800B8AEC1 /* TappedView.swift */,
+				1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -717,7 +714,6 @@
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
-				18C59C6B24542BE100F5CBB0 /* BlockMenuCell.swift in Sources */,
 				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
@@ -735,7 +731,6 @@
 				18E7BF83248C8B6400B8AEC1 /* MyTextField.swift in Sources */,
 				1890290A245E82720017814A /* UIImage+Ex.swift in Sources */,
 				1865AF04244D4D330006B48D /* SQLiteManager.swift in Sources */,
-				188328FB24541E1C0097A01D /* PopBlocksViewController.swift in Sources */,
 				18E7BF7D248BCA9900B8AEC1 /* UIView+Border.swift in Sources */,
 				1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */,
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
@@ -757,6 +752,7 @@
 				18E7BF8E248C994800B8AEC1 /* TappedView.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */,
+				1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */,
 				18E7BF9E248CC67700B8AEC1 /* EmojiCollectionCell.swift in Sources */,
 				18E7BF93248C9C5000B8AEC1 /* BoardCategoryViewController.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,

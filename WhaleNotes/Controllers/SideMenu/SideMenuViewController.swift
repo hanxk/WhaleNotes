@@ -51,9 +51,21 @@ class SideMenuViewController: UITableViewController {
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
         }
         
-        bottomView.callbackNewBlock = {
-            let navController = MyNavigationController(rootViewController: BoardEditViewController())
-            self.navigationController?.present(navController, animated: true, completion: nil)
+        bottomView.callbackNewBlock = { sender in
+//
+            let items = [
+                ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
+                ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
+            ]
+            ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem in
+                guard let self = self,let flag = menuItem.tag as? Int else { return }
+                if flag == 1 {
+                     BoardEditViewController.showModel(vc: self)
+                }else {
+                    
+                }
+            }
+            
         }
         
         self.loadBoards()

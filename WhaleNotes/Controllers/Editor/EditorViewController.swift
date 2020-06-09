@@ -270,18 +270,21 @@ extension EditorViewController {
         
         self.view.endEditing(true)
         
-        let popMenuVC = PopBlocksViewController()
-        popMenuVC.cellTapped = { [weak self] type in
-            popMenuVC.dismiss(animated: true, completion: {
-                self?.handleCreateModeMenu(type: type)
-            })
+//        let popMenuVC = PopBlocksViewController()
+//        popMenuVC.cellTapped = { [weak self] type in
+//            popMenuVC.dismiss(animated: true, completion: {
+//                self?.handleCreateModeMenu(type: type)
+//            })
+//        }
+//        ContextMenu.shared.show(
+//            sourceViewController: self,
+//            viewController: popMenuVC,
+//            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
+//            sourceView: sender
+//        )
+        NotesView.showNotesMenu(sourceView: sender, sourceVC: self) { [weak self]  menuType in
+              self?.handleCreateModeMenu(type:menuType)
         }
-        ContextMenu.shared.show(
-            sourceViewController: self,
-            viewController: popMenuVC,
-            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
-            sourceView: sender
-        )
     }
     
     fileprivate func handleCreateModeMenu(type: MenuType) {

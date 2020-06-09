@@ -8,27 +8,31 @@
 
 import UIKit
 
-class BoardEditViewController: UIViewController {
+class BoardEditViewController: BaseAlertViewController {
+    
+    static func showModel(vc: UIViewController) {
+        let editVC = BoardEditViewController()
+        editVC.modalPresentationStyle = .overFullScreen
+        editVC.modalTransitionStyle = .crossDissolve
+        vc.present(editVC, animated: true, completion: nil)
+    }
     
     private lazy var emojiButton:UIButton = UIButton().then {
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 60)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         $0.titleLabel?.textAlignment = .center
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor(hexString: "#ECECEC").cgColor
-        $0.layer.cornerRadius = 8
+        $0.layer.cornerRadius = 4
         $0.addTarget(self, action: #selector(self.emojiButtonTapped), for: .touchUpInside)
     }
     
     private lazy var textField:MyTextField = MyTextField().then {
         $0.placeholder = "输入名称"
         $0.returnKeyType = .done
+        $0.font = UIFont.systemFont(ofSize: 14)
+        $0.textColor = .primaryText
         $0.delegate = self
-    }
-    
-    private lazy var categoryItemView:BoardSettingItemView = BoardSettingItemView().then {
-        $0.callbackViewTapped = {
-            self.categoryItemTapped()
-        }
+        $0.layer.cornerRadius = 4
     }
     
     private var emoji:Emoji? {
@@ -39,61 +43,36 @@ class BoardEditViewController: UIViewController {
         }
     }
     
+    private var board:Board?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
-        self.title = "添加便签板"
-       
-        self.navigationItem.leftBarButtonItem =  UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
-        
-        let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
-        barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
-        self.navigationItem.rightBarButtonItem = barButtonItem
-        
+        self.setupUI()
         EmojiRepo.shared.randomEmoji { [weak self] emoji in
             self?.emoji = emoji
         }
         
-        self.setupUI()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        self.textField.becomeFirstResponder()
-    }
-    
-    @objc func cancelButtonTapped() {
-        self.dismiss(animated: true, completion: nil)
-    }
-    @objc func doneButtonTapped() {
-        self.dismiss(animated: true, completion: nil)
+        if board == nil {
+            self.alertTitle = "添加便签板"
+        }
     }
     
     private func setupUI() {
-        self.view.addSubview(emojiButton)
+        
+        contentView.addSubview(emojiButton)
         emojiButton.snp.makeConstraints {
-            $0.width.height.equalTo(80)
-            $0.centerX.equalToSuperview()
-            $0.top.equalToSuperview().offset(26)
+            $0.width.height.equalTo(38)
+            $0.leading.equalToSuperview().offset(14)
+            $0.top.equalToSuperview().offset(15)
         }
         
-        
-        self.view.addSubview(textField)
+        contentView.addSubview(textField)
         textField.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.height.equalTo(48)
-            $0.top.equalTo(emojiButton.snp.bottom).offset(34)
+            $0.height.equalTo(emojiButton.snp.height)
+            $0.leading.equalTo(emojiButton.snp.trailing).offset(10)
+            $0.trailing.equalToSuperview().offset(-14)
+            $0.top.equalTo(emojiButton.snp.top)
         }
-        
-        self.view.addSubview(categoryItemView)
-        categoryItemView.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.height.equalTo(44)
-            $0.top.equalTo(textField.snp.bottom).offset(20)
-        }
-        
-        
     }
 }
 
@@ -108,10 +87,47 @@ extension BoardEditViewController: UITextFieldDelegate {
         vc.callbackEmojiSelected = { [weak self] emoji in
             self?.emoji = emoji
         }
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
-   func categoryItemTapped() {
+    func categoryItemTapped() {
         self.navigationController?.pushViewController(BoardCategoryViewController(), animated: true)
+    }
+}
+
+
+
+
+// 键盘
+extension BoardEditViewController {
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHideNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
+        self.textField.becomeFirstResponder()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
+    @objc func handleKeyboardNotification(notification: Notification) {
+        if let userInfo = notification.userInfo {
+            let rect = (userInfo[UIResponder.keyboardFrameEndUserInfoKey]  as! NSValue).cgRectValue
+            self.alertView.snp.updateConstraints {
+                $0.bottom.equalToSuperview().offset(-(rect.height + 20))
+            }
+        }
+    }
+    
+    @objc func handleKeyboardHideNotification(notification: Notification) {
+//        if let userInfo = notification.userInfo {
+//            guard let view = self.view else{
+//                return
+//            }
+//        }
     }
 }
