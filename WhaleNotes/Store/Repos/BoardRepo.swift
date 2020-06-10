@@ -10,21 +10,91 @@ import Foundation
 import RxSwift
 
 
-class BoardeRepo {
+class BoardRepo {
     
-    static let shared = BoardeRepo()
+    static let shared = BoardRepo()
     private init() {}
     
     func getBoardInfos() {
         
     }
     
-    func createBoard() {
-        
+    func createBoard(board: Board) ->  Observable<Board> {
+        return Observable<Board>.just(board)
+                 .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                 .map({(board)  -> Board in
+                     let result =  DBStore.shared.createBoard(board: board)
+                     switch result {
+                     case .success(let insertedBoard):
+                         return insertedBoard
+                     case .failure(let err):
+                         throw err
+                     }
+                 })
+                 .observeOn(MainScheduler.instance)
     }
     
-    func updateBoard() {
-        
+    
+    func createBoardCategory(boardCategory: BoardCategory) ->  Observable<BoardCategory> {
+        return Observable<BoardCategory>.just(boardCategory)
+                 .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                 .map({(boardCategory)  -> BoardCategory in
+                     let result =  DBStore.shared.createBoardCategory(boardCategory: boardCategory)
+                     switch result {
+                     case .success(let insertedBoardCategory):
+                         return insertedBoardCategory
+                     case .failure(let err):
+                         throw err
+                     }
+                 })
+                 .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func deleteBoardCategory(boardCategoryInfo: BoardCategoryInfo) ->  Observable<Bool>  {
+           return Observable<BoardCategoryInfo>.just(boardCategoryInfo)
+                      .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                      .map({(boardCategoryInfo)  -> Bool in
+                          let result =  DBStore.shared.deleteBoardCategory(boardCategoryInfo: boardCategoryInfo)
+                          switch result {
+                          case .success(let isSuccess):
+                              return isSuccess
+                          case .failure(let err):
+                              throw err
+                          }
+                      })
+                      .observeOn(MainScheduler.instance)
+    }
+    
+    func updateBoardCategory(boardCategory: BoardCategory) ->  Observable<Bool>  {
+           return Observable<BoardCategory>.just(boardCategory)
+                      .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                      .map({(boardCategory)  -> Bool in
+                          let result =  DBStore.shared.updateBoardCategory(boardCategory: boardCategory)
+                          switch result {
+                          case .success(let isSuccess):
+                              return isSuccess
+                          case .failure(let err):
+                              throw err
+                          }
+                      })
+                      .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func updateBoard(board: Board) ->  Observable<Bool>  {
+           return Observable<Board>.just(board)
+                      .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                      .map({(board)  -> Bool in
+                          let result =  DBStore.shared.updateBoard(board)
+                          switch result {
+                          case .success(let isSuccess):
+                              return isSuccess
+                          case .failure(let err):
+                              throw err
+                          }
+                      })
+                      .observeOn(MainScheduler.instance)
     }
     
     func getBoardNotes() {

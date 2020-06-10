@@ -9,14 +9,43 @@ import UIKit
 
 class BaseAlertViewController: UIViewController {
     
-//    static func showModel(vc: UIViewController) {
-//        let editVC = BoardEditViewController()
-//        editVC.modalPresentationStyle = .overFullScreen
-//        editVC.modalTransitionStyle = .crossDissolve
-//        vc.present(editVC, animated: true, completion: nil)
-//    }
+    var alertTitle:String = "" {
+        didSet {
+            self.titleLabel.isHidden = alertTitle.isEmpty
+            self.titleLabel.text = alertTitle
+        }
+    }
     
-    //alertview
+    var positiveButtonText:String = "确定" {
+        didSet {
+           positiveBtn.setTitle(positiveButtonText, for: .normal)
+        }
+    }
+    var isPositiveDestructive:Bool = false {
+        didSet {
+            if isPositiveDestructive {
+                positiveBtn.setTitleColor(.red, for: .normal)
+            }else {
+                 positiveBtn.setTitleColor(.brand, for: .normal)
+            }
+            
+        }
+    }
+    
+    var negativeButtonText:String = "取消" {
+        didSet {
+           cancelBtn.setTitle(negativeButtonText, for: .normal)
+        }
+    }
+    
+    var alertHeight:CGFloat  {
+        return 175
+    }
+    
+    
+    let contentView = UIView()
+    
+    
     lazy var  alertView = UIView().then {
         $0.backgroundColor = .white
         $0.layer.cornerRadius = 8
@@ -25,19 +54,12 @@ class BaseAlertViewController: UIViewController {
     private lazy var  titleLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         $0.textColor = .black
-        $0.text = "标题啊"
+        $0.text = alertTitle
     }
     
-    var alertTitle:String = "" {
-        didSet {
-            self.titleLabel.text = alertTitle
-        }
-    }
-    
-    let contentView = UIView()
    
     private lazy var cancelBtn = UIButton().then {
-        $0.setTitle("取消", for: .normal)
+        $0.setTitle(negativeButtonText, for: .normal)
         $0.setTitleColor(UIColor.init(hexString: "#666666"), for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 15)
         $0.addTarget(self, action: #selector(self.cancelBtnTapped), for: .touchUpInside)
@@ -45,7 +67,7 @@ class BaseAlertViewController: UIViewController {
     
     
     private lazy var positiveBtn = UIButton().then {
-        $0.setTitle("确定", for: .normal)
+        $0.setTitle(positiveButtonText, for: .normal)
         $0.setTitleColor(.brand, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         $0.addTarget(self, action: #selector(self.positiveBtnTapped), for: .touchUpInside)
@@ -79,7 +101,7 @@ class BaseAlertViewController: UIViewController {
     
     private func setupUI() {
         
-        let alertHeight:CGFloat = 175
+       
         let bottom = UIScreen.main.bounds.height / 2 - alertHeight/2
         
         self.view.addSubview(alertView)
@@ -97,6 +119,7 @@ class BaseAlertViewController: UIViewController {
             $0.centerX.equalToSuperview()
             $0.top.equalToSuperview().offset(16)
         }
+        self.titleLabel.isHidden = alertTitle.isEmpty
         
         
         //添加 contentview
@@ -133,11 +156,14 @@ class BaseAlertViewController: UIViewController {
     
     
     @objc func cancelBtnTapped() {
-        self.dismiss(animated: false, completion: nil)
+        dismiss()
     }
     
     @objc func positiveBtnTapped() {
-        
+        dismiss()
+    }
+    
+    func dismiss() {
         self.dismiss(animated: false, completion: nil)
     }
 }

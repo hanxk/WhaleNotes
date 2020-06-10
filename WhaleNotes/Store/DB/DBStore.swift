@@ -224,6 +224,76 @@ class DBStore {
 
 
 extension DBStore {
+    
+    func createBoard(board: Board) -> DBResult<Board> {
+        do {
+            var insertedBoard = board
+            try db.transaction {
+                let boardId = try boardDao.insert(insertedBoard)
+                insertedBoard.id = boardId
+            }
+            return DBResult<Board>.success(insertedBoard)
+        } catch _ {
+            return DBResult<Board>.failure(DBError(code: .None))
+        }
+    }
+    
+    func createBoardCategory(boardCategory: BoardCategory) -> DBResult<BoardCategory> {
+        do {
+            var insertedBoardCategory = boardCategory
+            try db.transaction {
+                let boardCategoryId = try boardCategoryDao.insert(insertedBoardCategory)
+                insertedBoardCategory.id = boardCategoryId
+            }
+            return DBResult<BoardCategory>.success(insertedBoardCategory)
+        } catch _ {
+            return DBResult<BoardCategory>.failure(DBError(code: .None))
+        }
+    }
+    
+    
+    func updateBoard( _ board: Board) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                isSuccess = try boardDao.updateBoard(board)
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch _ {
+            return DBResult<Bool>.failure(DBError(code: .None))
+        }
+    }
+    
+    func updateBoardCategory(boardCategory: BoardCategory) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                isSuccess = try boardCategoryDao.update(boardCategory)
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch _ {
+            return DBResult<Bool>.failure(DBError(code: .None))
+        }
+    }
+    
+    
+    func deleteBoardCategory(boardCategoryInfo: BoardCategoryInfo) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                isSuccess = try boardCategoryDao.delete(id: boardCategoryInfo.category.id)
+                //重置 category id
+                for board in boardCategoryInfo.boards {
+                    _ = try boardDao.updateBoard(board)
+                }
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch _ {
+            return DBResult<Bool>.failure(DBError(code: .None))
+        }
+    }
+    
+    
     func getBoardCategoryInfos() -> DBResult<[BoardCategoryInfo]>  {
         do {
             var boardCategoryInfos:[BoardCategoryInfo] = []

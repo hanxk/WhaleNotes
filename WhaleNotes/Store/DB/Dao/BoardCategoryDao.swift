@@ -13,6 +13,7 @@ fileprivate enum Field_BoardCategory{
     static let id = Expression<Int64>("id")
     static let title = Expression<String>("title")
     static let sort = Expression<Double>("sort")
+    static let isExpand = Expression<Bool>("is_expand")
     static let createdAt = Expression<Date>("created_at")
 }
 
@@ -36,6 +37,16 @@ class BoardCategoryDao {
         let boardData = table.filter(Field_BoardCategory.id == id)
         let rows = try db.run(boardData.delete())
         return rows > 0
+    }
+    
+    func update(_ boardCategory:BoardCategory) throws -> Bool {
+        let t = table.filter(Field_BoardCategory.id == boardCategory.id)
+        let rows = try db.run(t.update(
+                                   Field_BoardCategory.title <- boardCategory.title,
+                                   Field_BoardCategory.sort <- boardCategory.sort,
+                                   Field_BoardCategory.isExpand <- boardCategory.isExpand,
+                                   Field_BoardCategory.createdAt <- boardCategory.createdAt))
+        return rows == 1
     }
     
     func queryAll() throws ->[BoardCategory] {
@@ -62,6 +73,7 @@ extension BoardCategoryDao {
                     builder.column(Field_BoardCategory.id,primaryKey: .autoincrement)
                     builder.column(Field_BoardCategory.title)
                     builder.column(Field_BoardCategory.sort)
+                    builder.column(Field_BoardCategory.isExpand)
                     builder.column(Field_BoardCategory.createdAt)
                 })
             )
@@ -76,18 +88,20 @@ extension BoardCategoryDao {
                                 Field_BoardCategory.id <- boardCategory.id,
                                 Field_BoardCategory.title <- boardCategory.title,
                                 Field_BoardCategory.sort <- boardCategory.sort,
+                                Field_BoardCategory.isExpand <- boardCategory.isExpand,
                                 Field_BoardCategory.createdAt <- boardCategory.createdAt
             )
         }
         return table.insert(or: conflict,
                                 Field_BoardCategory.title <- boardCategory.title,
                                 Field_BoardCategory.sort <- boardCategory.sort,
+                                Field_BoardCategory.isExpand <- boardCategory.isExpand,
                                 Field_BoardCategory.createdAt <- boardCategory.createdAt
         )
     }
     
     fileprivate func generateBoardCategory(row: Row) -> BoardCategory {
-        let boardCategory = BoardCategory(id: row[Field_BoardCategory.id],  title: row[Field_BoardCategory.title], sort: row[Field_BoardCategory.sort], createdAt: row[Field_BoardCategory.createdAt])
+        let boardCategory = BoardCategory(id: row[Field_BoardCategory.id],  title: row[Field_BoardCategory.title], sort: row[Field_BoardCategory.sort],isExpand: row[Field_BoardCategory.isExpand], createdAt: row[Field_BoardCategory.createdAt])
         return boardCategory
     }
 }

@@ -26,12 +26,35 @@ extension UIViewController {
         hud.label.text = message
         hud.isUserInteractionEnabled = false
     }
-
+    
     func hideHUD() {
         MBProgressHUD.hide(for: self.view, animated: true)
     }
 }
 
 extension UIViewController {
-
+    func showAlertMessage(message:String,positiveButtonText:String,isPositiveDestructive:Bool = false,callbackPositive:@escaping ()->Void) {
+        let alertVC = MessageAlertViewController()
+        alertVC.positiveButtonText = positiveButtonText
+        alertVC.callbackPositive = callbackPositive
+        alertVC.isPositiveDestructive = isPositiveDestructive
+        alertVC.msg = message
+        showAlertViewController(alertVC)
+    }
+    
+    func showAlertTextField(title:String = "",text:String = "",placeholder:String = "",callbackPositive:@escaping (String)->Void) {
+        let alertVC = TextFieldAlertViewController()
+        alertVC.callbackPositive = callbackPositive
+        alertVC.alertTitle = title
+        alertVC.text = text
+        alertVC.placeholder = placeholder
+        showAlertViewController(alertVC)
+    }
+    
+    
+    func showAlertViewController(_ alertVC: BaseAlertViewController) {
+        alertVC.modalPresentationStyle = .overFullScreen
+        alertVC.modalTransitionStyle = .crossDissolve
+        self.present(alertVC, animated: true, completion: nil)
+    }
 }

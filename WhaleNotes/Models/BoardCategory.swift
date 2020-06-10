@@ -9,8 +9,9 @@
 import Foundation
 
 struct BoardCategory {
-    let id:Int64
-    let title:String
-    let sort:Double
+    var id:Int64
+    var title:String
+    var sort:Double
+    var isExpand:Bool
     let createdAt:Date
 }

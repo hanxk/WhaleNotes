@@ -9,6 +9,16 @@
 import Foundation
 
 struct BoardCategoryInfo {
-    let category:BoardCategory!
-    let boards:[Board]!
+    var category:BoardCategory!
+    var boards:[Board]!
+    
+    var categoryId:Int64 {
+        return category.id
+    }
+    
+    mutating func insertBoard(_ board:Board) -> Int {
+        let insertIndex = self.boards.firstIndex(where: {$0.sort > board.sort}) ?? 0
+        self.boards.insert(board, at: insertIndex)
+        return insertIndex
+    }
 }

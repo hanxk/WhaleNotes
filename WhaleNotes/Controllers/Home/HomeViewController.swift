@@ -35,14 +35,16 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         let notesView = NotesView(frame: self.view.frame)
         self.notesView = notesView
         self.view.addSubview(notesView)
-            notesView.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-            }
+        notesView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         notesView?.viewWillAppear(animated)
+        
+        self.toggleSideMenu()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -60,24 +62,23 @@ extension HomeViewController {
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         let barButton = UIBarButtonItem(customView: button)
         
-//        let label = UILabel()
-//        label.text = "东京旅行"
-//        label.textAlignment = .left
-//        label.backgroundColor = UIColor.clear
-//        let labelItem = UIBarButtonItem(customView: label)
+        //        let label = UILabel()
+        //        label.text = "东京旅行"
+        //        label.textAlignment = .left
+        //        label.backgroundColor = UIColor.clear
+        //        let labelItem = UIBarButtonItem(customView: label)
         self.navigationItem.title = "东京旅行"
         self.navigationItem.largeTitleDisplayMode = .automatic
         self.navigationItem.leftBarButtonItems = [barButton]
         
-//        self.navigationController?.navigationBar.barTintColor  = UIColor.white
+        //        self.navigationController?.navigationBar.barTintColor  = UIColor.white
         
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItems = [search]
     }
     
-    @objc func toggleSideMenu (sender:UIButton) {
-        print("action")
+    @objc func toggleSideMenu () {
         if let vc = SideMenuManager.default.leftMenuNavigationController {
             present(vc, animated: true, completion: nil)
         }

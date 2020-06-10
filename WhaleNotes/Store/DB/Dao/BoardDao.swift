@@ -40,6 +40,25 @@ class BoardDao {
         return rows > 0
     }
     
+    
+    func updateBoard(_ board:Board)  throws -> Bool {
+        let boardData = table.filter(Field_Board.id == board.id)
+        let rows = try db.run(boardData.update( Field_Board.icon <- board.icon,
+                                    Field_Board.title <- board.title,
+                                    Field_Board.sort <- board.sort,
+                                    Field_Board.categoryId <- board.categoryId))
+        return rows == 1
+    }
+    
+    
+    func updateCategoryId(id: Int64,categoryId:Int64)  throws -> Bool {
+        let boardData = table.filter(Field_Board.id == id)
+        let rows = try db.run(boardData.update(
+                                                Field_Board.categoryId <- categoryId
+                                              ))
+        return rows == 1
+    }
+    
     func queryAll(categoryId:Int64) throws ->[Board] {
         let query = table.filter(Field_Board.categoryId == categoryId).order(Field_Board.sort.asc)
         let rows = try db.prepare(query)

@@ -9,18 +9,31 @@
 import UIKit
 class MenuBoardCell: UITableViewCell {
     
-    var menuSysItem:MenuSystemItem!
-    
-    private lazy var iconImageView:UIImageView = UIImageView().then{
-        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
-        $0.image = UIImage(systemName: self.menuSysItem.icon, withConfiguration: config)
+    var board:Board! {
+        didSet {
+            emojiLabel.text = board.icon
+            titleLabel.text = board.title
+        }
     }
     
-  
+    var cellIsSelected:Bool = false {
+        didSet {
+            self.cellBgView.isHidden = !cellIsSelected
+        }
+    }
+    
+    private lazy var cellBgView = SideMenuViewController.generateCellSelectedView()
+    
+    private lazy var emojiLabel:UILabel = UILabel().then{
+        $0.font = UIFont.systemFont(ofSize: 22)
+        $0.textAlignment = .center
+    }
+    
+    
     private lazy var titleLabel: UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 26, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         $0.textColor = .primaryText
-        $0.text = self.menuSysItem.title
+        $0.textAlignment = .left
     }
     
     
@@ -35,19 +48,26 @@ class MenuBoardCell: UITableViewCell {
     }
     
     func setupViews() {
-        contentView.addSubview(iconImageView)
-        iconImageView.snp.makeConstraints { (make) in
-            make.width.height.equalTo(20)
-            make.leading.equalToSuperview().offset(20)
-            make.centerY.equalToSuperview()
+        self.backgroundColor = .clear
+        self.selectionStyle = .none
+        
+        contentView.addSubview(cellBgView)
+        cellBgView.snp.makeConstraints {
+            $0.width.height.equalToSuperview()
+        }
+        
+        contentView.addSubview(emojiLabel)
+        emojiLabel.snp.makeConstraints {
+            $0.width.height.equalTo(SideMenuCellContants.iconWidth)
+            $0.leading.equalToSuperview().offset(20)
+            $0.centerY.equalToSuperview()
         }
         
         contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(14)
-            make.trailing.equalToSuperview().offset(-20)
-            make.centerY.equalToSuperview()
+        titleLabel.snp.makeConstraints {
+            $0.leading.equalTo(emojiLabel.snp.trailing).offset(14)
+            $0.trailing.equalToSuperview().offset(-20)
+            $0.centerY.equalToSuperview()
         }
-        self.selectionStyle = .none
     }
 }

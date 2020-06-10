@@ -9,10 +9,19 @@ import Foundation
 
 // 记事板
 struct Board {
-    let id:Int64
-    let icon:String
-    let title:String
-    let sort:Double
-    let categoryId:Int64 // 分类id
-    let createdAt:Date
+    var id:Int64 = 0
+    var icon:String
+    var title:String
+    var sort:Double
+    var categoryId:Int64 // 分类id
+    var createdAt:Date
+    
+    init(id:Int64=0,icon:String,title:String,sort:Double,categoryId:Int64=0,createdAt:Date=Date()) {
+        self.id = id
+        self.icon = icon
+        self.title = title
+        self.sort = sort
+        self.categoryId = categoryId
+        self.createdAt = createdAt
+    }
 }

@@ -8,19 +8,49 @@
 import UIKit
 class MenuCategoryCell: UITableViewCell {
     
-    var menuSysItem:MenuSystemItem!
+    var boardCategory:BoardCategory! {
+        didSet {
+            titleLabel.text = boardCategory.title
+            arrowImageView.image = boardCategory.isExpand ? arrowDownImage : arrowRightImage
+        }
+    }
+    var callbackMenuTapped:((UIView, BoardCategory)->Void)?
+    private lazy var cellBgView = SideMenuViewController.generateCellSelectedView()
     
-    private lazy var iconImageView:UIImageView = UIImageView().then{
-        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
-        $0.image = UIImage(systemName: self.menuSysItem.icon, withConfiguration: config)
+    private lazy var arrowDownImage:UIImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
+        var image = UIImage(systemName: "chevron.down", withConfiguration: config)
+        return image!
+    }()
+    
+    private lazy var arrowRightImage:UIImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
+        var image = UIImage(systemName: "chevron.right", withConfiguration: config)
+        return image!
+    }()
+    
+    
+    private lazy var arrowImageView:UIImageView = UIImageView().then {
+        $0.tintColor = UIColor(hexString: "#666666")
+        $0.contentMode = .center
     }
     
-  
+    
     private lazy var titleLabel: UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 26, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         $0.textColor = .primaryText
-        $0.text = self.menuSysItem.title
+        $0.textAlignment = .left
     }
+    
+    
+    private lazy var menuButton: UIButton = UIButton().then {
+         $0.contentMode = .center
+         $0.imageView?.contentMode = .scaleAspectFit
+         $0.tintColor  = .thirdColor
+         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .light)
+         $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
+         $0.addTarget(self, action: #selector(self.menuButtonTapped), for: .touchUpInside)
+     }
     
     
     
@@ -34,19 +64,34 @@ class MenuCategoryCell: UITableViewCell {
     }
     
     func setupViews() {
-        contentView.addSubview(iconImageView)
-        iconImageView.snp.makeConstraints { (make) in
-            make.width.height.equalTo(20)
-            make.leading.equalToSuperview().offset(20)
-            make.centerY.equalToSuperview()
+        self.backgroundColor = .clear
+        self.selectionStyle = .none
+        
+        contentView.addSubview(arrowImageView)
+        arrowImageView.snp.makeConstraints {
+            $0.width.height.equalTo(SideMenuCellContants.iconWidth)
+            $0.leading.equalToSuperview().offset(20)
+            $0.centerY.equalToSuperview()
         }
         
         contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(14)
-            make.trailing.equalToSuperview().offset(-20)
-            make.centerY.equalToSuperview()
+        contentView.addSubview(menuButton)
+        titleLabel.snp.makeConstraints {
+            $0.leading.equalTo(arrowImageView.snp.trailing).offset(14)
+            $0.trailing.equalTo(menuButton.snp.leading).offset(5)
+            $0.centerY.equalToSuperview()
         }
-        self.selectionStyle = .none
+        
+        menuButton.snp.makeConstraints { (make) in
+            make.height.equalToSuperview()
+            make.width.equalTo(32)
+            make.trailing.equalToSuperview().offset(-16)
+        }
+        
+        
+    }
+    
+    @objc func menuButtonTapped() {
+        self.callbackMenuTapped?(menuButton,self.boardCategory)
     }
 }

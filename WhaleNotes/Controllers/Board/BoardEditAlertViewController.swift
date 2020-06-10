@@ -8,14 +8,17 @@
 
 import UIKit
 
-class BoardEditViewController: BaseAlertViewController {
+class BoardEditAlertViewController: BaseAlertViewController {
     
-    static func showModel(vc: UIViewController) {
-        let editVC = BoardEditViewController()
+    static func showModel(vc: UIViewController,callbackPositive:((Emoji,String)->Void)?) {
+        let editVC = BoardEditAlertViewController()
         editVC.modalPresentationStyle = .overFullScreen
         editVC.modalTransitionStyle = .crossDissolve
+        editVC.callbackPositive = callbackPositive
         vc.present(editVC, animated: true, completion: nil)
     }
+    
+    var callbackPositive:((Emoji,String)->Void)?
     
     private lazy var emojiButton:UIButton = UIButton().then {
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 20)
@@ -74,9 +77,18 @@ class BoardEditViewController: BaseAlertViewController {
             $0.top.equalTo(emojiButton.snp.top)
         }
     }
+    
+    override func positiveBtnTapped() {
+        guard let title = textField.text?.trimmingCharacters(in: .whitespaces),let emoji = emoji else { return }
+        if title.isEmpty {
+            return
+        }
+        self.callbackPositive?(emoji,title)
+        self.dismiss()
+    }
 }
 
-extension BoardEditViewController: UITextFieldDelegate {
+extension BoardEditAlertViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
@@ -99,7 +111,7 @@ extension BoardEditViewController: UITextFieldDelegate {
 
 
 // 键盘
-extension BoardEditViewController {
+extension BoardEditAlertViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

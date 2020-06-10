@@ -44,11 +44,13 @@ class SideMenuBottomView: UIView {
     }
     
     private func setupUI() {
+        self.backgroundColor = UIColor.init(hexString: "#FBFBFB")
         
         self.addSubview(newBlockBtn)
         newBlockBtn.snp.makeConstraints { (make) in
+            make.width.equalTo(SideMenuCellContants.iconWidth)
             make.height.equalToSuperview()
-            make.leading.equalToSuperview().offset(20)
+            make.leading.equalToSuperview().offset(SideMenuCellContants.cellPadding)
         }
         
         self.addSubview(settingBlockBtn)
