@@ -18,13 +18,13 @@ class MenuCategoryCell: UITableViewCell {
     private lazy var cellBgView = SideMenuViewController.generateCellSelectedView()
     
     private lazy var arrowDownImage:UIImage = {
-        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .light)
         var image = UIImage(systemName: "chevron.down", withConfiguration: config)
         return image!
     }()
     
     private lazy var arrowRightImage:UIImage = {
-        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .light)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .light)
         var image = UIImage(systemName: "chevron.right", withConfiguration: config)
         return image!
     }()

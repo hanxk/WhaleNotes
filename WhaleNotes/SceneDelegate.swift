@@ -41,17 +41,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
         }
         
-        // Define the menus
-        let sideMenuViewController = SideMenuViewController()
-        let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
-        leftMenuNavigationController.leftSide = true
-        SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
         
         let homeVC = HomeViewController()
         let navVC = MyNavigationController(rootViewController: homeVC)
         
         
-        leftMenuNavigationController.statusBarEndAlpha = 0
         
         
         window?.rootViewController = navVC

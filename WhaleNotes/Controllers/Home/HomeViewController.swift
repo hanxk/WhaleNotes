@@ -43,8 +43,6 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         notesView?.viewWillAppear(animated)
-        
-        self.toggleSideMenu()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -92,32 +90,77 @@ extension HomeViewController {
     
     func makeSettings() -> SideMenuSettings {
         let presentationStyle = selectedPresentationStyle()
-        //        presentationStyle.backgroundColor = .white
+                presentationStyle.backgroundColor = .white
         //        presentationStyle.menuStartAlpha = CGFloat(menuAlphaSlider.value)
         //        presentationStyle.menuScaleFactor = CGFloat(menuScaleFactorSlider.value)
         //        presentationStyle.onTopShadowOpacity = shadowOpacitySlider.value
-        //        presentationStyle.presentingEndAlpha = CGFloat(presentingAlphaSlider.value)
+        presentationStyle.presentingEndAlpha = 0.1
         //        presentationStyle.presentingScaleFactor = CGFloat(presentingScaleFactorSlider.value)
         var settings = SideMenuSettings()
         settings.presentationStyle = presentationStyle
         settings.menuWidth = view.frame.width - 52
-        settings.statusBarEndAlpha = 0
+        settings.statusBarEndAlpha = 0.1
         //        let styles:[UIBlurEffect.Style?] = [nil, .dark, .light, .extraLight]
-        //        settings.blurEffectStyle = styles[blurSegmentControl.selectedSegmentIndex]
-        //        settings.statusBarEndAlpha = blackOutStatusBar.isOn ? 1 : 0
+        //        settings.blurEffectStyle = styles[blurSegmentControl.selectedSegmentIndex
         
         return settings
     }
     
     func setupSideMenu() {
         let settings = makeSettings()
+        
+        // Define the menus
+        let sideMenuViewController = SideMenuViewController()
+        sideMenuViewController.delegate = self
+        
+        let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
+        leftMenuNavigationController.leftSide = true
+        leftMenuNavigationController.sideMenuDelegate = self
+        
+        SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
         SideMenuManager.default.leftMenuNavigationController?.settings = settings
+        
         
         if let navigationController = navigationController {
             SideMenuManager.default.addPanGestureToPresent(toView: navigationController.navigationBar)
             SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: self.view,forMenu: .left)
         }
     }
+}
+
+extension HomeViewController:SideMenuViewControllerDelegate {
+    func sideMenuSystemItemSelected(menuSystem: MenuSystemItem) {
+        self.title = menuSystem.title
+        self.dismissSideMenu()
+    }
+    
+    func sideMenuBoardItemSelected(board: Board) {
+      
+        self.title = board.title
+        self.dismissSideMenu()
+    }
     
     
+    
+    func dismissSideMenu() {
+        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension HomeViewController: SideMenuNavigationControllerDelegate {
+    func sideMenuWillAppear(menu: SideMenuNavigationController, animated: Bool) {
+         print("SideMenu Appearing! (animated: \(animated))")
+     }
+     
+     func sideMenuDidAppear(menu: SideMenuNavigationController, animated: Bool) {
+         print("SideMenu Appeared! (animated: \(animated))")
+     }
+     
+     func sideMenuWillDisappear(menu: SideMenuNavigationController, animated: Bool) {
+         print("SideMenu Disappearing! (animated: \(animated))")
+     }
+     
+     func sideMenuDidDisappear(menu: SideMenuNavigationController, animated: Bool) {
+         print("SideMenu Disappeared! (animated: \(animated))")
+     }
 }
