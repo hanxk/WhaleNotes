@@ -101,14 +101,25 @@ class BoardRepo {
         
     }
     
-    func getBoardCategoryInfos() -> Observable<([Board] ,[BoardCategoryInfo])> {
-        return Observable<([Board] ,[BoardCategoryInfo])>.create {  observer -> Disposable in
+    func getBoardCategoryInfos() -> Observable<(([Board],[Board]) ,[BoardCategoryInfo])> {
+        return Observable<(([Board],[Board]) ,[BoardCategoryInfo])>.create {  observer -> Disposable in
             
+            let systemBoardsResult = DBStore.shared.getSystemBoards()
             let boardsResult = DBStore.shared.getNoCategoryBoards()
             let boardCategoryInfoResult = DBStore.shared.getBoardCategoryInfos()
             
+            
+            var systemBoards:[Board] = []
             var boards:[Board] = []
             var boardCategoryInfos:[BoardCategoryInfo] = []
+            
+            
+            switch systemBoardsResult {
+            case .success(let boards):
+                systemBoards = boards
+            case .failure(let err):
+                observer.onError(err)
+            }
             
             switch boardsResult {
             case .success(let newBoards):
@@ -123,8 +134,10 @@ class BoardRepo {
             case .failure(let err):
                 observer.onError(err)
             }
+            
+            let result = ((systemBoards,boards),boardCategoryInfos)
 
-            observer.onNext((boards,boardCategoryInfos))
+            observer.onNext(result)
             observer.onCompleted()
             
             return Disposables.create()

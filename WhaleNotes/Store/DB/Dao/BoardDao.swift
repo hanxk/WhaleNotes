@@ -15,6 +15,7 @@ fileprivate enum Field_Board{
     static let title = Expression<String>("title")
     static let sort = Expression<Double>("sort")
     static let categoryId = Expression<Int64>("category_id")
+    static let type = Expression<Int>("type")
     static let createdAt = Expression<Date>("created_at")
 }
 
@@ -46,7 +47,9 @@ class BoardDao {
         let rows = try db.run(boardData.update( Field_Board.icon <- board.icon,
                                     Field_Board.title <- board.title,
                                     Field_Board.sort <- board.sort,
-                                    Field_Board.categoryId <- board.categoryId))
+                                    Field_Board.categoryId <- board.categoryId,
+                                    Field_Board.type <- board.type
+                                    ))
         return rows == 1
     }
     
@@ -59,8 +62,8 @@ class BoardDao {
         return rows == 1
     }
     
-    func queryAll(categoryId:Int64) throws ->[Board] {
-        let query = table.filter(Field_Board.categoryId == categoryId).order(Field_Board.sort.asc)
+    func queryAll(categoryId:Int64,type:Int = 1) throws ->[Board] {
+        let query = table.filter(Field_Board.categoryId == categoryId && Field_Board.type == type).order(Field_Board.sort.asc)
         let rows = try db.prepare(query)
         var boards:[Board] = []
         for row in rows {
@@ -85,6 +88,7 @@ extension BoardDao {
                     builder.column(Field_Board.title)
                     builder.column(Field_Board.sort)
                     builder.column(Field_Board.categoryId)
+                    builder.column(Field_Board.type)
                     builder.column(Field_Board.createdAt)
                 })
             )
@@ -103,7 +107,7 @@ extension BoardDao {
                                 Field_Board.title <- board.title,
                                 Field_Board.sort <- board.sort,
                                 Field_Board.categoryId <- board.categoryId,
-                                Field_Board.createdAt <- board.createdAt
+                                Field_Board.type <- board.type
             )
         }
         return table.insert(or: conflict,
@@ -111,12 +115,13 @@ extension BoardDao {
                                 Field_Board.title <- board.title,
                                 Field_Board.sort <- board.sort,
                                 Field_Board.categoryId <- board.categoryId,
+                                Field_Board.type <- board.type,
                                 Field_Board.createdAt <- board.createdAt
         )
     }
     
     fileprivate func generateBoard(row: Row) -> Board {
-        let board = Board(id: row[Field_Board.id], icon: row[Field_Board.icon], title: row[Field_Board.title], sort: row[Field_Board.sort], categoryId:  row[Field_Board.categoryId], createdAt: row[Field_Board.createdAt])
+        let board = Board(id: row[Field_Board.id], icon: row[Field_Board.icon], title: row[Field_Board.title], sort: row[Field_Board.sort], categoryId:  row[Field_Board.categoryId],type:row[Field_Board.type] ,createdAt: row[Field_Board.createdAt])
         return board
     }
 }

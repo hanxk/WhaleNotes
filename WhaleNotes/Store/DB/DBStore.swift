@@ -62,7 +62,7 @@ class DBStore {
                             todoBlock.id = blockId
                             newBlocks.append(todoBlock)
                         }
-                            
+                        
                         newBlocks.append(block)
                     }
                 }
@@ -120,7 +120,7 @@ class DBStore {
     
     func createBlocks(blocks: [Block]) -> DBResult<[Block]> {
         do {
-
+            
             _ = try tryUpdateBlockDate(block: blocks[0])
             
             var newBlocks:[Block] = blocks
@@ -154,7 +154,7 @@ class DBStore {
                 let todoBlockId = try blockDao.insert(todoBlock)
                 todoBlock.id = todoBlockId
                 childBlocks.append(todoBlock)
-
+                
             }
             return DBResult<(Block,[Block])>.success((block,childBlocks))
         } catch _ {
@@ -307,6 +307,26 @@ extension DBStore {
         } catch let err {
             print(err)
             return DBResult<[BoardCategoryInfo]>.failure(DBError(code: .None))
+        }
+    }
+    
+    func getSystemBoards() -> DBResult<[Board]> {
+        do {
+            var boards:[Board] = []
+            try db.transaction {
+                boards = try boardDao.queryAll(categoryId: 0,type: 2)
+                if boards.count == 0 {
+                    var collectBoard = Board(icon: "square.on.square", title: "收集板", sort: 1,type:2)
+                    let boardId = try boardDao.insert(collectBoard)
+                    collectBoard.id = boardId
+                    boards.append(collectBoard)
+                }
+            }
+            
+            return DBResult<[Board]>.success(boards)
+        } catch let err {
+            print(err)
+            return DBResult<[Board]>.failure(DBError(code: .None))
         }
     }
     

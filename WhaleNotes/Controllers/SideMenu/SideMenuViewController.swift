@@ -27,7 +27,7 @@ class SideMenuViewController: UIViewController {
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
         didSet {
-            delegate?.sideMenuSystemItemSelected(menuSystem: self.systemMenuItems[0])
+            self.loadBoards()
         }
     }
     
@@ -81,10 +81,7 @@ class SideMenuViewController: UIViewController {
         
         $0.dragInteractionEnabled = true
     }
-    private var systemMenuItems:[MenuSystemItem]  =  [
-        MenuSystemItem.collect(icon: "rectangle.on.rectangle.angled", title: "收集板"),
-        MenuSystemItem.trash(icon: "trash", title: "废纸篓")
-    ]
+    private var systemMenuItems:[MenuSystemItem]  =  []
     private var boards:[Board] = []
     
     private var mapCategoryIdAnIndex:[Int64:Int]  = [:]
@@ -106,7 +103,8 @@ class SideMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        self.loadBoards()
+//        self.loadBoards()
+        self.tableView.reloadData()
         
     }
     
@@ -143,11 +141,20 @@ class SideMenuViewController: UIViewController {
     }
     
     
-    private func setupData(boardsResult:([Board],[BoardCategoryInfo])) {
+    private func setupData(boardsResult:(([Board],[Board]),[BoardCategoryInfo])) {
         menuSectionTypes.removeAll()
+        
+        let systemMenuItems =    [
+                MenuSystemItem.system(board: boardsResult.0.0[0]),
+               MenuSystemItem.trash(icon: "trash", title: "废纸篓")
+           ]
+        self.systemMenuItems = systemMenuItems
+        
         menuSectionTypes.append(MenuSectionType.system(items:self.systemMenuItems))
         
-        self.boards = boardsResult.0
+        
+        
+        self.boards = boardsResult.0.1
         menuSectionTypes.append(MenuSectionType.boards)
         
         self.boardCategories = boardsResult.1
@@ -155,8 +162,6 @@ class SideMenuViewController: UIViewController {
             menuSectionTypes.append(MenuSectionType.categories)
         }
         
-        
-        self.tableView.reloadData()
     }
     
 }
@@ -166,7 +171,8 @@ class SideMenuViewController: UIViewController {
 extension SideMenuViewController {
     
     func createBoardCategory(title:String) {
-        let boardCategory = BoardCategory(id: 0, title: title, sort: 1, isExpand: true, createdAt: Date())
+        let sort = self.boardCategories.count == 0 ? 65536 : self.boardCategories[0].category.sort / 2
+        let boardCategory = BoardCategory(id: 0, title: title, sort: sort, isExpand: true, createdAt: Date())
         BoardRepo.shared.createBoardCategory(boardCategory: boardCategory)
             .subscribe(onNext: { [weak self] newBoardCategory in
                 self?.handleBoardCategoryInsert(insertedBoardCategory: newBoardCategory)
@@ -832,21 +838,21 @@ fileprivate enum CellReuseIdentifier: String {
 }
 
 enum MenuSystemItem {
-    case collect(icon:String,title:String)
+    case system(board: Board)
     case trash(icon:String,title:String)
     
     var icon:String {
         switch self {
-        case .collect(let icon,_):
-            return icon
+        case .system(let board):
+            return board.icon
         case .trash(let icon,_):
             return icon
         }
     }
     var title:String {
         switch self {
-        case .collect(_,let title):
-            return title
+        case .system(let board):
+            return board.title
         case .trash(_,let title):
             return title
         }
