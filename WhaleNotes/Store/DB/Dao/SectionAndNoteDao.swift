@@ -42,7 +42,7 @@ class SectionAndNoteDao {
 
 extension SectionAndNoteDao {
     fileprivate func createTable() -> Table {
-        let table = Table("section_notes")
+        let table = Table("section_note")
         
         do {
             try! db.run(

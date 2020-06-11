@@ -9,7 +9,7 @@
 import Foundation
 
 struct Section {
-    let id:Int64
+    var id:Int64
     let title:String
     let sort:Double
     let boardId:Int64

@@ -15,6 +15,24 @@ class NoteRepo {
     
     var disposebag = DisposeBag()
     
+    
+    func createNewNote(sectionId:Int64,blockTypes: [BlockType]) -> Observable<Note> {
+        
+        Observable<[BlockType]>.just(blockTypes)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(noteInfo)  -> Note in
+                let reuslt =  DBStore.shared.createNote(sectionId: sectionId, blockTypes:blockTypes)
+                switch reuslt {
+                case .success(let noteInfo):
+                    return noteInfo
+                    
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
+    
     func deleteNote(noteId: Int64) -> Observable<Bool> {
          return Observable<Int64>.just(noteId)
              .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))

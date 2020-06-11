@@ -21,10 +21,19 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    private var notesView:NotesView?
+    private var contentView:UIView?
+    private var sideMenuItemType:SideMenuItemType! {
+        didSet {
+            if oldValue == sideMenuItemType {
+                return
+            }
+            self.setupContentView()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = .white
         self.setup()
     }
     
@@ -32,21 +41,62 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         
-        let notesView = NotesView(frame: self.view.frame)
-        self.notesView = notesView
-        self.view.addSubview(notesView)
-        notesView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        notesView?.viewWillAppear(animated)
+//        notesView?.viewWillAppear(animated)
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        notesView?.viewWillDisappear(animated)
+//        notesView?.viewWillDisappear(animated)
+    }
+    
+}
+
+//MARK: content view
+extension HomeViewController {
+    
+    func setupContentView() {
+        switch self.sideMenuItemType {
+        case .board(let board):
+            self.setupBoardView(board:board)
+            break
+        case .trash:
+            self.setupTrashView()
+            break
+        case .none:
+            break
+        }
+    }
+    
+    func setupBoardView(board:Board) {
+        if let oldView =  self.contentView {
+            oldView.removeFromSuperview()
+        }
+        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        self.contentView = notesView
+        self.view.addSubview(notesView)
+        notesView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        notesView.board = board
+        self.title = board.title
+    }
+    
+    func setupTrashView() {
+        
+        self.title = "废纸篓"
+        
+        if let oldView =  self.contentView {
+            oldView.removeFromSuperview()
+        }
+        let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        self.contentView = trashView
+        self.view.addSubview(trashView)
+        trashView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
 }
 
@@ -90,7 +140,7 @@ extension HomeViewController {
     
     func makeSettings() -> SideMenuSettings {
         let presentationStyle = selectedPresentationStyle()
-                presentationStyle.backgroundColor = .white
+        presentationStyle.backgroundColor = .white
         //        presentationStyle.menuStartAlpha = CGFloat(menuAlphaSlider.value)
         //        presentationStyle.menuScaleFactor = CGFloat(menuScaleFactorSlider.value)
         //        presentationStyle.onTopShadowOpacity = shadowOpacitySlider.value
@@ -129,38 +179,40 @@ extension HomeViewController {
 }
 
 extension HomeViewController:SideMenuViewControllerDelegate {
-    func sideMenuSystemItemSelected(menuSystem: MenuSystemItem) {
-        self.title = menuSystem.title
-        self.dismissSideMenu()
+    
+    func sideMenuItemSelected(menuItemType: SideMenuItemType) {
+        self.sideMenuItemType = menuItemType
+        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
     }
-    
-    func sideMenuBoardItemSelected(board: Board) {
-      
-        self.title = board.title
-        self.dismissSideMenu()
-    }
-    
-    
+    //    func sideMenuSystemItemSelected(menuSystem: MenuSystemItem) {
+    //        self.title = menuSystem.title
+    //        self.dismissSideMenu()
+    //    }
+    //
+    //    func sideMenuBoardItemSelected(board: Board) {
+    //        self.title = board.title
+    //        self.dismissSideMenu()
+    //    }
     
     func dismissSideMenu() {
-        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
+        
     }
 }
 
 extension HomeViewController: SideMenuNavigationControllerDelegate {
     func sideMenuWillAppear(menu: SideMenuNavigationController, animated: Bool) {
-         print("SideMenu Appearing! (animated: \(animated))")
-     }
-     
-     func sideMenuDidAppear(menu: SideMenuNavigationController, animated: Bool) {
-         print("SideMenu Appeared! (animated: \(animated))")
-     }
-     
-     func sideMenuWillDisappear(menu: SideMenuNavigationController, animated: Bool) {
-         print("SideMenu Disappearing! (animated: \(animated))")
-     }
-     
-     func sideMenuDidDisappear(menu: SideMenuNavigationController, animated: Bool) {
-         print("SideMenu Disappeared! (animated: \(animated))")
-     }
+        print("SideMenu Appearing! (animated: \(animated))")
+    }
+    
+    func sideMenuDidAppear(menu: SideMenuNavigationController, animated: Bool) {
+        print("SideMenu Appeared! (animated: \(animated))")
+    }
+    
+    func sideMenuWillDisappear(menu: SideMenuNavigationController, animated: Bool) {
+        print("SideMenu Disappearing! (animated: \(animated))")
+    }
+    
+    func sideMenuDidDisappear(menu: SideMenuNavigationController, animated: Bool) {
+        print("SideMenu Disappeared! (animated: \(animated))")
+    }
 }

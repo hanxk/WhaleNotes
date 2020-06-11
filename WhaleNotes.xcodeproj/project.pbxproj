@@ -50,6 +50,8 @@
 		1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF19244EDF790006B48D /* UIView+Ex.swift */; };
 		1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF1B244F43D30006B48D /* UITableView+Ex.swift */; };
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
+		186DDE7924921CC400A4C63C /* SectionNoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */; };
+		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
 		1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */; };
 		1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */; };
 		1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */; };
@@ -146,6 +148,8 @@
 		1865AF19244EDF790006B48D /* UIView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF1B244F43D30006B48D /* UITableView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
+		186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionNoteInfo.swift; sourceTree = "<group>"; };
+		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldAlertViewController.swift; sourceTree = "<group>"; };
@@ -344,6 +348,7 @@
 				18E6E66F247BB9D700D598C5 /* Block.swift */,
 				18E6E67A247BCCD700D598C5 /* Note.swift */,
 				189D962B24861318000E04C9 /* SectionAndNote.swift */,
+				186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -356,6 +361,14 @@
 				188942A7246E845D006173F8 /* TodoGroupCell.swift */,
 			);
 			path = Todo;
+			sourceTree = "<group>";
+		};
+		186DDE7A249261C900A4C63C /* Trash */ = {
+			isa = PBXGroup;
+			children = (
+				186DDE7B249261D600A4C63C /* TrashView.swift */,
+			);
+			path = Trash;
 			sourceTree = "<group>";
 		};
 		1879E6F1248F81270014F3A7 /* AlertVC */ = {
@@ -529,6 +542,7 @@
 		18E956882449AABA003755BF /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				186DDE7A249261C900A4C63C /* Trash */,
 				183FFA9E2469533C00FDA179 /* ContextMenu */,
 				1865AEF7244C79400006B48D /* Editor */,
 				181D63E5248B980700B34E20 /* SideMenu */,
@@ -715,6 +729,7 @@
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
 				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
+				186DDE7924921CC400A4C63C /* SectionNoteInfo.swift in Sources */,
 				188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
@@ -786,6 +801,7 @@
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
+				186DDE7C249261D600A4C63C /* TrashView.swift in Sources */,
 				18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

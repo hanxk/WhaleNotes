@@ -20,6 +20,8 @@ class DBStore {
     }
     
     fileprivate var blockDao:BlockDao!
+    fileprivate var sectionDao:SectionDao!
+    fileprivate var sectionNoteDao:SectionAndNoteDao!
     
     fileprivate var boardDao:BoardDao!
     fileprivate var boardCategoryDao:BoardCategoryDao!
@@ -28,18 +30,25 @@ class DBStore {
         blockDao = BlockDao(dbCon: db)
         
         boardDao = BoardDao(dbCon: db)
+        sectionDao = SectionDao(dbCon: db)
         boardCategoryDao = BoardCategoryDao(dbCon: db)
+        
+        sectionNoteDao = SectionAndNoteDao(dbCon: db)
     }
     
     
-    func createNote(blockTypes:[BlockType]) -> DBResult<Note> {
+    func createNote(sectionId:Int64,blockTypes:[BlockType]) -> DBResult<Note> {
         do {
             var newBlocks:[Block] = []
             var noteBlock = Block.newNoteBlock()
             try db.transaction {
                 
+                
                 let noteId = try blockDao.insert(noteBlock)
                 noteBlock.id = noteId
+                
+                // 添加关联表
+                _  = try sectionNoteDao.insert(SectionAndNote(id: 0, sectionId: sectionId, noteId: noteId, sort: noteBlock.sort))
                 
                 for blockType in blockTypes {
                     var block:Block?
@@ -340,4 +349,46 @@ extension DBStore {
         }
     }
     
+    func getNotesByBoardId(_ boardId:Int64) ->DBResult<[(Int64,Note)]> {
+        do {
+            var notes:[(Int64,Note)] = []
+            try db.transaction {
+                let rootBlocks = try blockDao.queryByBoardId(boardId)
+                for rootBlock in rootBlocks {
+                    
+                    let sectionId = rootBlock.0
+                    let block = rootBlock.1
+                    
+                    let childBlocks = try blockDao.query(noteId: block.id)
+                    let note = Note(rootBlock: block, childBlocks: childBlocks)
+                    notes.append((sectionId,note))
+                }
+            }
+            return DBResult<[(Int64,Note)]>.success(notes)
+        }catch let err {
+            print(err)
+            return DBResult<[(Int64,Note)]>.failure(DBError(code: .None,message: err.localizedDescription))
+        }
+    }
+    
+    func getSectionsByBoardId(_ boardId:Int64) -> DBResult<[Section]> {
+        do {
+            var sections:[Section] = []
+            try db.transaction {
+                sections = try sectionDao.query(boardId: boardId)
+                if sections.isEmpty {
+                    // 增加一个默认 section
+                    var section = Section(id: 0, title: "", sort: 65536, boardId: boardId, createdAt: Date())
+                    let sectionId = try sectionDao.insert(section)
+                    section.id = sectionId
+                    sections = [section]
+                    
+                }
+            }
+            return DBResult<[Section]>.success(sections)
+        } catch let err {
+            print(err)
+            return DBResult<[Section]>.failure(DBError(code: .None))
+        }
+    }
 }

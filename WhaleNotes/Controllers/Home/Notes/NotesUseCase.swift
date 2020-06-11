@@ -35,28 +35,4 @@ class NotesUseCase {
             .disposed(by: disposebag)
     }
     
-    func createNewNote(blockTypes: [BlockType],callback:@escaping (Note)->Void) {
-        
-        Observable<[BlockType]>.just(blockTypes)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(noteInfo)  -> Note in
-            let reuslt =  DBStore.shared.createNote(blockTypes:blockTypes)
-                switch reuslt {
-                case .success(let noteInfo):
-                    return noteInfo
-                    
-                case .failure(let err):
-                    throw err
-                }
-            })
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext: { noteInfo in
-                callback(noteInfo)
-            }, onError: { err in
-                Logger.error(err)
-                }, onCompleted: {
-                    
-            }, onDisposed: nil)
-            .disposed(by: disposebag)
-    }
 }

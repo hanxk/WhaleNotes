@@ -22,16 +22,19 @@ import ContextMenu
 
 class NotesView: UIView, UINavigationControllerDelegate {
     
-    //    weak var delegate: NotesViewDelegate?
     private lazy var disposeBag = DisposeBag()
     
     private let usecase = NotesUseCase()
     private let editorUseCase = NoteRepo()
     
     private var selectedIndexPath:IndexPath?
+    private var sectionNoteInfo:SectionNoteInfo!
     
-
- 
+    var board:Board! {
+        didSet {
+            self.setupData()
+        }
+    }
     
     enum NotesViewConstants {
         static let cellSpace: CGFloat = 8
@@ -56,7 +59,13 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     
-    private var noteInfos:[Note]!
+    private var noteInfos:[Note] {
+        if sectionNoteInfo == nil {
+            return []
+        }
+        return sectionNoteInfo.notes
+    }
+    
     private var columnCount = 0
     private var cardWidth:CGFloat = 0
     
@@ -69,23 +78,26 @@ class NotesView: UIView, UINavigationControllerDelegate {
         let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(columnCount-1)
         self.cardWidth = validWidth / CGFloat(columnCount)
         self.setupUI()
-        self.setupData()
     }
     
     private func setupUI() {
         self.backgroundColor = .red
         collectionNode.frame = self.frame
-//        collectionNode.backgroundColor = UIColor.init(hexString: "#FBFBFB")
         self.addSubnode(collectionNode)
-        
         self.setupFloatButtons()
     }
     
     private func setupData() {
-        usecase.getAllNotes { noteInfos in
-            self.noteInfos = noteInfos
-            self.collectionNode.reloadData()
-        }
+        BoardRepo.shared.getSectionNoteInfos(boardId: board.id)
+            .subscribe(onNext: { [weak self] in
+                if let self = self {
+                    self.sectionNoteInfo = $0[0]
+                    self.collectionNode.reloadData()
+                }
+            }, onError: {
+                Logger.error($0)
+            })
+        .disposed(by: disposeBag)
     }
 }
 
@@ -104,20 +116,20 @@ extension NotesView {
         //
         switch mode {
         case .insert(let noteInfo):
-            self.noteInfos.insert(noteInfo, at: 0)
+            sectionNoteInfo.notes.insert(noteInfo, at: 0)
             self.collectionNode.performBatchUpdates({
                 self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
             }, completion: nil)
         case .update(let noteInfo):
             if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
-                self.noteInfos[row] = noteInfo
+               sectionNoteInfo.notes[row] = noteInfo
                 self.collectionNode.performBatchUpdates({
                     self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
                 }, completion: nil)
             }
         case .delete(let noteInfo):
             if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
-                self.noteInfos.remove(at: row)
+                sectionNoteInfo.notes.remove(at: row)
                 self.collectionNode.performBatchUpdates({
                     self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
                 }, completion: nil)
@@ -130,9 +142,13 @@ extension NotesView {
     
     private func createNewNote(createMode: CreateMode,callback: @escaping (Note)->Void) {
         let blockTypes = generateNewNoteBlockTypes(createMode: createMode)
-        usecase.createNewNote(blockTypes:blockTypes) { noteInfo in
-            callback(noteInfo)
-        }
+        editorUseCase.createNewNote(sectionId: self.sectionNoteInfo.section.id, blockTypes: blockTypes)
+            .subscribe(onNext: {
+                 callback($0)
+            }, onError: {
+                Logger.error($0)
+            })
+        .disposed(by: disposeBag)
     }
     
     fileprivate func generateNewNoteBlockTypes(createMode: CreateMode) -> [BlockType]{

@@ -104,7 +104,6 @@ class BlockDao {
         return blocks
     }
     
-    
     func query(noteId:Int64) throws ->[Block] {
         let query = table.filter(Field_Block.noteId == noteId).order(Field_Block.sort.asc)
         let blockRows = try db.prepare(query)
@@ -113,6 +112,48 @@ class BlockDao {
             let block = generateBlock(row: row)
             blocks.append(block)
         }
+        return blocks
+    }
+//    section_note on (section_note.note_id = block.id and section_note.)
+//                       inner join section on
+    func queryByBoardId(_ boardId:Int64) throws -> [(Int64,Block)] {
+        let selectSQL = """
+                    select b.id, b.type, b.text,section.sort as sort,b.is_checked,b.is_expand,b.source,b.created_at,b.updated_at,
+                    b.note_id,b.parent,b.properties,section.section_id
+                    from block as b
+                    inner join (
+                        select section_note.note_id, section_note.sort,section_note.section_id from section_note
+                        inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+                    ) as section
+                    on b.id = section.note_id
+                    """
+        let stmt = try db.prepare(selectSQL)
+        let rows = stmt.typedRows()
+
+        var blocks:[(Int64,Block)] = []
+        for row in rows {
+            let id = row.i64("id")!
+            let type = row.string("type")!
+            let text = row.string("text")!
+            let sort = row.double("sort")!
+            let isChecked = row.bool("is_checked")
+            let isExpand = row.bool("is_expand")
+            let source = row.string("source") ?? ""
+            let createdAt = row.date("created_at")!
+            let updatedAt = row.date("updated_at")!
+            
+            let noteId = row.i64("note_id")!
+            let parent = row.i64("parent")!
+            
+            
+            let properties = row.string("properties") ?? ""
+            
+            let sectionId = row.i64("section_id")!
+            
+            let block = Block(id: id, type: type, text: text, isChecked: isChecked, isExpand: isExpand, source: source, createdAt: createdAt, updatedAt: updatedAt, sort: sort, noteId: noteId, parent: parent, properties: properties)
+            blocks.append((sectionId,block))
+        }
+        
         return blocks
     }
 }

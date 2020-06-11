@@ -16,8 +16,25 @@ enum SideMenuCellContants {
 }
 
 protocol SideMenuViewControllerDelegate: AnyObject {
-    func sideMenuSystemItemSelected(menuSystem:MenuSystemItem)
-    func sideMenuBoardItemSelected(board:Board)
+    func sideMenuItemSelected(menuItemType:SideMenuItemType)
+}
+
+enum SideMenuItemType:Equatable {
+    static func == (lhs: SideMenuItemType, rhs: SideMenuItemType) -> Bool {
+        switch (lhs,rhs)  {
+        case (.trash,.trash):
+            return true
+        case (.trash,.board):
+            return false
+        case (.board(let board),.board(let board2)):
+            return board.id == board2.id
+        case (.board,.trash):
+            return false
+        }
+    }
+    
+    case trash
+    case board(board:Board)
 }
 
 class SideMenuViewController: UIViewController {
@@ -153,7 +170,6 @@ class SideMenuViewController: UIViewController {
         menuSectionTypes.append(MenuSectionType.system(items:self.systemMenuItems))
         
         
-        
         self.boards = boardsResult.0.1
         menuSectionTypes.append(MenuSectionType.boards)
         
@@ -162,6 +178,7 @@ class SideMenuViewController: UIViewController {
             menuSectionTypes.append(MenuSectionType.categories)
         }
         
+        setMenuItemSelected()
     }
     
 }
@@ -801,13 +818,20 @@ extension SideMenuViewController: UITableViewDataSource {
     }
     
     func setMenuItemSelected() {
-        switch self.menuSectionTypes[selectedIndexPath.section] {
-        case .system:
-            delegate?.sideMenuSystemItemSelected(menuSystem: self.systemMenuItems[selectedIndexPath.row])
+        let sectionType = self.menuSectionTypes[selectedIndexPath.section]
+        switch sectionType {
+        case .system(let items):
+            switch items[selectedIndexPath.row] {
+            case .system(let board):
+                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: board))
+            case .trash:
+                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.trash)
+            }
         case .boards:
-            delegate?.sideMenuBoardItemSelected(board: self.boards[selectedIndexPath.row])
+            delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: self.boards[selectedIndexPath.row]))
         case .categories:
-            delegate?.sideMenuBoardItemSelected(board:self.boardCategories[selectedIndexPath.section - self.sectionCategoryBeginIndex].boards[selectedIndexPath.row-1])
+            let board = getBoardCategoryInfo(section: selectedIndexPath.section).boards[selectedIndexPath.row-1]
+            delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: board))
         }
     }
 }

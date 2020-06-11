@@ -101,13 +101,52 @@ class BoardRepo {
         
     }
     
+    func getSectionNoteInfos(boardId:Int64) -> Observable<[SectionNoteInfo]>  {
+
+        return Observable<[SectionNoteInfo]>.create {  observer -> Disposable in
+            let sectionsResult = DBStore.shared.getSectionsByBoardId(boardId)
+            let notesResult = DBStore.shared.getNotesByBoardId(boardId)
+            
+            var result:[SectionNoteInfo] = []
+            var sections:[Section] = []
+            var sectionNotes:[(Int64,Note)] = []
+            
+            switch sectionsResult {
+               case .success(let s):
+                   sections = s
+               case .failure(let err):
+                   observer.onError(err)
+               }
+            
+            switch notesResult {
+               case .success(let n):
+                   sectionNotes = n
+               case .failure(let err):
+                   observer.onError(err)
+               }
+            
+            
+            for section in sections {
+                let notes = sectionNotes.filter{ $0.0 == section.id }.map { $0.1 }
+                result.append(SectionNoteInfo(section: section, notes: notes))
+            }
+            
+            
+            observer.onNext(result)
+            observer.onCompleted()
+            
+            return Disposables.create()
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
     func getBoardCategoryInfos() -> Observable<(([Board],[Board]) ,[BoardCategoryInfo])> {
         return Observable<(([Board],[Board]) ,[BoardCategoryInfo])>.create {  observer -> Disposable in
             
             let systemBoardsResult = DBStore.shared.getSystemBoards()
             let boardsResult = DBStore.shared.getNoCategoryBoards()
             let boardCategoryInfoResult = DBStore.shared.getBoardCategoryInfos()
-            
             
             var systemBoards:[Board] = []
             var boards:[Board] = []
@@ -142,6 +181,7 @@ class BoardRepo {
             
             return Disposables.create()
         }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
 }

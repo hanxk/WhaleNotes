@@ -38,6 +38,17 @@ class SectionDao {
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
+    
+    func query(boardId:Int64) throws -> [Section] {
+        var sections:[Section] = []
+        let query = table.filter(Field_Section.boardId == boardId).order(Field_Section.sort.asc)
+        let rows = try db.prepare(query)
+        for row in rows {
+            let section = generateSection(row: row)
+            sections.append(section)
+        }
+        return sections
+    }
 }
 
 
