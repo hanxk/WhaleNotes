@@ -11,8 +11,8 @@ import AsyncDisplayKit
 class NoteCellNode: ASCellNode {
     
     enum CardUIConstants {
-        static let horizontalPadding: CGFloat = 8
-        static let verticalPadding: CGFloat = 8
+        static let horizontalPadding: CGFloat = 10
+        static let verticalPadding: CGFloat = 10
         static let verticalSpace: CGFloat = 8
     }
     
@@ -28,7 +28,15 @@ class NoteCellNode: ASCellNode {
     required init(noteInfo:Note) {
         super.init()
         
-        self.backgroundColor = .white
+        
+        
+        let cornerRadius:CGFloat = 8
+        self.borderWidth = 1
+        self.cornerRadius = cornerRadius
+        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
+        self.backgroundColor = UIColor.init(hexString: "#FAFBFC")
+        
+        
         
         if  noteInfo.rootBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
@@ -63,41 +71,11 @@ class NoteCellNode: ASCellNode {
         }
         
         if elements.isEmpty &&  todosElements.isEmpty && imageNodes.count == 0 {
-              let textNode = ASTextNode()
-              textNode.attributedText = getEmptyTextLabelAttributes(text: "未填写任何内容")
-              self.addSubnode(textNode)
+            let textNode = ASTextNode()
+            textNode.attributedText = getEmptyTextLabelAttributes(text: "未填写任何内容")
+            self.addSubnode(textNode)
             self.emptyTextNode = textNode
         }
-        
-        //        if let todosRef = noteContent.todosRef {
-        //            let realm = try! Realm()
-        //            guard let todoBlocks = realm.resolve(todosRef) else { return }
-        //            if !todoBlocks.isEmpty {
-        //                addTodoNodes(with: todoBlocks)
-        //            }
-        //        }
-        
-        //        if let imagesRef = noteContent.imagesRef {
-        //            let realm = try! Realm()
-        //            guard let imageBlocks = realm.resolve(imagesRef) else { return }
-        //            if !imageBlocks.isEmpty {
-        //                addImageNodes(with: imageBlocks)
-        //            }
-        //        }
-    
-        let cornerRadius:CGFloat = 8
-        
-        self.borderWidth = 1
-        self.cornerRadius = cornerRadius
-//        self.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
-        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
-        
-//        self.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
-//        self.shadowOffset =  CGSize(width: 1, height: 1)
-//        self.shadowOpacity = 1;
-//        self.shadowRadius = cornerRadius;
-//        self.clipsToBounds = false;
-        
     }
     
     private func addTodoNodes(with todoBlocks:[Block]) {
@@ -106,15 +84,20 @@ class NoteCellNode: ASCellNode {
             let imageNode = ASImageNode()
             let config = UIImage.SymbolConfiguration(pointSize:14, weight: .light)
             imageNode.image = UIImage(systemName: block.isChecked ? "checkmark.square" :  "square",withConfiguration: config )?.withTintColor(UIColor.init(hexString: "#999999"))
-            imageNode.contentMode = .scaleAspectFill
+//            imageNode.style.height = ASDimensionMake(20)
+            imageNode.contentMode = .center
+//            imageNode.backgroundColor = .red
             self.addSubnode(imageNode)
             self.chkElements.append(imageNode)
             
             
             let todoNode = ASTextNode()
-            todoNode.attributedText = getTextLabelAttributes(text: block.text)
+            todoNode.attributedText = getTodoTextAttributes(text: block.text)
             todoNode.style.flexShrink = 1.0
+//            todoNode.textContainerInset = UIEdgeInsets(top: 3, left: 0, bottom: 0, right: 0)
             todoNode.maximumNumberOfLines = 2
+            todoNode.truncationMode = .byTruncatingTail
+//            todoNode.backgroundColor = .blue
             self.addSubnode(todoNode)
             self.todosElements.append(todoNode)
         }
@@ -148,13 +131,13 @@ class NoteCellNode: ASCellNode {
         stackLayout.style.flexShrink = 1.0
         
         let contentLayout = ASStackLayoutSpec.vertical()
-        contentLayout.spacing = 4
+        contentLayout.spacing = 6
         contentLayout.justifyContent = .start
         contentLayout.alignItems = .start
         contentLayout.style.flexShrink = 1.0
         contentLayout.children = self.elements
         
-
+        
         let insets =  UIEdgeInsets.init(top: CardUIConstants.verticalPadding, left: CardUIConstants.horizontalPadding, bottom: CardUIConstants.verticalPadding, right:  CardUIConstants.horizontalPadding)
         
         if let emptyTextNode = self.emptyTextNode {
@@ -171,11 +154,11 @@ class NoteCellNode: ASCellNode {
             todosVLayout.justifyContent = .start
             todosVLayout.alignItems = .start
             todosVLayout.style.flexShrink = 1.0
-            todosVLayout.spacing = 2
+            todosVLayout.spacing = 4
             for i in 0..<todosElements.count {
                 
                 let todoStackSpec = ASStackLayoutSpec(direction: .horizontal,
-                                                      spacing: 2,
+                                                      spacing: 4,
                                                       justifyContent: .start,
                                                       alignItems: .start,
                                                       children: [chkElements[i],todosElements[i]])
@@ -241,7 +224,7 @@ class NoteCellNode: ASCellNode {
             let imageNode = imageNodes[0]
             imageNode.style.width = ASDimensionMake(singleWidth)
             imageNode.style.height = ASDimensionMake(height)
-//            imageNode.cornerRadius
+            //            imageNode.cornerRadius
             
             //右：2
             let twoImageNodes = [imageNodes[1], imageNodes[2]]
@@ -295,37 +278,37 @@ class NoteCellNode: ASCellNode {
     
     override func didLoad() {
         
-//        self.view.backgroundColor = .white
-//        self.view.addShadow(offset: CGSize(width: 1, height: 1), opacity: 1, radius: 6, color:  UIColor(red: 0, green: 0, blue: 0, alpha: 0.02))
-//        _ = self.view.layer.then {
-//            $0.cornerRadius = 6
-//            $0.borderWidth = 1
-//            $0.borderColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
-//        }
-//        self.cornerRadius = 6
-//        self.clipsToBounds = true
-//        self.backgroundColor = .white
-//        self.view.clipsToBounds = true
     }
     
     func getTitleLabelAttributes(text: String) -> NSAttributedString {
-        let font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 1.0
-        paragraphStyle.lineHeightMultiple = 0.7
-        let attrString = NSMutableAttributedString()
-        
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .foregroundColor: UIColor.init(hexString: "#444444")
-        ]
-        attrString.append(NSMutableAttributedString(string:text,attributes: attributes))
-        //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
-        return attrString
+            let paragraphStyle = NSMutableParagraphStyle()
+           paragraphStyle.lineSpacing = 1.4
+           
+           let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+               .foregroundColor: UIColor.init(hexString: "#222222"),
+               .paragraphStyle:paragraphStyle
+           ]
+           
+           return NSAttributedString(string: text, attributes: attributes)
     }
     
     func getTextLabelAttributes(text: String) -> NSAttributedString {
-        let font = UIFont.systemFont(ofSize: 15)
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 1.2
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 15),
+            .foregroundColor: UIColor.init(hexString: "#444444"),
+            .paragraphStyle:paragraphStyle
+        ]
+        
+        return NSAttributedString(string: text, attributes: attributes)
+    }
+    
+    func getEmptyTextLabelAttributes(text: String) -> NSAttributedString {
+        let font = UIFont.systemFont(ofSize: 14)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 1.0
         paragraphStyle.lineHeightMultiple = 0.8
@@ -333,55 +316,23 @@ class NoteCellNode: ASCellNode {
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
-            .foregroundColor: UIColor.init(hexString: "#444444")
+            .foregroundColor: UIColor.init(hexString: "#999999")
         ]
         attrString.append(NSMutableAttributedString(string:text,attributes: attributes))
-        //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
         return attrString
     }
     
-    func getEmptyTextLabelAttributes(text: String) -> NSAttributedString {
-           let font = UIFont.systemFont(ofSize: 15)
-           let paragraphStyle = NSMutableParagraphStyle()
-           paragraphStyle.lineSpacing = 1.0
-           paragraphStyle.lineHeightMultiple = 0.8
-           let attrString = NSMutableAttributedString()
-           
-           let attributes: [NSAttributedString.Key: Any] = [
-               .font: font,
-               .foregroundColor: UIColor.init(hexString: "#999999")
-           ]
-           attrString.append(NSMutableAttributedString(string:text,attributes: attributes))
-           //        attrString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0, attrString.length))
-           return attrString
-       }
-    
     func getTodoTextAttributes(text: String) -> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 1.2
         
-        let font = UIFont.systemFont(ofSize: 15)
-        let fullString = NSMutableAttributedString()
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 14),
+            .foregroundColor: UIColor.init(hexString: "#444444"),
+            .paragraphStyle:paragraphStyle
+        ]
         
-        // create our NSTextAttachment
-        //        let image1Attachment = NSTextAttachment()
-        //        image1Attachment.image = UIImage(systemName: "checkmark.square")
-        
-        //        let paragraphStyle = NSMutableParagraphStyle()
-        //        paragraphStyle.maximumLineHeight = 2
-        //        let attributes: [NSAttributedString.Key: Any] = [
-        //            .font: font,
-        //            .foregroundColor: UIColor.blue,
-        //            .paragraphStyle: paragraphStyle
-        //        ]
-        
-        // wrap the attachment in its own attributed string so we can append it
-        //        let image1String = NSAttributedString(string: <#T##String#>)
-        
-        // add the NSTextAttachment wrapper to our full string, then add some more text.
-        //        fullString.append(image1String)
-        fullString.append(NSAttributedString(string:text))
-        
-        fullString.addAttribute(NSAttributedString.Key.font, value:font, range: NSMakeRange(0,fullString.length))
-        return fullString
+        return NSAttributedString(string: text, attributes: attributes)
     }
     
 }

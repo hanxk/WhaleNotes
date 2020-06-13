@@ -37,12 +37,12 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     enum NotesViewConstants {
-        static let cellSpace: CGFloat = 8
-        static let cellHorizontalSpace: CGFloat = 12
+        static let cellSpace: CGFloat = 12
+        static let cellHorizontalSpace: CGFloat = 14
     }
     
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
-        $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: 2, columnSpacing: 10, interItemSpacing: 10, sectionInsets: UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12), scrollDirection: ASScrollDirectionVerticalDirections)
+        $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: 2, columnSpacing: 12, interItemSpacing: 12, sectionInsets: UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14), scrollDirection: ASScrollDirectionVerticalDirections)
     }
     
     
