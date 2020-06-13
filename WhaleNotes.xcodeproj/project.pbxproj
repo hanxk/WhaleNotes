@@ -52,6 +52,8 @@
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
 		186DDE7924921CC400A4C63C /* SectionNoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */; };
 		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
+		186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */; };
+		186DDE812494835D00A4C63C /* WFNoteCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE802494835D00A4C63C /* WFNoteCellNode.swift */; };
 		1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */; };
 		1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */; };
 		1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */; };
@@ -150,6 +152,8 @@
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
 		186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionNoteInfo.swift; sourceTree = "<group>"; };
 		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
+		186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
+		186DDE802494835D00A4C63C /* WFNoteCellNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WFNoteCellNode.swift; sourceTree = "<group>"; };
 		1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldAlertViewController.swift; sourceTree = "<group>"; };
@@ -371,6 +375,17 @@
 			path = Trash;
 			sourceTree = "<group>";
 		};
+		186DDE7F249323AE00A4C63C /* Layout */ = {
+			isa = PBXGroup;
+			children = (
+				18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */,
+				18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */,
+				186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */,
+				18E9D6C024714ADA001E41A0 /* MosaicCollectionViewLayout.swift */,
+			);
+			path = Layout;
+			sourceTree = "<group>";
+		};
 		1879E6F1248F81270014F3A7 /* AlertVC */ = {
 			isa = PBXGroup;
 			children = (
@@ -393,11 +408,9 @@
 		188942A9246FDBAB006173F8 /* Notes */ = {
 			isa = PBXGroup;
 			children = (
+				186DDE7F249323AE00A4C63C /* Layout */,
 				188942AC24702A2B006173F8 /* Cells */,
 				188942AA246FDC1F006173F8 /* NotesView.swift */,
-				18E9D6C024714ADA001E41A0 /* MosaicCollectionViewLayout.swift */,
-				18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */,
-				18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */,
 				18EEF675247DF92600E2E3BA /* NotesUseCase.swift */,
 			);
 			path = Notes;
@@ -407,6 +420,7 @@
 			isa = PBXGroup;
 			children = (
 				18E9D6C224715112001E41A0 /* NoteCellNode.swift */,
+				186DDE802494835D00A4C63C /* WFNoteCellNode.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -547,6 +561,7 @@
 				1865AEF7244C79400006B48D /* Editor */,
 				181D63E5248B980700B34E20 /* SideMenu */,
 				18E7BF7E248BD4D400B8AEC1 /* Board */,
+				188942A9246FDBAB006173F8 /* Notes */,
 				18E956892449AAC7003755BF /* Home */,
 			);
 			path = Controllers;
@@ -555,7 +570,6 @@
 		18E956892449AAC7003755BF /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				188942A9246FDBAB006173F8 /* Notes */,
 				18E9568B2449AC45003755BF /* HomeViewController.swift */,
 				18E6E665247A88CC00D598C5 /* MyNavigationController.swift */,
 			);
@@ -760,6 +774,7 @@
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
+				186DDE812494835D00A4C63C /* WFNoteCellNode.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,
@@ -788,6 +803,7 @@
 				18E6E668247B98A100D598C5 /* Board.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
+				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
 				1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */,

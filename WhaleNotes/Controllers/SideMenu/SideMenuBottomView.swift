@@ -15,8 +15,8 @@ class SideMenuBottomView: UIView {
     private lazy var newBlockBtn: UIButton = UIButton().then {
         let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
         let image = UIImage(systemName: "plus", withConfiguration: config)
-        $0.tintColor =  UIColor.init(hexString: "#666666")
-        $0.setTitleColor(UIColor.init(hexString: "#666666"), for: .normal)
+        $0.tintColor = UIColor.iconColor
+        $0.setTitleColor(UIColor.iconColor, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 16)
         $0.setImage(image, for: .normal)
         $0.setImageTitleSpace(5)

@@ -106,7 +106,7 @@ extension HomeViewController {
     private func setupNavgationBar() {
         let button =  UIButton()
         button.frame = CGRect(x: 0, y: 0, width: 24, height: 44)
-        button.setImage(UIImage(named: "ico_menu"), for: .normal)
+        button.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         let barButton = UIBarButtonItem(customView: button)
         
@@ -120,8 +120,9 @@ extension HomeViewController {
         self.navigationItem.leftBarButtonItems = [barButton]
         
         //        self.navigationController?.navigationBar.barTintColor  = UIColor.white
-        
-        let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), style: .plain, target: self, action: nil)
+
+        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
+        let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: nil)
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItems = [search]
     }

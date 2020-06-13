@@ -1,14 +1,14 @@
 //
-//  NoteCell.swift
+//  WFNoteCellNode.swift
 //  WhaleNotes
 //
-//  Created by hanxk on 2020/5/17.
+//  Created by hanxk on 2020/6/13.
 //  Copyright © 2020 hanxk. All rights reserved.
 //
 import UIKit
 import AsyncDisplayKit
 
-class NoteCellNode: ASCellNode {
+class WFNoteCellNode: ASCellNode {
     
     enum CardUIConstants {
         static let horizontalPadding: CGFloat = 10
@@ -286,7 +286,7 @@ class NoteCellNode: ASCellNode {
            
            let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium),
-               .foregroundColor: UIColor.init(hexString: "#222222"),
+               .foregroundColor: UIColor.init(hexString: "#333333"),
                .paragraphStyle:paragraphStyle
            ]
            
@@ -296,11 +296,11 @@ class NoteCellNode: ASCellNode {
     func getTextLabelAttributes(text: String) -> NSAttributedString {
 
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 1.2
+        paragraphStyle.lineSpacing = 1.4
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
-            .foregroundColor: UIColor.init(hexString: "#444444"),
+            .foregroundColor: UIColor.init(hexString: "#333333"),
             .paragraphStyle:paragraphStyle
         ]
         
@@ -308,7 +308,7 @@ class NoteCellNode: ASCellNode {
     }
     
     func getEmptyTextLabelAttributes(text: String) -> NSAttributedString {
-        let font = UIFont.systemFont(ofSize: 14)
+        let font = UIFont.systemFont(ofSize: 15)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 1.0
         paragraphStyle.lineHeightMultiple = 0.8

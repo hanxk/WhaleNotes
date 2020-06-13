@@ -90,20 +90,3 @@ enum BlockType: String {
     case toggle = "toggle"
     case image = "image"
 }
-
-
-//@objc dynamic var id: String = UUID().uuidString
-//@objc dynamic var type: String  = ""
-//
-//
-//@objc dynamic var text: String = ""
-//
-//// todo
-//@objc dynamic var isChecked: Bool = false
-//// for todo group
-//@objc dynamic var isExpand: Bool = true
-//
-//// image: url
-//@objc dynamic var source: String = ""
-//
-//@objc dynamic var createAt: Date = Date()

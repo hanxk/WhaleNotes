@@ -46,6 +46,12 @@ extension UIColor {
     }
     
     
+    open class var iconColor: UIColor {
+        get {
+            return UIColor(hexString: "#666666")
+        }
+    }
+    
     
     open class var placeHolderColor: UIColor {
         get {

@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
         
         _ = UINavigationBar.appearance().then {
-            $0.tintColor = UIColor.init(hexString: "#444444")
+            $0.tintColor = UIColor.iconColor
             $0.barTintColor = .white
             $0.isTranslucent = false
             $0.layer.borderWidth = 0.0

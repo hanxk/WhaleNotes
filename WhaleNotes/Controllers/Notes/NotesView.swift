@@ -20,6 +20,12 @@ import ContextMenu
 //    func didSelectItemAt(note:Note,indexPath: IndexPath)
 //}
 
+enum DisplayMode {
+    case waterfall
+    case grid
+//    case list
+}
+
 class NotesView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
@@ -37,46 +43,81 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     enum NotesViewConstants {
-        static let cellSpace: CGFloat = 12
-        static let cellHorizontalSpace: CGFloat = 14
+        static let cellSpace: CGFloat = 14
+        static let cellHorizontalSpace: CGFloat = 18
+        
+        
+        static let waterfall_cellSpace: CGFloat = 12
+        static let waterfall_cellHorizontalSpace: CGFloat = 14
     }
+    
+    
+    private var numberOfColumns:CGFloat = 2
     
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
-        $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: 2, columnSpacing: 12, interItemSpacing: 12, sectionInsets: UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14), scrollDirection: ASScrollDirectionVerticalDirections)
+        $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: Int(numberOfColumns), columnSpacing:  NotesViewConstants.waterfall_cellSpace, interItemSpacing: NotesViewConstants.waterfall_cellSpace, sectionInsets: UIEdgeInsets(top: 12, left: NotesViewConstants.waterfall_cellHorizontalSpace, bottom: 12, right:  NotesViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
     }
     
     
-    private(set) lazy var collectionNode = ASCollectionNode(layoutDelegate: layoutDelegate, layoutFacilitator: nil).then { [weak self] in
-        guard let self = self else {return}
-        $0.alwaysBounceVertical = true
-        let _layoutInspector = layoutDelegate
-        $0.dataSource = self
-        $0.delegate = self
-        $0.layoutInspector = _layoutInspector
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 160, right: 0)
-        $0.showsVerticalScrollIndicator = false
-        //        $0.registerSupplementaryNode(ofKind: UICollectionView.elementKindSectionHeader)
+    private lazy var collectionLayout =  UICollectionViewFlowLayout().then {
+        
+        let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
+        let itemWidth = validWidth / numberOfColumns
+        
+        $0.itemSize = CGSize(width: itemWidth, height: 210)
+        $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
+        $0.minimumLineSpacing = NotesViewConstants.cellSpace
     }
+    
+    private var mode:DisplayMode = .grid
+    private(set) lazy var collectionNode = self.generateCollectionView(mode: mode)
+    
+    
+    func generateCollectionView(mode:DisplayMode) -> ASCollectionNode {
+        switch mode {
+        case .waterfall:
+            return ASCollectionNode(layoutDelegate: layoutDelegate, layoutFacilitator: nil).then { [weak self] in
+                    guard let self = self else {return}
+                    $0.alwaysBounceVertical = true
+                    let _layoutInspector = layoutDelegate
+                    $0.dataSource = self
+                    $0.delegate = self
+                    $0.layoutInspector = _layoutInspector
+                    $0.contentInset = UIEdgeInsets(top: 6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                    $0.showsVerticalScrollIndicator = false
+                    
+                }
+        case .grid:
+            return ASCollectionNode(collectionViewLayout:collectionLayout).then { [weak self] in
+                    guard let self = self else {return}
+                    $0.alwaysBounceVertical = true
+                    $0.dataSource = self
+                    $0.delegate = self
+                    $0.contentInset = UIEdgeInsets(top: 6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                    $0.showsVerticalScrollIndicator = false
+                    
+                }
+        }
+    }
+    
     
     
     private var noteInfos:[Note] {
         if sectionNoteInfo == nil {
             return []
         }
+        
         return sectionNoteInfo.notes
     }
-    
-    private var columnCount = 0
-    private var cardWidth:CGFloat = 0
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.columnCount = 2
-        let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(columnCount-1)
-        self.cardWidth = validWidth / CGFloat(columnCount)
+        
+        
+        
         self.setupUI()
     }
     
@@ -99,6 +140,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
             })
         .disposed(by: disposeBag)
     }
+    
 }
 
 extension NotesView {
@@ -181,13 +223,12 @@ extension NotesView: ASCollectionDataSource {
     
     func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
         let noteInfo = self.noteInfos[indexPath.row]
-        
+        let itemSize = self.collectionLayout.itemSize
         return {
-            return NoteCellNode(noteInfo: noteInfo)
+            return NoteCellNode(noteInfo: noteInfo,itemSize: itemSize)
         }
     }
 }
-
 
 extension NotesView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
@@ -196,22 +237,25 @@ extension NotesView: ASCollectionDelegate {
     }
 }
 
-
-
 // float buttons
 extension NotesView {
     
     func setupFloatButtons() {
+        
+        let btnSize:CGFloat = 54
+        
         let btnNewNote = makeButton().then {
             $0.tintColor = .white
             $0.backgroundColor = .brand
-            $0.setImage( UIImage(systemName: "square.and.pencil"), for: .normal)
+
+            let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+            $0.setImage(UIImage(systemName: "pencil",withConfiguration:config )?.withTintColor(.white), for: .normal)
             $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
         }
         self.addSubview(btnNewNote)
         btnNewNote.snp.makeConstraints { (make) -> Void in
-            make.width.height.equalTo(52)
-            make.bottom.equalTo(self).offset(-26)
+            make.width.height.equalTo(btnSize)
+            make.bottom.equalTo(self).offset(-22)
             make.trailing.equalTo(self).offset(-15)
         }
         
@@ -223,7 +267,7 @@ extension NotesView {
         }
         self.addSubview(btnMore)
         btnMore.snp.makeConstraints { (make) -> Void in
-            make.width.height.equalTo(52)
+            make.width.height.equalTo(btnSize)
             make.bottom.equalTo(btnNewNote.snp.top).offset(-16)
             make.trailing.equalTo(btnNewNote)
         }
@@ -299,7 +343,7 @@ extension NotesView {
         let items = [
             ContextMenuItem(label: "文本", icon: "textbox", tag: MenuType.text),
             ContextMenuItem(label: "待办事项", icon: "checkmark.square", tag: MenuType.todo),
-            ContextMenuItem(label: "文本", icon: "textbox", tag: MenuType.image),
+            ContextMenuItem(label: "相册", icon: "photo.on.rectangle", tag: MenuType.image),
             ContextMenuItem(label: "拍照", icon: "camera", tag: MenuType.camera),
         ]
         ContextMenuViewController.show(sourceView:sourceView, sourceVC: sourceVC, items: items) {
