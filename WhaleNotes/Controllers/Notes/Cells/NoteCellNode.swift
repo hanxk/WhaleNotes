@@ -274,10 +274,58 @@ class NoteCellNode: ASCellNode {
     }
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        let stackLayout = ASStackLayoutSpec.vertical()
-        stackLayout.justifyContent = .start
-        stackLayout.alignItems = .stretch
-        stackLayout.style.height = ASDimensionMake(constrainedSize.max.height)
+        
+        let cellWidth =  ASDimensionMake(constrainedSize.max.width)
+        let cellHeight =  ASDimensionMake(constrainedSize.max.height)
+        
+        let stackLayout = ASStackLayoutSpec.vertical().then {
+            $0.justifyContent = .start
+            $0.alignItems = .stretch
+            $0.style.width = cellWidth
+            $0.style.height = cellHeight
+        }
+        
+        // 内容
+        if  let contentLayout = renderContent(constrainedSize: constrainedSize) {
+            stackLayout.children?.append(contentLayout)
+        }
+        
+        let isEmptyContent = (stackLayout.children?.count ?? 0) == 0
+        
+        
+        // 图片卡
+        if isEmptyContent && imageNodes.isNotEmpty {
+            let imageNode = self.imageNodes[0]
+            imageNode.style.width = cellWidth
+            imageNode.style.height = cellHeight
+
+            let bottomLayout = renderBottomBar(constrainedSize: constrainedSize)
+            
+            let bottombarLayout = ASRelativeLayoutSpec(horizontalPosition: .start, verticalPosition: .end, sizingOption: [], child: bottomLayout)
+            
+            let overlayLayout =  ASOverlayLayoutSpec(child: imageNode, overlay: bottombarLayout)
+            return overlayLayout
+        }
+        
+        // 添加图片
+        if imageNodes.isNotEmpty {
+            let imageNode = self.imageNodes[0]
+            let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
+            let children = ASInsetLayoutSpec(insets: insets, child:imageNode)
+            stackLayout.children?.append(children)
+        }
+        
+        // bottom bar
+        let bottomLayout = renderBottomBar(constrainedSize: constrainedSize)
+        stackLayout.children?.append(bottomLayout)
+        
+        return  stackLayout
+    }
+    
+    private func renderContent(constrainedSize:ASSizeRange) -> ASInsetLayoutSpec? {
+        
+        
+        let insets =  UIEdgeInsets.init(top: Constants.verticalPadding, left: Constants.horizontalPadding, bottom: Constants.verticalPaddingBottom, right:  Constants.horizontalPadding)
         
         let contentHeight = ASDimensionMake(constrainedSize.max.height - Constants.bottomHeight)
         
@@ -288,14 +336,6 @@ class NoteCellNode: ASCellNode {
             $0.style.flexGrow = 1.0
             $0.style.flexShrink = 1.0
             $0.style.height = contentHeight
-        }
-        
-        
-        let insets =  UIEdgeInsets.init(top: Constants.verticalPadding, left: Constants.horizontalPadding, bottom: Constants.verticalPaddingBottom, right:  Constants.horizontalPadding)
-        
-        if let emptyTextNode = self.emptyTextNode {
-            let emptyLayout =  ASInsetLayoutSpec(insets: insets, child: emptyTextNode)
-            return emptyLayout
         }
         
         
@@ -327,25 +367,22 @@ class NoteCellNode: ASCellNode {
             contentLayout.children?.append(todosVLayout)
         }
         
-        if let count = contentLayout.children?.count,count > 0 {
+        let contentCount = contentLayout.children?.count ?? 0
+        if contentCount > 0 {
             let children =  ASInsetLayoutSpec(insets: insets, child: contentLayout)
             children.style.flexShrink = 1.0
-            stackLayout.children = [children]
+            return children
         }
-        
-        if imageNodes.isNotEmpty {
-            let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
-            let children =  ASInsetLayoutSpec(insets: insets, child: self.imageNodes[0])
-            stackLayout.children?.append(children)
-        }
-        
+        return nil
+    }
+    
+    private func renderBottomBar(constrainedSize:ASSizeRange) -> ASStackLayoutSpec {
         let bottomLayout = ASStackLayoutSpec.horizontal().then {
             $0.style.height = ASDimensionMake(Constants.bottomHeight)
             $0.style.width = ASDimensionMake(constrainedSize.max.width)
             $0.style.flexGrow = 1.0
             $0.justifyContent = .spaceBetween
         }
-
         let todoStack = ASStackLayoutSpec.horizontal().then {
             $0.spacing = Constants.todoTextSpace
             $0.style.flexGrow = 1.0
@@ -358,19 +395,11 @@ class NoteCellNode: ASCellNode {
             let centerTodoText = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: menuTodoText)
             todoStack.children = [menuTodoImage,centerTodoText]
         }
-
         let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: Constants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
-        
         
         bottomLayout.children?.append(todoStackLayout)
         bottomLayout.children?.append(self.menuButton)
-        
-        
-        
-        // bottom bar
-        stackLayout.children?.append(bottomLayout)
-        
-        return  stackLayout
+        return bottomLayout
     }
     
     

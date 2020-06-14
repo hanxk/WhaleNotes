@@ -8,6 +8,7 @@
 
 import UIKit
 import CHTCollectionViewWaterfallLayout
+import JXPhotoBrowser
 
 enum AttachmentsConstants {
     static let cellSpace: CGFloat = 8
@@ -52,12 +53,12 @@ class AttachmentsBlockCell: UITableViewCell {
     }
     
     func handleScreenRotation() {
-//        let count = UIDevice.current.orientation.isLandscape ? 3 : 2
-//        self.columnCount = blocks.count > 1 ? count : 1
-//        self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
-//
-//        self.collectionView.reloadData()
-//        self.collectionView.collectionViewLayout.invalidateLayout()
+        //        let count = UIDevice.current.orientation.isLandscape ? 3 : 2
+        //        self.columnCount = blocks.count > 1 ? count : 1
+        //        self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
+        //
+        //        self.collectionView.reloadData()
+        //        self.collectionView.collectionViewLayout.invalidateLayout()
     }
     
     
@@ -68,9 +69,9 @@ class AttachmentsBlockCell: UITableViewCell {
         }
         
         collectionView.performBatchUpdates({
-//            collectionView.deleteItems(at: deletionIndices.map({ IndexPath(row: $0, section: 0)}))
+            //            collectionView.deleteItems(at: deletionIndices.map({ IndexPath(row: $0, section: 0)}))
             collectionView.insertItems(at: insertionIndices.map({ IndexPath(row: $0, section: 0)}))
-//            collectionView.reloadItems(at: modIndices.map({ IndexPath(row: $0, section: 0)}))
+            //            collectionView.reloadItems(at: modIndices.map({ IndexPath(row: $0, section: 0)}))
         }, completion: nil)
     }
     
@@ -208,12 +209,13 @@ extension AttachmentsBlockCell: CHTCollectionViewDelegateWaterfallLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        if let cell =  collectionView.cellForItem(at: indexPath) as? ImageCell {
-            
-            PhotoViewerViewController.show(blocks: self.blocks, pageIndex: indexPath.row, srcImageView: UIImageArgu(image: cell.imageView.image!, view: cell.imageView))
-        }
-        
-        
+        let browser = PhotoViewerViewController(blocks: blocks, pageIndex: indexPath.item)
+        browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
+            let path = IndexPath(item: index, section: indexPath.section)
+            let cell = collectionView.cellForItem(at: path) as? ImageCell
+            return cell?.imageView
+        })
+        browser.show()
     }
     
 }

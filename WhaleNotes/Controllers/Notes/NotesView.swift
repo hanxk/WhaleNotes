@@ -14,6 +14,7 @@ import TLPhotoPicker
 import RxSwift
 import Photos
 import ContextMenu
+import JXPhotoBrowser
 
 
 //protocol NotesViewDelegate: AnyObject {
@@ -241,7 +242,15 @@ extension NotesView: ASCollectionDataSource {
 
 extension NotesView:NoteCellNodeDelegate {
     func noteCellImageBlockTapped(imageView: ASImageNode, blocks: [Block], index: Int) {
-        PhotoViewerViewController.show(blocks: blocks, pageIndex: 0,srcImageView: UIImageArgu(image: imageView.image!, view: imageView.view))
+        
+        let defaultImage: UIImage = imageView.image!
+        
+        let browser = PhotoViewerViewController(blocks: blocks)
+        browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
+            imageView.image = defaultImage
+            return imageView.view
+        })
+        browser.show()
     }
     
     
