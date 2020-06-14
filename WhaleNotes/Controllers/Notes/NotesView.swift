@@ -26,6 +26,10 @@ enum DisplayMode {
 //    case list
 }
 
+protocol NotesViewDelegate:AnyObject {
+    func embeddedBlockTapped(block:Block)
+}
+
 class NotesView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
@@ -35,6 +39,8 @@ class NotesView: UIView, UINavigationControllerDelegate {
     
     private var selectedIndexPath:IndexPath?
     private var sectionNoteInfo:SectionNoteInfo!
+    
+    var delegate:NotesViewDelegate?
     
     var board:Board! {
         didSet {
@@ -213,6 +219,7 @@ extension NotesView {
 
 
 extension NotesView: ASCollectionDataSource {
+    
     func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
         return 1
     }
@@ -225,10 +232,28 @@ extension NotesView: ASCollectionDataSource {
         let noteInfo = self.noteInfos[indexPath.row]
         let itemSize = self.collectionLayout.itemSize
         return {
-            return NoteCellNode(noteInfo: noteInfo,itemSize: itemSize)
+            let node =  NoteCellNode(noteInfo: noteInfo,itemSize: itemSize)
+            node.delegate = self
+            return node
         }
     }
 }
+
+extension NotesView:NoteCellNodeDelegate {
+    func noteCellImageBlockTapped(imageView: ASImageNode, blocks: [Block], index: Int) {
+        PhotoViewerViewController.show(blocks: blocks, pageIndex: 0,srcImageView: UIImageArgu(image: imageView.image!, view: imageView.view))
+    }
+    
+    
+    func noteCellBlockTapped(block: Block) {
+        
+    }
+    
+    func noteCellMenuTapped(sender: UIView) {
+    }
+}
+
+
 
 extension NotesView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {

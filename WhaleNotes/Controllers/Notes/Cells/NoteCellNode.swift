@@ -8,6 +8,12 @@
 import UIKit
 import AsyncDisplayKit
 
+
+protocol NoteCellNodeDelegate:AnyObject {
+    func noteCellImageBlockTapped(imageView:ASImageNode,blocks:[Block],index:Int)
+    func noteCellMenuTapped(sender:UIView)
+}
+
 class NoteCellNode: ASCellNode {
     
     private enum Constants {
@@ -30,6 +36,8 @@ class NoteCellNode: ASCellNode {
         static let imageHeight: CGFloat = 74
     }
     
+    weak var delegate:NoteCellNodeDelegate?
+    
     var elements:[ASLayoutElement] = []
     
     
@@ -46,8 +54,12 @@ class NoteCellNode: ASCellNode {
     var menuTodoImage:ASImageNode?
     var menuTodoText:ASTextNode?
     
+    var note:Note!
+    
     required init(noteInfo:Note,itemSize: CGSize) {
         super.init()
+        
+        self.note = noteInfo
         
         let cornerRadius:CGFloat = 6
         self.borderWidth = 1
@@ -102,6 +114,7 @@ class NoteCellNode: ASCellNode {
                 $0.style.height = ASDimensionMake(Constants.imageHeight)
                 
             }
+            imageNode.addTarget(self, action: #selector(self.noteCellImageBlockTapped), forControlEvents: .touchUpInside)
             imageNode.cornerRadius = 4
             remainHeight -= Constants.imageHeight
             self.imageNodes.append(imageNode)
@@ -170,8 +183,8 @@ class NoteCellNode: ASCellNode {
         menuButton = ASButtonNode().then {
             $0.style.height = ASDimensionMake(Constants.bottomHeight)
             
-            let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .light)
-            let iconImage = UIImage(systemName: "ellipsis", withConfiguration: config)?.withTintColor(UIColor.init(hexString: "#ACADAE"))
+            let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+            let iconImage = UIImage(systemName: "ellipsis", withConfiguration: config)?.withTintColor(UIColor.init(hexString: "#999999"))
             
             $0.setImage(iconImage, for: .normal)
             $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: Constants.horizontalPadding, bottom:0, right: Constants.horizontalPadding)
@@ -183,9 +196,6 @@ class NoteCellNode: ASCellNode {
             self.menuTodoImage = ASImageNode().then {
                 $0.image = UIImage(systemName: "checkmark.square", pointSize: Constants.todoImageSize, weight: .regular)?.withTintColor(UIColor.init(hexString: "#999999"))
                 $0.contentMode = .center
-//                $0.style.width = ASDimensionMake(24)
-//                $0.style.height = ASDimensionMake(24)
-//                $0.backgroundColor = .red
             }
             self.addSubnode(self.menuTodoImage!)
             
@@ -224,24 +234,21 @@ class NoteCellNode: ASCellNode {
     private func addTodoNodes(with todoBlocks:[Block],maxCount:Int) {
         
         for (index,block) in todoBlocks.enumerated() {
-            let imageNode = ASImageNode()
-            let systemName =  block.isChecked ? "checkmark.square" :  "square"
-            imageNode.image = UIImage(systemName: systemName, pointSize: Constants.todoImageSize, weight: .light)?.withTintColor(UIColor.init(hexString: "#666666"))
-            
-            imageNode.style.height = ASDimensionMake(Constants.todoHeight)
-            imageNode.contentMode = .center
-            //            imageNode.backgroundColor = .red
+            let imageNode = ASImageNode().then {
+                let systemName =  block.isChecked ? "checkmark.square" :  "square"
+                $0.image = UIImage(systemName: systemName, pointSize: Constants.todoImageSize, weight: .light)?.withTintColor(UIColor.init(hexString: "#666666"))
+                $0.style.height = ASDimensionMake(Constants.todoHeight)
+                $0.contentMode = .center
+            }
             self.addSubnode(imageNode)
             self.chkElements.append(imageNode)
             
-            
-            let todoNode = ASTextNode()
-            todoNode.attributedText = getTodoTextAttributes(text: block.text)
-            todoNode.style.flexShrink = 1.0
-            todoNode.maximumNumberOfLines = 1
-            todoNode.truncationMode = .byTruncatingTail
-            //            todoNode.textContainerInset = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 0)
-            //                        todoNode.backgroundColor = .blue
+            let todoNode = ASTextNode().then {
+                $0.attributedText = getTodoTextAttributes(text: block.text)
+                $0.style.flexShrink = 1.0
+                $0.maximumNumberOfLines = 1
+                $0.truncationMode = .byTruncatingTail
+            }
             self.addSubnode(todoNode)
             self.todosElements.append(todoNode)
             
@@ -532,4 +539,11 @@ class NoteCellNode: ASCellNode {
     }
     
     
+}
+
+
+extension NoteCellNode {
+    @objc func noteCellImageBlockTapped(sender: ASImageNode) {
+        delegate?.noteCellImageBlockTapped(imageView:sender,blocks:  self.note.imageBlocks, index: 0)
+    }
 }

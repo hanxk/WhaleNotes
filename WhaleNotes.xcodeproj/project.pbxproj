@@ -104,6 +104,7 @@
 		18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */; };
 		18EEF674247D2FD100E2E3BA /* NoteRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF673247D2FD100E2E3BA /* NoteRepo.swift */; };
 		18EEF676247DF92600E2E3BA /* NotesUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF675247DF92600E2E3BA /* NotesUseCase.swift */; };
+		18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -206,6 +207,7 @@
 		18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Ex.swift"; sourceTree = "<group>"; };
 		18EEF673247D2FD100E2E3BA /* NoteRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepo.swift; sourceTree = "<group>"; };
 		18EEF675247DF92600E2E3BA /* NotesUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUseCase.swift; sourceTree = "<group>"; };
+		18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10054E7C48FF86C1A7B5902 /* Pods-WhaleNotes.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.release.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.release.xcconfig"; sourceTree = "<group>"; };
@@ -303,6 +305,7 @@
 		1865AEF1244C5D8F0006B48D /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				186DDE842495FD6700A4C63C /* PhotoViewer */,
 				1879E6F1248F81270014F3A7 /* AlertVC */,
 				18E7BF81248C8B5400B8AEC1 /* Views */,
 				188328F524540FB40097A01D /* Logger.swift */,
@@ -384,6 +387,14 @@
 				18E9D6C024714ADA001E41A0 /* MosaicCollectionViewLayout.swift */,
 			);
 			path = Layout;
+			sourceTree = "<group>";
+		};
+		186DDE842495FD6700A4C63C /* PhotoViewer */ = {
+			isa = PBXGroup;
+			children = (
+				18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */,
+			);
+			path = PhotoViewer;
 			sourceTree = "<group>";
 		};
 		1879E6F1248F81270014F3A7 /* AlertVC */ = {
@@ -753,6 +764,7 @@
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
+				18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */,
 				181D63DC248A240200B34E20 /* BoardCategoryInfo.swift in Sources */,
 				18E6E672247BBB6200D598C5 /* Section.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,

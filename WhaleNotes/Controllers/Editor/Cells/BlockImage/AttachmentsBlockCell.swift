@@ -150,7 +150,7 @@ class AttachmentsBlockCell: UITableViewCell {
         $0.delegate = self
         $0.dataSource = self
         $0.isScrollEnabled = false
-        $0.allowsSelection = false
+        $0.allowsSelection = true
         $0.register(ImageCell.self, forCellWithReuseIdentifier: AttachmentType.image.rawValue)
         $0.backgroundColor = .clear
     }
@@ -205,6 +205,16 @@ extension AttachmentsBlockCell: CHTCollectionViewDelegateWaterfallLayout {
         return columnCount
     }
     
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        if let cell =  collectionView.cellForItem(at: indexPath) as? ImageCell {
+            
+            PhotoViewerViewController.show(blocks: self.blocks, pageIndex: indexPath.row, srcImageView: UIImageArgu(image: cell.imageView.image!, view: cell.imageView))
+        }
+        
+        
+    }
     
 }
 

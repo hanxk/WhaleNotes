@@ -2,6 +2,7 @@ PODS:
   - CHTCollectionViewWaterfallLayout/Swift (0.9.8)
   - ContextMenu (0.4.0)
   - DeepDiff (2.3.1)
+  - JXPhotoBrowser (3.1.2)
   - Kingfisher (5.13.4):
     - Kingfisher/Core (= 5.13.4)
   - Kingfisher/Core (5.13.4)
@@ -62,6 +63,7 @@ DEPENDENCIES:
   - CHTCollectionViewWaterfallLayout/Swift
   - ContextMenu
   - DeepDiff
+  - JXPhotoBrowser (~> 3.0)
   - Kingfisher (~> 5.0)
   - MBProgressHUD (~> 1.2.0)
   - NewPopMenu (~> 2.0)
@@ -81,6 +83,7 @@ SPEC REPOS:
     - CHTCollectionViewWaterfallLayout
     - ContextMenu
     - DeepDiff
+    - JXPhotoBrowser
     - Kingfisher
     - MBProgressHUD
     - NewPopMenu
@@ -103,6 +106,7 @@ SPEC CHECKSUMS:
   CHTCollectionViewWaterfallLayout: 5f241d2480ab4939aa0d1ad4981de9eef1fbe60d
   ContextMenu: f835e09a93f1c28c631b76ee94396d9570397fd1
   DeepDiff: e5ae6c50d0321568e4508cec5930b9f10bb293fc
+  JXPhotoBrowser: 7f0bc11f02fbc84ae06829f922f32ce822aa9661
   Kingfisher: d2279a7abece3c7f25a80cd2b7f363ca5cf3f44c
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   NewPopMenu: c6129e08e8192f6257ceb5f9a4357e1b59c6e2e7
@@ -121,6 +125,6 @@ SPEC CHECKSUMS:
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
   TLPhotoPicker: a5c339732b8326bb16cbb4e00ed01a86f2bfbbb3
 
-PODFILE CHECKSUM: 3ef683d005b56b3f0c7693a2d84473af6a15911c
+PODFILE CHECKSUM: 42429cd062f5ca22eb57fd629ea513bb63102682
 
 COCOAPODS: 1.9.1
