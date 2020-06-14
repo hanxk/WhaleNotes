@@ -39,6 +39,13 @@ extension UIColor {
     }
     
     
+    open class var bg: UIColor {
+        get {
+            return UIColor.init(hexString: "#F2F2F2")
+        }
+    }
+    
+    
     open class var tappedColor: UIColor {
         get {
             return UIColor(hexString: "#F8F8F8")

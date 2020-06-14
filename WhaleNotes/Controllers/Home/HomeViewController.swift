@@ -33,23 +33,24 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
         self.setup()
     }
     
     private func setup() {
         self.setupNavgationBar()
         self.setupSideMenu()
-        
+        self.view.backgroundColor = .bg
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 //        notesView?.viewWillAppear(animated)
+        self.navigationController?.navigationBar.barTintColor = .bg
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 //        notesView?.viewWillDisappear(animated)
+self.navigationController?.navigationBar.barTintColor = .white
     }
     
 }
@@ -119,7 +120,8 @@ extension HomeViewController {
         self.navigationItem.largeTitleDisplayMode = .automatic
         self.navigationItem.leftBarButtonItems = [barButton]
         
-        //        self.navigationController?.navigationBar.barTintColor  = UIColor.white
+//        self.navigationController?.navigationBar.barTintColor  = .bg
+        
 
         let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: nil)
@@ -132,6 +134,8 @@ extension HomeViewController {
             present(vc, animated: true, completion: nil)
         }
     }
+    
+
     
     
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {

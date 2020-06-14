@@ -43,8 +43,8 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     enum NotesViewConstants {
-        static let cellSpace: CGFloat = 14
-        static let cellHorizontalSpace: CGFloat = 18
+        static let cellSpace: CGFloat = 12
+        static let cellHorizontalSpace: CGFloat = 16
         
         
         static let waterfall_cellSpace: CGFloat = 12
@@ -93,7 +93,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
                     $0.alwaysBounceVertical = true
                     $0.dataSource = self
                     $0.delegate = self
-                    $0.contentInset = UIEdgeInsets(top: 6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                    $0.contentInset = UIEdgeInsets(top: 12, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
                     $0.showsVerticalScrollIndicator = false
                     
                 }
@@ -122,8 +122,8 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     
     private func setupUI() {
-        self.backgroundColor = .red
         collectionNode.frame = self.frame
+        collectionNode.backgroundColor = .clear
         self.addSubnode(collectionNode)
         self.setupFloatButtons()
     }

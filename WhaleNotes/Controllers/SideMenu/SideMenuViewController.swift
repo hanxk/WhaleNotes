@@ -40,6 +40,7 @@ enum SideMenuItemType:Equatable {
 class SideMenuViewController: UIViewController {
     
     private var menuSectionTypes:[MenuSectionType] = []
+    let bg = UIColor.init(hexString: "#FFFFFF")
     
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
@@ -142,7 +143,6 @@ class SideMenuViewController: UIViewController {
         }
         
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        let bg = UIColor.init(hexString: "#FBFBFB")
         self.tableView.backgroundColor = bg
         
     }

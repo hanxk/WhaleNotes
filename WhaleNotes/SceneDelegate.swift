@@ -34,7 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             $0.backIndicatorTransitionMaskImage = yourBackImage
             
             
-            let textAttributes = [NSAttributedString.Key.foregroundColor:UIColor.init(hexString: "#333333"),
+            let textAttributes = [NSAttributedString.Key.foregroundColor:UIColor.init(hexString: "#202020"),
                                   NSAttributedString.Key.font:UIFont.systemFont(ofSize: 16, weight: .medium)
             ]
             $0.titleTextAttributes = textAttributes

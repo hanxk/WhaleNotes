@@ -48,9 +48,9 @@ class NoteCellNode: ASCellNode {
         self.borderWidth = 1
         self.cornerRadius = cornerRadius
 //        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
-         self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.08).cgColor
-//        self.borderColor = UIColor(hexString: "#EFF0F1").cgColor
-        self.backgroundColor = UIColor.init(hexString: "#FAFBFC")
+         self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.06).cgColor
+//        self.borderColor = UIColor(hexString: "#000000").cgColor
+        self.backgroundColor = UIColor.init(hexString: "#ffffff")
 //        self.backgroundColor = UIColor.init(hexString: "#FAFAFA")
         
         var titleHeight:CGFloat = 0
@@ -437,7 +437,7 @@ class NoteCellNode: ASCellNode {
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
-            .foregroundColor: UIColor.init(hexString: "#333333"),
+            .foregroundColor: UIColor.init(hexString: "#444444"),
             .paragraphStyle:paragraphStyle
         ]
         let attributedString = NSAttributedString(string: text, attributes: attributes)
@@ -466,7 +466,7 @@ class NoteCellNode: ASCellNode {
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
-            .foregroundColor: UIColor.init(hexString: "#333333"),
+            .foregroundColor: UIColor.init(hexString: "#444444"),
             .paragraphStyle:paragraphStyle
         ]
         
