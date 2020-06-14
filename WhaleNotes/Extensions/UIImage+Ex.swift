@@ -9,6 +9,12 @@
 import UIKit
 
 extension UIImage {
+    
+    convenience init?(systemName: String,pointSize:CGFloat,weight: UIImage.SymbolWeight = .regular) {
+        let configuration = UIImage.SymbolConfiguration(pointSize:pointSize, weight: weight)
+        self.init(systemName: systemName, withConfiguration: configuration)
+    }
+    
     func fixedOrientation() -> UIImage? {
         
         guard imageOrientation != UIImage.Orientation.up else {

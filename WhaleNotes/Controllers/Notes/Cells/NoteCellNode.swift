@@ -10,7 +10,7 @@ import AsyncDisplayKit
 
 class NoteCellNode: ASCellNode {
     
-    enum CardUIConstants {
+    private enum Constants {
         static let horizontalPadding: CGFloat = 10
         static let verticalPadding: CGFloat = 10
         static let verticalPaddingBottom: CGFloat = 4
@@ -20,8 +20,11 @@ class NoteCellNode: ASCellNode {
         
         static let todoHeight:CGFloat = 22
         static let todoVSpace:CGFloat = 0
+        static let todoTextSpace:CGFloat = 2
+        static let todoImageSize: CGFloat = 14
+        static let todoTextSize: CGFloat = 14
         
-        static let bottomHeight: CGFloat = 26
+        static let bottomHeight: CGFloat = 30
         
         
         static let imageHeight: CGFloat = 74
@@ -40,6 +43,8 @@ class NoteCellNode: ASCellNode {
     var emptyTextNode:ASTextNode?
     
     var menuButton:ASButtonNode!
+    var menuTodoImage:ASImageNode?
+    var menuTodoText:ASTextNode?
     
     required init(noteInfo:Note,itemSize: CGSize) {
         super.init()
@@ -47,16 +52,16 @@ class NoteCellNode: ASCellNode {
         let cornerRadius:CGFloat = 6
         self.borderWidth = 1
         self.cornerRadius = cornerRadius
-//        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
-         self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.06).cgColor
-//        self.borderColor = UIColor(hexString: "#000000").cgColor
+        //        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
+        self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.06).cgColor
+        //        self.borderColor = UIColor(hexString: "#000000").cgColor
         self.backgroundColor = UIColor.init(hexString: "#ffffff")
-//        self.backgroundColor = UIColor.init(hexString: "#FAFAFA")
+        //        self.backgroundColor = UIColor.init(hexString: "#FAFAFA")
         
         var titleHeight:CGFloat = 0
         
-        let contentWidth = itemSize.width - CardUIConstants.horizontalPadding*2
-        let contentHeight = itemSize.height - CardUIConstants.verticalPadding - CardUIConstants.verticalPaddingBottom  -  CardUIConstants.bottomHeight
+        let contentWidth = itemSize.width - Constants.horizontalPadding*2
+        let contentHeight = itemSize.height - Constants.verticalPadding - Constants.verticalPaddingBottom  -  Constants.bottomHeight
         
         var remainHeight = contentHeight
         
@@ -66,7 +71,7 @@ class NoteCellNode: ASCellNode {
             titleNode.attributedText = getTitleLabelAttributes(text: noteInfo.rootBlock.text)
             titleNode.maximumNumberOfLines = 2
             
-            let titlePadding:CGFloat = 4
+            let titlePadding:CGFloat = 2
             titleNode.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: titlePadding, right: 0)
             self.addSubnode(titleNode)
             self.titleNode = titleNode
@@ -76,7 +81,9 @@ class NoteCellNode: ASCellNode {
             let lineHeight = getTitleLabelAttributes(text: "a").height(containerWidth: contentWidth)
             
             let lineCount = lround(Double(titleHeight / lineHeight)) >= 2 ? 2 : 1
-            titleHeight = CGFloat(lineCount) * lineHeight
+            titleHeight = CGFloat(lineCount) * lineHeight + titlePadding
+            titleNode.style.height = ASDimensionMake(titleHeight)
+            //           titleNode.backgroundColor = .red
             
             remainHeight = contentHeight - titleHeight
         }
@@ -92,11 +99,11 @@ class NoteCellNode: ASCellNode {
                 $0.image = image
                 $0.backgroundColor = .placeHolderColor
                 $0.style.width = ASDimensionMake(contentWidth)
-                $0.style.height = ASDimensionMake(CardUIConstants.imageHeight)
+                $0.style.height = ASDimensionMake(Constants.imageHeight)
                 
             }
             imageNode.cornerRadius = 4
-            remainHeight -= CardUIConstants.imageHeight
+            remainHeight -= Constants.imageHeight
             self.imageNodes.append(imageNode)
             self.addSubnode(imageNode)
         }
@@ -114,31 +121,37 @@ class NoteCellNode: ASCellNode {
             
             textHeight = textNode.attributedText!.height(containerWidth: contentWidth)
             textNode.style.maxHeight = ASDimensionMake(remainHeight)
+            //            textNode.backgroundColor = .red
             
             self.textNode = textNode
             self.addSubnode(textNode)
         }
         
         // todo
+        var todoInfo:(Int,Int) = (0,0)
         if noteInfo.todoToggleBlocks.isNotEmpty {
             var todoBlocks:[Block] = []
             for toggleBlock in noteInfo.todoToggleBlocks {
                 for block in noteInfo.getChildTodoBlocks(parent: toggleBlock.id) {
-                    todoBlocks.append(block)
-                    if todoBlocks.count == 10 {
-                        break
+                    if todoBlocks.count <= 10 {
+                        todoBlocks.append(block)
                     }
+                    
+                    if block.isChecked {
+                        todoInfo.0 = todoInfo.0 + 1
+                    }
+                    todoInfo.1 = todoInfo.1 + 1
                 }
             }
             
             if textHeight == 0 {
-                let todoCount = Int(remainHeight / (CardUIConstants.todoHeight))
+                let todoCount = Int(remainHeight / (Constants.todoHeight))
                 addTodoNodes(with: todoBlocks,maxCount:todoCount)
                 
             }else {
                 let textAndTodosHeight =  calculateTextAndTodoMaxHeight(remainHeight: remainHeight, textHeight: textHeight, todos: todoBlocks)
                 textNode?.style.maxHeight = ASDimensionMake(textAndTodosHeight.0)
-                let todoCount = Int(textAndTodosHeight.1 / CardUIConstants.todoHeight)
+                let todoCount = Int(textAndTodosHeight.1 / Constants.todoHeight)
                 if todoCount > 0 {
                     addTodoNodes(with: todoBlocks,maxCount:todoCount)
                 }
@@ -155,27 +168,43 @@ class NoteCellNode: ASCellNode {
         }
         
         menuButton = ASButtonNode().then {
-            //            $0.style.width = ASDimensionMake(CardUIConstants.bottomHeight+16)
-            $0.style.height = ASDimensionMake(CardUIConstants.bottomHeight)
-            
+            $0.style.height = ASDimensionMake(Constants.bottomHeight)
             
             let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .light)
             let iconImage = UIImage(systemName: "ellipsis", withConfiguration: config)?.withTintColor(UIColor.init(hexString: "#ACADAE"))
             
             $0.setImage(iconImage, for: .normal)
-            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom:0, right: 10)
+            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: Constants.horizontalPadding, bottom:0, right: Constants.horizontalPadding)
             $0.contentMode = .center
-            //            $0.backgroundColor = .blue
         }
+        
+        if self.todosElements.isNotEmpty {
+            
+            self.menuTodoImage = ASImageNode().then {
+                $0.image = UIImage(systemName: "checkmark.square", pointSize: Constants.todoImageSize, weight: .regular)?.withTintColor(UIColor.init(hexString: "#999999"))
+                $0.contentMode = .center
+//                $0.style.width = ASDimensionMake(24)
+//                $0.style.height = ASDimensionMake(24)
+//                $0.backgroundColor = .red
+            }
+            self.addSubnode(self.menuTodoImage!)
+            
+            self.menuTodoText = ASTextNode().then {
+                $0.attributedText = getMenuLabelAttributes(text: "\(todoInfo.0)/\(todoInfo.1)")
+            }
+            self.addSubnode(self.menuTodoText!)
+        }
+        
+        
         self.addSubnode(menuButton)
         
     }
     
     private func calculateTextAndTodoMaxHeight(remainHeight:CGFloat,textHeight:CGFloat,todos:[Block]) -> (CGFloat,CGFloat) {
-        let halfContentHeight = (remainHeight - CardUIConstants.contentVerticalSpacing)/2
-        let todosHeight = CGFloat(todos.count) * CardUIConstants.todoHeight
+        let halfContentHeight = (remainHeight - Constants.contentVerticalSpacing)/2
+        let todosHeight = CGFloat(todos.count) * Constants.todoHeight
         
-        if halfContentHeight < CardUIConstants.todoHeight { // 剩余高度不够，优先展示 todo
+        if halfContentHeight < Constants.todoHeight { // 剩余高度不够，优先展示 todo
             return (remainHeight,0)
         }
         
@@ -184,11 +213,11 @@ class NoteCellNode: ASCellNode {
         }
         
         if textHeight > halfContentHeight {
-            let newTextHeight = remainHeight - CardUIConstants.contentVerticalSpacing - todosHeight
+            let newTextHeight = remainHeight - Constants.contentVerticalSpacing - todosHeight
             return (newTextHeight,todosHeight)
         }
         
-        let newTodoHeight = remainHeight - CardUIConstants.contentVerticalSpacing - textHeight
+        let newTodoHeight = remainHeight - Constants.contentVerticalSpacing - textHeight
         return (halfContentHeight,newTodoHeight)
     }
     
@@ -196,11 +225,12 @@ class NoteCellNode: ASCellNode {
         
         for (index,block) in todoBlocks.enumerated() {
             let imageNode = ASImageNode()
-            let config = UIImage.SymbolConfiguration(pointSize:14, weight: .light)
-            imageNode.image = UIImage(systemName: block.isChecked ? "checkmark.square" :  "square",withConfiguration: config )?.withTintColor(UIColor.init(hexString: "#666666"))
-            imageNode.style.height = ASDimensionMake(CardUIConstants.todoHeight)
+            let systemName =  block.isChecked ? "checkmark.square" :  "square"
+            imageNode.image = UIImage(systemName: systemName, pointSize: Constants.todoImageSize, weight: .light)?.withTintColor(UIColor.init(hexString: "#666666"))
+            
+            imageNode.style.height = ASDimensionMake(Constants.todoHeight)
             imageNode.contentMode = .center
-//            imageNode.backgroundColor = .red
+            //            imageNode.backgroundColor = .red
             self.addSubnode(imageNode)
             self.chkElements.append(imageNode)
             
@@ -210,8 +240,8 @@ class NoteCellNode: ASCellNode {
             todoNode.style.flexShrink = 1.0
             todoNode.maximumNumberOfLines = 1
             todoNode.truncationMode = .byTruncatingTail
-//            todoNode.textContainerInset = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 0)
-//                        todoNode.backgroundColor = .blue
+            //            todoNode.textContainerInset = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 0)
+            //                        todoNode.backgroundColor = .blue
             self.addSubnode(todoNode)
             self.todosElements.append(todoNode)
             
@@ -242,10 +272,10 @@ class NoteCellNode: ASCellNode {
         stackLayout.alignItems = .stretch
         stackLayout.style.height = ASDimensionMake(constrainedSize.max.height)
         
-        let contentHeight = ASDimensionMake(constrainedSize.max.height - CardUIConstants.bottomHeight)
+        let contentHeight = ASDimensionMake(constrainedSize.max.height - Constants.bottomHeight)
         
         let contentLayout = ASStackLayoutSpec.vertical().then {
-            $0.spacing = CardUIConstants.contentVerticalSpacing
+            $0.spacing = Constants.contentVerticalSpacing
             $0.justifyContent = .start
             $0.alignItems = .start
             $0.style.flexGrow = 1.0
@@ -253,12 +283,8 @@ class NoteCellNode: ASCellNode {
             $0.style.height = contentHeight
         }
         
-        let bottomLayout = ASStackLayoutSpec.horizontal()
-        bottomLayout.style.height = ASDimensionMake(CardUIConstants.bottomHeight)
-        bottomLayout.style.width = ASDimensionMake(constrainedSize.max.width)
         
-        
-        let insets =  UIEdgeInsets.init(top: CardUIConstants.verticalPadding, left: CardUIConstants.horizontalPadding, bottom: CardUIConstants.verticalPaddingBottom, right:  CardUIConstants.horizontalPadding)
+        let insets =  UIEdgeInsets.init(top: Constants.verticalPadding, left: Constants.horizontalPadding, bottom: Constants.verticalPaddingBottom, right:  Constants.horizontalPadding)
         
         if let emptyTextNode = self.emptyTextNode {
             let emptyLayout =  ASInsetLayoutSpec(insets: insets, child: emptyTextNode)
@@ -280,11 +306,11 @@ class NoteCellNode: ASCellNode {
             todosVLayout.justifyContent = .start
             todosVLayout.alignItems = .start
             todosVLayout.style.flexShrink = 1.0
-            todosVLayout.spacing = CardUIConstants.todoVSpace
+            todosVLayout.spacing = Constants.todoVSpace
             for i in 0..<todosElements.count {
                 
                 let todoStackSpec = ASStackLayoutSpec(direction: .horizontal,
-                                                      spacing: 4,
+                                                      spacing: Constants.todoTextSpace,
                                                       justifyContent: .start,
                                                       alignItems: .center,
                                                       children: [chkElements[i],todosElements[i]])
@@ -301,15 +327,38 @@ class NoteCellNode: ASCellNode {
         }
         
         if imageNodes.isNotEmpty {
-            let insets =  UIEdgeInsets.init(top: 0 , left: CardUIConstants.horizontalPadding, bottom: 0, right:  CardUIConstants.horizontalPadding)
+            let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
             let children =  ASInsetLayoutSpec(insets: insets, child: self.imageNodes[0])
             stackLayout.children?.append(children)
         }
         
+        let bottomLayout = ASStackLayoutSpec.horizontal().then {
+            $0.style.height = ASDimensionMake(Constants.bottomHeight)
+            $0.style.width = ASDimensionMake(constrainedSize.max.width)
+            $0.style.flexGrow = 1.0
+            $0.justifyContent = .spaceBetween
+        }
+
+        let todoStack = ASStackLayoutSpec.horizontal().then {
+            $0.spacing = Constants.todoTextSpace
+            $0.style.flexGrow = 1.0
+            $0.style.flexShrink = 1.0
+        }
+        if let menuTodoImage = self.menuTodoImage,
+            let menuTodoText = self.menuTodoText {
+//            menuTodoImage.backgroundColor = .red
+//            menuTodoText.backgroundColor = .red
+            let centerTodoText = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: menuTodoText)
+            todoStack.children = [menuTodoImage,centerTodoText]
+        }
+
+        let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: Constants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
         
-        bottomLayout.style.flexGrow = 1.0
-        bottomLayout.justifyContent = .end
+        
+        bottomLayout.children?.append(todoStackLayout)
         bottomLayout.children?.append(self.menuButton)
+        
+        
         
         // bottom bar
         stackLayout.children?.append(bottomLayout)
@@ -433,7 +482,7 @@ class NoteCellNode: ASCellNode {
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 3
-
+        
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
@@ -462,7 +511,7 @@ class NoteCellNode: ASCellNode {
     
     func getTodoTextAttributes(text: String) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
-//        paragraphStyle.lineSpacing = 1.2
+        //        paragraphStyle.lineSpacing = 1.2
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
@@ -472,5 +521,15 @@ class NoteCellNode: ASCellNode {
         
         return NSAttributedString(string: text, attributes: attributes)
     }
+    
+    
+    func getMenuLabelAttributes(text: String) -> NSAttributedString {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 13, weight: .regular),
+            .foregroundColor:  UIColor.init(hexString: "#999999"),
+        ]
+        return NSMutableAttributedString(string: text, attributes: attributes)
+    }
+    
     
 }

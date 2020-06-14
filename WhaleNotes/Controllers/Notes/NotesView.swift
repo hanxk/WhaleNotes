@@ -64,7 +64,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
         let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
         let itemWidth = validWidth / numberOfColumns
         
-        $0.itemSize = CGSize(width: itemWidth, height: 210)
+        $0.itemSize = CGSize(width: itemWidth, height: 214)
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
         $0.minimumLineSpacing = NotesViewConstants.cellSpace
     }
