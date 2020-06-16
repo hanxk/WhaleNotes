@@ -114,26 +114,23 @@ class NoteRepo {
             .observeOn(MainScheduler.instance)
     }
     
-    func createToggleBlock(toggleBlock:Block,callback:@escaping ((Block,[Block]))->Void) {
-        Observable<(Block)>.just(toggleBlock)
+    
+    func createRootTodoBlock(noteId:Int64)-> Observable<[Block]> {
+        Observable<Int64>.just(noteId)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(toggleBlock)  -> (Block,[Block]) in
-                let result =  DBStore.shared.createToggleBlock(toggleBlock: toggleBlock)
+            .map({(noteId)  -> [Block] in
+                let result =  DBStore.shared.createRootTodoBlock(noteId: noteId)
                 switch result {
-                case .success(let newBlockInfo):
-                    return newBlockInfo
+                case .success(let blocks):
+                    return blocks
                 case .failure(let err):
                     throw err
                 }
             })
             .observeOn(MainScheduler.instance)
-            .subscribe(onNext:{
-                callback($0)
-            }, onError: {
-                Logger.error($0)
-            }, onCompleted: nil, onDisposed: nil)
-            .disposed(by: disposebag)
     }
+    
+    
     
     
     func createImageBlocks(noteId:Int64,images:[TLPHAsset],success:@escaping (([Block])->Void),failed:@escaping()->Void) {

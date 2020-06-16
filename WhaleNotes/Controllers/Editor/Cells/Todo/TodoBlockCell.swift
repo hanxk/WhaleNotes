@@ -13,6 +13,7 @@ protocol TodoBlockCellDelegate: AnyObject {
     func todoBlockEnterKeyInput(newBlock:Block)
     func todoBlockNeedDelete(newBlock:Block)
     func todoBlockContentChange(newBlock:Block)
+    func todoCheckedChange(newBlock:Block)
 }
 
 class TodoBlockCell: UITableViewCell {
@@ -26,20 +27,11 @@ class TodoBlockCell: UITableViewCell {
     
     weak var delegate:TodoBlockCellDelegate?
     
-    
-//    var enterkeyTapped: ((Block2) -> Void)?
-//    var blockUpdated:((Block2) -> Void)?
-//    var blockNeedDeleted:((Block2) -> Void)?
-    
     var todoBlock: Block!{
         didSet {
-//            textView.text = todoBlock.text + "******* " + String(todoBlock.sort)
-             textView.text = todoBlock.text
+            textView.text = todoBlock.text
             isChecked = todoBlock.isChecked
             isEmpty = todoBlock.text.isEmpty
-            
-             Logger.info("刷新--->")
-            Logger.info(String(todoBlock.sort),todoBlock.text)
         }
     }
     var note:Note!
@@ -75,7 +67,6 @@ class TodoBlockCell: UITableViewCell {
     
     lazy var chkbtn: UIButton = UIButton().then {
         $0.addTarget(self, action: #selector(self.handleChkButtonTapped), for: .touchUpInside)
-//        $0.backgroundColor = .red
     }
     
     lazy var textView: UITextView = UITextView().then {
@@ -129,7 +120,7 @@ class TodoBlockCell: UITableViewCell {
     @objc private func handleChkButtonTapped() {
         self.isChecked = !self.isChecked
         self.todoBlock.isChecked = self.isChecked
-        delegate?.todoBlockContentChange(newBlock: self.todoBlock)
+        delegate?.todoCheckedChange(newBlock: self.todoBlock)
     }
 }
 

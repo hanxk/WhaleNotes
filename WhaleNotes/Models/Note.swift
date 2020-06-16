@@ -30,17 +30,20 @@ struct Note {
         self.rootBlock = rootBlock
         self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
         self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
-        self.setupTodoBlocks(blocks: childBlocks)
+        
+        self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue})
+        
+        
     }
     
-    var todoToggleBlocks:[Block] = []
-    private(set) var mapTodoBlocks:[Int64:[Block]] = [:]
+    var rootTodoBlock:Block?
+    var todoBlocks:[Block] = []
     
     var isContentEmpry:Bool {
         return rootBlock.text.isEmpty &&
             textBlock?.text.isEmpty ?? true &&
         imageBlocks.isEmpty &&
-            todoToggleBlocks.isEmpty
+            todoBlocks.isEmpty
     }
     
     private(set) var imageBlocks:[Block] = []
@@ -57,32 +60,10 @@ extension Note {
 
 // todo handler
 extension Note {
-    
-    private  mutating func setupTodoBlocks(blocks:[Block]){
-        if blocks.isEmpty {
-            return
-        }
-        let todoToggleBlocks:[Block] = blocks.filter { $0.type == BlockType.toggle.rawValue && $0.parent == 0 }.sorted(by: {$0.sort > $1.sort})
-        if todoToggleBlocks.isEmpty {
-            return
-        }
-        self.todoToggleBlocks = todoToggleBlocks
-        for todoTogleBlock in todoToggleBlocks {
-            let childBlocks = blocks.filter { $0.type == BlockType.todo.rawValue && $0.parent == todoTogleBlock.id }
-                .sorted { $0.sort < $1.sort  }
-            mapTodoBlocks[todoTogleBlock.id] =  childBlocks
-        }
-    }
-    
-    func getChildTodoBlocks(parent: Int64) -> [Block] {
-        if let todoBlocks =  mapTodoBlocks[parent] {
-            return todoBlocks
-        }
-        return []
-    }
-    
-    func getToggleBlockById(id: Int64) -> Block{
-        return todoToggleBlocks.first { $0.id == id }!
+    mutating func setupTodoBlocks(todoBlocks:[Block]) {
+        guard let rootTodoBlock = todoBlocks.first(where: {$0.parent == 0}) else { return }
+        self.todoBlocks = todoBlocks.filter{$0.parent == rootTodoBlock.id}
+        self.rootTodoBlock = rootTodoBlock
     }
 }
 
@@ -100,8 +81,6 @@ extension Note {
             self.textBlock = block
         case .todo:
             self.updateTodoBlock(todoBlock: block)
-        case .toggle:
-            self.updateTodoToggleBlock(todoToggleBlock: block)
         case .image:
             break
         case .none:
@@ -110,48 +89,17 @@ extension Note {
     }
     
     private mutating func updateTodoBlock(todoBlock:Block) {
+        guard let index = self.todoBlocks.firstIndex(where: {$0.id == todoBlock.id}) else { return }
         self.rootBlock.updatedAt = Date()
-        if let todoBlocks =  mapTodoBlocks[todoBlock.parent] {
-            mapTodoBlocks[todoBlock.parent] = todoBlocks.map{
-                if  $0.id == todoBlock.id {
-                    return todoBlock
-                }
-                return $0
-            }.sorted(by: {$0.sort < $1.sort})
-        }
-    }
-    
-    
-    private mutating func updateTodoToggleBlock(todoToggleBlock:Block) {
-        self.rootBlock.updatedAt = Date()
-        guard let index = self.todoToggleBlocks.firstIndex(where: {$0.id == todoToggleBlock.id}) else { return }
-        self.todoToggleBlocks[index] = todoToggleBlock
-
+        self.todoBlocks[index] = todoBlock
     }
     
     
     private mutating func removeTodoBlock(todoBlock:Block) {
         self.rootBlock.updatedAt = Date()
-        if let todoBlocks =  mapTodoBlocks[todoBlock.parent] {
-            mapTodoBlocks[todoBlock.parent] = todoBlocks.filter{ $0.id != todoBlock.id }
-        }
+        guard let index = self.todoBlocks.firstIndex(where: {$0.id == todoBlock.id}) else { return }
+        self.todoBlocks.remove(at: index)
     }
-    
-    
-    private mutating func removeToggleBlock(toggleBlock:Block) {
-        self.rootBlock.updatedAt = Date()
-        if let index = self.todoToggleBlocks.firstIndex(where: {$0.id == toggleBlock.id}) {
-            self.todoToggleBlocks.remove(at: index)
-        }
-        self.mapTodoBlocks.removeValue(forKey: toggleBlock.id)
-    }
-    
-    mutating func addTodoToggleBlock(blockInfo: (Block,[Block])) {
-        self.rootBlock.updatedAt = Date()
-        self.todoToggleBlocks.append(blockInfo.0)
-        self.mapTodoBlocks[blockInfo.0.id] = blockInfo.1
-    }
-    
     
     mutating func addBlock(block:Block) {
         self.rootBlock.updatedAt = Date()
@@ -161,8 +109,6 @@ extension Note {
             self.textBlock = block
         case .todo:
             self.addTodoBlock(todoBlock: block)
-        case .toggle:
-            break
         case .image:
             break
         case .none:
@@ -175,13 +121,18 @@ extension Note {
     
     private mutating func addTodoBlock(todoBlock:Block) {
         self.rootBlock.updatedAt = Date()
-        if let todoBlocks =  mapTodoBlocks[todoBlock.parent] {
-            var newTodoBlocks = todoBlocks
-            newTodoBlocks.append(todoBlock)
-            mapTodoBlocks[todoBlock.parent] = newTodoBlocks.sorted(by: {$0.sort < $1.sort})
-        }
+        let newIndex = { () -> Int in
+           if self.todoBlocks.isEmpty { return 0}
+            let newIndex = self.todoBlocks.firstIndex(where: {$0.sort > todoBlock.sort}) ?? self.todoBlocks.count
+           return newIndex
+        }()
+        self.todoBlocks.insert(todoBlock, at: newIndex)
     }
     
+    
+    func getTodoBlockIndex(todoBlock:Block) -> Int? {
+        return self.todoBlocks.firstIndex(where: {$0.id == todoBlock.id})
+    }
     
     mutating func removeBlock(block:Block) {
         self.rootBlock.updatedAt = Date()
@@ -191,8 +142,6 @@ extension Note {
             self.textBlock = nil
         case .todo:
             self.removeTodoBlock(todoBlock: block)
-        case .toggle:
-            self.removeToggleBlock(toggleBlock: block)
         case .image:
             break
         case .none:

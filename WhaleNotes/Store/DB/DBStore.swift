@@ -55,8 +55,8 @@ class DBStore {
                     switch blockType {
                     case .text:
                         block = Block.newTextBlock(noteId: noteId)
-                    case .toggle:
-                        block = Block.newToggleBlock(noteId: noteId)
+                    case .todo:
+                        block = Block.newTodoBlock(noteId:noteId, sort: 0)
                     default:
                         break
                     }
@@ -64,14 +64,14 @@ class DBStore {
                         let blockId = try blockDao.insert(block)
                         block.id = blockId
                         
-                        // todo 默认添加一个空 todo
-                        if block.type == BlockType.toggle.rawValue {
-                            var todoBlock = Block.newTodoBlock(noteId: noteId, parent: blockId, sort: 65536)
+//                        // todo 默认添加一个空 todo
+                        if block.type == BlockType.todo.rawValue {
+                            var todoBlock = Block.newTodoBlock(noteId: noteId, sort: 65536, text: "", parent: blockId)
                             let blockId = try blockDao.insert(todoBlock)
                             todoBlock.id = blockId
                             newBlocks.append(todoBlock)
                         }
-                        
+//
                         newBlocks.append(block)
                     }
                 }
@@ -80,6 +80,28 @@ class DBStore {
         } catch let error  {
             return DBResult<Note>.failure(DBError(code: .None,message: error.localizedDescription))
         }
+    }
+    
+    func createRootTodoBlock(noteId:Int64) -> DBResult<[Block]> {
+        do {
+            var blocks:[Block] = []
+            try db.transaction {
+                  var rootTodoBlock = Block.newTodoBlock(noteId:noteId, sort: 0)
+                  let rootTodoId = try blockDao.insert(rootTodoBlock)
+                  rootTodoBlock.id = rootTodoId
+                  
+                  var todoBlock = Block.newTodoBlock(noteId: noteId, sort: 65536, text: "", parent: rootTodoId)
+                  let blockId = try blockDao.insert(todoBlock)
+                  todoBlock.id = blockId
+                
+                blocks.append(rootTodoBlock)
+                blocks.append(todoBlock)
+                  
+            }
+            return DBResult<[Block]>.success(blocks)
+        } catch let error  {
+            return DBResult<[Block]>.failure(DBError(code: .None,message: error.localizedDescription))
+       }
     }
     
     func deleteNote(id:Int64) -> DBResult<Bool> {
@@ -143,34 +165,7 @@ class DBStore {
             return DBResult<[Block]>.failure(DBError(code: .None))
         }
     }
-    
-    func createToggleBlock(toggleBlock: Block) -> DBResult<(Block,[Block])> {
-        do {
-            var block = toggleBlock
-            var childBlocks:[Block] = []
-            try db.transaction {
-                if toggleBlock.noteId == 0 {
-                    throw DBError(code: .None, message: "noteid is 0")
-                }
-                
-                _ = try tryUpdateBlockDate(block: block)
-                
-                let blockId = try blockDao.insert(block)
-                block.id = blockId
-                
-                // todo 默认添加一个空 todo
-                var todoBlock = Block.newTodoBlock(noteId: toggleBlock.noteId, parent: blockId, sort: 65536)
-                let todoBlockId = try blockDao.insert(todoBlock)
-                todoBlock.id = todoBlockId
-                childBlocks.append(todoBlock)
-                
-            }
-            return DBResult<(Block,[Block])>.success((block,childBlocks))
-        } catch _ {
-            return DBResult<(Block,[Block])>.failure(DBError(code: .None))
-        }
-    }
-    
+        
     func updateBlock(block: Block) -> DBResult<Block> {
         do {
             var isSuccess = false

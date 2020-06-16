@@ -53,7 +53,6 @@
 		186DDE7924921CC400A4C63C /* SectionNoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */; };
 		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
 		186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */; };
-		186DDE812494835D00A4C63C /* WFNoteCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE802494835D00A4C63C /* WFNoteCellNode.swift */; };
 		1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */; };
 		1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */; };
 		1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */; };
@@ -154,7 +153,6 @@
 		186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionNoteInfo.swift; sourceTree = "<group>"; };
 		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
-		186DDE802494835D00A4C63C /* WFNoteCellNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WFNoteCellNode.swift; sourceTree = "<group>"; };
 		1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldAlertViewController.swift; sourceTree = "<group>"; };
@@ -431,7 +429,6 @@
 			isa = PBXGroup;
 			children = (
 				18E9D6C224715112001E41A0 /* NoteCellNode.swift */,
-				186DDE802494835D00A4C63C /* WFNoteCellNode.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -786,7 +783,6 @@
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
-				186DDE812494835D00A4C63C /* WFNoteCellNode.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,

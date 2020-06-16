@@ -142,20 +142,28 @@ class NoteCellNode: ASCellNode {
         
         // todo
         var todoInfo:(Int,Int) = (0,0)
-        if noteInfo.todoToggleBlocks.isNotEmpty {
-            var todoBlocks:[Block] = []
-            for toggleBlock in noteInfo.todoToggleBlocks {
-                for block in noteInfo.getChildTodoBlocks(parent: toggleBlock.id) {
-                    if todoBlocks.count <= 10 {
-                        todoBlocks.append(block)
-                    }
-                    
-                    if block.isChecked {
-                        todoInfo.0 = todoInfo.0 + 1
-                    }
-                    todoInfo.1 = todoInfo.1 + 1
+        let todoBlocks = noteInfo.todoBlocks
+        if todoBlocks.isNotEmpty {
+//            var todoBlocks:[Block] = []
+//            for toggleBlock in noteInfo.todoToggleBlocks {
+//                for block in noteInfo.getChildTodoBlocks(parent: toggleBlock.id) {
+//                    if todoBlocks.count <= 10 {
+//                        todoBlocks.append(block)
+//                    }
+//
+//                    if block.isChecked {
+//                        todoInfo.0 = todoInfo.0 + 1
+//                    }
+//                    todoInfo.1 = todoInfo.1 + 1
+//                }
+//            }
+            for todoBlock  in todoBlocks {
+                if todoBlock.isChecked {
+                    todoInfo.0 = todoInfo.0 + 1
                 }
+                todoInfo.1 = todoInfo.1 + 1
             }
+            
             
             if textHeight == 0 {
                 let todoCount = Int(remainHeight / (Constants.todoHeight))

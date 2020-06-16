@@ -208,7 +208,7 @@ extension NotesView {
             blockTypes.append(BlockType.text)
             break
         case .todo:
-            blockTypes.append(BlockType.toggle)
+            blockTypes.append(BlockType.todo)
             break
         case .images:
             break

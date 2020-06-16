@@ -45,20 +45,12 @@ struct Block {
         return block
     }
     
-    static func newToggleBlock(noteId:Int64,text: String = "清单",sort:Double = 65536) -> Block {
-        var block = Block()
-        block.type = BlockType.toggle.rawValue
-        block.text = text
-        block.noteId = noteId
-        block.sort = sort
-        return block
-    }
     
     mutating func getProperty(key: String) -> Any? {
         return propertiesDic[key]
     }
     
-    static func newTodoBlock(noteId:Int64,parent:Int64,sort:Double,text: String = "") -> Block {
+    static func newTodoBlock(noteId:Int64,sort:Double,text: String = "",parent:Int64 = 0) -> Block {
         var block = Block()
         block.type = BlockType.todo.rawValue
         block.isChecked = false
@@ -87,6 +79,5 @@ enum BlockType: String {
     case note = "note"
     case text = "text"
     case todo = "todo"
-    case toggle = "toggle"
     case image = "image"
 }
