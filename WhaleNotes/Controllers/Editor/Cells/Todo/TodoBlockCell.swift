@@ -70,7 +70,7 @@ class TodoBlockCell: UITableViewCell {
     }
     
     lazy var textView: UITextView = UITextView().then {
-        $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         $0.textColor = .primaryText
         $0.isEditable = true
         $0.isScrollEnabled = false

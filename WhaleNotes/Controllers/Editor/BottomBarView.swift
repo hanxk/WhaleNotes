@@ -16,19 +16,15 @@ class BottomBarView: UIView {
     }
     
     lazy var moreButton: UIButton = UIButton().then {
-        $0.setImage(keyboardImage, for: .normal)
-        $0.isHidden = true
+        $0.setImage(UIImage(systemName:  "ellipsis", pointSize: 20, weight: .regular), for: .normal)
     }
     
-    var keyboardShow = false {
-        didSet {
-            moreButton.isHidden = !keyboardShow
-//            moreButton.setImage(keyboardShow ? keyboardImage : moreImage, for: .normal)
-        }
+    lazy var updatedAtText: UILabel = UILabel().then {
+        $0.font = UIFont.systemFont(ofSize: 13)
+        $0.textColor = UIColor(hexString: "#666666")
+        $0.text = "2020年5月10日 上午10:00"
     }
     
-    private lazy var moreImage = UIImage(systemName: "ellipsis",withConfiguration: config)
-    private lazy var keyboardImage = UIImage(systemName: "keyboard.chevron.compact.down",withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .light))
     
     init() {
         super.init(frame: CGRect.zero)
@@ -39,10 +35,10 @@ class BottomBarView: UIView {
     }
     
     private func setupUI() {
-        
         self.translatesAutoresizingMaskIntoConstraints = false
         addSubview(addButton)
         addSubview(moreButton)
+        addSubview(updatedAtText)
         
         self.backgroundColor = .white
         
@@ -57,13 +53,13 @@ class BottomBarView: UIView {
             make.trailing.equalToSuperview().offset(-5)
             make.top.bottom.equalToSuperview()
         }
-        tintColor = .buttonTintColor
         
-//        self.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
-//        self.layer.shadowOpacity = 1
-//        self.layer.shadowRadius = 2
-//        self.layer.shadowOffset = CGSize(width: 0, height: -1)
-//        self.layer.masksToBounds = false
+        
+        updatedAtText.snp.makeConstraints { (make) in
+            make.center.equalToSuperview()
+        }
+        
+        tintColor = .buttonTintColor
 
     }
 }

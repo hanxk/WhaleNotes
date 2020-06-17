@@ -12,13 +12,13 @@ import RxSwift
 class TextBlockCell: UITableViewCell {
     
     let textView: UITextView = UITextView().then {
-        $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         $0.textColor = .primaryText
         $0.isEditable = true
         $0.isScrollEnabled = false
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
-        $0.textContainerInset = UIEdgeInsets.zero
+        $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
         $0.textContainer.lineFragmentPadding = 0
     }
     var textChanged: ((String) -> Void)?
@@ -80,7 +80,7 @@ class TextBlockCell: UITableViewCell {
     
     func setupViews() {
         //        self.selectionStyle = .none
-        _setSpacing(textView: textView, fontSize: 17, lineSpacing: 1, weight: .regular)
+        _setSpacing(textView: textView, fontSize: 17, lineSpacing: 1.5, weight: .regular)
         contentView.addSubview(textView)
         textView.delegate = self
         textView.snp.makeConstraints { (make) in

@@ -29,6 +29,7 @@
 		1820C4BF248D263100484AF8 /* emoji_symbols.csv in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4BE248D263100484AF8 /* emoji_symbols.csv */; };
 		1820C4C1248D292D00484AF8 /* emoji_flags.csv in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4C0248D292D00484AF8 /* emoji_flags.csv */; };
 		182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */; };
+		182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8EF24989C7400C85F8F /* TitleTextField.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
 		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
@@ -128,6 +129,7 @@
 		1820C4BE248D263100484AF8 /* emoji_symbols.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = emoji_symbols.csv; sourceTree = "<group>"; };
 		1820C4C0248D292D00484AF8 /* emoji_flags.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = emoji_flags.csv; sourceTree = "<group>"; };
 		182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoFooterView.swift; sourceTree = "<group>"; };
+		182BE8EF24989C7400C85F8F /* TitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleTextField.swift; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
 		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
@@ -308,6 +310,7 @@
 				18E7BF81248C8B5400B8AEC1 /* Views */,
 				188328F524540FB40097A01D /* Logger.swift */,
 				1849490D24596E26001B61C3 /* ImagesUtil.swift */,
+				182BE8EF24989C7400C85F8F /* TitleTextField.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -762,6 +765,7 @@
 				1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
 				18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */,
+				182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */,
 				181D63DC248A240200B34E20 /* BoardCategoryInfo.swift in Sources */,
 				18E6E672247BBB6200D598C5 /* Section.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,

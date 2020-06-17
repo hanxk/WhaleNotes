@@ -31,7 +31,7 @@ struct Note {
         self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
         self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
         
-        self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue})
+        self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue}.sorted(by: {$0.sort < $1.sort}))
         
         
     }
@@ -43,7 +43,7 @@ struct Note {
         return rootBlock.text.isEmpty &&
             textBlock?.text.isEmpty ?? true &&
         imageBlocks.isEmpty &&
-            todoBlocks.isEmpty
+            rootTodoBlock == nil
     }
     
     private(set) var imageBlocks:[Block] = []
@@ -97,6 +97,13 @@ extension Note {
     
     private mutating func removeTodoBlock(todoBlock:Block) {
         self.rootBlock.updatedAt = Date()
+        
+        if let rootTodoBlock = rootTodoBlock,todoBlock.id == rootTodoBlock.id {
+            self.rootTodoBlock = nil
+            self.todoBlocks.removeAll()
+            return
+        }
+        
         guard let index = self.todoBlocks.firstIndex(where: {$0.id == todoBlock.id}) else { return }
         self.todoBlocks.remove(at: index)
     }

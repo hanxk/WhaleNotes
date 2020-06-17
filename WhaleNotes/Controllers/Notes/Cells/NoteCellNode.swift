@@ -299,17 +299,24 @@ class NoteCellNode: ASCellNode {
         }
         
         let isEmptyContent = (stackLayout.children?.count ?? 0) == 0
-        
+
+        let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
         
         // 图片卡
-        if isEmptyContent && imageNodes.isNotEmpty {
+        if isEmptyContent {
+            
+            let bottomLayout = renderBottomBar(constrainedSize: constrainedSize)
+            let bottombarLayout = ASRelativeLayoutSpec(horizontalPosition: .start, verticalPosition: .end, sizingOption: [], child: bottomLayout)
+            
+            if self.imageNodes.isEmpty {
+                
+                return bottombarLayout
+            }
+            
             let imageNode = self.imageNodes[0]
             imageNode.style.width = cellWidth
             imageNode.style.height = cellHeight
 
-            let bottomLayout = renderBottomBar(constrainedSize: constrainedSize)
-            
-            let bottombarLayout = ASRelativeLayoutSpec(horizontalPosition: .start, verticalPosition: .end, sizingOption: [], child: bottomLayout)
             
             let overlayLayout =  ASOverlayLayoutSpec(child: imageNode, overlay: bottombarLayout)
             return overlayLayout
@@ -318,7 +325,6 @@ class NoteCellNode: ASCellNode {
         // 添加图片
         if imageNodes.isNotEmpty {
             let imageNode = self.imageNodes[0]
-            let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
             let children = ASInsetLayoutSpec(insets: insets, child:imageNode)
             stackLayout.children?.append(children)
         }

@@ -183,14 +183,17 @@ class DBStore {
         }
     }
     
-    func deleteToggleBlock(toggleBlock: Block) -> DBResult<Bool> {
+    
+    func deleteNoteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {
-                isSuccess = try tryUpdateBlockDate(block: toggleBlock)
+                isSuccess = try tryUpdateBlockDate(block: block)
                 if isSuccess {
-                    _ = try blockDao.deleteByParent(parent: toggleBlock.id)
-                    _ =  try blockDao.delete(id: toggleBlock.id)
+                    // 删除自身
+                    isSuccess = try blockDao.delete(id: block.id)
+                    // 删除 child blocks
+                    isSuccess = try blockDao.deleteByNoteId(noteId: block.id)
                 }
             }
             return DBResult<Bool>.success(isSuccess)
@@ -205,7 +208,9 @@ class DBStore {
             try db.transaction {
                 isSuccess = try tryUpdateBlockDate(block: block)
                 if isSuccess {
-                    isSuccess = try blockDao.deleteByNoteId(noteId: block.id)
+                    isSuccess = try blockDao.delete(id: block.id)
+                    // 删除子 block
+                    _ = try blockDao.deleteByParent(parent: block.id)
                 }
             }
             return DBResult<Bool>.success(isSuccess)
