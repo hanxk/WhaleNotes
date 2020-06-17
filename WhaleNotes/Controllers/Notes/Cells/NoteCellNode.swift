@@ -227,7 +227,7 @@ class NoteCellNode: ASCellNode {
         }
         
         if textHeight > halfContentHeight && todosHeight > halfContentHeight { // 各占一半
-            return (halfContentHeight,halfContentHeight)
+            return (remainHeight - Constants.todoHeight,Constants.todoHeight)
         }
         
         if textHeight > halfContentHeight {
