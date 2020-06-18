@@ -121,8 +121,8 @@ class AttachmentsBlockCell: UITableViewCell {
     }
     
     private func getImageCGSize(block:Block) -> CGSize {
-        let width = block.propertiesDic["width"] as? CGFloat ?? 1000
-        let height = block.propertiesDic["height"] as? CGFloat ?? 1000
+        let width = block.properties["width"] as? CGFloat ?? 1000
+        let height = block.properties["height"] as? CGFloat ?? 1000
         let fitHeight = self.imageWidth * height / width
         return CGSize(width: self.imageWidth, height: fitHeight)
     }
@@ -173,6 +173,7 @@ class AttachmentsBlockCell: UITableViewCell {
             make.leading.equalToSuperview().offset(EditorViewController.space)
             make.trailing.equalToSuperview().offset(-EditorViewController.space)
         }
+        self.backgroundColor = .clear
     }
 }
 

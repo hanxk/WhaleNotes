@@ -8,6 +8,7 @@
 
 import UIKit
 import MBProgressHUD
+import ContextMenu
 
 
 extension UITableViewController {
@@ -56,5 +57,15 @@ extension UIViewController {
         alertVC.modalPresentationStyle = .overFullScreen
         alertVC.modalTransitionStyle = .crossDissolve
         self.present(alertVC, animated: true, completion: nil)
+    }
+    
+    func showContextMenu(sourceView:UIView) {
+        guard let sourceVC = sourceView.controller else { return }
+        ContextMenu.shared.show(
+                sourceViewController: sourceVC,
+                viewController: self,
+                options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(shadowOpacity:0.06,overlayColor: UIColor.black.withAlphaComponent(0.3))),
+                sourceView: sourceView
+            )
     }
 }

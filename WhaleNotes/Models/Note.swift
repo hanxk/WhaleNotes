@@ -46,6 +46,26 @@ struct Note {
     }
     
     private(set) var imageBlocks:[Block] = []
+    
+    var createdDateStr:String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy年MM月dd日 HH:mm"
+        return  dateFormatter.string(from: self.rootBlock.createdAt)
+    }
+    var updatedDateStr:String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy年MM月dd日 HH:mm"
+        return  dateFormatter.string(from: self.rootBlock.updatedAt)
+    }
+    
+    var backgroundColor:String {
+        get {
+            return (rootBlock.properties["background_color"] as? String) ?? "#FFFFFF"
+        }
+        set {
+            rootBlock.properties["background_color"] = newValue
+        }
+    }
 }
 
 extension Note {

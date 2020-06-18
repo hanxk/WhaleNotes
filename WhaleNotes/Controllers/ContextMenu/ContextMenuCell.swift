@@ -20,8 +20,6 @@ class ContextMenuCell: UITableViewCell {
         }
     }
     
-
-    
     static let padding:CGFloat = 10
     static let cellHeight: CGFloat = 48
     

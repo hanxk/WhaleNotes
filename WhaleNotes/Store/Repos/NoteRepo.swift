@@ -13,6 +13,10 @@ import TLPhotoPicker
 
 class NoteRepo {
     
+    
+    static let shared = NoteRepo()
+    private init() {}
+    
     var disposebag = DisposeBag()
     
     

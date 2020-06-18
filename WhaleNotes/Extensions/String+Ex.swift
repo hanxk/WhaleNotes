@@ -24,6 +24,10 @@ extension String {
     var isNotEmpty: Bool {
         return !self.isEmpty
     }
+    
+    var isWhiteHex: Bool {
+        return  self.lowercased() == "#ffffff"
+    }
 }
 
 extension NSAttributedString {
@@ -73,8 +77,8 @@ extension String{
 
 extension String {
     
-    func convertToDictionary(text: String) -> [String: Any] {
-        if let data = text.data(using: .utf8) {
+    func convertToDictionary() -> [String: Any] {
+        if let data = self.data(using: .utf8) {
             do {
                 return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] ?? [:]
             } catch {

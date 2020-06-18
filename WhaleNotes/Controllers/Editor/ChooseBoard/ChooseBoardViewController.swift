@@ -25,21 +25,25 @@ class ChooseBoardViewController:UIViewController {
     }
     
     
-    var choosedBoards:[Board] = []
+//    var choosedBoards:[Board] = []
     
     private let cellReuseIndentifier = "ChooseBoardCell"
     
     private let disposeBag = DisposeBag()
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
-//        $0.separatorColor = .clear
+        $0.separatorColor = UIColor.divider
         $0.delegate = self
         $0.dataSource = self
         $0.showsVerticalScrollIndicator = false
-//        $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
+        $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
         $0.sectionFooterHeight = CGFloat.leastNormalMagnitude
         $0.register(ChooseBoardCell.self, forCellReuseIdentifier: self.cellReuseIndentifier)
     }
+    
+    private lazy var  cellBackgroundView = UIView().then {
+          $0.backgroundColor = UIColor.tappedColor
+      }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,16 +59,16 @@ class ChooseBoardViewController:UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
             make.leading.trailing.equalToSuperview()
         }
-        self.tableView.backgroundColor = .bg
+        self.tableView.backgroundColor = .white
         
         
         self.title = "选择便签板"
          
-        self.navigationItem.leftBarButtonItem =  UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
-          
-          let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
-          barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
-          self.navigationItem.rightBarButtonItem = barButtonItem
+//        self.navigationItem.leftBarButtonItem =  UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
+//
+//          let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
+//          barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
+//          self.navigationItem.rightBarButtonItem = barButtonItem
     }
     
     private func loadBoards() {
@@ -103,6 +107,11 @@ class ChooseBoardViewController:UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
 }
 
 extension ChooseBoardViewController:UITableViewDataSource {
@@ -136,58 +145,73 @@ extension ChooseBoardViewController:UITableViewDataSource {
         switch sectionType {
         case .system(let systemBoards):
             cell.board = systemBoards[indexPath.row]
-            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
+//            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
             break
         case .boards:
             cell.board  = self.boards[indexPath.row]
-            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
+//            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
         case .categories:
             cell.board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
-            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
+//            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
         }
         return cell
     }
     
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return UIView(frame: .zero)
+    }
+    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        
+
         if case BoardSectionType.categories = self.menuSectionTypes[section] {
             return self.boardCategories[self.getCategoryIndex(section: section)].category.title
         }
-        return nil
+        return ""
     }
     
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if case BoardSectionType.categories = self.menuSectionTypes[section] {
+            return ContextMenuCell.cellHeight
+        }
+        return CGFloat.leastNormalMagnitude
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return CGFloat.leastNormalMagnitude
+    }
 }
 
 
 extension ChooseBoardViewController:UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 44
+        return ContextMenuCell.cellHeight
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let sectionType = self.menuSectionTypes[indexPath.section]
-        switch sectionType {
-        case .system(let systemBoards):
-            self.toggleBoard(systemBoards[indexPath.row],indexPath: indexPath)
-        case .boards:
-            self.toggleBoard(self.boards[indexPath.row],indexPath: indexPath)
-        case .categories:
-            let board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
-            self.toggleBoard(board,indexPath: indexPath)
-        }
+//        let sectionType = self.menuSectionTypes[indexPath.section]
+//        switch sectionType {
+//        case .system(let systemBoards):
+//            self.toggleBoard(systemBoards[indexPath.row],indexPath: indexPath)
+//        case .boards:
+//            self.toggleBoard(self.boards[indexPath.row],indexPath: indexPath)
+//        case .categories:
+//            let board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
+//            self.toggleBoard(board,indexPath: indexPath)
+//        }
     }
     
-    func toggleBoard(_ board:Board,indexPath:IndexPath) {
-        if let index = self.choosedBoards.firstIndex(where: {$0.id == board.id}) {
-            self.choosedBoards.remove(at: index)
-        }else {
-            self.choosedBoards.append(board)
-        }
-
-        self.tableView.performBatchUpdates({
-            self.tableView.reloadRows(at: [indexPath], with: .none)
-        }, completion: nil)
-    }
+//    func toggleBoard(_ board:Board,indexPath:IndexPath) {
+//        if let index = self.choosedBoards.firstIndex(where: {$0.id == board.id}) {
+//            self.choosedBoards.remove(at: index)
+//        }else {
+//            self.choosedBoards.append(board)
+//        }
+//
+//        self.tableView.performBatchUpdates({
+//            self.tableView.reloadRows(at: [indexPath], with: .none)
+//        }, completion: nil)
+//    }
 }
 
 enum BoardSectionType {

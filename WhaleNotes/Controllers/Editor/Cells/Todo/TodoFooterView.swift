@@ -57,7 +57,6 @@ class TodoFooterView: UIView {
     init() {
         super.init(frame: CGRect.zero)
         self.setup()
-        self.backgroundColor = .white
     }
     
     private func setup() {

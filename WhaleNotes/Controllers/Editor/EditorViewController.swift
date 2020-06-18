@@ -47,15 +47,22 @@ class EditorViewController: UIViewController {
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
     var boards:[Board] = []
     
-    private let noteRepo = NoteRepo()
+    private let noteRepo = NoteRepo.shared
     
     
     // 索引
-    private var note: Note!{
+    private var note: Note!
+    
+    
+    private var bg:String! {
         didSet {
+            let bg =  UIColor(hexString: note.backgroundColor)
+            bottombar.backgroundColor = bg
+            self.navigationItem.titleView = titleTextField
+            navigationController?.navigationBar.barTintColor = bg
+            self.view.backgroundColor =  bg
         }
     }
-    
     
     private var oldUpdatedAt:Date!
     
@@ -131,7 +138,7 @@ class EditorViewController: UIViewController {
         $0.placeholder = "标题"
         $0.clipsToBounds = true
         $0.bounds = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 120, height: 44 )
-//        $0.backgroundColor = .red
+        $0.backgroundColor = .clear
         $0.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         $0.textColor = .primaryText
         $0.delegate = self
@@ -146,7 +153,6 @@ class EditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        self.navigationItem.titleView = titleTextField
         self.loadBoards()
         
     }
@@ -155,10 +161,10 @@ class EditorViewController: UIViewController {
         BoardRepo.shared.getBoardsByNoteId(noteId: note.id)
             .subscribe(onNext: { [weak self] boards in
                 self?.setupData(boards:boards)
-            }, onError: { error in
-                Logger.error(error)
+                }, onError: { error in
+                    Logger.error(error)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     
@@ -172,10 +178,14 @@ class EditorViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        navigationController?.navigationBar.backgroundColor = .red
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHideNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
         
+
+        self.bg = note.backgroundColor
         updateAt = self.note.updatedAt
     }
     @objc func rotated() {
@@ -186,6 +196,7 @@ class EditorViewController: UIViewController {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
         tableView.endEditing(true)
+        
         
         tryNotifiNoteUpdated()
     }
@@ -217,7 +228,6 @@ class EditorViewController: UIViewController {
     }
     
     private func setupUI() {
-        self.view.backgroundColor = .white
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
@@ -232,6 +242,7 @@ class EditorViewController: UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
             make.leading.trailing.equalTo(0)
         }
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -264,20 +275,27 @@ class EditorViewController: UIViewController {
 extension EditorViewController {
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
-         
-        
-
-        let items:[ContextMenuItem] = [
-            ContextMenuItem(label: "置顶", icon: "pin", tag: 1),
-            ContextMenuItem(label: "便签板", icon: "rectangle.on.rectangle.angled", tag: 1),
-            ContextMenuItem(label: "背景色", icon: "paintbrush", tag: 1),
-            ContextMenuItem(label: "时间信息", icon: "info.circle", tag: 1,isNeedJump: true),
-            ContextMenuItem(label: "移动到废纸篓", icon: "trash", tag: 1),
-        ]
-        ContextMenuViewController.show(sourceView: sender,sourceVC: self, menuWidth:200, items: items) { item,vc in
-            let dateVC = NoteDateViewController()
-            dateVC.note = self.note
-            vc.navigationController?.pushViewController(dateVC, animated: true)
+        NoteMenuViewController.show(note: self.note, sourceView: sender) { newNote,noteMenuType in
+            self.handleNoteUpdated(newNote: newNote, noteMenuType: noteMenuType)
+        }
+    }
+    
+    private func handleNoteUpdated(newNote:Note,noteMenuType:NoteMenuType) {
+        self.note = newNote
+        self.bg = note.backgroundColor
+        switch noteMenuType {
+             case .pin:
+                 break
+             case .copy:
+                 break
+             case .move:
+                 break
+             case .background:
+                 break
+             case .info:
+                 break
+             case .trash:
+                 break
         }
     }
     
@@ -287,7 +305,7 @@ extension EditorViewController {
         //            self.mode = EditorMode.delete(note: self.note)
         //            self.navigationController?.popViewController(animated: true)
         //        }
-      
+        
     }
     
     
@@ -371,11 +389,13 @@ extension EditorViewController {
         self.titleTextField.text = self.note.rootBlock.text
         self.setupSectionsTypes()
         self.tableView.reloadData()
+        
+        bottombar.updatedDateStr =  self.note.updatedDateStr
     }
     
     fileprivate func setupSectionsTypes() {
         self.sections.removeAll()
-//        self.sections.append(SectionType.boards)
+        //        self.sections.append(SectionType.boards)
         if let _ = note.textBlock {
             self.sections.append(SectionType.text)
         }
@@ -455,7 +475,7 @@ extension EditorViewController: UITableViewDataSource {
         }
         var section = 1
         if let textSection = sections.firstIndex(of: SectionType.text) {
-           section = textSection + 1
+            section = textSection + 1
         }
         return section
     }
@@ -515,6 +535,7 @@ extension EditorViewController: UITableViewDataSource {
                 guard let self = self else { return }
                 self.tryUpdateBlock(block: block)
             }
+            textCell.backgroundColor =  self.view.backgroundColor
             self.textCell = textCell
             break
         case .todo:
@@ -522,6 +543,7 @@ extension EditorViewController: UITableViewDataSource {
             let todoCell = cell as! TodoBlockCell
             todoCell.todoBlock = todoBlock
             todoCell.note = note
+            todoCell.backgroundColor = .clear
             todoCell.delegate = self
         case .images:
             let imagesCell = cell as! AttachmentsBlockCell
@@ -552,7 +574,7 @@ extension EditorViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let contextItem = UIContextualAction(style: .destructive, title: "删除") {  (contextualAction, view, boolValue) in
-           self.tryDeleteTodoBlock(block: self.note.todoBlocks[indexPath.row])
+            self.tryDeleteTodoBlock(block: self.note.todoBlocks[indexPath.row])
         }
         let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
         
@@ -571,7 +593,7 @@ extension EditorViewController: UITableViewDataSource {
             self.tryUpdateBlock(block: block) {
                 //新增
                 let nextIndexPath = IndexPath(row: row+1, section: self.todoSectionIndex)
-
+                
                 let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
                 self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
             }
@@ -581,7 +603,6 @@ extension EditorViewController: UITableViewDataSource {
     
     func openChooseBoardsVC()  {
         let vc = ChooseBoardViewController()
-        vc.choosedBoards = self.boards
         self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
@@ -606,7 +627,7 @@ extension EditorViewController: UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-                let sectionType = sections[section]
+        let sectionType = sections[section]
         switch sectionType {
         case .todo:
             let todoFooterView = TodoFooterView()
@@ -627,26 +648,26 @@ extension EditorViewController: UITableViewDataSource {
     
     private func handlerTodoMenuButtonTapped(menuButton: UIButton) {
         
-       let TAG_DEL = 1
+        let TAG_DEL = 1
         
-       let items = [
-           ContextMenuItem(label: "删除", icon: "trash",tag:TAG_DEL)
-       ]
-       ContextMenuViewController.show(sourceView:menuButton, sourceVC: self, items: items) { [weak self] menuItem, vc in
-        vc.dismiss(animated: true, completion: nil)
-           guard let self = self,let tag = menuItem.tag as? Int else { return }
-           switch tag {
-           case TAG_DEL:
-               self.showAlertMessage(message: "确认要删除所有待办事项吗？", positiveButtonText: "删除",isPositiveDestructive:true) {
-                self.deleteRootTodoBlock()
+        let items = [
+            ContextMenuItem(label: "删除", icon: "trash",tag:TAG_DEL)
+        ]
+        ContextMenuViewController.show(sourceView:menuButton, sourceVC: self, items: items) { [weak self] menuItem, vc in
+            vc.dismiss(animated: true, completion: nil)
+            guard let self = self,let tag = menuItem.tag as? Int else { return }
+            switch tag {
+            case TAG_DEL:
+                self.showAlertMessage(message: "确认要删除所有待办事项吗？", positiveButtonText: "删除",isPositiveDestructive:true) {
+                    self.deleteRootTodoBlock()
+                    
+                }
+                break
+            default:
+                break
                 
-               }
-               break
-           default:
-               break
-               
-           }
-       }
+            }
+        }
     }
     
     
@@ -666,8 +687,8 @@ extension EditorViewController: UITableViewDataSource {
                 }else {
                     self.tableView.scrollToRow(at: targetIndex, at: .bottom, animated: false)
                     if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
-                                       cell.textView.becomeFirstResponder()
-                                   }
+                        cell.textView.becomeFirstResponder()
+                    }
                 }
             })
         }
@@ -691,7 +712,7 @@ extension EditorViewController: UITableViewDataSource {
             },onError: {
                 Logger.error($0)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
     }
     
@@ -757,13 +778,13 @@ extension EditorViewController: UITableViewDelegate {
         }
         
         if sections[section-1] == .text{
-
+            
             if sections[section] == .todo {
-
+                
                 return CGFloat.leastNormalMagnitude
             }
             if sections[section] == .images {
-
+                
                 return  4
             }
         }
@@ -781,12 +802,12 @@ extension EditorViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         switch sections[section] {
-           case .todo:
-               return 34
-           case .text:
-               return CGFloat.leastNormalMagnitude
-           default:
-               return CGFloat.leastNormalMagnitude
+        case .todo:
+            return 34
+        case .text:
+            return CGFloat.leastNormalMagnitude
+        default:
+            return CGFloat.leastNormalMagnitude
         }
     }
     
@@ -804,7 +825,7 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         
         let fromSection = sourceIndexPath.section
-//        let toSection = destinationIndexPath.section
+        //        let toSection = destinationIndexPath.section
         
         let fromRow = sourceIndexPath.row
         let toRow = destinationIndexPath.row
@@ -983,11 +1004,11 @@ extension EditorViewController {
                 guard let index = self.note.getTodoBlockIndex(todoBlock: block) else { return }
                 
                 self.note.removeBlock(block: block)
-                    self.tableView.performBatchUpdates({
-                        self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .automatic)
-                    }, completion: { _ in
-    
-                    })
+                self.tableView.performBatchUpdates({
+                    self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .automatic)
+                }, completion: { _ in
+                    
+                })
                 
                 
                 }, onError: {
@@ -1105,7 +1126,7 @@ extension EditorViewController: UITextFieldDelegate {
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         let title = textField.text ?? ""
         if  title != note.rootBlock.text {
-           
+            
             if  var titleBlock = note.rootBlock {
                 titleBlock.text = title
                 self.tryUpdateBlock(block: titleBlock)

@@ -22,12 +22,8 @@ class NoteDateViewController: UIViewController {
     var items:[(String,String)] = []
     var note:Note!{
         didSet {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy年MM月dd日 HH:mm:ss"
-            let updatedAt = dateFormatter.string(from: note.rootBlock.updatedAt)
-            let createdAt = dateFormatter.string(from: note.rootBlock.createdAt)
-            self.items.append(("更新时间",updatedAt))
-            self.items.append(("创建时间",createdAt))
+            self.items.append(("更新时间",note.updatedDateStr))
+            self.items.append(("创建时间",note.createdDateStr))
             self.tableView.reloadData()
         }
     }

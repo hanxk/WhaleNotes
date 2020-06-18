@@ -11,7 +11,7 @@ import AsyncDisplayKit
 
 protocol NoteCellNodeDelegate:AnyObject {
     func noteCellImageBlockTapped(imageView:ASImageNode,blocks:[Block],index:Int)
-    func noteCellMenuTapped(sender:UIView)
+    func noteCellMenuTapped(sender:UIView,note:Note)
 }
 
 class NoteCellNode: ASCellNode {
@@ -56,18 +56,26 @@ class NoteCellNode: ASCellNode {
     
     var note:Note!
     
-    required init(noteInfo:Note,itemSize: CGSize) {
+    func setupBackBackground() {
+        self.backgroundColor = UIColor(hexString: note.backgroundColor)
+               if note.backgroundColor.isWhiteHex {
+                   self.borderWidth = 1
+                   self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.06).cgColor
+               }
+    }
+    
+    required init(note:Note,itemSize: CGSize) {
         super.init()
         
-        self.note = noteInfo
+        self.note = note
+        
+        self.setupBackBackground()
         
         let cornerRadius:CGFloat = 6
-        self.borderWidth = 1
         self.cornerRadius = cornerRadius
         //        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
-        self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.06).cgColor
         //        self.borderColor = UIColor(hexString: "#000000").cgColor
-        self.backgroundColor = UIColor.init(hexString: "#ffffff")
+       
         //        self.backgroundColor = UIColor.init(hexString: "#FAFAFA")
         
         var titleHeight:CGFloat = 0
@@ -78,9 +86,9 @@ class NoteCellNode: ASCellNode {
         var remainHeight = contentHeight
         
         // 标题
-        if  noteInfo.rootBlock.text.isNotEmpty {
+        if  note.rootBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
-            titleNode.attributedText = getTitleLabelAttributes(text: noteInfo.rootBlock.text)
+            titleNode.attributedText = getTitleLabelAttributes(text: note.rootBlock.text)
             titleNode.maximumNumberOfLines = 2
             
             let titlePadding:CGFloat = 2
@@ -102,8 +110,8 @@ class NoteCellNode: ASCellNode {
         
         
         // 图片
-        if noteInfo.imageBlocks.isNotEmpty {
-            let imageBlock = noteInfo.imageBlocks[0]
+        if note.imageBlocks.isNotEmpty {
+            let imageBlock = note.imageBlocks[0]
             let imageNode = ASImageNode().then {
                 $0.contentMode = .scaleAspectFill
                 let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
@@ -126,7 +134,7 @@ class NoteCellNode: ASCellNode {
         var textHeight:CGFloat = 0
         
         // 文本
-        if let textBlock = noteInfo.textBlock,textBlock.text.isNotEmpty {
+        if let textBlock = note.textBlock,textBlock.text.isNotEmpty {
             
             let textNode = ASTextNode()
             textNode.attributedText = getTextLabelAttributes(text: textBlock.text)
@@ -142,7 +150,7 @@ class NoteCellNode: ASCellNode {
         
         // todo
         var todoInfo:(Int,Int) = (0,0)
-        let todoBlocks = noteInfo.todoBlocks
+        let todoBlocks = note.todoBlocks
         if todoBlocks.isNotEmpty {
 //            var todoBlocks:[Block] = []
 //            for toggleBlock in noteInfo.todoToggleBlocks {
@@ -408,14 +416,19 @@ class NoteCellNode: ASCellNode {
 //            menuTodoText.backgroundColor = .red
             let centerTodoText = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: menuTodoText)
             todoStack.children = [menuTodoImage,centerTodoText]
+            
         }
         let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: Constants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
-        
+
+        self.menuButton.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
         bottomLayout.children?.append(todoStackLayout)
         bottomLayout.children?.append(self.menuButton)
         return bottomLayout
     }
     
+    @objc func menuButtonTapped(sender:ASImageNode) {
+        delegate?.noteCellMenuTapped(sender: sender.view, note: self.note)
+    }
     
     private func renderImageNodes(constrainedSize:ASSizeRange) -> ASLayoutElement {
         let height:CGFloat = 120

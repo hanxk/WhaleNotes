@@ -20,6 +20,7 @@ class TextBlockCell: UITableViewCell {
         $0.spellCheckingType = .no
         $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 14, right: 0)
         $0.textContainer.lineFragmentPadding = 0
+        $0.backgroundColor = .clear
     }
     var textChanged: ((String) -> Void)?
     var blockUpdated:((Block) -> Void)?
@@ -79,6 +80,7 @@ class TextBlockCell: UITableViewCell {
     }
     
     func setupViews() {
+        self.backgroundColor =  .clear
         //        self.selectionStyle = .none
         _setSpacing(textView: textView, fontSize: 17, lineSpacing: 1.5, weight: .regular)
         contentView.addSubview(textView)

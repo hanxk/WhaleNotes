@@ -22,7 +22,12 @@ class BottomBarView: UIView {
     lazy var updatedAtText: UILabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 13)
         $0.textColor = UIColor(hexString: "#666666")
-        $0.text = "2020年5月10日 上午10:00"
+    }
+    
+    var updatedDateStr:String = "" {
+        didSet {
+            self.updatedAtText.text = updatedDateStr
+        }
     }
     
     
@@ -40,7 +45,6 @@ class BottomBarView: UIView {
         addSubview(moreButton)
         addSubview(updatedAtText)
         
-        self.backgroundColor = .white
         
         addButton.snp.makeConstraints { (make) in
             make.width.equalTo(44)

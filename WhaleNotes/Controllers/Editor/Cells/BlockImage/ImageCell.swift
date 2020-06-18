@@ -37,6 +37,7 @@ class ImageCell: UICollectionViewCell {
         imageView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview()
         }
+        contentView.backgroundColor = .clear
     }
     
 }

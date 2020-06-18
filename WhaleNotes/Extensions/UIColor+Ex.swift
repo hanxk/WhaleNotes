@@ -60,6 +60,12 @@ extension UIColor {
     }
     
     
+    open class var divider: UIColor {
+        get {
+            return UIColor(hexString: "#ECECEC")
+        }
+    }
+    
     open class var placeHolderColor: UIColor {
         get {
             return UIColor(named: "PlaceHolder")!

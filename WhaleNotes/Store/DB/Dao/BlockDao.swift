@@ -68,9 +68,8 @@ class BlockDao {
                                               Field_Block.noteId <- block.noteId,
                                               Field_Block.parent <- block.parent,
                                               Field_Block.updatedAt <- block.updatedAt,
-                                              Field_Block.properties <- block.properties
+                                              Field_Block.properties <- block.properties.toJSON()
                                             ))
-        
         return rows == 1
     }
     
@@ -150,7 +149,7 @@ class BlockDao {
             
             let sectionId = row.i64("section_id")!
             
-            let block = Block(id: id, type: type, text: text, isChecked: isChecked, isExpand: isExpand, source: source, createdAt: createdAt, updatedAt: updatedAt, sort: sort, noteId: noteId, parent: parent, properties: properties)
+            let block = Block(id: id, type: type, text: text, isChecked: isChecked, isExpand: isExpand, source: source, createdAt: createdAt, updatedAt: updatedAt, sort: sort, noteId: noteId, parent: parent, properties: properties.convertToDictionary())
             blocks.append((sectionId,block))
         }
         
@@ -200,7 +199,7 @@ extension BlockDao {
                                 Field_Block.updatedAt <- block.updatedAt,
                                 Field_Block.noteId <- block.noteId,
                                 Field_Block.parent <- block.parent,
-                                Field_Block.properties <- block.properties
+                                Field_Block.properties <- block.properties.toJSON()
             )
         }
         return table.insert(or: conflict,
@@ -214,14 +213,14 @@ extension BlockDao {
                             Field_Block.updatedAt <- block.updatedAt,
                             Field_Block.noteId <- block.noteId,
                             Field_Block.parent <- block.parent,
-                            Field_Block.properties <- block.properties
+                            Field_Block.properties <- block.properties.toJSON()
         )
         
     }
     
     fileprivate func generateBlock(row: Row) -> Block {
         var block = Block(id: row[Field_Block.id], type: row[Field_Block.type], text: row[Field_Block.text], isChecked: row[Field_Block.isChecked], isExpand: row[Field_Block.isExpand], source: row[Field_Block.source], createdAt: row[Field_Block.createdAt],updatedAt: row[Field_Block.updatedAt],sort: row[Field_Block.sort], noteId: row[Field_Block.noteId],parent:row[Field_Block.parent])
-        block.properties = row[Field_Block.properties]
+        block.properties = row[Field_Block.properties].convertToDictionary()
         return block
     }
 }

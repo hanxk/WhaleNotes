@@ -50,7 +50,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 //        notesView?.viewWillDisappear(animated)
-self.navigationController?.navigationBar.barTintColor = .white
+//self.navigationController?.navigationBar.barTintColor = .white
     }
     
 }

@@ -34,7 +34,12 @@ class TodoBlockCell: UITableViewCell {
             isEmpty = todoBlock.text.isEmpty
         }
     }
-    var note:Note!
+    var note:Note! {
+        didSet {
+            self.backgroundColor = UIColor(hexString: note.backgroundColor)
+            self.selectedBackgroundView?.backgroundColor =  self.backgroundColor
+        }
+    }
     
     var isChecked: Bool = false {
         didSet {
@@ -74,6 +79,7 @@ class TodoBlockCell: UITableViewCell {
         $0.textColor = .primaryText
         $0.isEditable = true
         $0.isScrollEnabled = false
+        $0.backgroundColor = .clear
         
         $0.textContainerInset = UIEdgeInsets.zero
         $0.textContainer.lineFragmentPadding = 0
@@ -99,6 +105,8 @@ class TodoBlockCell: UITableViewCell {
     private func setupUI() {
         
         let topSpace:CGFloat = 7.3
+        
+        self.selectionStyle = .none
         
         self.contentView.addSubview(chkbtn)
         chkbtn.snp.makeConstraints { (make) in

@@ -36,7 +36,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     private lazy var disposeBag = DisposeBag()
     
     private let usecase = NotesUseCase()
-    private let editorUseCase = NoteRepo()
+    private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
     private var sectionNoteInfo:SectionNoteInfo!
@@ -230,10 +230,10 @@ extension NotesView: ASCollectionDataSource {
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
-        let noteInfo = self.noteInfos[indexPath.row]
+        let note = self.noteInfos[indexPath.row]
         let itemSize = self.collectionLayout.itemSize
         return {
-            let node =  NoteCellNode(noteInfo: noteInfo,itemSize: itemSize)
+            let node =  NoteCellNode(note: note,itemSize: itemSize)
             node.delegate = self
             return node
         }
@@ -258,7 +258,36 @@ extension NotesView:NoteCellNodeDelegate {
         
     }
     
-    func noteCellMenuTapped(sender: UIView) {
+    func noteCellMenuTapped(sender: UIView,note:Note) {
+        NoteMenuViewController.show(note: note,sourceView: sender) { newNote,noteMenuType in
+           self.handleNoteUpdated(newNote: newNote, noteMenuType: noteMenuType)
+        }
+    }
+    
+    
+    private func handleNoteUpdated(newNote:Note,noteMenuType:NoteMenuType) {
+        guard let row = self.noteInfos.firstIndex(where: {$0.id == newNote.id}) else { return }
+//        self.note = newNote
+//        self.bg = note.backgroundColor
+        self.sectionNoteInfo.notes[row] = newNote
+        switch noteMenuType {
+             case .pin:
+                 break
+             case .copy:
+                 break
+             case .move:
+                 break
+             case .background:
+                if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
+                    noteCell.note = newNote
+                    noteCell.setupBackBackground()
+                }
+                 break
+             case .info:
+                 break
+             case .trash:
+                 break
+        }
     }
 }
 

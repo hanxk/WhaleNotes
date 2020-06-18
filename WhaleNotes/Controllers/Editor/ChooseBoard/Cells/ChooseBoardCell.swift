@@ -16,29 +16,29 @@ class ChooseBoardCell: UITableViewCell {
         }
     }
     
-    var isChoosed:Bool = false {
-        didSet {
-            self.checkImageView.isHidden = !isChoosed
-        }
-    }
+//    var isChoosed:Bool = false {
+//        didSet {
+//            self.checkImageView.isHidden = !isChoosed
+//        }
+//    }
     
     
     private lazy var emojiLabel:UILabel = UILabel().then{
-        $0.font = UIFont.systemFont(ofSize: 22)
+        $0.font = UIFont.systemFont(ofSize: 17)
         $0.textAlignment = .center
     }
     
     
     private lazy var titleLabel: UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         $0.textColor = .primaryText
         $0.textAlignment = .left
     }
     
-    private lazy var checkImageView: UIImageView = UIImageView().then {
-        $0.image = UIImage(systemName: "checkmark", pointSize: 16, weight: .regular)
-        $0.isHidden = true
-    }
+//    private lazy var checkImageView: UIImageView = UIImageView().then {
+//        $0.image = UIImage(systemName: "checkmark", pointSize: 15, weight: .regular)
+//        $0.isHidden = true
+//    }
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -55,22 +55,22 @@ class ChooseBoardCell: UITableViewCell {
         contentView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints {
             $0.width.height.equalTo(SideMenuCellContants.iconWidth)
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(ContextMenuCell.padding)
             $0.centerY.equalToSuperview()
         }
         
         contentView.addSubview(titleLabel)
-        contentView.addSubview(checkImageView)
         titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(emojiLabel.snp.trailing).offset(14)
-            $0.trailing.equalTo(checkImageView.snp.leading).offset(6)
+            $0.leading.equalTo(emojiLabel.snp.trailing).offset(ContextMenuCell.padding)
+            $0.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
             $0.centerY.equalToSuperview()
         }
         
-        checkImageView.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.centerY.equalToSuperview()
-        }
+//        contentView.addSubview(checkImageView)
+//        checkImageView.snp.makeConstraints {
+//            $0.trailing.equalToSuperview().offset(-16)
+//            $0.centerY.equalToSuperview()
+//        }
         
         
     }

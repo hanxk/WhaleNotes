@@ -22,13 +22,13 @@ struct Block {
     
     
     // block 的附加属性
-    var properties:String = "{}"{
-        didSet {
-            propertiesDic = properties.convertToDictionary(text: self.properties)
-        }
-    }
+//    var properties:String = "{}"{
+//        didSet {
+//            propertiesDic = properties.convertToDictionary(text: self.properties)
+//        }
+//    }
     
-    var propertiesDic:[String:Any] = [:]
+    var properties:[String:Any] = [:]
     
     static func newNoteBlock() -> Block {
         var block = Block()
@@ -47,7 +47,7 @@ struct Block {
     
     
     mutating func getProperty(key: String) -> Any? {
-        return propertiesDic[key]
+        return properties[key]
     }
     
     static func newTodoBlock(noteId:Int64,sort:Double,text: String = "",parent:Int64 = 0) -> Block {
@@ -67,7 +67,7 @@ struct Block {
         block.sort = 4
         block.noteId = noteId
         block.source = imageUrl
-        block.properties = properties.toJSON()
+        block.properties = properties
         return block
     }
     
