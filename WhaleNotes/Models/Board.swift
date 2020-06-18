@@ -27,3 +27,14 @@ struct Board {
         self.createdAt = createdAt
     }
 }
+
+
+enum BoardType:Int {
+    case user = 1
+    case collect = 2
+}
+
+
+func getSystemBoard(type:BoardType) {
+    
+}

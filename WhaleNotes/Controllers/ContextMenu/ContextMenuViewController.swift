@@ -11,10 +11,9 @@ import ContextMenu
 
 class ContextMenuViewController: UIViewController {
     
-    private let cellHeight: CGFloat = 48
     
     var items:[ContextMenuItem]!
-    var itemTappedCallback:((ContextMenuItem)->Void)!
+    var itemTappedCallback:((ContextMenuItem,UIViewController)->Void)!
     
     private var menuWidth:CGFloat = 0
 
@@ -22,7 +21,7 @@ class ContextMenuViewController: UIViewController {
         $0.backgroundColor = UIColor.tappedColor
     }
     
-    static func show(sourceView:UIView,sourceVC: UIViewController,menuWidth:CGFloat = 0,items:[ContextMenuItem],callback:@escaping (ContextMenuItem)->Void) {
+    static func show(sourceView:UIView,sourceVC: UIViewController,menuWidth:CGFloat = 0,items:[ContextMenuItem],callback:@escaping (ContextMenuItem,UIViewController)->Void) {
         let menuVC =  ContextMenuViewController()
         menuVC.items = items
         menuVC.menuWidth = menuWidth
@@ -55,7 +54,7 @@ class ContextMenuViewController: UIViewController {
     }
     
     private func setupUI() {
-        preferredContentSize = CGSize(width: caculateTextWidth(), height: CGFloat(items.count) * cellHeight - 44)
+        preferredContentSize = CGSize(width: caculateTextWidth(), height: CGFloat(items.count) * ContextMenuCell.cellHeight - 44)
         self.view.backgroundColor = .blue
         
         self.view.addSubview(tableView)
@@ -88,6 +87,7 @@ struct ContextMenuItem  {
     var label: String
     var icon: String
     var tag: Any?
+    var isNeedJump: Bool = false
 }
 
 
@@ -102,14 +102,12 @@ extension ContextMenuViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ContextMenuCell", for: indexPath) as! ContextMenuCell
         cell.menuItem = items[indexPath.row]
-//        let bgColorView = UIView()
-//        bgColorView.backgroundColor = UIColor.red
         cell.selectedBackgroundView = cellBackgroundView
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cellHeight
+        return  ContextMenuCell.cellHeight
     }
     
 }
@@ -119,9 +117,15 @@ extension ContextMenuViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = self.items[indexPath.row]
-        self.dismiss(animated: true, completion: {
-            self.itemTappedCallback(item)
-        })
+        if !item.isNeedJump {
+            self.dismiss(animated: true, completion: {
+                self.itemTappedCallback(item,self)
+            })
+        }else {
+            tableView.cellForRow(at: indexPath)?.isSelected = false
+            self.itemTappedCallback(item,self)
+        }
+
     }
 
 }

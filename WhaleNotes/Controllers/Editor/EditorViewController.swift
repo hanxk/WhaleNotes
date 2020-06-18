@@ -30,7 +30,7 @@ enum EditorMode {
 
 class EditorViewController: UIViewController {
     
-    static let space: CGFloat = 14
+    static let space: CGFloat = 16
     let bottombarHeight: CGFloat = 42.0
     let topExtraSpace: CGFloat =  10
     let bottomExtraSpace: CGFloat = 42.0
@@ -45,6 +45,7 @@ class EditorViewController: UIViewController {
     
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
+    var boards:[Board] = []
     
     private let noteRepo = NoteRepo()
     
@@ -91,6 +92,7 @@ class EditorViewController: UIViewController {
         
         $0.estimatedRowHeight = 50
         $0.separatorColor = .clear
+        $0.register(BoardsCell.self, forCellReuseIdentifier:CellReuseIdentifier.boards.rawValue)
         $0.register(TitleBlockCell.self, forCellReuseIdentifier:CellReuseIdentifier.title.rawValue)
         $0.register(TextBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.text.rawValue)
         $0.register(TodoBlockCell.self, forCellReuseIdentifier: CellReuseIdentifier.todo.rawValue)
@@ -101,6 +103,8 @@ class EditorViewController: UIViewController {
         $0.backgroundColor = .clear
         $0.delegate = self
         $0.dataSource = self
+        
+        $0.allowsSelection = false
         
         $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
         $0.sectionFooterHeight = CGFloat.leastNormalMagnitude
@@ -138,25 +142,27 @@ class EditorViewController: UIViewController {
     var keyboardHeight2: CGFloat = 0
     private var keyboardIsHide = true
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.setupUI()
-        self.setupData()
-        
         self.navigationItem.titleView = titleTextField
+        self.loadBoards()
         
+    }
+    
+    private func loadBoards() {
+        BoardRepo.shared.getBoardsByNoteId(noteId: note.id)
+            .subscribe(onNext: { [weak self] boards in
+                self?.setupData(boards:boards)
+            }, onError: { error in
+                Logger.error(error)
+            })
+        .disposed(by: disposeBag)
     }
     
     
     @objc func handleMenuTapped(sender:UIBarButtonItem) {
-//        let items = [
-//            ContextMenuItem(label: "移动到废纸篓", icon: "trash")
-//        ]
-//        ContextMenuViewController.show(sourceView:sender.view!, sourceVC: self, items: items) { [weak self] menuItem in
-//            guard let self = self else { return }
-//            self.moveNote2Trash()
-//        }
         titleTextField.resignFirstResponder()
         self.tableView.endEditing(true)
     }
@@ -248,8 +254,7 @@ class EditorViewController: UIViewController {
     }
     
     private func tryFocusTodoSection() {
-        let section = self.getSectionIndexByBlock(blockType: BlockType.todo.rawValue)
-        if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: section)) as? TodoBlockCell {
+        if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: todoSectionIndex)) as? TodoBlockCell {
             cell.textView.becomeFirstResponder()
         }
     }
@@ -259,15 +264,30 @@ class EditorViewController: UIViewController {
 extension EditorViewController {
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
-        self.view.endEditing(true)
+         
+        
+
+        let items:[ContextMenuItem] = [
+            ContextMenuItem(label: "置顶", icon: "pin", tag: 1),
+            ContextMenuItem(label: "便签板", icon: "rectangle.on.rectangle.angled", tag: 1),
+            ContextMenuItem(label: "背景色", icon: "paintbrush", tag: 1),
+            ContextMenuItem(label: "时间信息", icon: "info.circle", tag: 1,isNeedJump: true),
+            ContextMenuItem(label: "移动到废纸篓", icon: "trash", tag: 1),
+        ]
+        ContextMenuViewController.show(sourceView: sender,sourceVC: self, menuWidth:200, items: items) { item,vc in
+            let dateVC = NoteDateViewController()
+            dateVC.note = self.note
+            vc.navigationController?.pushViewController(dateVC, animated: true)
+        }
     }
     
-    private func moveNote2Trash() {
+    private func moveNote2Trash(sender: UIButton) {
         //        guard let noteNotificationToken = self.noteNotificationToken else { return }
         //        DBManager.sharedInstance.moveNote2Trash(self.note, withoutNotifying: [noteNotificationToken]) {
         //            self.mode = EditorMode.delete(note: self.note)
         //            self.navigationController?.popViewController(animated: true)
         //        }
+      
     }
     
     
@@ -333,8 +353,7 @@ extension EditorViewController {
     fileprivate func addTodoSection() {
         // 添加在第一行
         if let _ = note.rootTodoBlock {
-            let section  = getSectionIndexByBlock(blockType: BlockType.todo.rawValue)
-            let nextIndexPath = IndexPath(row: note.todoBlocks.count, section: section)
+            let nextIndexPath = IndexPath(row: note.todoBlocks.count, section: todoSectionIndex)
             let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
             self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
         }else {
@@ -347,7 +366,8 @@ extension EditorViewController {
 // 数据处理
 extension EditorViewController {
     
-    fileprivate func setupData() {
+    fileprivate func setupData(boards:[Board]) {
+        self.boards = boards
         self.titleTextField.text = self.note.rootBlock.text
         self.setupSectionsTypes()
         self.tableView.reloadData()
@@ -355,7 +375,7 @@ extension EditorViewController {
     
     fileprivate func setupSectionsTypes() {
         self.sections.removeAll()
-//        self.sections.append(SectionType.title)
+//        self.sections.append(SectionType.boards)
         if let _ = note.textBlock {
             self.sections.append(SectionType.text)
         }
@@ -426,22 +446,19 @@ extension EditorViewController {
     
 }
 
+//MARK: UITableViewDataSource
 extension EditorViewController: UITableViewDataSource {
     
-    func getSectionIndexByBlock(blockType:String) -> Int{
-        switch blockType {
-        case BlockType.text.rawValue:
-            return 0
-        case BlockType.todo.rawValue:
-            if note.textBlock == nil {
-                return 0
-            }
-            return 1
-        default:
-            return 0
+    var todoSectionIndex:Int {
+        if let section = sections.firstIndex(of: SectionType.todo) {
+            return section
         }
+        var section = 1
+        if let textSection = sections.firstIndex(of: SectionType.text) {
+           section = textSection + 1
+        }
+        return section
     }
-    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch sections[section] {
@@ -466,6 +483,8 @@ extension EditorViewController: UITableViewDataSource {
         case .todo:
             return CellReuseIdentifier.todo.rawValue
             
+        case .boards:
+            return CellReuseIdentifier.boards.rawValue
         }
         
     }
@@ -474,6 +493,13 @@ extension EditorViewController: UITableViewDataSource {
         let sectionObj = sections[indexPath.section]
         let cell = tableView.dequeueReusableCell(withIdentifier:getCellIdentifier(sectionType: sectionObj, indexPath: indexPath), for: indexPath)
         switch sectionObj {
+        case .boards:
+            let boardsCell = cell as! BoardsCell
+            boardsCell.boards =  boards
+            boardsCell.callbackTaped = { [weak self] in
+                self?.openChooseBoardsVC()
+            }
+            break
         case .text:
             let textCell = cell as! TextBlockCell
             textCell.note = note
@@ -535,7 +561,6 @@ extension EditorViewController: UITableViewDataSource {
     
     fileprivate func handleTodoEnterKeyTapped(block:Block) {
         
-        let section:Int = self.getSectionIndexByBlock(blockType: block.type)
         
         if block.text.isEmpty { // 删除
             self.tryDeleteTodoBlock(block: block)
@@ -545,7 +570,7 @@ extension EditorViewController: UITableViewDataSource {
             // 先更新
             self.tryUpdateBlock(block: block) {
                 //新增
-                let nextIndexPath = IndexPath(row: row+1, section: section)
+                let nextIndexPath = IndexPath(row: row+1, section: self.todoSectionIndex)
 
                 let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
                 self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
@@ -553,6 +578,12 @@ extension EditorViewController: UITableViewDataSource {
         }
     }
     
+    
+    func openChooseBoardsVC()  {
+        let vc = ChooseBoardViewController()
+        vc.choosedBoards = self.boards
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
     
     fileprivate func handleTextViewEnterKey(textView: UITextView){
         let tableView = self.tableView
@@ -601,7 +632,8 @@ extension EditorViewController: UITableViewDataSource {
        let items = [
            ContextMenuItem(label: "删除", icon: "trash",tag:TAG_DEL)
        ]
-       ContextMenuViewController.show(sourceView:menuButton, sourceVC: self, items: items) { [weak self] menuItem in
+       ContextMenuViewController.show(sourceView:menuButton, sourceVC: self, items: items) { [weak self] menuItem, vc in
+        vc.dismiss(animated: true, completion: nil)
            guard let self = self,let tag = menuItem.tag as? Int else { return }
            switch tag {
            case TAG_DEL:
@@ -644,15 +676,14 @@ extension EditorViewController: UITableViewDataSource {
     
     
     private func createRootTodoBlock() {
-        let section = self.getSectionIndexByBlock(blockType: BlockType.todo.rawValue)
         noteRepo.createRootTodoBlock(noteId: note.id)
             .subscribe(onNext: {
                 self.note.setupTodoBlocks(todoBlocks: $0)
                 self.setupSectionsTypes()
                 self.tableView.performBatchUpdates({
-                    self.tableView.insertSections(IndexSet([section]), with: .automatic)
+                    self.tableView.insertSections(IndexSet([self.todoSectionIndex]), with: .automatic)
                 }) { _ in
-                    if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: section)) as? TodoBlockCell {
+                    if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: self.todoSectionIndex)) as? TodoBlockCell {
                         cell.textView.becomeFirstResponder()
                     }
                 }
@@ -677,9 +708,8 @@ extension EditorViewController: TodoBlockCellDelegate {
     
     func handleTodoCellUpdated(newBlock: Block) {
         guard let todoBlockIndex = self.note.getTodoBlockIndex(todoBlock: newBlock) else { return }
-        let section = getSectionIndexByBlock(blockType: newBlock.type)
         self.tableView.performBatchUpdates({
-            self.tableView.reloadRows(at: [IndexPath(row: todoBlockIndex, section: section)], with: .automatic)
+            self.tableView.reloadRows(at: [IndexPath(row: todoBlockIndex, section: self.todoSectionIndex)], with: .automatic)
         }, completion: nil)
     }
     
@@ -706,11 +736,14 @@ extension EditorViewController: TodoBlockCellDelegate {
     
 }
 
+//MARK: UITableViewDelegate
 extension EditorViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
+        case .boards:
+            return BoardsCell.cellHeight
         case .images:
             return attachmentsCell?.totalHeight ?? 0
         default:
@@ -723,12 +756,22 @@ extension EditorViewController: UITableViewDelegate {
             return CGFloat.leastNormalMagnitude
         }
         
-        if section == 1 && sections[section-1] == .text {
-            return CGFloat.leastNormalMagnitude
+        if sections[section-1] == .text{
+
+            if sections[section] == .todo {
+
+                return CGFloat.leastNormalMagnitude
+            }
+            if sections[section] == .images {
+
+                return  4
+            }
         }
         
-        let spacing:CGFloat = 16
+        let spacing:CGFloat = 14
         switch sections[section] {
+        case .todo:
+            return 6
         case .text:
             return spacing
         default:
@@ -938,11 +981,10 @@ extension EditorViewController {
                 guard let self = self else { return }
                 
                 guard let index = self.note.getTodoBlockIndex(todoBlock: block) else { return }
-                let section = self.getSectionIndexByBlock(blockType: BlockType.todo.rawValue)
                 
                 self.note.removeBlock(block: block)
                     self.tableView.performBatchUpdates({
-                        self.tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
+                        self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .automatic)
                     }, completion: { _ in
     
                     })
@@ -960,11 +1002,10 @@ extension EditorViewController {
         noteRepo.deleteBlock(block: rootTodoBlock)
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
-                let section = self.getSectionIndexByBlock(blockType: BlockType.todo.rawValue)
                 self.note.removeBlock(block: rootTodoBlock)
-                self.sections.remove(at: section)
+                self.sections.remove(at: self.todoSectionIndex)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([section]), with: .bottom)
+                    self.tableView.deleteSections(IndexSet([self.todoSectionIndex]), with: .bottom)
                 }, completion: nil)
                 }, onError: {
                     Logger.error($0)
@@ -1077,12 +1118,14 @@ extension EditorViewController: UITextFieldDelegate {
 
 
 private enum SectionType {
+    case boards
     case text
     case todo
     case images
 }
 
 fileprivate enum CellReuseIdentifier: String {
+    case boards = "boards"
     case title = "title"
     case text = "text"
     case todo = "todo"

@@ -37,6 +37,12 @@ class SectionAndNoteDao {
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
+    
+    func delete(sectionId:Int64,noteId:Int64) throws -> Bool{
+        let sectionData = table.filter(Field_SectionAndNote.sectionId == sectionId && Field_SectionAndNote.noteId == noteId)
+        let rows = try db.run(sectionData.delete())
+        return rows > 0
+    }
 }
 
 

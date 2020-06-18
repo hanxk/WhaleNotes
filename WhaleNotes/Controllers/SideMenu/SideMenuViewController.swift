@@ -58,7 +58,8 @@ class SideMenuViewController: UIViewController {
                 ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
                 ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
             ]
-            ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem in
+            ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
+                 vc.dismiss(animated: true, completion: nil)
                 guard let self = self,let flag = menuItem.tag as? Int else { return }
                 if flag == 1 {
                     BoardEditAlertViewController.showModel(vc: self) { emoji,title in
@@ -228,7 +229,8 @@ extension SideMenuViewController {
             ContextMenuItem(label: "编辑分类", icon: "pencil",tag:TAG_EDIT),
             ContextMenuItem(label: "删除分类", icon: "trash",tag:TAG_DEL)
         ]
-        ContextMenuViewController.show(sourceView:sourceView, sourceVC: self, items: items) { [weak self] menuItem in
+        ContextMenuViewController.show(sourceView:sourceView, sourceVC: self, items: items) { [weak self] menuItem, vc in
+             vc.dismiss(animated: true, completion: nil)
             guard let self = self,let tag = menuItem.tag as? Int else { return }
             switch tag {
             case TAG_ADD:

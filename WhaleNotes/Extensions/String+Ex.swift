@@ -15,6 +15,12 @@ extension String {
         return actualSize.height
     }
     
+    func width(withHeight height: CGFloat, font: UIFont) -> CGFloat {
+        let maxSize = CGSize(width: CGFloat.greatestFiniteMagnitude, height: height)
+        let actualSize = self.boundingRect(with: maxSize, options: [.usesLineFragmentOrigin], attributes: [.font : font], context: nil)
+        return actualSize.width
+    }
+    
     var isNotEmpty: Bool {
         return !self.isEmpty
     }

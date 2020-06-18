@@ -325,10 +325,10 @@ extension DBStore {
             try db.transaction {
                 boards = try boardDao.queryAll(categoryId: 0,type: 2)
                 if boards.count == 0 {
-                    var collectBoard = Board(icon: "square.on.square", title: "收集板", sort: 1,type:2)
+                    var collectBoard = Board(icon: "🗂️", title: "收集板", sort: 1,type:BoardType.collect.rawValue)
                     let boardId = try boardDao.insert(collectBoard)
                     collectBoard.id = boardId
-                    boards.append(collectBoard)
+                    boards.append(getLocalSystemBoardInfo(board: collectBoard))
                 }
             }
             
@@ -336,6 +336,22 @@ extension DBStore {
         } catch let err {
             print(err)
             return DBResult<[Board]>.failure(DBError(code: .None))
+        }
+    }
+    
+    func updateNoteBoards(boards: [Board],noteId:Int64,sectionId:Int64) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                try sectionNoteDao.delete(sectionId: sectionId, noteId: noteId)
+                
+//                SectionAndNote(id: 0, sectionId: sectionId, noteId: <#T##Int64#>, sort: <#T##Double#>)
+//                
+//                try sectionNoteDao.insert(<#T##sa: SectionAndNote##SectionAndNote#>)
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch _ {
+            return DBResult<Bool>.failure(DBError(code: .None))
         }
     }
     
@@ -348,6 +364,36 @@ extension DBStore {
             return DBResult<[Board]>.failure(DBError(code: .None))
         }
     }
+    
+    
+    func getBoardsByNoteId(noteId:Int64) -> DBResult<[Board]>  {
+        do {
+            let boards:[Board] = try boardDao.queryByNoteBlockId(noteId).map{
+                if $0.type == 2 {
+                    return getLocalSystemBoardInfo(board: $0)
+                }
+                return $0
+            }
+            return DBResult<[Board]>.success(boards)
+        } catch let err {
+            print(err)
+            return DBResult<[Board]>.failure(DBError(code: .None))
+        }
+    }
+    
+    
+    func getLocalSystemBoardInfo(board:Board) -> Board {
+        switch board.type {
+        case 2:
+            var collectBoard = board
+            collectBoard.icon = "🗂️"
+            return collectBoard
+        default:
+            return board
+        }
+        
+    }
+    
     
     func getNotesByBoardId(_ boardId:Int64) ->DBResult<[(Int64,Note)]> {
         do {
@@ -382,7 +428,6 @@ extension DBStore {
                     let sectionId = try sectionDao.insert(section)
                     section.id = sectionId
                     sections = [section]
-                    
                 }
             }
             return DBResult<[Section]>.success(sections)

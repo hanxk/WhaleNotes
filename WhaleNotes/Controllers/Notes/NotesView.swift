@@ -380,8 +380,8 @@ extension NotesView {
             ContextMenuItem(label: "相册", icon: "photo.on.rectangle", tag: MenuType.image),
             ContextMenuItem(label: "拍照", icon: "camera", tag: MenuType.camera),
         ]
-        ContextMenuViewController.show(sourceView:sourceView, sourceVC: sourceVC, items: items) {
-            if let menuType = $0.tag as? MenuType {
+        ContextMenuViewController.show(sourceView:sourceView, sourceVC: sourceVC,menuWidth:180, items: items) {item, vc in
+            if let menuType = item.tag as? MenuType {
                 callback(menuType)
             }
         }

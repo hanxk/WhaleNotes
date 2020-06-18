@@ -184,4 +184,21 @@ class BoardRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
+    
+    func getBoardsByNoteId(noteId:Int64) -> Observable<[Board]> {
+        return Observable<Int64>.just(noteId)
+                   .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                   .map({(noteId)  -> [Board] in
+                    let result =  DBStore.shared.getBoardsByNoteId(noteId: noteId)
+                       switch result {
+                       case .success(let isSuccess):
+                           return isSuccess
+                       case .failure(let err):
+                           throw err
+                       }
+                   })
+                   .observeOn(MainScheduler.instance)
+    }
+    
+    
 }

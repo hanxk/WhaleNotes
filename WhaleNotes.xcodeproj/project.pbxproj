@@ -28,8 +28,17 @@
 		1820C4BD248D23AD00484AF8 /* emoji_objects.csv in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4BC248D23AD00484AF8 /* emoji_objects.csv */; };
 		1820C4BF248D263100484AF8 /* emoji_symbols.csv in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4BE248D263100484AF8 /* emoji_symbols.csv */; };
 		1820C4C1248D292D00484AF8 /* emoji_flags.csv in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4C0248D292D00484AF8 /* emoji_flags.csv */; };
+		18251C16249AE9F000484D23 /* NoteDateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18251C15249AE9F000484D23 /* NoteDateView.swift */; };
+		18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18251C17249AF3D500484D23 /* NoteDateCell.swift */; };
 		182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */; };
 		182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8EF24989C7400C85F8F /* TitleTextField.swift */; };
+		182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8F22499F2FF00C85F8F /* BoardsCell.swift */; };
+		182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8F42499F3D000C85F8F /* BoardTagCell.swift */; };
+		182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8F6249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift */; };
+		182BE8FB249A13E500C85F8F /* ChooseBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8FA249A13E500C85F8F /* ChooseBoardViewController.swift */; };
+		182BE8FE249A151000C85F8F /* ChooseBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8FD249A151000C85F8F /* ChooseBoardCell.swift */; };
+		182BE900249A557C00C85F8F /* NoteDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8FF249A557C00C85F8F /* NoteDateViewController.swift */; };
+		182BE903249A55C000C85F8F /* NoteDetailMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
 		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
@@ -128,8 +137,17 @@
 		1820C4BC248D23AD00484AF8 /* emoji_objects.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = emoji_objects.csv; sourceTree = "<group>"; };
 		1820C4BE248D263100484AF8 /* emoji_symbols.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = emoji_symbols.csv; sourceTree = "<group>"; };
 		1820C4C0248D292D00484AF8 /* emoji_flags.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = emoji_flags.csv; sourceTree = "<group>"; };
+		18251C15249AE9F000484D23 /* NoteDateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDateView.swift; sourceTree = "<group>"; };
+		18251C17249AF3D500484D23 /* NoteDateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDateCell.swift; sourceTree = "<group>"; };
 		182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoFooterView.swift; sourceTree = "<group>"; };
 		182BE8EF24989C7400C85F8F /* TitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleTextField.swift; sourceTree = "<group>"; };
+		182BE8F22499F2FF00C85F8F /* BoardsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardsCell.swift; sourceTree = "<group>"; };
+		182BE8F42499F3D000C85F8F /* BoardTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTagCell.swift; sourceTree = "<group>"; };
+		182BE8F6249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftAlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
+		182BE8FA249A13E500C85F8F /* ChooseBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseBoardViewController.swift; sourceTree = "<group>"; };
+		182BE8FD249A151000C85F8F /* ChooseBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseBoardCell.swift; sourceTree = "<group>"; };
+		182BE8FF249A557C00C85F8F /* NoteDateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDateViewController.swift; sourceTree = "<group>"; };
+		182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailMenuCell.swift; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
 		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
@@ -270,6 +288,43 @@
 			path = Emoji;
 			sourceTree = "<group>";
 		};
+		182BE8F12499F2E800C85F8F /* Boards */ = {
+			isa = PBXGroup;
+			children = (
+				182BE8F22499F2FF00C85F8F /* BoardsCell.swift */,
+				182BE8F42499F3D000C85F8F /* BoardTagCell.swift */,
+			);
+			path = Boards;
+			sourceTree = "<group>";
+		};
+		182BE8F9249A13CA00C85F8F /* ChooseBoard */ = {
+			isa = PBXGroup;
+			children = (
+				182BE8FC249A14DE00C85F8F /* Cells */,
+				182BE8FA249A13E500C85F8F /* ChooseBoardViewController.swift */,
+			);
+			path = ChooseBoard;
+			sourceTree = "<group>";
+		};
+		182BE8FC249A14DE00C85F8F /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				182BE8FD249A151000C85F8F /* ChooseBoardCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		182BE901249A55A700C85F8F /* Menu */ = {
+			isa = PBXGroup;
+			children = (
+				182BE8FF249A557C00C85F8F /* NoteDateViewController.swift */,
+				182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */,
+				18251C15249AE9F000484D23 /* NoteDateView.swift */,
+				18251C17249AF3D500484D23 /* NoteDateCell.swift */,
+			);
+			path = Menu;
+			sourceTree = "<group>";
+		};
 		183FFA9E2469533C00FDA179 /* ContextMenu */ = {
 			isa = PBXGroup;
 			children = (
@@ -311,6 +366,7 @@
 				188328F524540FB40097A01D /* Logger.swift */,
 				1849490D24596E26001B61C3 /* ImagesUtil.swift */,
 				182BE8EF24989C7400C85F8F /* TitleTextField.swift */,
+				182BE8F6249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -318,6 +374,8 @@
 		1865AEF7244C79400006B48D /* Editor */ = {
 			isa = PBXGroup;
 			children = (
+				182BE901249A55A700C85F8F /* Menu */,
+				182BE8F9249A13CA00C85F8F /* ChooseBoard */,
 				1865AEFA244C7CFC0006B48D /* Cells */,
 				1865AEF8244C79870006B48D /* EditorViewController.swift */,
 				1865AF17244ED46D0006B48D /* BottomBarView.swift */,
@@ -328,6 +386,7 @@
 		1865AEFA244C7CFC0006B48D /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				182BE8F12499F2E800C85F8F /* Boards */,
 				188328EE24531F260097A01D /* BlockImage */,
 				1865AF15244DCB850006B48D /* TextBlockCell.swift */,
 				181D63E3248B1F6600B34E20 /* TitleBlockCell.swift */,
@@ -748,17 +807,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				1859A10024868C8B008D51B4 /* SectionAndNoteDao.swift in Sources */,
+				182BE900249A557C00C85F8F /* NoteDateViewController.swift in Sources */,
 				183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */,
 				1859A0FC248684CB008D51B4 /* SectionDao.swift in Sources */,
 				18E9D6BF2470D985001E41A0 /* String+Ex.swift in Sources */,
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
 				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
+				18251C16249AE9F000484D23 /* NoteDateView.swift in Sources */,
 				186DDE7924921CC400A4C63C /* SectionNoteInfo.swift in Sources */,
 				188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
+				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
+				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
 				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
@@ -788,6 +851,7 @@
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
+				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,
 				1865AF16244DCB850006B48D /* TextBlockCell.swift in Sources */,
@@ -801,8 +865,11 @@
 				18E7BF8E248C994800B8AEC1 /* TappedView.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */,
+				182BE8FE249A151000C85F8F /* ChooseBoardCell.swift in Sources */,
+				182BE903249A55C000C85F8F /* NoteDetailMenuCell.swift in Sources */,
 				1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */,
 				18E7BF9E248CC67700B8AEC1 /* EmojiCollectionCell.swift in Sources */,
+				182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */,
 				18E7BF93248C9C5000B8AEC1 /* BoardCategoryViewController.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
 				1859A0FE248689B1008D51B4 /* BoardDao.swift in Sources */,
@@ -826,6 +893,7 @@
 				188942AB246FDC20006173F8 /* NotesView.swift in Sources */,
 				18E9D6C124714ADA001E41A0 /* MosaicCollectionViewLayout.swift in Sources */,
 				18EEF676247DF92600E2E3BA /* NotesUseCase.swift in Sources */,
+				182BE8FB249A13E500C85F8F /* ChooseBoardViewController.swift in Sources */,
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,

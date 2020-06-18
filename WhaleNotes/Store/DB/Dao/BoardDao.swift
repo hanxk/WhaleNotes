@@ -73,7 +73,34 @@ class BoardDao {
         return boards
     }
     
-    
+    func queryByNoteBlockId(_ noteBlockId:Int64) throws -> [Board] {
+        let selectSQL = """
+                    select * from board where id in
+                    (
+                        select section.board_id from section_note
+                        inner join section on (section_note.section_id = section.id and section_note.note_id = \(noteBlockId))
+                    )
+                    """
+        let stmt = try db.prepare(selectSQL)
+        let rows = stmt.typedRows()
+
+        var boards:[Board] = []
+        for row in rows {
+            
+            let id = row.i64("id")!
+            let icon = row.string("icon")!
+            let title = row.string("title")!
+            let sort = row.double("sort")!
+            let categoryId = row.i64("category_id")!
+            let type = row.int("type")!
+            let createdAt = row.date("created_at")!
+            
+            let board = Board(id: id, icon: icon, title: title, sort: sort, categoryId: categoryId, type: type, createdAt: createdAt)
+            boards.append(board)
+        }
+        
+        return boards
+    }
 }
 
 

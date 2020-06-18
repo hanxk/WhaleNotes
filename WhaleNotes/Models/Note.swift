@@ -11,6 +11,7 @@ import Foundation
 struct Note {
     
     var rootBlock:Block!
+    var boards:[Board] = []
     
     var textBlock:Block?
     var id:Int64 {
@@ -30,11 +31,9 @@ struct Note {
         self.rootBlock = rootBlock
         self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
         self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
-        
         self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue}.sorted(by: {$0.sort < $1.sort}))
-        
-        
     }
+    
     
     var rootTodoBlock:Block?
     var todoBlocks:[Block] = []

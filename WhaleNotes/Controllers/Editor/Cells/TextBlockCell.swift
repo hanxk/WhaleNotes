@@ -18,7 +18,7 @@ class TextBlockCell: UITableViewCell {
         $0.isScrollEnabled = false
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
-        $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
+        $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 14, right: 0)
         $0.textContainer.lineFragmentPadding = 0
     }
     var textChanged: ((String) -> Void)?
