@@ -32,7 +32,7 @@ class ChooseBoardViewController:UIViewController {
     private let disposeBag = DisposeBag()
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
-        $0.separatorColor = UIColor.divider
+        $0.separatorColor = UIColor.clear
         $0.delegate = self
         $0.dataSource = self
         $0.showsVerticalScrollIndicator = false
@@ -62,7 +62,7 @@ class ChooseBoardViewController:UIViewController {
         self.tableView.backgroundColor = .white
         
         
-        self.title = "选择便签板"
+        self.title = "移动至"
          
 //        self.navigationItem.leftBarButtonItem =  UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
 //

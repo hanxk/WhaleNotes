@@ -36,7 +36,7 @@ open class ContextMenuViewController: UIViewController {
     
     
     private lazy var tableView = UITableView().then { [weak self] in
-        //        $0.separatorColor = .clear
+                $0.separatorColor = .clear
         $0.delegate = self
         $0.dataSource = self
         $0.register(ContextMenuCell.self, forCellReuseIdentifier: "ContextMenuCell")

@@ -15,6 +15,27 @@ extension UIImage {
         self.init(systemName: systemName, withConfiguration: configuration)
     }
     
+    func withBackground(color: UIColor, opaque: Bool = true) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(size, opaque, scale)
+
+        guard let ctx = UIGraphicsGetCurrentContext() else { return self }
+        defer { UIGraphicsEndImageContext() }
+
+        let rect = CGRect(origin: .zero, size: size)
+        ctx.setFillColor(color.cgColor)
+        ctx.fill(rect)
+        ctx.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: size.height))
+        ctx.draw(cgImage!, in: rect)
+
+        return UIGraphicsGetImageFromCurrentImageContext() ?? self
+    }
+    func alpha(_ value:CGFloat) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(at: CGPoint.zero, blendMode: .normal, alpha: value)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage!
+    }
     func fixedOrientation() -> UIImage? {
         
         guard imageOrientation != UIImage.Orientation.up else {

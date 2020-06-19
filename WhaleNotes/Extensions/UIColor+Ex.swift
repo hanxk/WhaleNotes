@@ -14,9 +14,20 @@ extension UIColor {
             return  UIColor(named: "Brand")!
         }
     }
+    
+
+        open class var cardText: UIColor {
+            get {
+    //            return UIColor(named: "PrimaryText")!
+//                 UIColor.init(hexString: "#333333")
+                 UIColor.init(hexString: "#2b292e")
+            }
+        }
+    
     open class var primaryText: UIColor {
         get {
-            return UIColor(named: "PrimaryText")!
+//            return UIColor(named: "PrimaryText")!
+             UIColor.init(hexString: "#2b292e")
         }
     }
     open class var primaryText2: UIColor {
@@ -31,6 +42,12 @@ extension UIColor {
         }
     }
     
+    open class var colorBoarder: UIColor {
+           get {
+//               return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08)
+            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
+           }
+    }
     
     open class var thirdColor: UIColor {
         get {
@@ -41,7 +58,7 @@ extension UIColor {
     
     open class var bg: UIColor {
         get {
-            return UIColor.init(hexString: "#F2F2F2")
+            return UIColor.init(hexString: "#f2f2f2")
         }
     }
     

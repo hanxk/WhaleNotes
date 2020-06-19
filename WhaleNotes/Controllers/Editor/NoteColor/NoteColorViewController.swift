@@ -9,26 +9,35 @@ import UIKit
 
 class NoteColorViewController: UIViewController {
     
-    var colors:[String] = ["#FFFFFF","#FBCFCE",
-                           "#FDDFCC","#FCE9AD",
-                           "#F0FDB7","#CAFCEE",
-                           "#C5EBFD","#CADDFD"]
+    var colors:[(String,String)] = [
+                           ("#FFFFFF","白"),
+                           ("#FBCFCE","红"),
+                           ("#FDDFCC","橙"),
+                           ("#FCE9AD","黄"),
+                           ("#F0FDB7","绿"),
+                           ("#CAFCEE","青"),
+                           ("#C5EBFD","蓝"),
+                           ("#CADDFD","紫"),
+                           ("#FFC9E7","粉")
+                        ]
     
     private let cellReuseIndetifier = "NoteColorCell"
     private var cachedWidth:[String:CGFloat] = [:]
     
+    var selectedColor:String = ""
+    
     var callbackColorChoosed:((String)->Void)?
     
     let flowLayout = UICollectionViewFlowLayout().then {
-        $0.minimumLineSpacing = 20
+        $0.minimumLineSpacing = 0
         $0.minimumInteritemSpacing = 0
         $0.scrollDirection = .vertical
-        $0.itemSize = CGSize(width: NoteColorCell.cellHeight, height: NoteColorCell.cellHeight)
+        $0.itemSize = CGSize(width: NoteMenuViewController.menuWidth, height: NoteColorCell.cellHeight)
         
-        let horizontalPadding = (NoteMenuViewController.menuWidth - $0.minimumLineSpacing - NoteColorCell.cellHeight * 3) / 2
-        let topPadding:CGFloat = 10
+//        let horizontalPadding = (NoteMenuViewController.menuWidth - $0.minimumLineSpacing - NoteColorCell.cellHeight * 3) / 2
+//        let topPadding:CGFloat = 10
         
-        $0.sectionInset = UIEdgeInsets(top: topPadding, left: horizontalPadding, bottom: topPadding, right: horizontalPadding)
+//        $0.sectionInset = UIEdgeInsets(top: topPadding, left: horizontalPadding, bottom: topPadding, right: horizontalPadding)
     }
     
     lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
@@ -66,7 +75,8 @@ class NoteColorViewController: UIViewController {
 extension NoteColorViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier:cellReuseIndetifier, for: indexPath) as! NoteColorCell
-        cell.color = self.colors[indexPath.row]
+        cell.colorInfo = self.colors[indexPath.row]
+        cell.isChecked = self.selectedColor.lowercased() == self.colors[indexPath.row].0.lowercased()
         return cell
     }
     
@@ -85,6 +95,6 @@ extension NoteColorViewController: UICollectionViewDataSource {
 extension NoteColorViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        callbackColorChoosed?(self.colors[indexPath.row])
+        callbackColorChoosed?(self.colors[indexPath.row].0)
     }
 }

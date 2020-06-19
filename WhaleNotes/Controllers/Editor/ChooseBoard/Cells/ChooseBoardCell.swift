@@ -54,14 +54,14 @@ class ChooseBoardCell: UITableViewCell {
         self.backgroundColor = .white
         contentView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints {
-            $0.width.height.equalTo(SideMenuCellContants.iconWidth)
+            $0.width.height.equalTo(24)
             $0.leading.equalToSuperview().offset(ContextMenuCell.padding)
             $0.centerY.equalToSuperview()
         }
         
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(emojiLabel.snp.trailing).offset(ContextMenuCell.padding)
+            $0.leading.equalTo(emojiLabel.snp.trailing).offset(ContextMenuCell.spacing)
             $0.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
             $0.centerY.equalToSuperview()
         }

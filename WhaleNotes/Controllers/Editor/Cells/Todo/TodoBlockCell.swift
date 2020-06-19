@@ -32,6 +32,7 @@ class TodoBlockCell: UITableViewCell {
             textView.text = todoBlock.text
             isChecked = todoBlock.isChecked
             isEmpty = todoBlock.text.isEmpty
+            self.whiteView.isHidden = !todoBlock.isChecked
         }
     }
     var note:Note! {
@@ -68,6 +69,11 @@ class TodoBlockCell: UITableViewCell {
         $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         $0.textColor = .lightGray
         $0.text = "新项目"
+    }
+    
+    
+    lazy var whiteView: UIView = UIView().then {
+        $0.backgroundColor = .white
     }
     
     lazy var chkbtn: UIButton = UIButton().then {
@@ -107,6 +113,15 @@ class TodoBlockCell: UITableViewCell {
         let topSpace:CGFloat = 7.3
         
         self.selectionStyle = .none
+        
+        
+        self.contentView.addSubview(whiteView)
+        whiteView.snp.makeConstraints { (make) in
+            make.width.equalTo(10)
+            make.height.equalTo(10)
+            make.leading.equalToSuperview().offset(20)
+            make.centerY.equalToSuperview()
+        }
         
         self.contentView.addSubview(chkbtn)
         chkbtn.snp.makeConstraints { (make) in

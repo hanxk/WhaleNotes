@@ -59,9 +59,9 @@ class NoteCellNode: ASCellNode {
     func setupBackBackground() {
         self.backgroundColor = UIColor(hexString: note.backgroundColor)
                if note.backgroundColor.isWhiteHex {
-                   self.borderWidth = 1
-                   self.borderColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.06).cgColor
                }
+               self.borderWidth = 1
+        self.borderColor = UIColor.colorBoarder.cgColor
     }
     
     required init(note:Note,itemSize: CGSize) {
@@ -532,11 +532,11 @@ class NoteCellNode: ASCellNode {
     
     func getTitleLabelAttributes(text: String) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 1.4
+        paragraphStyle.lineSpacing = 1.8
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .medium),
-            .foregroundColor:  UIColor.init(hexString: "#333333"),
+            .foregroundColor: UIColor.cardText,
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)
     }
@@ -549,7 +549,7 @@ class NoteCellNode: ASCellNode {
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
-            .foregroundColor: UIColor.init(hexString: "#444444"),
+            .foregroundColor: UIColor.cardText,
             .paragraphStyle:paragraphStyle
         ]
         let attributedString = NSAttributedString(string: text, attributes: attributes)
@@ -578,7 +578,7 @@ class NoteCellNode: ASCellNode {
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
-            .foregroundColor: UIColor.init(hexString: "#444444"),
+            .foregroundColor: UIColor.cardText,
             .paragraphStyle:paragraphStyle
         ]
         

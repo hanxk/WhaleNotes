@@ -535,7 +535,6 @@ extension EditorViewController: UITableViewDataSource {
                 guard let self = self else { return }
                 self.tryUpdateBlock(block: block)
             }
-            textCell.backgroundColor =  self.view.backgroundColor
             self.textCell = textCell
             break
         case .todo:

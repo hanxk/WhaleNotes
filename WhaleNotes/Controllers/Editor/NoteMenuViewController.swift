@@ -66,6 +66,7 @@ class NoteMenuViewController: ContextMenuViewController {
                 break
             case .background:
                 let colorVC = NoteColorViewController()
+                colorVC.selectedColor = self.note.backgroundColor
                 colorVC.callbackColorChoosed = { color in
                     self.handleUpdateBackground(color)
                 }

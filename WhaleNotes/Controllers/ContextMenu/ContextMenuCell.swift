@@ -20,8 +20,9 @@ class ContextMenuCell: UITableViewCell {
         }
     }
     
-    static let padding:CGFloat = 10
-    static let cellHeight: CGFloat = 48
+    static let padding:CGFloat = 12
+    static let spacing:CGFloat = 10
+    static let cellHeight: CGFloat = 44
     
     private static let labelTextFont = UIFont.systemFont(ofSize: 15)
     
@@ -33,6 +34,7 @@ class ContextMenuCell: UITableViewCell {
     private lazy var iconView: UIImageView = UIImageView().then {
         $0.contentMode = .center
         $0.tintColor = UIColor.init(hexString: "#444444")
+//        $0.backgroundColor = .red
     }
     
     private lazy var arrowView: UIImageView = UIImageView().then {
@@ -58,7 +60,7 @@ class ContextMenuCell: UITableViewCell {
         contentView.addSubview(iconView)
         iconView.snp.makeConstraints { (make) in
             
-            make.width.equalTo(26)
+            make.width.equalTo(24)
             make.height.equalToSuperview()
             make.leading.equalToSuperview().offset(NoteDetailMenuCell.padding)
         }
