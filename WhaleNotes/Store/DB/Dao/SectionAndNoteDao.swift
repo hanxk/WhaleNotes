@@ -46,7 +46,10 @@ class SectionAndNoteDao {
         }
         return nil
     }
-    
+    func isExists(noteId: Int64,boardId:Int64) throws -> Bool {
+        let count = try db.scalar("select count(*) from section_note inner join section on (section.id = section_note.section_id and section.board_id = \(boardId) and section_note.note_id = \(noteId) )")  as! Int64
+        return count > 0
+   }
     
     func queryFirst(sectionId:Int64) throws -> SectionAndNote? {
         let query = table.filter(Field_SectionAndNote.sectionId == sectionId).order(Field_SectionAndNote.sort.asc).limit(1)
@@ -66,6 +69,20 @@ class SectionAndNoteDao {
     func deleteByNoteId(_ noteId:Int64) throws -> Bool{
         let sectionData = table.filter(Field_SectionAndNote.noteId == noteId)
         let rows = try db.run(sectionData.delete())
+        return rows > 0
+    }
+    
+    
+    func deleteByBoardId(_ boardId:Int64,noteId:Int64,sectionTable:Table) throws -> Bool{
+//        let query = table.join(sectionTable, on: Field_SectionAndNote.sectionId == Field_Section.id).filter(sectionTable[Field_Section.boardId] == boardId)
+//        let query = table.join(sectionTable, on: Field_SectionAndNote.sectionId == sectionTable[Field_Section.id])
+         try db.run("""
+            delete from section_note where id in (
+                select section_note.id from section_note
+                inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+            ) and section_note.note_id = \(noteId)
+    """)
+        let rows = db.changes
         return rows > 0
     }
 }

@@ -24,10 +24,15 @@ class ChooseBoardViewController:UIViewController {
         }
     }
     
-    var callbackBoardChoosed:((Board)->Void)?
+    var callbackBoardChoosed:((Note)->Void)?
     
     
-//    var choosedBoards:[Board] = []
+    var note:Note! {
+        didSet {
+            self.choosedBoards = note.boards
+        }
+    }
+    var choosedBoards:[Board] = []
     
     private let cellReuseIndentifier = "ChooseBoardCell"
     
@@ -64,13 +69,13 @@ class ChooseBoardViewController:UIViewController {
         self.tableView.backgroundColor = .white
         
         
-        self.title = "移动至"
+        self.title = "选择便签板"
          
-//        self.navigationItem.leftBarButtonItem =  UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
-//
-//          let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
-//          barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
-//          self.navigationItem.rightBarButtonItem = barButtonItem
+        self.navigationItem.leftBarButtonItem =  UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
+
+          let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
+          barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
+          self.navigationItem.rightBarButtonItem = barButtonItem
     }
     
     private func loadBoards() {
@@ -105,8 +110,37 @@ class ChooseBoardViewController:UIViewController {
     }
     @objc func doneButtonTapped() {
         
+        if self.choosedBoards.isEmpty {
+            return
+        }
         
-        self.dismiss(animated: true, completion: nil)
+        //判断数据是否变更
+        var isSame = note.boards.count == choosedBoards.count
+        if isSame {
+            for board in note.boards {
+                if !choosedBoards.contains(where: {$0.id == board.id}) {
+                    isSame = false
+                    break
+                }
+            }
+        }
+        
+        if isSame {
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+        
+        NoteRepo.shared.updateNoteBoards(note: note, boards: choosedBoards)
+            .subscribe(onNext: { [weak self] newNote in
+                
+                self?.callbackBoardChoosed?(newNote)
+                self?.dismiss(animated: true, completion: nil)
+                
+                }, onError: { error in
+                    Logger.error(error)
+            })
+        .disposed(by: disposeBag)
+            
     }
     
     
@@ -147,14 +181,14 @@ extension ChooseBoardViewController:UITableViewDataSource {
         switch sectionType {
         case .system(let systemBoards):
             cell.board = systemBoards[indexPath.row]
-//            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
+            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
             break
         case .boards:
             cell.board  = self.boards[indexPath.row]
-//            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
+            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
         case .categories:
             cell.board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
-//            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
+            cell.isChoosed = self.choosedBoards.contains(where: {$0.id == cell.board.id})
         }
         return cell
     }
@@ -201,20 +235,21 @@ extension ChooseBoardViewController:UITableViewDelegate {
         case .categories:
              board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
         }
-        self.callbackBoardChoosed?(board)
+        self.toggleBoard(board, indexPath: indexPath)
+//        self.callbackBoardChoosed?(board)
     }
     
-//    func toggleBoard(_ board:Board,indexPath:IndexPath) {
-//        if let index = self.choosedBoards.firstIndex(where: {$0.id == board.id}) {
-//            self.choosedBoards.remove(at: index)
-//        }else {
-//            self.choosedBoards.append(board)
-//        }
-//
-//        self.tableView.performBatchUpdates({
-//            self.tableView.reloadRows(at: [indexPath], with: .none)
-//        }, completion: nil)
-//    }
+    func toggleBoard(_ board:Board,indexPath:IndexPath) {
+        if let index = self.choosedBoards.firstIndex(where: {$0.id == board.id}) {
+            self.choosedBoards.remove(at: index)
+        }else {
+            self.choosedBoards.append(board)
+        }
+
+        self.tableView.performBatchUpdates({
+            self.tableView.reloadRows(at: [indexPath], with: .none)
+        }, completion: nil)
+    }
 }
 
 enum BoardSectionType {

@@ -82,7 +82,7 @@ class TextBlockCell: UITableViewCell {
     func setupViews() {
         self.backgroundColor =  .clear
         //        self.selectionStyle = .none
-        _setSpacing(textView: textView, fontSize: 17, lineSpacing: 1.5, weight: .regular)
+        _setSpacing(textView: textView, fontSize: 17, lineSpacing: 2, weight: .regular)
         contentView.addSubview(textView)
         textView.delegate = self
         textView.snp.makeConstraints { (make) in

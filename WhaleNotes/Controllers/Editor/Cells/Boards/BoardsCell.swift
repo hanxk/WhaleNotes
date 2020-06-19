@@ -23,7 +23,7 @@ class BoardsCell: UITableViewCell {
     
     let flowLayout = LeftAlignedCollectionViewFlowLayout().then {
         $0.minimumLineSpacing = 6
-        $0.minimumInteritemSpacing = 0
+        $0.minimumInteritemSpacing = 7
         $0.scrollDirection = .horizontal
 //        $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
 //        $0.itemSize = CGSize(width: 100, height: BoardTagCell.cellHeight)
@@ -55,7 +55,7 @@ class BoardsCell: UITableViewCell {
             make.height.equalToSuperview()
             make.width.equalToSuperview()
         }
-//        self.contentView.backgroundColor = .red
+        self.backgroundColor = .clear
     }
 }
 
@@ -86,7 +86,10 @@ extension BoardsCell: UICollectionViewDelegateFlowLayout {
         if let width = cachedWidth[text] {
             return CGSize(width: width, height: BoardTagCell.cellHeight)
         }
-        let width  = BoardTagCell.cellWidth(board: self.boards[indexPath.row])
+        var width  = BoardTagCell.cellWidth(board: self.boards[indexPath.row])
+        if width > 200 {
+            width = 200
+        }
          cachedWidth[text] = width
         return CGSize(width: width, height: BoardTagCell.cellHeight)
         

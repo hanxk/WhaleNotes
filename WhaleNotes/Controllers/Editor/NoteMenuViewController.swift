@@ -23,6 +23,7 @@ enum NoteMenuType {
 protocol NoteMenuViewControllerDelegate: AnyObject {
     func noteMenuDataMoved(note: Note)
     func noteMenuBackgroundChanged(note:Note)
+    func noteMenuChooseBoards(note: Note)
 }
 
 class NoteMenuViewController: ContextMenuViewController {
@@ -52,7 +53,7 @@ class NoteMenuViewController: ContextMenuViewController {
         self.items = [
             ContextMenuItem(label: "置顶", icon: "pin", tag: NoteMenuType.pin),
             ContextMenuItem(label: "复制到", icon: "square.on.square", tag: NoteMenuType.copy),
-            ContextMenuItem(label: "移动至", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move,isNeedJump: true),
+            ContextMenuItem(label: "便签板", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move),
             ContextMenuItem(label: "背景色", icon: "paintbrush", tag: NoteMenuType.background,isNeedJump: true),
             ContextMenuItem(label: "时间信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
             ContextMenuItem(label: "移到废纸篓", icon: "trash", tag: NoteMenuType.trash),
@@ -67,9 +68,11 @@ class NoteMenuViewController: ContextMenuViewController {
                 vc.navigationController?.pushViewController(chooseBoardVC, animated: true)
                 break
             case .move:
-                let chooseBoardVC = ChooseBoardViewController()
-                chooseBoardVC.callbackBoardChoosed = self.handleMove2Board
-                vc.navigationController?.pushViewController(chooseBoardVC, animated: true)
+//                let chooseBoardVC = ChooseBoardViewController()
+//                self.present(chooseBoardVC, animated: true, completion: nil)
+//                chooseBoardVC.callbackBoardChoosed = self.handleMove2Board
+//                vc.navigationController?.pushViewController(chooseBoardVC, animated: true)
+                self.delegate?.noteMenuChooseBoards(note: self.note)
                 break
             case .background:
                 let colorVC = NoteColorViewController()

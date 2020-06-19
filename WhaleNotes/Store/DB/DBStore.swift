@@ -27,6 +27,10 @@ class DBStore {
     fileprivate var boardCategoryDao:BoardCategoryDao!
     
     func setup() {
+        #if DEBUG
+            db.trace { print($0) }
+        #endif
+        
         blockDao = BlockDao(dbCon: db)
         
         boardDao = BoardDao(dbCon: db)
@@ -41,6 +45,7 @@ class DBStore {
         do {
             var newBlocks:[Block] = []
             var noteBlock = Block.newNoteBlock()
+            var boards:[Board] = []
             try db.transaction {
                 
                 // 获取当前 section 的排序
@@ -78,8 +83,15 @@ class DBStore {
                         newBlocks.append(block)
                     }
                 }
+                
+                // 获取 board
+                boards = try boardDao.queryByNoteBlockId(noteBlock.id)
+                if boards.isEmpty {
+                    throw DBError(message: "创建 note 没有获取到 board")
+                }
+            
             }
-            return DBResult<Note>.success(Note(rootBlock: noteBlock, childBlocks:newBlocks))
+            return DBResult<Note>.success(Note(rootBlock: noteBlock, childBlocks:newBlocks,boards: boards))
         } catch let error  {
             return DBResult<Note>.failure(DBError(code: .None,message: error.localizedDescription))
         }
@@ -243,6 +255,11 @@ extension DBStore {
             try db.transaction {
                 let boardId = try boardDao.insert(insertedBoard)
                 insertedBoard.id = boardId
+                
+                // 创建一个 默认 section
+                let section = Section(id: 0, title: "", sort: 65536, boardId: boardId, createdAt: Date())
+                _ = try sectionDao.insert(section)
+                
             }
             return DBResult<Board>.success(insertedBoard)
         } catch _ {
@@ -288,6 +305,57 @@ extension DBStore {
         }
     }
     
+    func updateNoteBoards(note:Note,boards:[Board]) -> DBResult<Note> {
+        do {
+            var isSuccess = true
+            var newNote = note
+            try db.transaction {
+                
+                for board in boards {
+                    
+                    // 判断是否绑定过
+                    let isExists = try sectionNoteDao.isExists(noteId: note.id, boardId: board.id)
+                    if isExists {
+                        continue
+                    }
+                    
+                    
+                    let sections =  try sectionDao.query(boardId: board.id)
+                    // 默认添加到第一个 section
+                    let section = sections[0]
+                    
+                    var sort = try sectionNoteDao.queryFirst(sectionId: section.id)?.sort ?? 0
+                    sort = sort == 0 ? 65536 : sort/2
+                    
+                    let sectionNode = SectionAndNote(id: 0, sectionId: section.id, noteId: note.id, sort: sort)
+                    let id = try sectionNoteDao.insert(sectionNode)
+                    isSuccess = id > 0
+                    if !isSuccess  { break }
+                }
+                
+                // 删除已取消的 tag
+                for oldBoard in note.boards {
+                    if boards.contains(where: {$0.id == oldBoard.id}) {
+                        continue
+                    }
+                    isSuccess = try sectionNoteDao.deleteByBoardId(oldBoard.id, noteId: note.id, sectionTable: sectionDao.table)
+                    if !isSuccess  { break }
+                }
+                
+                // 更新时间
+                newNote.updatedAt = Date()
+                _ = try blockDao.updateUpdatedAt(id: note.id, updatedAt: Date())
+                
+            }
+            if !isSuccess {
+                return DBResult<Note>.failure(DBError())
+            }
+            newNote.boards = boards
+            return DBResult<Note>.success(newNote)
+        } catch _ {
+            return DBResult<Note>.failure(DBError(code: .None))
+        }
+    }
     
     func moveNote2Board(note:Note,boardId:Int64) -> DBResult<Note> {
         do {
@@ -444,9 +512,19 @@ extension DBStore {
                     let block = rootBlock.1
                     
                     let childBlocks = try blockDao.query(noteId: block.id)
-                    let note = Note(rootBlock: block, childBlocks: childBlocks)
+                    
+
+                    let boards:[Board] = try boardDao.queryByNoteBlockId(block.id).map{
+                        if $0.type == 2 {
+                            return getLocalSystemBoardInfo(board: $0)
+                        }
+                        return $0
+                    }
+                    let note = Note(rootBlock: block, childBlocks: childBlocks,boards:boards)
+                    
                     notes.append((sectionId,note))
                 }
+                
             }
             return DBResult<[(Int64,Note)]>.success(notes)
         }catch let err {

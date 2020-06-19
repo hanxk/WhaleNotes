@@ -191,6 +191,21 @@ class NoteRepo {
             .disposed(by: disposebag)
     }
     
+    func updateNoteBoards(note:Note,boards:[Board]) -> Observable<Note> {
+        return Observable<Note>.create {  observer -> Disposable in
+            let result = DBStore.shared.updateNoteBoards(note:note,boards:boards)
+            switch result {
+            case .success(let newBlock):
+                observer.onNext(newBlock)
+                observer.onCompleted()
+            case .failure(let err):
+                observer.onError(err)
+            }
+            return Disposables.create()
+        }
+        .observeOn(MainScheduler.instance)
+    }
+    
     func moveNote2Board(note:Note,boardId:Int64) -> Observable<Note>  {
         return Observable<Note>.create {  observer -> Disposable in
             let result = DBStore.shared.moveNote2Board(note:note,boardId: boardId)

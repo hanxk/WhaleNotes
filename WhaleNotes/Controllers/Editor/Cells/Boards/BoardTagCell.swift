@@ -10,9 +10,9 @@ import UIKit
 
 class BoardTagCell: UICollectionViewCell {
     
-    static let horizontalPadding:CGFloat = 10
-    static let cellHeight:CGFloat = 26
-    static let iconTextSpacing:CGFloat = 4
+    static let horizontalPadding:CGFloat = 8
+    static let cellHeight:CGFloat = 24
+    static let iconTextSpacing:CGFloat = 0
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,20 +30,18 @@ class BoardTagCell: UICollectionViewCell {
     }
     
     private lazy var tagView = UIView().then {
-        $0.backgroundColor = .white
-        $0.layer.borderColor = UIColor(hexString: "#E1E1E1").cgColor
-        $0.layer.borderWidth = 1
+        $0.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.08)
         $0.layer.cornerRadius = BoardTagCell.cellHeight / 2
     }
     
     private lazy var emojiLabel:UILabel = UILabel().then{
-        $0.font = UIFont.systemFont(ofSize: 13)
+        $0.font =  UIFont.systemFont(ofSize: 12, weight: .light)
         $0.textAlignment = .center
     }
     
     private lazy var titleLabel: UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        $0.textColor = UIColor(hexString: "#444444")
+        $0.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        $0.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1)
         $0.textAlignment = .left
     }
     

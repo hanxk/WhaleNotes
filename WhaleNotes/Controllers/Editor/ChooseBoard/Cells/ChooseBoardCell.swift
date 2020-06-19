@@ -16,11 +16,11 @@ class ChooseBoardCell: UITableViewCell {
         }
     }
     
-//    var isChoosed:Bool = false {
-//        didSet {
-//            self.checkImageView.isHidden = !isChoosed
-//        }
-//    }
+    var isChoosed:Bool = false {
+        didSet {
+            self.checkImageView.isHidden = !isChoosed
+        }
+    }
     
     
     private lazy var emojiLabel:UILabel = UILabel().then{
@@ -35,10 +35,10 @@ class ChooseBoardCell: UITableViewCell {
         $0.textAlignment = .left
     }
     
-//    private lazy var checkImageView: UIImageView = UIImageView().then {
-//        $0.image = UIImage(systemName: "checkmark", pointSize: 15, weight: .regular)
-//        $0.isHidden = true
-//    }
+    private lazy var checkImageView: UIImageView = UIImageView().then {
+        $0.image = UIImage(systemName: "checkmark", pointSize: 15, weight: .regular)
+        $0.isHidden = true
+    }
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -60,17 +60,17 @@ class ChooseBoardCell: UITableViewCell {
         }
         
         contentView.addSubview(titleLabel)
+        contentView.addSubview(checkImageView)
         titleLabel.snp.makeConstraints {
             $0.leading.equalTo(emojiLabel.snp.trailing).offset(ContextMenuCell.spacing)
-            $0.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
+            $0.trailing.equalToSuperview().offset(-40)
             $0.centerY.equalToSuperview()
         }
         
-//        contentView.addSubview(checkImageView)
-//        checkImageView.snp.makeConstraints {
-//            $0.trailing.equalToSuperview().offset(-16)
-//            $0.centerY.equalToSuperview()
-//        }
+        checkImageView.snp.makeConstraints {
+            $0.trailing.equalToSuperview().offset(-16)
+            $0.centerY.equalToSuperview()
+        }
         
         
     }

@@ -17,6 +17,8 @@ struct Note {
         return rootBlock.id
     }
     
+    var boards:[Board] = []
+    
     var updatedAt:Date {
         get {
             return rootBlock.updatedAt
@@ -36,11 +38,12 @@ struct Note {
         }
     }
     
-    init(rootBlock:Block,childBlocks:[Block]) {
+    init(rootBlock:Block,childBlocks:[Block],boards:[Board] = []) {
         self.rootBlock = rootBlock
         self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
         self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
         self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue}.sorted(by: {$0.sort < $1.sort}))
+        self.boards = boards
     }
     
     

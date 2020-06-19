@@ -45,7 +45,6 @@ class EditorViewController: UIViewController {
     
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
-    var boards:[Board] = []
     
     private let noteRepo = NoteRepo.shared
     
@@ -154,18 +153,8 @@ class EditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        self.loadBoards()
+        self.setupData()
         
-    }
-    
-    private func loadBoards() {
-        BoardRepo.shared.getBoardsByNoteId(noteId: note.id)
-            .subscribe(onNext: { [weak self] boards in
-                self?.setupData(boards:boards)
-                }, onError: { error in
-                    Logger.error(error)
-            })
-            .disposed(by: disposeBag)
     }
     
     
@@ -278,6 +267,10 @@ class EditorViewController: UIViewController {
 
 //MARK: NoteMenuViewControllerDelegate
 extension EditorViewController:NoteMenuViewControllerDelegate {
+    func noteMenuChooseBoards(note: Note) {
+        self.openChooseBoardsVC()
+    }
+    
     func noteMenuBackgroundChanged(note: Note) {
         self.note = note
         self.bg = note.backgroundColor
@@ -383,18 +376,15 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
 // 数据处理
 extension EditorViewController {
     
-    fileprivate func setupData(boards:[Board]) {
-        self.boards = boards
+    fileprivate func setupData() {
         self.titleTextField.text = self.note.rootBlock.text
         self.setupSectionsTypes()
         self.tableView.reloadData()
-        
         bottombar.updatedDateStr =  self.note.updatedDateStr
     }
     
     fileprivate func setupSectionsTypes() {
         self.sections.removeAll()
-        //        self.sections.append(SectionType.boards)
         if let _ = note.textBlock {
             self.sections.append(SectionType.text)
         }
@@ -406,6 +396,7 @@ extension EditorViewController {
         if note.imageBlocks.isNotEmpty {
             self.sections.append(SectionType.images)
         }
+                self.sections.append(SectionType.boards)
     }
     
 }
@@ -514,7 +505,7 @@ extension EditorViewController: UITableViewDataSource {
         switch sectionObj {
         case .boards:
             let boardsCell = cell as! BoardsCell
-            boardsCell.boards =  boards
+            boardsCell.boards =  note.boards
             boardsCell.callbackTaped = { [weak self] in
                 self?.openChooseBoardsVC()
             }
@@ -601,6 +592,14 @@ extension EditorViewController: UITableViewDataSource {
     
     func openChooseBoardsVC()  {
         let vc = ChooseBoardViewController()
+        vc.note = note
+        vc.callbackBoardChoosed = { newNote in
+            if let boardSectionIndex = self.sections.firstIndex(of: SectionType.boards),
+                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: boardSectionIndex)) as? BoardsCell {
+                self.note = newNote
+                cell.boards = newNote.boards
+            }
+        }
         self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     

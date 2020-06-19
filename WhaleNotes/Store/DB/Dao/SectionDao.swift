@@ -9,7 +9,7 @@
 import Foundation
 import SQLite
 
-fileprivate enum Field_Section{
+enum Field_Section{
     static let id = Expression<Int64>("id")
     static let title = Expression<String>("title")
     static let sort = Expression<Double>("sort")
@@ -19,7 +19,7 @@ fileprivate enum Field_Section{
 
 class SectionDao {
     
-    private var table: Table!
+    private(set) var table: Table!
     private  var db: Connection!
     
     init(dbCon: Connection) {

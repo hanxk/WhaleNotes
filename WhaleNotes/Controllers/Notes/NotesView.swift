@@ -165,13 +165,22 @@ extension NotesView {
         //
         switch mode {
         case .insert(let noteInfo):
+            if self.checkBoardIsDel(noteInfo)  {
+                return
+            }
             sectionNoteInfo.notes.insert(noteInfo, at: 0)
             self.collectionNode.performBatchUpdates({
                 self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
             }, completion: nil)
         case .update(let noteInfo):
+          
+            if self.checkBoardIsDel(noteInfo)  {
+                return
+            }
+            
             if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
-               sectionNoteInfo.notes[row] = noteInfo
+                
+                sectionNoteInfo.notes[row] = noteInfo
                 self.collectionNode.performBatchUpdates({
                     self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
                 }, completion: nil)
@@ -179,6 +188,16 @@ extension NotesView {
         case .delete(let note):
             self.handleDeleteNote(note)
         }
+    }
+    
+    func checkBoardIsDel(_ newNote:Note) -> Bool {
+        // 判断标签是否删除
+          let isBoardDel = !newNote.boards.contains(where: {$0.id == self.board.id})
+          if isBoardDel {
+              self.handleDeleteNote(newNote)
+              return true
+          }
+        return false
     }
     
     func handleDeleteNote(_ note:Note) {
@@ -271,6 +290,10 @@ extension NotesView:NoteCellNodeDelegate {
 
 //MARK: NoteMenuViewControllerDelegate
 extension NotesView:NoteMenuViewControllerDelegate {
+    func noteMenuChooseBoards(note: Note) {
+        
+    }
+    
     func noteMenuBackgroundChanged(note: Note) {
         guard let row = self.noteInfos.firstIndex(where: {$0.id == note.id}) else { return }
         self.sectionNoteInfo.notes[row] = note
