@@ -127,6 +127,7 @@ class EditorViewController: UIViewController {
         guard let self = self else { return }
         $0.moreButton.addTarget(self, action: #selector(self.handleMoreButtonTapped), for: .touchUpInside)
         $0.addButton.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
+        $0.keyboardButton.addTarget(self, action: #selector(self.handleKeyboardButtonTapped), for: .touchUpInside)
     }
     
     lazy var completeBtn =  UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(handleMenuTapped)).then {
@@ -169,6 +170,10 @@ class EditorViewController: UIViewController {
     
     
     @objc func handleMenuTapped(sender:UIBarButtonItem) {
+        self.hideKeyboard()
+    }
+    
+    func hideKeyboard() {
         titleTextField.resignFirstResponder()
         self.tableView.endEditing(true)
     }
@@ -280,6 +285,11 @@ extension EditorViewController {
         }
     }
     
+    
+    @objc func handleKeyboardButtonTapped(sender: UIButton) {
+        self.hideKeyboard()
+    }
+    
     private func handleNoteUpdated(newNote:Note,noteMenuType:NoteMenuType) {
         self.note = newNote
         self.bg = note.backgroundColor
@@ -298,6 +308,7 @@ extension EditorViewController {
                  break
         }
     }
+
     
     private func moveNote2Trash(sender: UIButton) {
         //        guard let noteNotificationToken = self.noteNotificationToken else { return }
@@ -925,8 +936,10 @@ extension EditorViewController {
             self.tableView.contentInset = contentInset
             self.tableView.scrollIndicatorInsets = contentInset
             
+            self.bottombar.isKeyboardShow = true
+            
             // 显示完成按钮
-            self.navigationItem.rightBarButtonItem = completeBtn
+//            self.navigationItem.rightBarButtonItem = completeBtn
             
             
         }
@@ -956,7 +969,8 @@ extension EditorViewController {
             self.tableView.scrollIndicatorInsets = contentInset
             
             
-            self.navigationItem.rightBarButtonItem =  nil
+            self.bottombar.isKeyboardShow = false
+//            self.navigationItem.rightBarButtonItem =  nil
         }
     }
 }

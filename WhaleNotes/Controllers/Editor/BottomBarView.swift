@@ -19,6 +19,13 @@ class BottomBarView: UIView {
         $0.setImage(UIImage(systemName:  "ellipsis", pointSize: 20, weight: .regular), for: .normal)
     }
     
+    
+    lazy var keyboardButton: UIButton = UIButton().then {
+        $0.setImage(UIImage(systemName:  "keyboard.chevron.compact.down", pointSize: 18, weight: .regular), for: .normal)
+        $0.isHidden = true
+    }
+    
+    
     lazy var updatedAtText: UILabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 13)
         $0.textColor = UIColor(hexString: "#666666")
@@ -30,6 +37,12 @@ class BottomBarView: UIView {
         }
     }
     
+    var isKeyboardShow:Bool = false {
+        didSet {
+            self.moreButton.isHidden = isKeyboardShow
+            self.keyboardButton.isHidden = !isKeyboardShow
+        }
+    }
     
     init() {
         super.init(frame: CGRect.zero)
@@ -53,6 +66,13 @@ class BottomBarView: UIView {
         }
         
         moreButton.snp.makeConstraints { (make) in
+            make.width.equalTo(44)
+            make.trailing.equalToSuperview().offset(-5)
+            make.top.bottom.equalToSuperview()
+        }
+        
+        addSubview(keyboardButton)
+        keyboardButton.snp.makeConstraints { (make) in
             make.width.equalTo(44)
             make.trailing.equalToSuperview().offset(-5)
             make.top.bottom.equalToSuperview()
