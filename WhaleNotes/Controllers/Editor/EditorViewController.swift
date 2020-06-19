@@ -276,39 +276,27 @@ class EditorViewController: UIViewController {
     }
 }
 
-// context menu
-extension EditorViewController {
+//MARK: NoteMenuViewControllerDelegate
+extension EditorViewController:NoteMenuViewControllerDelegate {
+    func noteMenuBackgroundChanged(note: Note) {
+        self.note = note
+        self.bg = note.backgroundColor
+    }
+    
+    
+    func noteMenuDataMoved(note: Note) {
+        self.navigationController?.popViewController(animated: true)
+        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+    }
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
-        NoteMenuViewController.show(note: self.note, sourceView: sender) { newNote,noteMenuType in
-            self.handleNoteUpdated(newNote: newNote, noteMenuType: noteMenuType)
-        }
+        NoteMenuViewController.show(note: self.note, sourceView: sender,delegate: self)
     }
     
     
     @objc func handleKeyboardButtonTapped(sender: UIButton) {
         self.hideKeyboard()
     }
-    
-    private func handleNoteUpdated(newNote:Note,noteMenuType:NoteMenuType) {
-        self.note = newNote
-        self.bg = note.backgroundColor
-        switch noteMenuType {
-             case .pin:
-                 break
-             case .copy:
-                 break
-             case .move:
-                 break
-             case .background:
-                 break
-             case .info:
-                 break
-             case .trash:
-                 break
-        }
-    }
-
     
     private func moveNote2Trash(sender: UIButton) {
         //        guard let noteNotificationToken = self.noteNotificationToken else { return }

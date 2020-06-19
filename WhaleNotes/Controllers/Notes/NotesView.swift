@@ -176,13 +176,17 @@ extension NotesView {
                     self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
                 }, completion: nil)
             }
-        case .delete(let noteInfo):
-            if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
-                sectionNoteInfo.notes.remove(at: row)
-                self.collectionNode.performBatchUpdates({
-                    self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
-                }, completion: nil)
-            }
+        case .delete(let note):
+            self.handleDeleteNote(note)
+        }
+    }
+    
+    func handleDeleteNote(_ note:Note) {
+        if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == note.rootBlock.id }) {
+            sectionNoteInfo.notes.remove(at: row)
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
+            }, completion: nil)
         }
     }
 }
@@ -259,36 +263,27 @@ extension NotesView:NoteCellNodeDelegate {
     }
     
     func noteCellMenuTapped(sender: UIView,note:Note) {
-        NoteMenuViewController.show(note: note,sourceView: sender) { newNote,noteMenuType in
-           self.handleNoteUpdated(newNote: newNote, noteMenuType: noteMenuType)
-        }
+        NoteMenuViewController.show(note: note,sourceView: sender,delegate: self)
     }
     
     
-    private func handleNoteUpdated(newNote:Note,noteMenuType:NoteMenuType) {
-        guard let row = self.noteInfos.firstIndex(where: {$0.id == newNote.id}) else { return }
-//        self.note = newNote
-//        self.bg = note.backgroundColor
-        self.sectionNoteInfo.notes[row] = newNote
-        switch noteMenuType {
-             case .pin:
-                 break
-             case .copy:
-                 break
-             case .move:
-                 break
-             case .background:
-                if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
-                    noteCell.note = newNote
-                    noteCell.setupBackBackground()
-                }
-                 break
-             case .info:
-                 break
-             case .trash:
-                 break
+}
+
+//MARK: NoteMenuViewControllerDelegate
+extension NotesView:NoteMenuViewControllerDelegate {
+    func noteMenuBackgroundChanged(note: Note) {
+        guard let row = self.noteInfos.firstIndex(where: {$0.id == note.id}) else { return }
+        self.sectionNoteInfo.notes[row] = note
+        if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
+            noteCell.note = note
+            noteCell.setupBackBackground()
         }
     }
+    
+    func noteMenuDataMoved(note: Note) {
+        self.handleDeleteNote(note)
+    }
+    
 }
 
 

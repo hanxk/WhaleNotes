@@ -127,7 +127,7 @@ class BoardRepo {
             
             
             for section in sections {
-                let notes = sectionNotes.filter{ $0.0 == section.id }.map { $0.1 }
+                let notes = sectionNotes.filter{ $0.0 == section.id }.map { $0.1 }.sorted(by: {$0.sort < $1.sort})
                 result.append(SectionNoteInfo(section: section, notes: notes))
             }
             

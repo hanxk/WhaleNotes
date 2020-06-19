@@ -36,7 +36,7 @@ struct DBError:Error {
   let code:DBErrorCode
   let message:String
   
-  init(code:DBErrorCode = DBErrorCode.DataAlreadyExists, message:String = "db error") {
+    init(code:DBErrorCode = .normal, message:String = "db error") {
     self.code = code
     self.message = message
   }
@@ -47,4 +47,5 @@ enum DBErrorCode {
   case DataAlreadyExists
   case NoProAuth
   case None
+  case normal
 }

@@ -32,14 +32,39 @@ class SectionAndNoteDao {
         return rowId
     }
     
+    func update(_ sa:SectionAndNote) throws -> Bool {
+        let insertSection = self.generateSectionInsert(sa: sa,conflict: .ignore)
+        let rows = try db.run(insertSection)
+        return rows > 0
+    }
+    
+    func queryBy(noteId: Int64,sectionId:Int64) throws -> SectionAndNote? {
+        let query = table.filter(Field_SectionAndNote.noteId  == noteId && Field_SectionAndNote.sectionId == sectionId)
+        let rows = try db.prepare(query)
+        for row in rows {
+            return generateSectionAndNote(row: row)
+        }
+        return nil
+    }
+    
+    
+    func queryFirst(sectionId:Int64) throws -> SectionAndNote? {
+        let query = table.filter(Field_SectionAndNote.sectionId == sectionId).order(Field_SectionAndNote.sort.asc).limit(1)
+        let rows = try db.prepare(query)
+        for row in rows {
+            return generateSectionAndNote(row: row)
+        }
+        return nil
+    }
+    
     func delete(id: Int64)  throws -> Bool {
         let sectionData = table.filter(Field_SectionAndNote.id == id)
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
     
-    func delete(sectionId:Int64,noteId:Int64) throws -> Bool{
-        let sectionData = table.filter(Field_SectionAndNote.sectionId == sectionId && Field_SectionAndNote.noteId == noteId)
+    func deleteByNoteId(_ noteId:Int64) throws -> Bool{
+        let sectionData = table.filter(Field_SectionAndNote.noteId == noteId)
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
@@ -76,9 +101,9 @@ extension SectionAndNoteDao {
             )
         }
         return table.insert(or: conflict,
-                                Field_SectionAndNote.sectionId <- sa.sectionId,
-                                Field_SectionAndNote.noteId <- sa.noteId,
-                                Field_SectionAndNote.sort <- sa.sort
+                            Field_SectionAndNote.sectionId <- sa.sectionId,
+                            Field_SectionAndNote.noteId <- sa.noteId,
+                            Field_SectionAndNote.sort <- sa.sort
         )
     }
     

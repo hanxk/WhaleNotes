@@ -43,6 +43,9 @@ class DBStore {
             var noteBlock = Block.newNoteBlock()
             try db.transaction {
                 
+                // 获取当前 section 的排序
+                let sort = try sectionNoteDao.queryFirst(sectionId: sectionId)?.sort ?? 0
+                noteBlock.sort = sort == 0 ? 65536 : sort / 2
                 
                 let noteId = try blockDao.insert(noteBlock)
                 noteBlock.id = noteId
@@ -64,14 +67,14 @@ class DBStore {
                         let blockId = try blockDao.insert(block)
                         block.id = blockId
                         
-//                        // todo 默认添加一个空 todo
+                        //                        // todo 默认添加一个空 todo
                         if block.type == BlockType.todo.rawValue {
                             var todoBlock = Block.newTodoBlock(noteId: noteId, sort: 65536, text: "", parent: blockId)
                             let blockId = try blockDao.insert(todoBlock)
                             todoBlock.id = blockId
                             newBlocks.append(todoBlock)
                         }
-//
+                        //
                         newBlocks.append(block)
                     }
                 }
@@ -86,22 +89,22 @@ class DBStore {
         do {
             var blocks:[Block] = []
             try db.transaction {
-                  var rootTodoBlock = Block.newTodoBlock(noteId:noteId, sort: 0)
-                  let rootTodoId = try blockDao.insert(rootTodoBlock)
-                  rootTodoBlock.id = rootTodoId
-                  
-                  var todoBlock = Block.newTodoBlock(noteId: noteId, sort: 65536, text: "", parent: rootTodoId)
-                  let blockId = try blockDao.insert(todoBlock)
-                  todoBlock.id = blockId
+                var rootTodoBlock = Block.newTodoBlock(noteId:noteId, sort: 0)
+                let rootTodoId = try blockDao.insert(rootTodoBlock)
+                rootTodoBlock.id = rootTodoId
+                
+                var todoBlock = Block.newTodoBlock(noteId: noteId, sort: 65536, text: "", parent: rootTodoId)
+                let blockId = try blockDao.insert(todoBlock)
+                todoBlock.id = blockId
                 
                 blocks.append(rootTodoBlock)
                 blocks.append(todoBlock)
-                  
+                
             }
             return DBResult<[Block]>.success(blocks)
         } catch let error  {
             return DBResult<[Block]>.failure(DBError(code: .None,message: error.localizedDescription))
-       }
+        }
     }
     
     func deleteNote(id:Int64) -> DBResult<Bool> {
@@ -165,7 +168,7 @@ class DBStore {
             return DBResult<[Block]>.failure(DBError(code: .None))
         }
     }
-        
+    
     func updateBlock(block: Block) -> DBResult<Block> {
         do {
             var isSuccess = false
@@ -286,6 +289,56 @@ extension DBStore {
     }
     
     
+    func moveNote2Board(note:Note,boardId:Int64) -> DBResult<Note> {
+        do {
+            var isSuccess = false
+            var newNote = note
+            try db.transaction {
+                newNote.updatedAt = Date()
+                _ = try blockDao.updateUpdatedAt(id: note.id, updatedAt: Date())
+                
+                //删除当前 note 绑定的 board
+                isSuccess =  try sectionNoteDao.deleteByNoteId(note.id)
+                if !isSuccess { return }
+                
+                // 重新绑定
+                let section =  try sectionDao.query(boardId: boardId)[0]
+                
+                // 获取当前 section 下的 第一个 sort
+                var sort = try sectionNoteDao.queryFirst(sectionId: section.id)?.sort ?? 0
+                sort = sort == 0 ? 65536 : sort/2
+                newNote.sort  = sort
+                
+                let sectionNode = SectionAndNote(id: 0, sectionId: section.id, noteId: note.id, sort: sort)
+                let id = try sectionNoteDao.insert(sectionNode)
+                isSuccess = id > 0
+            }
+            
+            if !isSuccess {
+                return DBResult<Note>.failure(DBError())
+            }
+            
+            return DBResult<Note>.success(newNote)
+        } catch _ {
+            return DBResult<Note>.failure(DBError(code: .None))
+        }
+    }
+    
+    
+    func updateSectionAndNot(noteId:Int64,sectionId:Int64,newSectionId:Int64) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                if let sectionAndNote = try sectionNoteDao.queryBy(noteId: noteId, sectionId: sectionId) {
+                    isSuccess = try sectionNoteDao.update(sectionAndNote)
+                }
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch _ {
+            return DBResult<Bool>.failure(DBError(code: .None))
+        }
+    }
+    
     func deleteBoardCategory(boardCategoryInfo: BoardCategoryInfo) -> DBResult<Bool> {
         do {
             var isSuccess = false
@@ -339,21 +392,6 @@ extension DBStore {
         }
     }
     
-    func updateNoteBoards(boards: [Board],noteId:Int64,sectionId:Int64) -> DBResult<Bool> {
-        do {
-            var isSuccess = false
-            try db.transaction {
-                try sectionNoteDao.delete(sectionId: sectionId, noteId: noteId)
-                
-//                SectionAndNote(id: 0, sectionId: sectionId, noteId: <#T##Int64#>, sort: <#T##Double#>)
-//                
-//                try sectionNoteDao.insert(<#T##sa: SectionAndNote##SectionAndNote#>)
-            }
-            return DBResult<Bool>.success(isSuccess)
-        } catch _ {
-            return DBResult<Bool>.failure(DBError(code: .None))
-        }
-    }
     
     func getNoCategoryBoards() -> DBResult<[Board]>  {
         do {

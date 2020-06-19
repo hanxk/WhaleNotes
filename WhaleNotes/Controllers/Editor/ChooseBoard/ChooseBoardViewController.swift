@@ -24,6 +24,8 @@ class ChooseBoardViewController:UIViewController {
         }
     }
     
+    var callbackBoardChoosed:((Board)->Void)?
+    
     
 //    var choosedBoards:[Board] = []
     
@@ -189,16 +191,17 @@ extension ChooseBoardViewController:UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let sectionType = self.menuSectionTypes[indexPath.section]
-//        switch sectionType {
-//        case .system(let systemBoards):
-//            self.toggleBoard(systemBoards[indexPath.row],indexPath: indexPath)
-//        case .boards:
-//            self.toggleBoard(self.boards[indexPath.row],indexPath: indexPath)
-//        case .categories:
-//            let board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
-//            self.toggleBoard(board,indexPath: indexPath)
-//        }
+        let sectionType = self.menuSectionTypes[indexPath.section]
+        var board:Board!
+        switch sectionType {
+        case .system(let systemBoards):
+            board = systemBoards[indexPath.row]
+        case .boards:
+             board = self.boards[indexPath.row]
+        case .categories:
+             board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
+        }
+        self.callbackBoardChoosed?(board)
     }
     
 //    func toggleBoard(_ board:Board,indexPath:IndexPath) {

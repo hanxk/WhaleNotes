@@ -124,7 +124,7 @@ class BlockDao {
                         select section_note.note_id, section_note.sort,section_note.section_id from section_note
                         inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
                     ) as section
-                    on b.id = section.note_id
+                    on b.id = section.note_id order by b.sort asc
                     """
         let stmt = try db.prepare(selectSQL)
         let rows = stmt.typedRows()

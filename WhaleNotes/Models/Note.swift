@@ -11,7 +11,6 @@ import Foundation
 struct Note {
     
     var rootBlock:Block!
-    var boards:[Board] = []
     
     var textBlock:Block?
     var id:Int64 {
@@ -24,6 +23,16 @@ struct Note {
         }
         set {
             self.rootBlock.updatedAt = newValue
+        }
+    }
+    
+    
+    var sort:Double {
+        get {
+            return rootBlock.sort
+        }
+        set {
+            self.rootBlock.sort = newValue
         }
     }
     

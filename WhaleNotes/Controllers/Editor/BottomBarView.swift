@@ -19,12 +19,10 @@ class BottomBarView: UIView {
         $0.setImage(UIImage(systemName:  "ellipsis", pointSize: 20, weight: .regular), for: .normal)
     }
     
-    
     lazy var keyboardButton: UIButton = UIButton().then {
         $0.setImage(UIImage(systemName:  "keyboard.chevron.compact.down", pointSize: 18, weight: .regular), for: .normal)
         $0.isHidden = true
     }
-    
     
     lazy var updatedAtText: UILabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 13)
@@ -48,23 +46,22 @@ class BottomBarView: UIView {
         super.init(frame: CGRect.zero)
         self.setupUI()
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func setupUI() {
         self.translatesAutoresizingMaskIntoConstraints = false
+        
         addSubview(addButton)
-        addSubview(moreButton)
-        addSubview(updatedAtText)
-        
-        
         addButton.snp.makeConstraints { (make) in
             make.width.equalTo(44)
             make.leading.equalToSuperview().offset(3)
             make.centerY.equalToSuperview()
         }
         
+        addSubview(moreButton)
         moreButton.snp.makeConstraints { (make) in
             make.width.equalTo(44)
             make.trailing.equalToSuperview().offset(-5)
@@ -78,11 +75,10 @@ class BottomBarView: UIView {
             make.top.bottom.equalToSuperview()
         }
         
-        
+        addSubview(updatedAtText)
         updatedAtText.snp.makeConstraints { (make) in
             make.center.equalToSuperview()
         }
-        
         tintColor = .buttonTintColor
 
     }

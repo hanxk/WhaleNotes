@@ -20,14 +20,6 @@ struct Block {
     var noteId:Int64 = 0
     var parent:Int64  = 0
     
-    
-    // block 的附加属性
-//    var properties:String = "{}"{
-//        didSet {
-//            propertiesDic = properties.convertToDictionary(text: self.properties)
-//        }
-//    }
-    
     var properties:[String:Any] = [:]
     
     static func newNoteBlock() -> Block {

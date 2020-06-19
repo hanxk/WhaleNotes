@@ -19,23 +19,29 @@ enum NoteMenuType {
     case trash
 }
 
+
+protocol NoteMenuViewControllerDelegate: AnyObject {
+    func noteMenuDataMoved(note: Note)
+    func noteMenuBackgroundChanged(note:Note)
+}
+
 class NoteMenuViewController: ContextMenuViewController {
     
-    
     var note:Note!
-//    var boards:[Board] = []
+    weak var delegate:NoteMenuViewControllerDelegate?
     
     typealias NoteMenuUpdateCallback = ((Note,NoteMenuType)->Void)
     
     var callbackNoteUpdated:NoteMenuUpdateCallback?
+    
     let disposeBag = DisposeBag()
     
     static let menuWidth:CGFloat = 200
     
-    static func show(note:Note,sourceView:UIView,callback:NoteMenuUpdateCallback?) {
+    static func show(note:Note,sourceView:UIView,delegate:NoteMenuViewControllerDelegate) {
         let menuVC =  NoteMenuViewController()
         menuVC.note = note
-        menuVC.callbackNoteUpdated = callback
+        menuVC.delegate = delegate
         menuVC.showContextMenu(sourceView: sourceView)
     }
     
@@ -62,6 +68,7 @@ class NoteMenuViewController: ContextMenuViewController {
                 break
             case .move:
                 let chooseBoardVC = ChooseBoardViewController()
+                chooseBoardVC.callbackBoardChoosed = self.handleMove2Board
                 vc.navigationController?.pushViewController(chooseBoardVC, animated: true)
                 break
             case .background:
@@ -102,14 +109,25 @@ extension NoteMenuViewController {
             .subscribe(onNext: { block in
                 var newNote = self.note!
                 newNote.rootBlock = block
-                self.callbackNoteUpdated?(newNote, NoteMenuType.background)
-
+//                self.callbackNoteUpdated?(newNote, NoteMenuType.background)
+                self.delegate?.noteMenuBackgroundChanged(note: newNote)
+                
                 self.dismiss()
                 
             }, onError: { error in
                 Logger.error(error)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
+    }
+    func handleMove2Board(board:Board) {
+        NoteRepo.shared.moveNote2Board(note: self.note, boardId: board.id)
+            .subscribe(onNext: { [weak self] in
+                self?.dismiss()
+                self?.delegate?.noteMenuDataMoved(note: $0)
+            }, onError:{ error in
+                Logger.error(error)
+            })
+            .disposed(by: disposeBag)
     }
 }
