@@ -357,7 +357,7 @@ extension DBStore {
         }
     }
     
-    func moveNote2Board(note:Note,boardId:Int64) -> DBResult<Note> {
+    func moveNote2Board(note:Note,board:Board) -> DBResult<Note> {
         do {
             var isSuccess = false
             var newNote = note
@@ -370,7 +370,7 @@ extension DBStore {
                 if !isSuccess { return }
                 
                 // 重新绑定
-                let section =  try sectionDao.query(boardId: boardId)[0]
+                let section =  try sectionDao.query(boardId: board.id)[0]
                 
                 // 获取当前 section 下的 第一个 sort
                 var sort = try sectionNoteDao.queryFirst(sectionId: section.id)?.sort ?? 0
@@ -380,6 +380,11 @@ extension DBStore {
                 let sectionNode = SectionAndNote(id: 0, sectionId: section.id, noteId: note.id, sort: sort)
                 let id = try sectionNoteDao.insert(sectionNode)
                 isSuccess = id > 0
+                
+                if isSuccess {
+                    newNote.boards = [board]
+                }
+                
             }
             
             if !isSuccess {

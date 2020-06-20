@@ -20,6 +20,7 @@ enum EditorUpdateMode {
     case insert(noteInfo:Note)
     case update(noteInfo:Note)
     case delete(noteInfo:Note)
+    case moved(noteInfo:Note)
 }
 
 enum EditorMode {
@@ -279,7 +280,7 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     
     func noteMenuDataMoved(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+        self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: note))
     }
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
@@ -396,7 +397,7 @@ extension EditorViewController {
         if note.imageBlocks.isNotEmpty {
             self.sections.append(SectionType.images)
         }
-                self.sections.append(SectionType.boards)
+//        self.sections.append(SectionType.boards)
     }
     
 }

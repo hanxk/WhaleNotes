@@ -206,9 +206,9 @@ class NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func moveNote2Board(note:Note,boardId:Int64) -> Observable<Note>  {
+    func moveNote2Board(note:Note,board:Board) -> Observable<Note>  {
         return Observable<Note>.create {  observer -> Disposable in
-            let result = DBStore.shared.moveNote2Board(note:note,boardId: boardId)
+            let result = DBStore.shared.moveNote2Board(note:note,board: board)
             switch result {
             case .success(let newBlock):
                 observer.onNext(newBlock)

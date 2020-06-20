@@ -8,6 +8,7 @@
 
 import UIKit
 import SnapKit
+import Toast_Swift
 
 extension UIView {
     
@@ -48,5 +49,12 @@ extension UIView {
 //        border.backgroundColor = color.cgColor
 //        self.layer.addSublayer(border)
 //    }
+    
+    func showToast(_ message:String) {
+        var style = ToastStyle()
+        style.messageColor = UIColor.white
+//        style.verticalPadding = 40
+        self.makeToast(message,position: .bottom, style: style)
+    }
     
 }

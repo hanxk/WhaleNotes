@@ -17,6 +17,8 @@
 		181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E7248B98DC00B34E20 /* MenuSystemCell.swift */; };
 		181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */; };
 		181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */; };
+		181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */; };
+		181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */; };
 		1820C4A2248CE35000484AF8 /* EmojiSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1820C4A1248CE35000484AF8 /* EmojiSectionHeaderView.swift */; };
 		1820C4A4248CE8F600484AF8 /* emojis.json in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4A3248CE8F600484AF8 /* emojis.json */; };
 		1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1820C4A5248CEA3C00484AF8 /* Emoji.swift */; };
@@ -129,6 +131,8 @@
 		181D63E7248B98DC00B34E20 /* MenuSystemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSystemCell.swift; sourceTree = "<group>"; };
 		181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBoardCell.swift; sourceTree = "<group>"; };
 		181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCategoryCell.swift; sourceTree = "<group>"; };
+		181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardViewController.swift; sourceTree = "<group>"; };
+		181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardCell.swift; sourceTree = "<group>"; };
 		1820C4A1248CE35000484AF8 /* EmojiSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSectionHeaderView.swift; sourceTree = "<group>"; };
 		1820C4A3248CE8F600484AF8 /* emojis.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = emojis.json; sourceTree = "<group>"; };
 		1820C4A5248CEA3C00484AF8 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
@@ -270,6 +274,23 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
+		181F17CC249DDD4000F8C5B8 /* ChangeBoard */ = {
+			isa = PBXGroup;
+			children = (
+				181F17CF249DDD6600F8C5B8 /* Cells */,
+				181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */,
+			);
+			path = ChangeBoard;
+			sourceTree = "<group>";
+		};
+		181F17CF249DDD6600F8C5B8 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
 		1820C4A7248CFB7500484AF8 /* emojis */ = {
 			isa = PBXGroup;
 			children = (
@@ -397,6 +418,7 @@
 		1865AEF7244C79400006B48D /* Editor */ = {
 			isa = PBXGroup;
 			children = (
+				181F17CC249DDD4000F8C5B8 /* ChangeBoard */,
 				18251C1D249B303A00484D23 /* NoteColor */,
 				182BE901249A55A700C85F8F /* Menu */,
 				182BE8F9249A13CA00C85F8F /* ChooseBoard */,
@@ -875,6 +897,7 @@
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
+				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
@@ -908,6 +931,7 @@
 				181D63DA248A226D00B34E20 /* BoardCategory.swift in Sources */,
 				18E6E668247B98A100D598C5 /* Board.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
+				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,

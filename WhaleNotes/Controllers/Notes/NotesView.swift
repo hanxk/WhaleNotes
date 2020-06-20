@@ -187,6 +187,8 @@ extension NotesView {
             }
         case .delete(let note):
             self.handleDeleteNote(note)
+        case .moved(let note):
+             self.noteMenuDataMoved(note: note)
         }
     }
     
@@ -199,6 +201,8 @@ extension NotesView {
           }
         return false
     }
+    
+    
     
     func handleDeleteNote(_ note:Note) {
         if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == note.rootBlock.id }) {
@@ -305,6 +309,8 @@ extension NotesView:NoteMenuViewControllerDelegate {
     
     func noteMenuDataMoved(note: Note) {
         self.handleDeleteNote(note)
+
+        self.showToast("便签已移动至：\"\(note.boards[0].icon)\(note.boards[0].title)\"")
     }
     
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import RxSwift
+import Toast_Swift
 
 
 enum NoteMenuType {
@@ -23,7 +24,7 @@ enum NoteMenuType {
 protocol NoteMenuViewControllerDelegate: AnyObject {
     func noteMenuDataMoved(note: Note)
     func noteMenuBackgroundChanged(note:Note)
-    func noteMenuChooseBoards(note: Note)
+//    func noteMenuChooseBoards(note: Note)
 }
 
 class NoteMenuViewController: ContextMenuViewController {
@@ -51,28 +52,29 @@ class NoteMenuViewController: ContextMenuViewController {
         self.init(nibName:nil, bundle:nil)
         self.menuWidth = NoteMenuViewController.menuWidth
         self.items = [
-            ContextMenuItem(label: "置顶", icon: "pin", tag: NoteMenuType.pin),
-            ContextMenuItem(label: "复制到", icon: "square.on.square", tag: NoteMenuType.copy),
-            ContextMenuItem(label: "便签板", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move),
+            ContextMenuItem(label: "置顶", icon: "arrow.up.to.line.alt", tag: NoteMenuType.pin),
+            ContextMenuItem(label: "复制", icon: "square.on.square", tag: NoteMenuType.copy),
+            ContextMenuItem(label: "移动至...", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move,isNeedJump: true),
             ContextMenuItem(label: "背景色", icon: "paintbrush", tag: NoteMenuType.background,isNeedJump: true),
-            ContextMenuItem(label: "时间信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
+            ContextMenuItem(label: "显示信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
             ContextMenuItem(label: "移到废纸篓", icon: "trash", tag: NoteMenuType.trash),
         ]
-        self.itemTappedCallback = { menuItem,vc in
+        self.itemTappedCallback = { menuItem,menuVC in
             guard let tag = menuItem.tag as? NoteMenuType else { return }
             switch tag {
             case .pin:
                 break
             case .copy:
                 let chooseBoardVC = ChooseBoardViewController()
-                vc.navigationController?.pushViewController(chooseBoardVC, animated: true)
+                menuVC.navigationController?.pushViewController(chooseBoardVC, animated: true)
                 break
             case .move:
-//                let chooseBoardVC = ChooseBoardViewController()
-//                self.present(chooseBoardVC, animated: true, completion: nil)
-//                chooseBoardVC.callbackBoardChoosed = self.handleMove2Board
-//                vc.navigationController?.pushViewController(chooseBoardVC, animated: true)
-                self.delegate?.noteMenuChooseBoards(note: self.note)
+                let vc = ChangeBoardViewController()
+                vc.note = self.note
+                vc.callbackBoardChoosed = { board in
+                    self.handleMove2Board(board: board)
+                }
+                menuVC.navigationController?.pushViewController(vc, animated: true)
                 break
             case .background:
                 let colorVC = NoteColorViewController()
@@ -80,12 +82,12 @@ class NoteMenuViewController: ContextMenuViewController {
                 colorVC.callbackColorChoosed = { color in
                     self.handleUpdateBackground(color)
                 }
-                vc.navigationController?.pushViewController(colorVC, animated: true)
+                menuVC.navigationController?.pushViewController(colorVC, animated: true)
                 break
             case .info:
                 let dateVC = NoteDateViewController()
                 dateVC.note = self.note
-                vc.navigationController?.pushViewController(dateVC, animated: true)
+                menuVC.navigationController?.pushViewController(dateVC, animated: true)
                 break
             case .trash:
                 break
@@ -124,10 +126,12 @@ extension NoteMenuViewController {
         
     }
     func handleMove2Board(board:Board) {
-        NoteRepo.shared.moveNote2Board(note: self.note, boardId: board.id)
+        NoteRepo.shared.moveNote2Board(note: self.note, board: board)
             .subscribe(onNext: { [weak self] in
-                self?.dismiss()
-                self?.delegate?.noteMenuDataMoved(note: $0)
+                if let self = self {
+                    self.dismiss()
+                    self.delegate?.noteMenuDataMoved(note: $0)
+                }
             }, onError:{ error in
                 Logger.error(error)
             })

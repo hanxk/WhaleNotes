@@ -58,6 +58,7 @@ PODS:
     - Texture/Core
   - Then (2.6.0)
   - TLPhotoPicker (2.0.11)
+  - Toast-Swift (5.0.1)
 
 DEPENDENCIES:
   - CHTCollectionViewWaterfallLayout/Swift
@@ -77,6 +78,7 @@ DEPENDENCIES:
   - Texture
   - Then
   - TLPhotoPicker
+  - Toast-Swift (~> 5.0.1)
 
 SPEC REPOS:
   trunk:
@@ -101,6 +103,7 @@ SPEC REPOS:
     - Texture
     - Then
     - TLPhotoPicker
+    - Toast-Swift
 
 SPEC CHECKSUMS:
   CHTCollectionViewWaterfallLayout: 5f241d2480ab4939aa0d1ad4981de9eef1fbe60d
@@ -124,7 +127,8 @@ SPEC CHECKSUMS:
   Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
   TLPhotoPicker: a5c339732b8326bb16cbb4e00ed01a86f2bfbbb3
+  Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
 
-PODFILE CHECKSUM: 42429cd062f5ca22eb57fd629ea513bb63102682
+PODFILE CHECKSUM: 18ba4d87402e4aef8ef8b3a619e9e79ba47350c2
 
 COCOAPODS: 1.9.1
