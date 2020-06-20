@@ -14,7 +14,7 @@ class MenuSystemCell: UITableViewCell {
         didSet {
             let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
             iconImageView.image = UIImage(systemName: self.menuSysItem.icon, withConfiguration: config)
-            iconImageView.tintColor = UIColor.init(hexString: "#828282")
+            iconImageView.tintColor = UIColor.init(hexString: "#666666")
             titleLabel.text = self.menuSysItem.title
         }
     }

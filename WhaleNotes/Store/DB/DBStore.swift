@@ -449,9 +449,11 @@ extension DBStore {
         do {
             var boards:[Board] = []
             try db.transaction {
-                boards = try boardDao.queryAll(categoryId: 0,type: 2)
+                boards = try boardDao.queryAll(categoryId: 0,type: BoardType.collect.rawValue).map {
+                    return getLocalSystemBoardInfo(board: $0)
+                }
                 if boards.count == 0 {
-                    var collectBoard = Board(icon: "🗂️", title: "收集板", sort: 1,type:BoardType.collect.rawValue)
+                    var collectBoard = Board(icon: "", title: "收集板", sort: 1,type:BoardType.collect.rawValue)
                     let boardId = try boardDao.insert(collectBoard)
                     collectBoard.id = boardId
                     boards.append(getLocalSystemBoardInfo(board: collectBoard))
@@ -497,7 +499,7 @@ extension DBStore {
         switch board.type {
         case 2:
             var collectBoard = board
-            collectBoard.icon = "🗂️"
+            collectBoard.icon = "tray.full"
             return collectBoard
         default:
             return board

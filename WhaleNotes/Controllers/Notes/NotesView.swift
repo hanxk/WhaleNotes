@@ -309,8 +309,12 @@ extension NotesView:NoteMenuViewControllerDelegate {
     
     func noteMenuDataMoved(note: Note) {
         self.handleDeleteNote(note)
-
-        self.showToast("便签已移动至：\"\(note.boards[0].icon)\(note.boards[0].title)\"")
+        
+        if note.boards.isEmpty { return }
+        let board = note.boards[0]
+        
+        let message = board.type == BoardType.user.rawValue ? (board.icon+board.title) : board.title
+        self.showToast("便签已移动至：\"\(message)\"")
     }
     
 }

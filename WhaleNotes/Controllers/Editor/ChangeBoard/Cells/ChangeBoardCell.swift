@@ -10,15 +10,20 @@ class ChangeBoardCell: UITableViewCell {
     
     var board:Board! {
         didSet {
-            emojiLabel.text = board.icon
+            let fontSize:CGFloat = 18
+            if board.type == BoardType.user.rawValue {
+                emojiLabel.image = board.icon.emojiToImage(fontSize: fontSize)
+            }else {
+                emojiLabel.image = UIImage(systemName: board.icon, pointSize: fontSize, weight: .light)
+            }
             titleLabel.text = board.title
         }
     }
     
     
-    private lazy var emojiLabel:UILabel = UILabel().then{
-        $0.font = UIFont.systemFont(ofSize: 17)
-        $0.textAlignment = .center
+    private lazy var emojiLabel:UIImageView = UIImageView().then {
+        $0.contentMode = .center
+        $0.tintColor = UIColor(hexString: "#666666")
     }
     
     

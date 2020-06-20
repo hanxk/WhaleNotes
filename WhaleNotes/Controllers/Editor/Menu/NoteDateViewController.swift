@@ -52,7 +52,7 @@ class NoteDateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        self.title = "时间信息"
+        self.title = "显示信息"
     }
     
     private func setupUI() {

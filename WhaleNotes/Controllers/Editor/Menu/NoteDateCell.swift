@@ -22,13 +22,13 @@ class NoteDateCell: UITableViewCell {
     
     
     private lazy var titleLabel = UILabel().then {
-               $0.font = UIFont.systemFont(ofSize: 13)
-               $0.textColor = UIColor.init(hexString: "#666666")
+               $0.font = UIFont.systemFont(ofSize: 14)
+               $0.textColor = UIColor.init(hexString: "#333333")
            }
     
     private lazy var dateLabel = UILabel().then {
                $0.font = UIFont.systemFont(ofSize: 14)
-               $0.textColor = UIColor.init(hexString: "#333333")
+               $0.textColor = UIColor.init(hexString: "#666666")
            }
     
     

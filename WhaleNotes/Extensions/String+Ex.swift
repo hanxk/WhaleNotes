@@ -87,7 +87,32 @@ extension String {
         }
         return [:]
     }
+    func emojiToImage(size:CGSize,fontSize:CGFloat) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        UIColor.white.set()
+        let rect = CGRect(origin: CGPoint(), size: size)
+        UIRectFill(rect)
+        (self as NSString).draw(in: rect, withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: fontSize)])
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
+    
+    func emojiToImage(fontSize:CGFloat) -> UIImage? {
+           let nsString = (self as NSString)
+           let font = UIFont.systemFont(ofSize: fontSize) // you can change your font size here
+           let stringAttributes = [NSAttributedString.Key.font: font]
+           let imageSize = nsString.size(withAttributes: stringAttributes)
 
+           UIGraphicsBeginImageContextWithOptions(imageSize, false, 0) //  begin image context
+           UIColor.clear.set() // clear background
+           UIRectFill(CGRect(origin: CGPoint(), size: imageSize)) // set rect size
+           nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes) // draw text within rect
+           let image = UIGraphicsGetImageFromCurrentImageContext() // create image from context
+           UIGraphicsEndImageContext() //  end image context
+
+           return image ?? UIImage()
+    }
 }
 
 extension NSAttributedString {

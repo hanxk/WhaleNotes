@@ -19,6 +19,7 @@
 		181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */; };
 		181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */; };
 		181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */; };
+		181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */; };
 		1820C4A2248CE35000484AF8 /* EmojiSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1820C4A1248CE35000484AF8 /* EmojiSectionHeaderView.swift */; };
 		1820C4A4248CE8F600484AF8 /* emojis.json in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4A3248CE8F600484AF8 /* emojis.json */; };
 		1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1820C4A5248CEA3C00484AF8 /* Emoji.swift */; };
@@ -133,6 +134,7 @@
 		181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCategoryCell.swift; sourceTree = "<group>"; };
 		181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardViewController.swift; sourceTree = "<group>"; };
 		181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardCell.swift; sourceTree = "<group>"; };
+		181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTitleView.swift; sourceTree = "<group>"; };
 		1820C4A1248CE35000484AF8 /* EmojiSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSectionHeaderView.swift; sourceTree = "<group>"; };
 		1820C4A3248CE8F600484AF8 /* emojis.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = emojis.json; sourceTree = "<group>"; };
 		1820C4A5248CEA3C00484AF8 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
@@ -289,6 +291,14 @@
 				181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		181F17D2249E0E8B00F8C5B8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		1820C4A7248CFB7500484AF8 /* emojis */ = {
@@ -687,6 +697,7 @@
 		18E956892449AAC7003755BF /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				181F17D2249E0E8B00F8C5B8 /* Views */,
 				18E9568B2449AC45003755BF /* HomeViewController.swift */,
 				18E6E665247A88CC00D598C5 /* MyNavigationController.swift */,
 			);
@@ -927,6 +938,7 @@
 				18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */,
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
 				181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */,
+				181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */,
 				181D63DE248A256300B34E20 /* BoardCategoryDao.swift in Sources */,
 				181D63DA248A226D00B34E20 /* BoardCategory.swift in Sources */,
 				18E6E668247B98A100D598C5 /* Board.swift in Sources */,

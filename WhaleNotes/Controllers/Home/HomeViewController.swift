@@ -31,6 +31,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         }
     }
     
+    private let titleButton:HomeTitleView = HomeTitleView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setup()
@@ -59,15 +61,16 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
 extension HomeViewController {
     
     func setupContentView() {
-        switch self.sideMenuItemType {
-        case .board(let board):
-            self.setupBoardView(board:board)
-            break
-        case .trash:
-            self.setupTrashView()
-            break
-        case .none:
-            break
+        
+        guard let sideMenuItemType = self.sideMenuItemType else { return }
+        
+        switch sideMenuItemType {
+            case .board(let board):
+                self.setupBoardView(board:board)
+                break
+            case .system(let systemMenu):
+                self.setupSystemMenu(systemMenu: systemMenu)
+                break
         }
     }
     
@@ -82,12 +85,23 @@ extension HomeViewController {
             make.edges.equalToSuperview()
         }
         notesView.board = board
-        self.title = board.title
+        if board.type == BoardType.user.rawValue {
+            titleButton.setTitle(board.title,emoji: board.icon)
+        }
+    }
+    
+    func setupSystemMenu(systemMenu: MenuSystemItem) {
+        switch systemMenu {
+        case .board(let board):
+             self.setupBoardView(board:board)
+             self.titleButton.setTitle(board.title, icon:systemMenu.iconImage)
+        case .trash:
+            self.titleButton.setTitle(systemMenu.title, icon:systemMenu.iconImage)
+            self.setupTrashView()
+        }
     }
     
     func setupTrashView() {
-        
-        self.title = "废纸篓"
         
         if let oldView =  self.contentView {
             oldView.removeFromSuperview()
@@ -116,9 +130,22 @@ extension HomeViewController {
         //        label.textAlignment = .left
         //        label.backgroundColor = UIColor.clear
         //        let labelItem = UIBarButtonItem(customView: label)
-        self.navigationItem.title = "东京旅行"
-        self.navigationItem.largeTitleDisplayMode = .automatic
+//        self.navigationItem.title = "东京旅行"
+//        self.navigationItem.largeTitleDisplayMode = .automatic
         self.navigationItem.leftBarButtonItems = [barButton]
+        
+        self.navigationItem.titleView = titleButton
+        
+        if let titleView = self.navigationItem.titleView  {
+//            titleView.translatesAutoresizingMaskIntoConstraints = false
+            titleView.snp.makeConstraints {
+                let padding = 50
+                $0.centerX.equalToSuperview()
+//                $0.leading.equalToSuperview().offset(padding)
+//                $0.trailing.equalToSuperview().offset(-padding)
+                $0.height.equalToSuperview()
+            }
+        }
         
 //        self.navigationController?.navigationBar.barTintColor  = .bg
         

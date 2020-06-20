@@ -20,22 +20,29 @@ protocol SideMenuViewControllerDelegate: AnyObject {
 }
 
 enum SideMenuItemType:Equatable {
+    
+    case system(menuInfo:MenuSystemItem)
+    case board(board:Board)
+    
     static func == (lhs: SideMenuItemType, rhs: SideMenuItemType) -> Bool {
         switch (lhs,rhs)  {
-        case (.trash,.trash):
-            return true
-        case (.trash,.board):
+        case (.system(let lmenu),.system(let rmenu) ):
+            return  lmenu.id == rmenu.id
+        case (.system,.board):
             return false
         case (.board(let board),.board(let board2)):
             return board.id == board2.id
-        case (.board,.trash):
+        case (.board,.system):
             return false
         }
     }
-    
-    case trash
-    case board(board:Board)
 }
+
+//struct SystemMenuInfo {
+//    let title:String
+//    let icon:String
+//
+//}
 
 class SideMenuViewController: UIViewController {
     
@@ -163,7 +170,7 @@ class SideMenuViewController: UIViewController {
         menuSectionTypes.removeAll()
         
         let systemMenuItems =    [
-                MenuSystemItem.system(board: boardsResult.0.0[0]),
+                MenuSystemItem.board(board: boardsResult.0.0[0]),
                MenuSystemItem.trash(icon: "trash", title: "废纸篓")
            ]
         self.systemMenuItems = systemMenuItems
@@ -823,12 +830,13 @@ extension SideMenuViewController: UITableViewDataSource {
         let sectionType = self.menuSectionTypes[selectedIndexPath.section]
         switch sectionType {
         case .system(let items):
-            switch items[selectedIndexPath.row] {
-            case .system(let board):
-                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: board))
-            case .trash:
-                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.trash)
-            }
+//            switch items[selectedIndexPath.row] {
+//            case .system(let board):
+//                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: board))
+//            case .trash:
+//                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.trash)
+//            }
+            delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.system(menuInfo: items[selectedIndexPath.row]))
         case .boards:
             delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: self.boards[selectedIndexPath.row]))
         case .categories:
@@ -864,20 +872,34 @@ fileprivate enum CellReuseIdentifier: String {
 }
 
 enum MenuSystemItem {
-    case system(board: Board)
+    case board(board: Board)
     case trash(icon:String,title:String)
     
     var icon:String {
         switch self {
-        case .system(let board):
+        case .board(let board):
             return board.icon
         case .trash(let icon,_):
             return icon
         }
     }
+    
+    var id:Int64 {
+        switch self {
+        case .board(let board):
+            return board.id
+        case .trash:
+            return -1
+        }
+    }
+    
+    var iconImage:UIImage? {
+         return UIImage(systemName: icon, pointSize: 15, weight: .regular)
+    }
+    
     var title:String {
         switch self {
-        case .system(let board):
+        case .board(let board):
             return board.title
         case .trash(_,let title):
             return title
