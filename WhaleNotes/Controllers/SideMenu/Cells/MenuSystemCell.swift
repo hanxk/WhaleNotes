@@ -12,7 +12,7 @@ class MenuSystemCell: UITableViewCell {
     
     var menuSysItem:MenuSystemItem!{
         didSet {
-            let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+            let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
             iconImageView.image = UIImage(systemName: self.menuSysItem.icon, withConfiguration: config)
             iconImageView.tintColor = UIColor.init(hexString: "#666666")
             titleLabel.text = self.menuSysItem.title
