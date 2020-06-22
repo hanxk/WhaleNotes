@@ -21,16 +21,38 @@ enum NoteMenuType {
 }
 
 
+enum NoteTrashMenuType {
+    case restore
+    case delete
+}
+
+
 protocol NoteMenuViewControllerDelegate: AnyObject {
     func noteMenuDataMoved(note: Note)
+    func noteMenuMoveToTrash(note: Note)
     func noteMenuBackgroundChanged(note:Note)
-//    func noteMenuChooseBoards(note: Note)
+}
+
+
+protocol NoteMenuViewControllerTrashDelegate: AnyObject {
+    func noteMenuDeleteTapped(note: Note)
+    func noteMenuDataRestored(note: Note)
 }
 
 class NoteMenuViewController: ContextMenuViewController {
     
     var note:Note!
-    weak var delegate:NoteMenuViewControllerDelegate?
+    
+    weak var delegate:NoteMenuViewControllerDelegate? {
+        didSet {
+            self.setupMenus()
+        }
+    }
+    weak var trashDelegate:NoteMenuViewControllerTrashDelegate? {
+        didSet {
+            self.setupTrashMenus()
+        }
+    }
     
     typealias NoteMenuUpdateCallback = ((Note,NoteMenuType)->Void)
     
@@ -47,10 +69,20 @@ class NoteMenuViewController: ContextMenuViewController {
         menuVC.showContextMenu(sourceView: sourceView)
     }
     
+    static func showTrashMenu(note:Note,sourceView:UIView,delegate:NoteMenuViewControllerTrashDelegate) {
+        let menuVC =  NoteMenuViewController()
+        menuVC.note = note
+        menuVC.trashDelegate = delegate
+        menuVC.showContextMenu(sourceView: sourceView)
+    }
     
     convenience init() {
         self.init(nibName:nil, bundle:nil)
         self.menuWidth = NoteMenuViewController.menuWidth
+    }
+    
+    
+    private func setupMenus() {
         self.items = [
             ContextMenuItem(label: "置顶", icon: "arrow.up.to.line.alt", tag: NoteMenuType.pin),
             ContextMenuItem(label: "复制", icon: "square.on.square", tag: NoteMenuType.copy),
@@ -90,6 +122,25 @@ class NoteMenuViewController: ContextMenuViewController {
                 menuVC.navigationController?.pushViewController(dateVC, animated: true)
                 break
             case .trash:
+                self.move2Trash()
+                break
+            }
+        }
+    }
+    
+    private func setupTrashMenus() {
+        self.items = [
+            ContextMenuItem(label: "恢复", icon: "arrow.up.bin", tag: NoteTrashMenuType.restore),
+            ContextMenuItem(label: "彻底删除", icon: "trash", tag: NoteTrashMenuType.delete),
+        ]
+        self.itemTappedCallback = { menuItem,menuVC in
+            guard let tag = menuItem.tag as? NoteTrashMenuType else { return }
+            switch tag {
+            case .restore:
+                self.restoreNote()
+                break
+            case .delete:
+                self.deleteNote()
                 break
             }
         }
@@ -136,5 +187,43 @@ extension NoteMenuViewController {
                 Logger.error(error)
             })
             .disposed(by: disposeBag)
+    }
+    
+    private func move2Trash() {
+        guard var noteBlock = self.note.rootBlock else { return }
+        noteBlock.status = NoteBlockStatus.trash.rawValue
+        NoteRepo.shared.updateBlock(block: noteBlock)
+            .subscribe(onNext: {
+                var newNote = self.note!
+                 newNote.rootBlock = $0
+                self.delegate?.noteMenuMoveToTrash(note: newNote)
+            }, onError: { error in
+                Logger.error(error)
+            })
+        .disposed(by: disposeBag)
+    }
+}
+
+
+
+extension NoteMenuViewController {
+    func restoreNote() {
+        guard var noteBlock = self.note.rootBlock else { return }
+        noteBlock.status = NoteBlockStatus.normal.rawValue
+        NoteRepo.shared.updateBlock(block: noteBlock)
+            .subscribe(onNext: {
+                var newNote = self.note!
+                newNote.rootBlock = $0
+                self.trashDelegate?.noteMenuDataRestored(note: self.note)
+            }, onError: { error in
+                Logger.error(error)
+            },onCompleted: {
+                self.dismiss()
+            })
+        .disposed(by: disposeBag)
+    }
+    
+    func deleteNote() {
+        self.trashDelegate?.noteMenuDeleteTapped(note: self.note)
     }
 }

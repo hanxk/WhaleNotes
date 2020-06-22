@@ -29,6 +29,14 @@ struct Note {
     }
     
     
+    var status:NoteBlockStatus {
+        get {
+            return NoteBlockStatus(rawValue: rootBlock.status)!
+        }
+    }
+    
+    
+    
     var sort:Double {
         get {
             return rootBlock.sort

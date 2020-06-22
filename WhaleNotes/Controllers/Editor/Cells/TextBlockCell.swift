@@ -39,6 +39,7 @@ class TextBlockCell: UITableViewCell {
             if let textBlock = note.textBlock {
                 self.textBlock = textBlock
             }
+            textView.isEditable = note.status != NoteBlockStatus.trash
         }
     }
     

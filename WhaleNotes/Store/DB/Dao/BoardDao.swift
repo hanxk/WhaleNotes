@@ -73,6 +73,28 @@ class BoardDao {
         return boards
     }
     
+    func queryExistsTrashNoteBoards() throws -> [Board] {
+        let trashStatus = NoteBlockStatus.trash.rawValue
+        let selectSQL = """
+                    select * from board where id in
+                    (
+                        select section.board_id from section_note
+                        inner join section on (section_note.section_id = section.id)
+                        inner join block on (block.id = section_note.note_id and block.status = \(trashStatus))
+                    )
+                    """
+        let stmt = try db.prepare(selectSQL)
+        let rows = stmt.typedRows()
+
+        var boards:[Board] = []
+        for row in rows {
+            let board = generateBoardByTypeRow(row: row)
+            boards.append(board)
+        }
+        
+        return boards
+    }
+    
     func queryByNoteBlockId(_ noteBlockId:Int64) throws -> [Board] {
         let selectSQL = """
                     select * from board where id in
@@ -86,20 +108,24 @@ class BoardDao {
 
         var boards:[Board] = []
         for row in rows {
-            
-            let id = row.i64("id")!
-            let icon = row.string("icon")!
-            let title = row.string("title")!
-            let sort = row.double("sort")!
-            let categoryId = row.i64("category_id")!
-            let type = row.int("type")!
-            let createdAt = row.date("created_at")!
-            
-            let board = Board(id: id, icon: icon, title: title, sort: sort, categoryId: categoryId, type: type, createdAt: createdAt)
+            let board = generateBoardByTypeRow(row: row)
             boards.append(board)
         }
         
         return boards
+    }
+    
+    private func generateBoardByTypeRow(row: TypedRow) -> Board {
+        let id = row.i64("id")!
+        let icon = row.string("icon")!
+        let title = row.string("title")!
+        let sort = row.double("sort")!
+        let categoryId = row.i64("category_id")!
+        let type = row.int("type")!
+        let createdAt = row.date("created_at")!
+        
+        let board = Board(id: id, icon: icon, title: title, sort: sort, categoryId: categoryId, type: type, createdAt: createdAt)
+        return board
     }
 }
 

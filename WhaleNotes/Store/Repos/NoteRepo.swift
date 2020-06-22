@@ -222,3 +222,9 @@ class NoteRepo {
     }
     
 }
+
+
+//MARK: 废纸篓
+extension NoteRepo {
+    
+}

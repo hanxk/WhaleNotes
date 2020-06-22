@@ -130,10 +130,6 @@ class EditorViewController: UIViewController {
         $0.keyboardButton.addTarget(self, action: #selector(self.handleKeyboardButtonTapped), for: .touchUpInside)
     }
     
-    lazy var completeBtn =  UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(handleMenuTapped)).then {
-        $0.tintColor = .brand
-    }
-    
     lazy var titleTextField =  TitleTextField(frame:  CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 120, height: 44 )).then {
         $0.textAlignment = .center
         $0.placeholder = "标题"
@@ -268,6 +264,11 @@ class EditorViewController: UIViewController {
 
 //MARK: NoteMenuViewControllerDelegate
 extension EditorViewController:NoteMenuViewControllerDelegate {
+    func noteMenuMoveToTrash(note: Note) {
+        self.navigationController?.popViewController(animated: true)
+        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+    }
+    
     func noteMenuChooseBoards(note: Note) {
         self.openChooseBoardsVC()
     }
@@ -284,7 +285,11 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
-        NoteMenuViewController.show(note: self.note, sourceView: sender,delegate: self)
+        if note.status == NoteBlockStatus.trash {
+            NoteMenuViewController.showTrashMenu(note: self.note, sourceView: sender, delegate: self)
+        }else {
+            NoteMenuViewController.show(note: self.note, sourceView: sender,delegate: self)
+        }
     }
     
     
@@ -374,14 +379,47 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
 }
 
 
+extension EditorViewController:NoteMenuViewControllerTrashDelegate {
+    func noteMenuDeleteTapped(note: Note) {
+        let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
+            
+            NoteRepo.shared.deleteNote(noteId: note.id)
+                .subscribe(onNext: { isSuccess in
+                    self.noteMenuDataRestored(note: note)
+                }, onError: { error in
+                    Logger.error(error)
+                },onCompleted: {
+                })
+                .disposed(by: self.disposeBag)
+            
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel,handler: nil))
+        self.present(alert, animated: true)
+    }
+    
+    func noteMenuDataRestored(note: Note) {
+        self.navigationController?.popViewController(animated: true)
+        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+    }
+    
+}
+
+
 // 数据处理
 extension EditorViewController {
     
     fileprivate func setupData() {
-        self.titleTextField.text = self.note.rootBlock.text
+        
         self.setupSectionsTypes()
         self.tableView.reloadData()
+        
         bottombar.updatedDateStr =  self.note.updatedDateStr
+        bottombar.addButton.isEnabled = self.note.status != NoteBlockStatus.trash
+        
+        self.titleTextField.text = self.note.rootBlock.text
+        self.titleTextField.isEnabled = self.note.status != NoteBlockStatus.trash
+        
     }
     
     fileprivate func setupSectionsTypes() {
@@ -629,14 +667,16 @@ extension EditorViewController: UITableViewDataSource {
         switch sectionType {
         case .todo:
             let todoFooterView = TodoFooterView()
-            todoFooterView.addButtonTapped = { [weak self] in
-                guard let self = self else { return }
-                let nextIndexPath = IndexPath(row:self.note.todoBlocks.count, section: section)
-                let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
-                self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
-            }
-            todoFooterView.menuButtonTapped = {[weak self] menuButton in
-                self?.handlerTodoMenuButtonTapped(menuButton:menuButton)
+            if note.status != NoteBlockStatus.trash {
+                todoFooterView.addButtonTapped = { [weak self] in
+                    guard let self = self else { return }
+                    let nextIndexPath = IndexPath(row:self.note.todoBlocks.count, section: section)
+                    let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
+                    self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
+                }
+                todoFooterView.menuButtonTapped = {[weak self] menuButton in
+                    self?.handlerTodoMenuButtonTapped(menuButton:menuButton)
+                }
             }
             return todoFooterView
         default:

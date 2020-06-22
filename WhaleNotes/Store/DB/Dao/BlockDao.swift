@@ -21,6 +21,7 @@ fileprivate enum Field_Block{
     static let updatedAt = Expression<Date>("updated_at")
     static let noteId = Expression<Int64>("note_id")
     static let parent = Expression<Int64>("parent")
+    static let status = Expression<Int>("status")
     static let properties = Expression<String>("properties")
 }
 
@@ -67,6 +68,7 @@ class BlockDao {
                                               Field_Block.source <- block.source,
                                               Field_Block.noteId <- block.noteId,
                                               Field_Block.parent <- block.parent,
+                                              Field_Block.status <- block.status,
                                               Field_Block.updatedAt <- block.updatedAt,
                                               Field_Block.properties <- block.properties.toJSON()
                                             ))
@@ -113,18 +115,39 @@ class BlockDao {
         }
         return blocks
     }
-//    section_note on (section_note.note_id = block.id and section_note.)
+//    section_note on (section_note.note_id = block.id and section_note.)  ,noteBlockStatus: NoteBlockStatus = NoteBlockStatus.normal
 //                       inner join section on
-    func queryByBoardId(_ boardId:Int64) throws -> [(Int64,Block)] {
+    
+//    func deleteTrashBlockss() {
+//        // 删除子 block
+//
+//        // 删除 noteblock
+//
+//        // 删除
+//       let selectSQL = """
+//                   select b.id, b.type, b.text,section.sort as sort,b.is_checked,b.is_expand,b.source,b.created_at,b.updated_at,
+//                   b.note_id,b.parent,b.status,b.properties,section.section_id
+//                   from block as b
+//                   inner join (
+//                       select section_note.note_id, section_note.sort,section_note.section_id from section_note
+//                       inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+//                   ) as section
+//                   on (b.id = section.note_id  and b.status = \(status)) order by b.sort asc
+//                   """
+//    }
+    
+    
+    func queryNoteBlocksByBoardId(_ boardId:Int64 ,noteBlockStatus: NoteBlockStatus) throws -> [(Int64,Block)] {
+        let status = noteBlockStatus.rawValue
         let selectSQL = """
                     select b.id, b.type, b.text,section.sort as sort,b.is_checked,b.is_expand,b.source,b.created_at,b.updated_at,
-                    b.note_id,b.parent,b.properties,section.section_id
+                    b.note_id,b.parent,b.status,b.properties,section.section_id
                     from block as b
                     inner join (
                         select section_note.note_id, section_note.sort,section_note.section_id from section_note
                         inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
                     ) as section
-                    on b.id = section.note_id order by b.sort asc
+                    on (b.id = section.note_id  and b.status = \(status)) order by b.sort asc
                     """
         let stmt = try db.prepare(selectSQL)
         let rows = stmt.typedRows()
@@ -144,12 +167,13 @@ class BlockDao {
             let noteId = row.i64("note_id")!
             let parent = row.i64("parent")!
             
+            let status = row.int("status")!
             
             let properties = row.string("properties") ?? ""
             
             let sectionId = row.i64("section_id")!
             
-            let block = Block(id: id, type: type, text: text, isChecked: isChecked, isExpand: isExpand, source: source, createdAt: createdAt, updatedAt: updatedAt, sort: sort, noteId: noteId, parent: parent, properties: properties.convertToDictionary())
+            let block = Block(id: id, type: type, text: text, isChecked: isChecked, isExpand: isExpand, source: source, createdAt: createdAt, updatedAt: updatedAt, sort: sort, noteId: noteId, parent: parent,status:status, properties: properties.convertToDictionary())
             blocks.append((sectionId,block))
         }
         
@@ -176,6 +200,7 @@ extension BlockDao {
                     builder.column(Field_Block.updatedAt)
                     builder.column(Field_Block.noteId)
                     builder.column(Field_Block.parent)
+                    builder.column(Field_Block.status)
                     builder.column(Field_Block.properties)
                 })
             )
@@ -199,6 +224,7 @@ extension BlockDao {
                                 Field_Block.updatedAt <- block.updatedAt,
                                 Field_Block.noteId <- block.noteId,
                                 Field_Block.parent <- block.parent,
+                                Field_Block.status <- block.status,
                                 Field_Block.properties <- block.properties.toJSON()
             )
         }
@@ -213,13 +239,14 @@ extension BlockDao {
                             Field_Block.updatedAt <- block.updatedAt,
                             Field_Block.noteId <- block.noteId,
                             Field_Block.parent <- block.parent,
+                            Field_Block.status <- block.status,
                             Field_Block.properties <- block.properties.toJSON()
         )
         
     }
     
     fileprivate func generateBlock(row: Row) -> Block {
-        var block = Block(id: row[Field_Block.id], type: row[Field_Block.type], text: row[Field_Block.text], isChecked: row[Field_Block.isChecked], isExpand: row[Field_Block.isExpand], source: row[Field_Block.source], createdAt: row[Field_Block.createdAt],updatedAt: row[Field_Block.updatedAt],sort: row[Field_Block.sort], noteId: row[Field_Block.noteId],parent:row[Field_Block.parent])
+        var block = Block(id: row[Field_Block.id], type: row[Field_Block.type], text: row[Field_Block.text], isChecked: row[Field_Block.isChecked], isExpand: row[Field_Block.isExpand], source: row[Field_Block.source], createdAt: row[Field_Block.createdAt],updatedAt: row[Field_Block.updatedAt],sort: row[Field_Block.sort], noteId: row[Field_Block.noteId],parent:row[Field_Block.parent],status:row[Field_Block.status])
         block.properties = row[Field_Block.properties].convertToDictionary()
         return block
     }

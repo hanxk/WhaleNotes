@@ -39,6 +39,10 @@ class TodoBlockCell: UITableViewCell {
         didSet {
             self.backgroundColor = UIColor(hexString: note.backgroundColor)
             self.selectedBackgroundView?.backgroundColor =  self.backgroundColor
+            
+            textView.isEditable = note.status != NoteBlockStatus.trash
+            chkbtn.isEnabled =  note.status != NoteBlockStatus.trash
+            
         }
     }
     

@@ -101,11 +101,28 @@ class BoardRepo {
         
     }
     
-    func getSectionNoteInfos(boardId:Int64) -> Observable<[SectionNoteInfo]>  {
+    func getBoardsExistsTrashNote() -> Observable<[(Board,[Note])]> {
+        return Observable<[(Board,[Note])]>.create {  observer -> Disposable in
+            let results = DBStore.shared.queryExistsTrashNoteBoards()
+            switch results {
+               case .success(let s):
+                    observer.onNext(s)
+               case .failure(let err):
+                   observer.onError(err)
+               }
+            observer.onCompleted()
+            
+            return Disposables.create()
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func getSectionNoteInfos(boardId:Int64,noteBlockStatus: NoteBlockStatus = NoteBlockStatus.normal) -> Observable<[SectionNoteInfo]>  {
 
         return Observable<[SectionNoteInfo]>.create {  observer -> Disposable in
             let sectionsResult = DBStore.shared.getSectionsByBoardId(boardId)
-            let notesResult = DBStore.shared.getNotesByBoardId(boardId)
+            let notesResult = DBStore.shared.getNotesByBoardId(boardId,noteBlockStatus:noteBlockStatus)
             
             var result:[SectionNoteInfo] = []
             var sections:[Section] = []

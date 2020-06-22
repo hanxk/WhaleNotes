@@ -20,6 +20,9 @@ struct Block {
     var noteId:Int64 = 0
     var parent:Int64  = 0
     
+    // note status:  -1: 删除  1: 正常  2: 归档
+    var status:Int = 1
+    
     var properties:[String:Any] = [:]
     
     static func newNoteBlock() -> Block {
@@ -72,4 +75,11 @@ enum BlockType: String {
     case text = "text"
     case todo = "todo"
     case image = "image"
+    
+}
+
+enum NoteBlockStatus: Int {
+    case trash = -1
+    case normal = 1
+    case archive = 2
 }

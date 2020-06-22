@@ -209,6 +209,8 @@ class DBStore {
                     isSuccess = try blockDao.delete(id: block.id)
                     // 删除 child blocks
                     isSuccess = try blockDao.deleteByNoteId(noteId: block.id)
+                    // 删除 section
+                    isSuccess = try sectionNoteDao.deleteByNoteId(block.id)
                 }
             }
             return DBResult<Bool>.success(isSuccess)
@@ -507,12 +509,46 @@ extension DBStore {
         
     }
     
+    func queryExistsTrashNoteBoards() -> DBResult<[(Board,[Note])]> {
+        do {
+            var results:[(Board,[Note])] = []
+            try db.transaction {
+                let boards = try boardDao.queryExistsTrashNoteBoards()
+                for board in boards {
+                    let rootBlocks = try blockDao.queryNoteBlocksByBoardId(board.id,noteBlockStatus:NoteBlockStatus.trash).sorted(by: { $0.1.updatedAt > $1.1.updatedAt})
+                    var notes:[Note] = []
+                    for rootBlock in rootBlocks {
+                        
+//                        let sectionId = rootBlock.0
+                        let block = rootBlock.1
+                        
+                        let childBlocks = try blockDao.query(noteId: block.id)
+
+                        let boards:[Board] = try boardDao.queryByNoteBlockId(block.id).map{
+                            if $0.type == 2 {
+                                return getLocalSystemBoardInfo(board: $0)
+                            }
+                            return $0
+                        }
+                        let note = Note(rootBlock: block, childBlocks: childBlocks,boards:boards)
+                        notes.append(note)
+                    }
+                    results.append((board,notes))
+                }
+            }
+            return DBResult<[(Board,[Note])]>.success(results)
+        }catch let err {
+            print(err)
+            return DBResult<[(Board,[Note])]>.failure(DBError(code: .None,message: err.localizedDescription))
+        }
+    }
     
-    func getNotesByBoardId(_ boardId:Int64) ->DBResult<[(Int64,Note)]> {
+    
+    func getNotesByBoardId(_ boardId:Int64,noteBlockStatus: NoteBlockStatus) ->DBResult<[(Int64,Note)]> {
         do {
             var notes:[(Int64,Note)] = []
             try db.transaction {
-                let rootBlocks = try blockDao.queryByBoardId(boardId)
+                let rootBlocks = try blockDao.queryNoteBlocksByBoardId(boardId,noteBlockStatus:noteBlockStatus)
                 for rootBlock in rootBlocks {
                     
                     let sectionId = rootBlock.0
@@ -547,7 +583,7 @@ extension DBStore {
                 sections = try sectionDao.query(boardId: boardId)
                 if sections.isEmpty {
                     // 增加一个默认 section
-                    var section = Section(id: 0, title: "", sort: 65536, boardId: boardId, createdAt: Date())
+                    var section = Section(id: 0, title: "default", sort: 65536, boardId: boardId, createdAt: Date())
                     let sectionId = try sectionDao.insert(section)
                     section.id = sectionId
                     sections = [section]

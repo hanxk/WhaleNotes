@@ -27,6 +27,16 @@ enum DisplayMode {
 //    case list
 }
 
+enum NotesViewConstants {
+    static let cellSpace: CGFloat = 12
+    static let cellHorizontalSpace: CGFloat = 16
+    
+    
+    static let waterfall_cellSpace: CGFloat = 12
+    static let waterfall_cellHorizontalSpace: CGFloat = 14
+}
+
+
 protocol NotesViewDelegate:AnyObject {
     func embeddedBlockTapped(block:Block)
 }
@@ -47,15 +57,6 @@ class NotesView: UIView, UINavigationControllerDelegate {
         didSet {
             self.setupData()
         }
-    }
-    
-    enum NotesViewConstants {
-        static let cellSpace: CGFloat = 12
-        static let cellHorizontalSpace: CGFloat = 16
-        
-        
-        static let waterfall_cellSpace: CGFloat = 12
-        static let waterfall_cellHorizontalSpace: CGFloat = 14
     }
     
     
@@ -265,6 +266,7 @@ extension NotesView: ASCollectionDataSource {
             return node
         }
     }
+    
 }
 
 extension NotesView:NoteCellNodeDelegate {
@@ -294,6 +296,11 @@ extension NotesView:NoteCellNodeDelegate {
 
 //MARK: NoteMenuViewControllerDelegate
 extension NotesView:NoteMenuViewControllerDelegate {
+    func noteMenuMoveToTrash(note: Note) {
+        self.handleDeleteNote(note)
+//        self.showToast("便签已移动至废纸篓")
+    }
+    
     func noteMenuChooseBoards(note: Note) {
         
     }
