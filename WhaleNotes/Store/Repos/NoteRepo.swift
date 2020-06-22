@@ -41,7 +41,7 @@ class NoteRepo {
          return Observable<Int64>.just(noteId)
              .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
              .map({(noteId)  -> Bool in
-                 let result =  DBStore.shared.deleteNote(id: noteId)
+                 let result =  DBStore.shared.deleteNoteBlock(noteBlockId: noteId)
                  switch result {
                  case .success(let isSuccess):
                      return isSuccess
@@ -51,6 +51,21 @@ class NoteRepo {
              })
              .observeOn(MainScheduler.instance)
      }
+    
+     func deleteNotes(noteIds: [Int64]) -> Observable<Bool> {
+          return Observable<[Int64]>.just(noteIds)
+              .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+              .map({(noteIds)  -> Bool in
+                  let result =  DBStore.shared.deleteNoteBlocks(noteBlockIds: noteIds)
+                  switch result {
+                  case .success(let isSuccess):
+                      return isSuccess
+                  case .failure(let err):
+                      throw err
+                  }
+              })
+              .observeOn(MainScheduler.instance)
+      }
     
     
     func updateBlock(block:Block) -> Observable<Block> {

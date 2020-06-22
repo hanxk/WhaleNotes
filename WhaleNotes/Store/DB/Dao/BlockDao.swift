@@ -82,16 +82,14 @@ class BlockDao {
         return rows > 0
     }
     
-    func deleteByNoteId(noteId: Int64)  throws -> Bool {
+    func deleteByNoteId(noteId: Int64)  throws {
       let blockTable = table.filter(Field_Block.noteId == noteId)
-      let rows = try db.run(blockTable.delete())
-      return rows > 0
+      _ = try db.run(blockTable.delete())
     }
     
-    func deleteByParent(parent: Int64)  throws -> Bool {
+    func deleteByParent(parent: Int64)  throws{
       let blockTable = table.filter(Field_Block.parent == parent)
-      let rows = try db.run(blockTable.delete())
-      return rows > 0
+      _ = try db.run(blockTable.delete())
     }
     
     func queryByType(type:String) throws ->[Block] {

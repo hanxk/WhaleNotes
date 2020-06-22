@@ -199,18 +199,43 @@ class DBStore {
     }
     
     
-    func deleteNoteBlock(block: Block) -> DBResult<Bool> {
+    func deleteNoteBlock(noteBlockId: Int64) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {
-                isSuccess = try tryUpdateBlockDate(block: block)
+                // 删除自身
+                isSuccess = try blockDao.delete(id: noteBlockId)
+                // 删除 child blocks
                 if isSuccess {
+                    try blockDao.deleteByNoteId(noteId:noteBlockId)
+                }
+                // 删除 section_note
+                if isSuccess {
+                    isSuccess = try sectionNoteDao.deleteByNoteId(noteBlockId)
+                }
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch let error  {
+            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
+        }
+    }
+    
+    
+    func deleteNoteBlocks(noteBlockIds: [Int64]) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                for noteBlockId in noteBlockIds {
                     // 删除自身
-                    isSuccess = try blockDao.delete(id: block.id)
-                    // 删除 child blocks
-                    isSuccess = try blockDao.deleteByNoteId(noteId: block.id)
-                    // 删除 section
-                    isSuccess = try sectionNoteDao.deleteByNoteId(block.id)
+                     isSuccess = try blockDao.delete(id: noteBlockId)
+                     // 删除 child blocks
+                    if isSuccess {
+                        try blockDao.deleteByNoteId(noteId:noteBlockId)
+                    }
+                     // 删除 section_note
+                     if isSuccess {
+                         isSuccess = try sectionNoteDao.deleteByNoteId(noteBlockId)
+                     }
                 }
             }
             return DBResult<Bool>.success(isSuccess)

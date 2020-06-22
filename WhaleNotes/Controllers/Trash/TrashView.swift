@@ -139,10 +139,30 @@ class TrashView: UIView, UINavigationControllerDelegate {
     @objc func btnClearTapped() {
         let alert = UIAlertController(title: "清空废纸篓", message: "清空后的内容将不能够被恢复。确认要清空吗？", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "确认清空", style: .destructive, handler: { _ in
-            
+            self.clearTrash()
         }))
         alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
         self.controller?.present(alert, animated: true)
+    }
+    
+    private func clearTrash() {
+        var noteIds:[Int64] = []
+        for data in self.trashedNotes {
+            noteIds.append(contentsOf:data.1.map { return $0.id} )
+        }
+        if noteIds.isEmpty {
+            return
+        }
+        NoteRepo.shared.deleteNotes(noteIds: noteIds)
+            .subscribe(onNext: { isSuccess in
+                if isSuccess {
+                    self.trashedNotes.removeAll()
+                    self.collectionNode.reloadData()
+                }
+            }, onError: {error in
+                Logger.error(error)
+            })
+        .disposed(by: disposeBag)
     }
     
     
