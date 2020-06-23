@@ -23,7 +23,7 @@ class ImageUtil {
     func saveImage(imageName: String,image: UIImage) -> Bool {
         if let pngRepresentation = image.pngData() {
             do  {
-                try pngRepresentation.write(to: URL.init(fileURLWithPath: filePath(imageName: imageName).absoluteString),
+                try pngRepresentation.write(to: filePath(imageName: imageName),
                                             options: .atomic)
                 return true
             } catch let err {
@@ -34,9 +34,8 @@ class ImageUtil {
         return false
     }
     
-    
     func filePath(imageName: String) -> URL {
-        return _dirPath.appendingPathComponent(imageName)
+        return URL(fileURLWithPath: _dirPath.appendingPathComponent(imageName).absoluteString)
     }
     
     private func getDirPath() -> URL? {

@@ -10,7 +10,7 @@ import AsyncDisplayKit
 
 
 protocol NoteCellNodeDelegate:AnyObject {
-    func noteCellImageBlockTapped(imageView:ASImageNode,blocks:[Block],index:Int)
+    func noteCellImageBlockTapped(imageView:ASImageNode,note:Note)
     func noteCellMenuTapped(sender:UIView,note:Note)
 }
 
@@ -600,6 +600,6 @@ class NoteCellNode: ASCellNode {
 
 extension NoteCellNode {
     @objc func noteCellImageBlockTapped(sender: ASImageNode) {
-        delegate?.noteCellImageBlockTapped(imageView:sender,blocks:  self.note.imageBlocks, index: 0)
+        delegate?.noteCellImageBlockTapped(imageView:sender,note:self.note)
     }
 }

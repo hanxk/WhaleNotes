@@ -123,9 +123,6 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        
-        
         self.setupUI()
     }
     
@@ -270,16 +267,24 @@ extension NotesView: ASCollectionDataSource {
 }
 
 extension NotesView:NoteCellNodeDelegate {
-    func noteCellImageBlockTapped(imageView: ASImageNode, blocks: [Block], index: Int) {
+    func noteCellImageBlockTapped(imageView: ASImageNode, note: Note) {
         
         let defaultImage: UIImage = imageView.image!
-        
-        let browser = PhotoViewerViewController(blocks: blocks)
+        let browser = PhotoViewerViewController(note: note)
         browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
             imageView.image = defaultImage
             return imageView.view
         })
+        browser.callBackShowNoteButtonTapped = {
+            if let noteIndex = self.noteInfos.firstIndex(where: {$0.id == note.id}) {
+                self.openEditorVC(note: self.noteInfos[noteIndex])
+            }
+        }
         browser.show()
+    }
+    
+    func noteCellImageBlockTapped(imageView: ASImageNode, blocks: [Block], index: Int) {
+        
     }
     
     

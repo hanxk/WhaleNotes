@@ -244,6 +244,22 @@ class DBStore {
         }
     }
     
+//    func deleteNoteChildBlock(childBlock:Block) -> DBResult<Note> {
+//        do {
+//            var isSuccess = false
+//            try db.transaction {
+//                isSuccess = try tryUpdateBlockDate(block: childBlock)
+//                if isSuccess {
+//                    isSuccess = try blockDao.delete(id: childBlock.id)
+//                }
+//
+//
+//            }
+//            return DBResult<Bool>.success(isSuccess)
+//        } catch let error  {
+//            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
+//        }
+//    }
     func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false

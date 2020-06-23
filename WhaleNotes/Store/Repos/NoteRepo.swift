@@ -94,6 +94,14 @@ class NoteRepo {
                 let result =  DBStore.shared.deleteBlock(block: block)
                 switch result {
                 case .success(let isSuccess):
+                    if block.type == BlockType.image.rawValue { //删除图片
+                        do {
+                            let path =  ImageUtil.sharedInstance.filePath(imageName: block.source)
+                            try FileManager.default.removeItem(at:path)
+                        } catch let error as NSError {
+                            print("Error: \(error.domain)")
+                        }
+                    }
                     return isSuccess
                 case .failure(let err):
                     throw err

@@ -14,6 +14,7 @@ import TLPhotoPicker
 import RxSwift
 import MBProgressHUD
 import DeepDiff
+import JXPhotoBrowser
 
 
 enum EditorUpdateMode {
@@ -42,7 +43,7 @@ class EditorViewController: UIViewController {
     var disposebag = DisposeBag()
     
     
-    private var attachmentsCell: AttachmentsBlockCell?
+//    private var attachmentsCell: AttachmentsBlockCell?
     
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
@@ -180,7 +181,7 @@ class EditorViewController: UIViewController {
         updateAt = self.note.updatedAt
     }
     @objc func rotated() {
-        self.attachmentsCell?.handleScreenRotation()
+//        self.attachmentsCell?.handleScreenRotation()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -583,11 +584,44 @@ extension EditorViewController: UITableViewDataSource {
                     }
                 }
             }
-            imagesCell.noteInfo = self.note
-            self.attachmentsCell = imagesCell
+            imagesCell.callbackCellTapped  = { indexPath in
+                let browser = PhotoViewerViewController(note: self.note, pageIndex: indexPath.row)
+                browser.isFromNoteDetail = true
+                browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
+                    let path = IndexPath(item: index, section: indexPath.section)
+                    let cell = imagesCell.collectionView.cellForItem(at: path) as? ImageCell
+                    return cell?.imageView
+                })
+                browser.callbackPhotoBlockDeleted = { newNote  in
+                    self.handleImageBlocksUpdated(newNote:newNote)
+                }
+                browser.show()
+                
+            }
+            imagesCell.reloadData(imageBlocks:  self.note.imageBlocks)
             break
         }
         return cell
+    }
+    
+    private func handleImageBlocksUpdated(newNote:Note) {
+        self.note = newNote
+        guard let index = self.sections.firstIndex(where: {$0 == SectionType.images}) else { return }
+        if newNote.imageBlocks.isEmpty {
+            self.sections.remove(at: index)
+            self.tableView.performBatchUpdates({
+                self.tableView.deleteSections(IndexSet([index]), with: .automatic)
+            }, completion: nil)
+        }else {
+            
+            if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: index)) as? AttachmentsBlockCell {
+                cell.reloadData(imageBlocks: self.note.imageBlocks)
+            }
+//            self.tableView.performBatchUpdates({
+//                self.tableView.reloadSections(IndexSet([index]), with: .automatic)
+//            }, completion: nil)
+        }
+        
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -804,7 +838,10 @@ extension EditorViewController: UITableViewDelegate {
         case .boards:
             return BoardsCell.cellHeight
         case .images:
-            return attachmentsCell?.totalHeight ?? 0
+            if let cell = self.tableView.cellForRow(at: indexPath) as? AttachmentsBlockCell {
+                return cell.totalHeight
+            }
+            return 0
         default:
             return UITableView.automaticDimension
         }
@@ -1110,15 +1147,13 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     }
     
     private func handleSectionImage(imageBlocks:[Block]) {
-        
-        if let imagesCell =  self.attachmentsCell  {
+        if  let index = self.sections.firstIndex(where: {$0 == SectionType.images}),
+            let imagesCell = self.tableView.cellForRow(at:  IndexPath(row: 0, section: index)) as? AttachmentsBlockCell {
             //附加
             self.note.addImageBlocks(imageBlocks)
-            imagesCell.noteInfo = self.note
             let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
-            
             // 刷新 collection
-            imagesCell.handleDataChanged(insertionIndices: insertionIndices)
+            imagesCell.handleDataChanged(insertionIndices: insertionIndices, insertedImages: imageBlocks)
             return
         }
         

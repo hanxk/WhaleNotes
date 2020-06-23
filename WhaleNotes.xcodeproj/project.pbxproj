@@ -47,6 +47,7 @@
 		182BE903249A55C000C85F8F /* NoteDetailMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
+		1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */; };
 		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
 		18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18494930245AB416001B61C3 /* UIViewController+Ex.swift */; };
 		1859A0FA24868416008D51B4 /* BoardRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A0F924868416008D51B4 /* BoardRepo.swift */; };
@@ -163,6 +164,7 @@
 		182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailMenuCell.swift; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
+		1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPageIndicatorView.swift; sourceTree = "<group>"; };
 		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
 		1849491F245A8B81001B61C3 /* WhaleNotes-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhaleNotes-bridge.h"; sourceTree = "<group>"; };
 		18494930245AB416001B61C3 /* UIViewController+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Ex.swift"; sourceTree = "<group>"; };
@@ -513,6 +515,7 @@
 			isa = PBXGroup;
 			children = (
 				18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */,
+				1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */,
 			);
 			path = PhotoViewer;
 			sourceTree = "<group>";
@@ -969,6 +972,7 @@
 				188942AB246FDC20006173F8 /* NotesView.swift in Sources */,
 				18E9D6C124714ADA001E41A0 /* MosaicCollectionViewLayout.swift in Sources */,
 				18EEF676247DF92600E2E3BA /* NotesUseCase.swift in Sources */,
+				1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */,
 				182BE8FB249A13E500C85F8F /* ChooseBoardViewController.swift in Sources */,
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,

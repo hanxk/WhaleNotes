@@ -18,13 +18,9 @@ enum AttachmentsConstants {
 
 class AttachmentsBlockCell: UITableViewCell {
     
-    private var blocks:[Block] = [] {
-        didSet {
-            self.columnCount = blocks.count > 1 ? 2 : 1
-            self.totalHeight =  self.calculateTotalHeight()
-        }
-    }
+    var blocks:[Block] = []
     
+    var callbackCellTapped:((IndexPath) -> Void)?
     
     var columnCount = 2 {
         didSet {
@@ -46,27 +42,22 @@ class AttachmentsBlockCell: UITableViewCell {
     }
     
     
-    var noteInfo:Note! {
-        didSet {
-            self.blocks = noteInfo.imageBlocks
-        }
+    private func refreshHeight() {
+        self.columnCount = blocks.count > 1 ? 2 : 1
+        self.totalHeight =  self.calculateTotalHeight()
     }
     
-    func handleScreenRotation() {
-        //        let count = UIDevice.current.orientation.isLandscape ? 3 : 2
-        //        self.columnCount = blocks.count > 1 ? count : 1
-        //        self.blocksSize = self.caculateItemsSize(blocks: self.blocks)
-        //
-        //        self.collectionView.reloadData()
-        //        self.collectionView.collectionViewLayout.invalidateLayout()
+    func reloadData(imageBlocks:[Block]) {
+        self.blocks = imageBlocks
+        self.refreshHeight()
+        self.collectionView.reloadData()
     }
     
     
-    func handleDataChanged(insertionIndices: [Int]) {
+    func handleDataChanged(insertionIndices: [Int],insertedImages:[Block]) {
         
-        if !insertionIndices.isEmpty {
-            
-        }
+        self.blocks.insert(contentsOf: insertedImages, at: 0)
+        self.refreshHeight()
         
         collectionView.performBatchUpdates({
             //            collectionView.deleteItems(at: deletionIndices.map({ IndexPath(row: $0, section: 0)}))
@@ -210,13 +201,7 @@ extension AttachmentsBlockCell: CHTCollectionViewDelegateWaterfallLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let browser = PhotoViewerViewController(blocks: blocks, pageIndex: indexPath.item)
-        browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
-            let path = IndexPath(item: index, section: indexPath.section)
-            let cell = collectionView.cellForItem(at: path) as? ImageCell
-            return cell?.imageView
-        })
-        browser.show()
+        callbackCellTapped?(indexPath)
     }
     
 }

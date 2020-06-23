@@ -95,6 +95,11 @@ extension Note {
         sortedImageBlocks.sort(by: {$0.createdAt > $1.createdAt})
         self.imageBlocks.insert(contentsOf: sortedImageBlocks, at: 0)
     }
+    
+    mutating func replaceImageBlocks(_ imageBlocks: [Block]) {
+        self.rootBlock.updatedAt = Date()
+        self.imageBlocks = imageBlocks
+    }
 }
 
 // todo handler
@@ -189,6 +194,7 @@ extension Note {
         case .todo:
             self.removeTodoBlock(todoBlock: block)
         case .image:
+            self.imageBlocks.removeAll(where: {$0.id == block.id})
             break
         case .none:
             break

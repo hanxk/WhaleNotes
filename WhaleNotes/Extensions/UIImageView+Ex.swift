@@ -11,9 +11,8 @@ import Kingfisher
 
 extension UIImageView {
     
-    func setLocalImage(filePath: String,cornerRadius:CGFloat = 0,completionHandler:(()->Void)? = nil) {
+    func setLocalImage(fileURL: URL,cornerRadius:CGFloat = 0,completionHandler:(()->Void)? = nil) {
         let localPathProvider: LocalFileImageDataProvider = {
-            let fileURL = URL(fileURLWithPath: filePath)
             let provider = LocalFileImageDataProvider(fileURL: fileURL)
             return provider
         }()
