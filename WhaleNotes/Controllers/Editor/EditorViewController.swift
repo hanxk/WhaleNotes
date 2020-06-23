@@ -161,6 +161,7 @@ class EditorViewController: UIViewController {
     }
     
     
+    
     @objc func handleMenuTapped(sender:UIBarButtonItem) {
         self.hideKeyboard()
     }
@@ -240,6 +241,38 @@ class EditorViewController: UIViewController {
             make.leading.trailing.equalTo(0)
         }
         
+        self.registerTableViewTaped()
+    }
+    
+    private func registerTableViewTaped() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tableViewTapped))
+        tapGesture.cancelsTouchesInView = false
+        self.tableView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
+        
+        if sender.state != .ended {
+            return
+        }
+        if self.sections.count == 0 {
+            titleTextField.becomeFirstResponder()
+            return
+        }
+        let section = self.sections.count-1
+        let sectionType = self.sections[section]
+        switch sectionType {
+        case .text:
+            if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? TextBlockCell {
+                cell.textView.becomeFirstResponder()
+            }
+        case .todo:
+            if let cell = tableView.cellForRow(at: IndexPath(row: self.note.todoBlocks.count-1, section: section)) as? TodoBlockCell {
+                cell.textView.becomeFirstResponder()
+            }
+        default:
+            break
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
