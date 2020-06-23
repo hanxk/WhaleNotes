@@ -259,6 +259,13 @@ class EditorViewController: UIViewController {
             titleTextField.becomeFirstResponder()
             return
         }
+        
+        let touch = sender.location(in: tableView)
+        if let _ = tableView.indexPathForRow(at: touch) { // 点击空白区域
+            return
+        }
+        
+        
         let section = self.sections.count-1
         let sectionType = self.sections[section]
         switch sectionType {

@@ -42,6 +42,7 @@ class TodoBlockCell: UITableViewCell {
             
             textView.isEditable = note.status != NoteBlockStatus.trash
             chkbtn.isEnabled =  note.status != NoteBlockStatus.trash
+            self.contentView.backgroundColor = UIColor(hexString: note.backgroundColor)
             
         }
     }
@@ -77,7 +78,7 @@ class TodoBlockCell: UITableViewCell {
     
     
     lazy var whiteView: UIView = UIView().then {
-        $0.backgroundColor = .white
+        $0.backgroundColor = .clear
     }
     
     lazy var chkbtn: UIButton = UIButton().then {
@@ -117,7 +118,7 @@ class TodoBlockCell: UITableViewCell {
         let topSpace:CGFloat = 7.3
         
         self.selectionStyle = .none
-        
+//        self.contentView.backgroundColor = .clear
         
         self.contentView.addSubview(whiteView)
         whiteView.snp.makeConstraints { (make) in

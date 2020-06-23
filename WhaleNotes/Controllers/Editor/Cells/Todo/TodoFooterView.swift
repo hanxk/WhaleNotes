@@ -30,7 +30,7 @@ class TodoFooterView: UIView {
               right: -imageTitlePadding
           )
         
-        $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
+//        $0.addTarget(self, action: #selector(self.handleAddButtonTapped), for: .touchUpInside)
 
         
     }
@@ -66,15 +66,29 @@ class TodoFooterView: UIView {
             make.leading.equalToSuperview().offset(16)
         }
         
-        
+//        self.backgroundColor = .brand
 //        self.addSubview(menuButton)
 //        menuButton.snp.makeConstraints { (make) in
 //            make.height.equalToSuperview()
 //            make.trailing.equalToSuperview()
 //        }
+        self.registerViewTaped()
     }
-    @objc private func handleAddButtonTapped() {
+    
+    
+    private func registerViewTaped() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewTapped))
+        tapGesture.cancelsTouchesInView = false
+        self.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func ViewTapped(_ sender: UITapGestureRecognizer) {
         self.addButtonTapped?()
+    }
+    
+    
+    
+    @objc private func handleAddButtonTapped() {
     }
     
     
