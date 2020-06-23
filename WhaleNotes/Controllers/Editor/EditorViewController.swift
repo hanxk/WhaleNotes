@@ -193,7 +193,8 @@ class EditorViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
-        tableView.endEditing(true)
+        
+        self.hideKeyboard()
         
         
         tryNotifiNoteUpdated()
