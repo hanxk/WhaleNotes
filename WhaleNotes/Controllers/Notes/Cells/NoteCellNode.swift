@@ -85,25 +85,27 @@ class NoteCellNode: ASCellNode {
         
         var remainHeight = contentHeight
         
+        
+
         // 标题
         if  note.rootBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
             titleNode.attributedText = getTitleLabelAttributes(text: note.rootBlock.text)
-            titleNode.maximumNumberOfLines = 2
             
             let titlePadding:CGFloat = 2
             titleNode.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: titlePadding, right: 0)
             self.addSubnode(titleNode)
             self.titleNode = titleNode
             
-            titleHeight = titleNode.attributedText!.height(containerWidth: contentWidth) + titlePadding
-            
-            let lineHeight = getTitleLabelAttributes(text: "a").height(containerWidth: contentWidth)
-            
-            let lineCount = lround(Double(titleHeight / lineHeight)) >= 2 ? 2 : 1
-            titleHeight = CGFloat(lineCount) * lineHeight + titlePadding
+            if note.todoBlocks.isEmpty && (note.textBlock?.text ?? "").isEmpty {
+                titleHeight = contentHeight
+            }else {
+                titleHeight = titleNode.attributedText!.height(containerWidth: contentWidth) + titlePadding
+                let lineHeight = getTitleLabelAttributes(text: "a").height(containerWidth: contentWidth)
+                let lineCount = lround(Double(titleHeight / lineHeight)) >= 2 ? 2 : 1
+                titleHeight = CGFloat(lineCount) * lineHeight + titlePadding
+            }
             titleNode.style.height = ASDimensionMake(titleHeight)
-            //           titleNode.backgroundColor = .red
             
             remainHeight = contentHeight - titleHeight
         }
@@ -129,6 +131,7 @@ class NoteCellNode: ASCellNode {
             self.addSubnode(imageNode)
         }
         
+                
         
         
         var textHeight:CGFloat = 0
@@ -152,19 +155,7 @@ class NoteCellNode: ASCellNode {
         var todoInfo:(Int,Int) = (0,0)
         let todoBlocks = note.todoBlocks
         if todoBlocks.isNotEmpty {
-//            var todoBlocks:[Block] = []
-//            for toggleBlock in noteInfo.todoToggleBlocks {
-//                for block in noteInfo.getChildTodoBlocks(parent: toggleBlock.id) {
-//                    if todoBlocks.count <= 10 {
-//                        todoBlocks.append(block)
-//                    }
-//
-//                    if block.isChecked {
-//                        todoInfo.0 = todoInfo.0 + 1
-//                    }
-//                    todoInfo.1 = todoInfo.1 + 1
-//                }
-//            }
+            
             for todoBlock  in todoBlocks {
                 if todoBlock.isChecked {
                     todoInfo.0 = todoInfo.0 + 1
@@ -235,7 +226,8 @@ class NoteCellNode: ASCellNode {
         }
         
         if textHeight > halfContentHeight && todosHeight > halfContentHeight { // 各占一半
-            return (remainHeight - Constants.todoHeight,Constants.todoHeight)
+            let todoHeight = CGFloat(Int(halfContentHeight / Constants.todoHeight)) * Constants.todoHeight
+            return (remainHeight - todoHeight,todoHeight)
         }
         
         if textHeight > halfContentHeight {

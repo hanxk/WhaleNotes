@@ -39,11 +39,16 @@ class EditorViewController: UIViewController {
     
     private var titleCell:TitleBlockCell?
     private var textCell: TextBlockCell?
-    //    private var todoBlockCell: TodoBlockCell?
     var disposebag = DisposeBag()
     
     
-//    private var attachmentsCell: AttachmentsBlockCell?
+    private var attachmentsCell: AttachmentsBlockCell? {
+        if let index = sections.firstIndex(where: {$0 == SectionType.images}),
+            let cell = tableView.cellForRow(at: IndexPath(row: 0, section: index)) as? AttachmentsBlockCell  {
+            return cell
+        }
+        return nil
+    }
     
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
@@ -599,6 +604,7 @@ extension EditorViewController: UITableViewDataSource {
                 
             }
             imagesCell.reloadData(imageBlocks:  self.note.imageBlocks)
+//            self.attachmentsCell = imagesCell
             break
         }
         return cell
@@ -614,7 +620,7 @@ extension EditorViewController: UITableViewDataSource {
             }, completion: nil)
         }else {
             
-            if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: index)) as? AttachmentsBlockCell {
+            if let cell = self.attachmentsCell {
                 cell.reloadData(imageBlocks: self.note.imageBlocks)
             }
 //            self.tableView.performBatchUpdates({
@@ -838,7 +844,7 @@ extension EditorViewController: UITableViewDelegate {
         case .boards:
             return BoardsCell.cellHeight
         case .images:
-            if let cell = self.tableView.cellForRow(at: indexPath) as? AttachmentsBlockCell {
+            if let cell = self.attachmentsCell {
                 return cell.totalHeight
             }
             return 0
@@ -1102,9 +1108,11 @@ extension EditorViewController {
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
                 self.note.removeBlock(block: rootTodoBlock)
-                self.sections.remove(at: self.todoSectionIndex)
+                
+                let todoSectionIndex = self.todoSectionIndex
+                self.sections.remove(at: todoSectionIndex)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([self.todoSectionIndex]), with: .bottom)
+                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .automatic)
                 }, completion: nil)
                 }, onError: {
                     Logger.error($0)
@@ -1147,8 +1155,7 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     }
     
     private func handleSectionImage(imageBlocks:[Block]) {
-        if  let index = self.sections.firstIndex(where: {$0 == SectionType.images}),
-            let imagesCell = self.tableView.cellForRow(at:  IndexPath(row: 0, section: index)) as? AttachmentsBlockCell {
+        if  let imagesCell = self.attachmentsCell {
             //附加
             self.note.addImageBlocks(imageBlocks)
             let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
