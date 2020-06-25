@@ -32,7 +32,7 @@ class MenuBoardCell: UITableViewCell {
     
     private lazy var titleLabel: UILabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .primaryText
+        $0.textColor = .sidemenuText
         $0.textAlignment = .left
     }
     

@@ -41,7 +41,6 @@ enum SideMenuItem:Equatable {
 class SideMenuViewController: UIViewController {
     
     private var menuSectionTypes:[MenuSectionType] = []
-    let bg = UIColor.init(hexString: "#FFFFFF")
     
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
@@ -168,7 +167,7 @@ class SideMenuViewController: UIViewController {
         }
         
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        self.tableView.backgroundColor = bg
+        self.tableView.backgroundColor = .sidemenuBg
         
     }
     
@@ -805,7 +804,7 @@ extension SideMenuViewController:UITableViewDelegate {
     
     static func generateCellSelectedView() ->UIView {
         return UIView().then {
-            $0.backgroundColor = SideMenuCellContants.highlightColor
+            $0.backgroundColor = .sidemenuSelectedBg
             let cornerRadius:CGFloat = 4
             $0.layer.cornerRadius = CGFloat(cornerRadius)
             $0.clipsToBounds = true

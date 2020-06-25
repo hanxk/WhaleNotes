@@ -13,7 +13,7 @@ class BoardIconView: UITableViewHeaderFooterView {
     var callbackTapped:(()->Void)?
     
     private lazy var iconButton = UIButton().then {
-        $0.backgroundColor = UIColor.init(hexString: "#F8F8F8")
+        $0.backgroundColor = UIColor.white
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor(hexString: "#E5E5E5").cgColor
         $0.layer.cornerRadius = 8

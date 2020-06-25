@@ -44,7 +44,7 @@ class SideMenuBottomView: UIView {
     }
     
     private func setupUI() {
-        self.backgroundColor = UIColor.init(hexString: "#ffffff")
+        self.backgroundColor = .sidemenuBg
         
         self.addSubview(newBlockBtn)
         newBlockBtn.snp.makeConstraints { (make) in

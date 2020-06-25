@@ -59,7 +59,7 @@ class BoardSettingViewController:UIViewController {
     }
     
     private lazy var  cellBackgroundView = UIView().then {
-        $0.backgroundColor = UIColor.tappedColor
+        $0.backgroundColor = UIColor.sidemenuSelectedBg
     }
     
     override func viewDidLoad() {
@@ -73,6 +73,7 @@ class BoardSettingViewController:UIViewController {
         let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
         //        barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
         self.navigationItem.rightBarButtonItem = barButtonItem
+//        self.navigationController?.navigationBar.barTintColor = .bg
     }
     
     private func setupUI() {

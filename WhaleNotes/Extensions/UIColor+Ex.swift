@@ -58,7 +58,7 @@ extension UIColor {
     
     open class var bg: UIColor {
         get {
-            return UIColor.init(hexString: "#f2f2f2")
+            return UIColor.init(hexString: "#EFEFEF")
         }
     }
     
@@ -106,4 +106,26 @@ extension UIColor {
          }
          self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
      }
+}
+
+
+// sidebar
+extension UIColor {
+    
+    open class var sidemenuBg: UIColor {
+        get {
+            return UIColor.init(hexString: "#F6F6F6")
+        }
+    }
+    open class var sidemenuSelectedBg: UIColor {
+        get {
+            return UIColor.init(hexString: "#E8E8E8")
+        }
+    }
+    
+    open class var sidemenuText: UIColor {
+        get {
+            return UIColor.init(hexString: "#202020")
+        }
+    }
 }
