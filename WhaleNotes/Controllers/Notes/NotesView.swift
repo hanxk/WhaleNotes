@@ -49,16 +49,19 @@ class NotesView: UIView, UINavigationControllerDelegate {
     private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
-    private var sectionNoteInfo:SectionNoteInfo!
-    
-    var delegate:NotesViewDelegate?
-    
-    var board:Board! {
+    private var sectionNoteInfo:SectionNoteInfo! {
         didSet {
-            self.setupData()
+            if oldValue != nil &&  oldValue.notes.count != sectionNoteInfo.notes.count {
+                self.callbackNotesCountChanged?(Int64(sectionNoteInfo.notes.count))
+            }
         }
     }
     
+    var delegate:NotesViewDelegate?
+    var callbackNotesCountChanged:((Int64)->Void)?
+    
+    private var board:Board!
+    private var noteStatus:NoteBlockStatus = NoteBlockStatus.normal
     
     private var numberOfColumns:CGFloat = 2
     
@@ -118,23 +121,32 @@ class NotesView: UIView, UINavigationControllerDelegate {
         return sectionNoteInfo.notes
     }
     
+    convenience init(frame: CGRect,board:Board,noteStatus:NoteBlockStatus = NoteBlockStatus.normal) {
+        self.init(frame:frame)
+        self.board = board
+        self.noteStatus = noteStatus
+        self.setupUI()
+        self.setupData()
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.setupUI()
     }
     
     private func setupUI() {
         collectionNode.frame = self.frame
         collectionNode.backgroundColor = .clear
         self.addSubnode(collectionNode)
-        self.setupFloatButtons()
+        if noteStatus == NoteBlockStatus.normal {
+            self.setupFloatButtons()
+        }
     }
     
     private func setupData() {
-        BoardRepo.shared.getSectionNoteInfos(boardId: board.id)
+        BoardRepo.shared.getSectionNoteInfos(boardId: board.id,noteBlockStatus: noteStatus)
             .subscribe(onNext: { [weak self] in
                 if let self = self {
                     self.sectionNoteInfo = $0[0]
@@ -301,6 +313,10 @@ extension NotesView:NoteCellNodeDelegate {
 
 //MARK: NoteMenuViewControllerDelegate
 extension NotesView:NoteMenuViewControllerDelegate {
+    func noteMenuArchive(note: Note) {
+        self.handleDeleteNote(note)
+    }
+    
     func noteMenuMoveToTrash(note: Note) {
         self.handleDeleteNote(note)
 //        self.showToast("便签已移动至废纸篓")

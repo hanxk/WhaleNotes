@@ -9,14 +9,20 @@ import UIKit
 
 class BoardIconView: UITableViewHeaderFooterView {
     
-    static let cellHeight:CGFloat = 106
+    static let cellHeight:CGFloat = 154
     var callbackTapped:(()->Void)?
     
     private lazy var iconButton = UIButton().then {
         $0.backgroundColor = UIColor.white
         $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor(hexString: "#E5E5E5").cgColor
-        $0.layer.cornerRadius = 8
+        $0.layer.borderColor = UIColor(hexString: "#DDDDDD").cgColor
+        $0.layer.cornerRadius = 10
+        $0.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+    }
+    private lazy var changeButton = UIButton().then {
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 13,weight: .medium)
+        $0.setTitle("更换图标", for: .normal)
+        $0.setTitleColor(.brand, for: .normal)
         $0.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
     
@@ -48,11 +54,21 @@ class BoardIconView: UITableViewHeaderFooterView {
     
     private func setupUI() {
         self.backgroundColor = .clear
+        
         self.addSubview(iconButton)
+        
+        self.addSubview(changeButton)
+        changeButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-14)
+            $0.width.equalTo(iconButton.snp.width)
+            $0.height.equalTo(32)
+        }
+        
         iconButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.bottom.equalToSuperview()
             $0.width.height.equalTo(80)
+            $0.bottom.equalTo(changeButton.snp.top).offset(-4)
         }
         
     }

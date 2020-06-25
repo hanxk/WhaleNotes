@@ -83,6 +83,13 @@ extension UIColor {
         }
     }
     
+    
+    open class var dividerGray: UIColor {
+        get {
+            return UIColor(hexString: "#DDDDDD")
+        }
+    }
+    
     open class var placeHolderColor: UIColor {
         get {
             return UIColor(named: "PlaceHolder")!

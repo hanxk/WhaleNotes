@@ -12,12 +12,12 @@ class BoardSettingItemCell: UITableViewCell {
     
     
     lazy var titleLabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 16)
+        $0.font = UIFont.systemFont(ofSize: 15)
         $0.textColor = .primaryText
     }
     
     lazy var valueLabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 16)
+        $0.font = UIFont.systemFont(ofSize: 15)
         $0.textColor = UIColor.init(hexString: "#333333")
     }
     

@@ -232,4 +232,22 @@ class BoardRepo {
     }
     
     
+    func getNotesCount(boardId:Int64,noteBlockStatus:NoteBlockStatus) -> Observable<Int64> {
+        return Observable<Int64>.just(boardId)
+                   .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                   .map({(noteId)  -> Int64 in
+                    let result =  DBStore.shared.queryNotesCountByBoardId(boardId, noteBlockStatus: noteBlockStatus)
+                       switch result {
+                       case .success(let count):
+                           return count
+                       case .failure(let err):
+                           throw err
+                       }
+                   })
+                   .observeOn(MainScheduler.instance)
+    }
+    
+    
+    
+    
 }

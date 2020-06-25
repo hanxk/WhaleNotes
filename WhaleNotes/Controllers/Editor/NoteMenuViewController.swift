@@ -13,7 +13,7 @@ import Toast_Swift
 
 enum NoteMenuType {
     case pin
-    case copy
+    case archive
     case move
     case background
     case info
@@ -31,6 +31,7 @@ protocol NoteMenuViewControllerDelegate: AnyObject {
     func noteMenuDataMoved(note: Note)
     func noteMenuMoveToTrash(note: Note)
     func noteMenuBackgroundChanged(note:Note)
+    func noteMenuArchive(note: Note)
 }
 
 
@@ -83,9 +84,12 @@ class NoteMenuViewController: ContextMenuViewController {
     
     
     private func setupMenus() {
+        
+        let archiveTitle = note.status == NoteBlockStatus.archive ? "取消归档" : "归档"
+        
         self.items = [
-            ContextMenuItem(label: "置顶", icon: "arrow.up.to.line.alt", tag: NoteMenuType.pin),
-            ContextMenuItem(label: "复制", icon: "square.on.square", tag: NoteMenuType.copy),
+//            ContextMenuItem(label: "置顶", icon: "arrow.up.to.line.alt", tag: NoteMenuType.pin),
+            ContextMenuItem(label: archiveTitle, icon: "archivebox", tag: NoteMenuType.archive),
             ContextMenuItem(label: "移动至...", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move,isNeedJump: true),
             ContextMenuItem(label: "背景色", icon: "paintbrush", tag: NoteMenuType.background,isNeedJump: true),
             ContextMenuItem(label: "显示信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
@@ -96,9 +100,8 @@ class NoteMenuViewController: ContextMenuViewController {
             switch tag {
             case .pin:
                 break
-            case .copy:
-                let chooseBoardVC = ChooseBoardViewController()
-                menuVC.navigationController?.pushViewController(chooseBoardVC, animated: true)
+            case .archive:
+                self.archivenNote()
                 break
             case .move:
                 let vc = ChangeBoardViewController()
@@ -192,11 +195,26 @@ extension NoteMenuViewController {
     private func move2Trash() {
         guard var noteBlock = self.note.rootBlock else { return }
         noteBlock.status = NoteBlockStatus.trash.rawValue
+        updateNoteBlock(noteBlock: noteBlock) {
+            self.delegate?.noteMenuMoveToTrash(note: $0)
+        }
+    }
+    
+    private func archivenNote() {
+        guard var noteBlock = self.note.rootBlock else { return }
+        noteBlock.status = self.note.status == NoteBlockStatus.normal  ? NoteBlockStatus.archive.rawValue : NoteBlockStatus.normal.rawValue
+        updateNoteBlock(noteBlock: noteBlock) {
+            self.delegate?.noteMenuArchive(note: $0)
+        }
+    }
+    
+    
+    private func updateNoteBlock(noteBlock:Block,callback:@escaping (Note)->Void) {
         NoteRepo.shared.updateBlock(block: noteBlock)
             .subscribe(onNext: {
                 var newNote = self.note!
                  newNote.rootBlock = $0
-                self.delegate?.noteMenuMoveToTrash(note: newNote)
+                callback(newNote)
             }, onError: { error in
                 Logger.error(error)
             })

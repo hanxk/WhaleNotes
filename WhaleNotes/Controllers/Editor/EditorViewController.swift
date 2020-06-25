@@ -311,6 +311,11 @@ class EditorViewController: UIViewController {
 
 //MARK: NoteMenuViewControllerDelegate
 extension EditorViewController:NoteMenuViewControllerDelegate {
+    func noteMenuArchive(note: Note) {
+        self.navigationController?.popViewController(animated: true)
+        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+    }
+    
     func noteMenuMoveToTrash(note: Note) {
         self.navigationController?.popViewController(animated: true)
         self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))

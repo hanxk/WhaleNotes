@@ -561,7 +561,6 @@ extension DBStore {
                     var notes:[Note] = []
                     for rootBlock in rootBlocks {
                         
-//                        let sectionId = rootBlock.0
                         let block = rootBlock.1
                         
                         let childBlocks = try blockDao.query(noteId: block.id)
@@ -582,6 +581,36 @@ extension DBStore {
         }catch let err {
             print(err)
             return DBResult<[(Board,[Note])]>.failure(DBError(code: .None,message: err.localizedDescription))
+        }
+    }
+    
+    
+    
+    func getNotesByBoardId2(_ boardId:Int64,noteBlockStatus: NoteBlockStatus) ->DBResult<[Note]> {
+        do {
+            var notes:[Note] = []
+            try db.transaction {
+                let rootBlocks = try blockDao.queryNoteBlocksByBoardId(boardId,noteBlockStatus:noteBlockStatus)
+                for rootBlock in rootBlocks {
+                    
+                    let block = rootBlock.1
+                    let childBlocks = try blockDao.query(noteId: block.id)
+
+                    let boards:[Board] = try boardDao.queryByNoteBlockId(block.id).map{
+                        if $0.type == 2 {
+                            return getLocalSystemBoardInfo(board: $0)
+                        }
+                        return $0
+                    }
+                    let note = Note(rootBlock: block, childBlocks: childBlocks,boards:boards)
+                    notes.append(note)
+                }
+                
+            }
+            return DBResult<[Note]>.success(notes)
+        }catch let err {
+            print(err)
+            return DBResult<[Note]>.failure(DBError(code: .None,message: err.localizedDescription))
         }
     }
     
@@ -616,6 +645,16 @@ extension DBStore {
             print(err)
             return DBResult<[(Int64,Note)]>.failure(DBError(code: .None,message: err.localizedDescription))
         }
+    }
+    
+    func queryNotesCountByBoardId(_ boardId:Int64,noteBlockStatus: NoteBlockStatus) ->DBResult<Int64>  {
+         do {
+               let count = try blockDao.queryNotesCountByBoardId(boardId,noteBlockStatus:noteBlockStatus)
+               return DBResult<Int64>.success(count)
+           }catch let err {
+               print(err)
+               return DBResult<Int64>.failure(DBError(code: .None,message: err.localizedDescription))
+           }
     }
     
     func getSectionsByBoardId(_ boardId:Int64) -> DBResult<[Section]> {

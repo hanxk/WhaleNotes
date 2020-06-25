@@ -28,7 +28,9 @@ class BoardSettingViewController:UIViewController {
     private var settingItems:[BoardSettingItem] = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.archived,BoardSettingItem.trash]
     var board:Board! {
         didSet {
-            isBoardEdited = true
+            if oldValue != nil {
+                isBoardEdited = true
+            }
         }
     }
     
@@ -40,8 +42,20 @@ class BoardSettingViewController:UIViewController {
     
     private let disposeBag = DisposeBag()
     
+    private var isPreventChild = false
+    
+    private var archiveCount:Int64 = 0 {
+        didSet {
+            if oldValue == archiveCount { return }
+            guard let index = settingItems.firstIndex(where: {$0 == .archived}) else { return }
+            self.tableView.performBatchUpdates({
+                self.tableView.reloadRows(at: [IndexPath(row: 0, section: index)], with: .none)
+            }, completion: nil)
+        }
+    }
+    
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
-                $0.separatorColor = UIColor(hexString: "#ECECEC")
+        $0.separatorColor = .dividerGray
         $0.delegate = self
         $0.dataSource = self
         $0.showsVerticalScrollIndicator = false
@@ -66,14 +80,18 @@ class BoardSettingViewController:UIViewController {
         super.viewDidLoad()
         self.setupUI()
         
-        
         let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
         self.navigationItem.leftBarButtonItem = cancelButtonItem
         
         let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
-        //        barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
+                barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
         self.navigationItem.rightBarButtonItem = barButtonItem
-//        self.navigationController?.navigationBar.barTintColor = .bg
+        self.navigationController?.navigationBar.barTintColor = .bg
+        
+        
+        self.navigationController?.presentationController?.delegate = self
+        
+        self.setupData()
     }
     
     private func setupUI() {
@@ -87,14 +105,38 @@ class BoardSettingViewController:UIViewController {
     
     private func setupData() {
         
-        self.tableView.reloadData()
+        BoardRepo.shared.getNotesCount(boardId: self.board.id, noteBlockStatus: .archive)
+            .subscribe(onNext: {
+                self.archiveCount = $0
+//                self.tableView.reloadData()
+            }, onError: { error in
+                Logger.error(error)
+            })
+        .disposed(by: disposeBag)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+        self.isPreventChild = false
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.isPreventChild = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if isBeingDismissed {
+            self.navigationController?.presentationController?.delegate = nil
+        }
+    }
     
     @objc func cancelButtonTapped() {
         self.dismiss(animated: true, completion: nil)
@@ -116,6 +158,40 @@ class BoardSettingViewController:UIViewController {
                 .disposed(by: disposeBag)
         }
     }
+    
+}
+
+extension BoardSettingViewController:UIAdaptivePresentationControllerDelegate,UIActionSheetDelegate {
+    func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+        if  self.isPreventChild {
+            return false
+        }
+        if isBoardEdited {
+            self.showDismissSheet()
+            return false
+        }
+        return true
+    }
+    
+    func showDismissSheet() {
+        let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+          let deleteAction = UIAlertAction(title: "放弃更改", style: .destructive, handler:
+          {
+              (alert: UIAlertAction!) -> Void in
+                self.dismiss(animated: true, completion: nil)
+          })
+
+          let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler:
+          {
+              (alert: UIAlertAction!) -> Void in
+            optionMenu.dismiss(animated: true, completion: nil)
+          })
+          optionMenu.addAction(deleteAction)
+          optionMenu.addAction(cancelAction)
+        self.present(optionMenu, animated: true, completion: nil)
+    }
+    
+
 }
 
 extension BoardSettingViewController:UITableViewDataSource {
@@ -147,7 +223,7 @@ extension BoardSettingViewController:UITableViewDataSource {
             break
         case .archived:
             let archivedCell = cell as! BoardSettingItemCell
-            archivedCell.titleAndValue = ("已归档的便签", "1")
+            archivedCell.titleAndValue = ("已归档的便签", String(self.archiveCount))
             break
         case .trash:
             let trashCell = cell as! BoardSettingButtonCell
@@ -157,9 +233,9 @@ extension BoardSettingViewController:UITableViewDataSource {
         return cell
     }
     
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return UIView(frame: .zero)
-    }
+//    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+//        return UIView(frame: .zero)
+//    }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = self.settingItems[section]
@@ -208,10 +284,10 @@ extension BoardSettingViewController:UITableViewDataSource {
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        
-        return CGFloat.leastNormalMagnitude
-    }
+//    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+//
+//        return CGFloat.leastNormalMagnitude
+//    }
 }
 
 
@@ -233,6 +309,13 @@ extension BoardSettingViewController:UITableViewDelegate {
         switch sectionType {
         case .trash:
             self.deleteBoard()
+        case .archived:
+            let archiveVC = ArchiveNotesViewController()
+            archiveVC.board = self.board
+            archiveVC.callbackNotesCountChanged = { [weak self] count in
+                self?.archiveCount = Int64(count)
+            }
+            self.navigationController?.pushViewController(archiveVC, animated: true)
         default:
             break
         }

@@ -204,6 +204,22 @@ class BlockDao {
         
         return blocks
     }
+    
+    
+    func queryNotesCountByBoardId(_ boardId:Int64 ,noteBlockStatus: NoteBlockStatus) throws -> Int64 {
+        let status = noteBlockStatus.rawValue
+        let selectSQL = """
+        select count(*)
+        from block as b
+        inner join (
+        select section_note.note_id, section_note.sort,section_note.section_id from section_note
+        inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+        ) as section
+        on (b.id = section.note_id  and b.status = \(status)) order by b.sort asc
+        """
+        let count = try db.scalar(selectSQL) as! Int64
+        return count
+    }
 }
 
 

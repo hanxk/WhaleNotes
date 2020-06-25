@@ -60,7 +60,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
                         self.handleBoardDeleted(board: board)
                     }
                 }
-                self.present(MyNavigationController(rootViewController: settingVC), animated: true, completion: nil)
+                let vc = MyNavigationController(rootViewController: settingVC)
+//                vc.modalPresentationStyle = .fullScreen
+                self.present(vc, animated: true, completion: nil)
             }
             
         }
@@ -68,13 +70,10 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        notesView?.viewWillAppear(animated)
         self.navigationController?.navigationBar.barTintColor = .bg
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        notesView?.viewWillDisappear(animated)
-//self.navigationController?.navigationBar.barTintColor = .white
     }
     
 }
@@ -91,7 +90,6 @@ extension HomeViewController {
     }
     
     private func handleBoardDeleted(board:Board) {
-//        titleButton.setTitle(board.title,emoji: board.icon)
         self.sideMenuViewController.boardIsDeleted(board: board)
     }
 }
@@ -119,13 +117,12 @@ extension HomeViewController {
         if let oldView =  self.contentView {
             oldView.removeFromSuperview()
         }
-        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
         self.contentView = notesView
         self.view.addSubview(notesView)
         notesView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        notesView.board = board
         if board.type == BoardType.user.rawValue {
             titleButton.setTitle(board.title,emoji: board.icon)
         }
@@ -167,33 +164,19 @@ extension HomeViewController {
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         let barButton = UIBarButtonItem(customView: button)
         
-        //        let label = UILabel()
-        //        label.text = "东京旅行"
-        //        label.textAlignment = .left
-        //        label.backgroundColor = UIColor.clear
-        //        let labelItem = UIBarButtonItem(customView: label)
-//        self.navigationItem.title = "东京旅行"
-//        self.navigationItem.largeTitleDisplayMode = .automatic
         self.navigationItem.leftBarButtonItems = [barButton]
         self.navigationItem.titleView = titleButton
         
         if let titleView = self.navigationItem.titleView  {
-//            titleView.translatesAutoresizingMaskIntoConstraints = false
             titleView.snp.makeConstraints {
-                let padding = 50
                 $0.centerX.equalToSuperview()
-//                $0.leading.equalToSuperview().offset(padding)
-//                $0.trailing.equalToSuperview().offset(-padding)
                 $0.height.equalToSuperview()
             }
         }
         
-//        self.navigationController?.navigationBar.barTintColor  = .bg
-        
-
         let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
         let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: nil)
-        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
+//        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItems = [search]
     }
     

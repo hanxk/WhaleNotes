@@ -251,3 +251,21 @@ class NoteRepo {
 extension NoteRepo {
     
 }
+
+extension NoteRepo {
+    
+    func getNotesByBoardId(_ boardId:Int64,noteBlockStatus: NoteBlockStatus) -> Observable<[Note]> {
+        return Observable<Int64>.just(boardId)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(noteId)  -> [Note] in
+                let result =  DBStore.shared.getNotesByBoardId2(boardId, noteBlockStatus: noteBlockStatus)
+                switch result {
+                case .success(let notes):
+                    return notes
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
+}

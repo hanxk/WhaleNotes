@@ -98,6 +98,7 @@
 		18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E673247BBC5800D598C5 /* DBStore.swift */; };
 		18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E676247BBDBF00D598C5 /* BlockDao.swift */; };
 		18E6E67B247BCCD700D598C5 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E67A247BCCD700D598C5 /* Note.swift */; };
+		18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */; };
 		18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7BF76248BAB9D00B8AEC1 /* MenuHeaderView.swift */; };
 		18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7BF78248BAEB300B8AEC1 /* SideMenuBottomView.swift */; };
 		18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7BF7A248BC7B900B8AEC1 /* UIButton+Ex.swift */; };
@@ -222,6 +223,7 @@
 		18E6E673247BBC5800D598C5 /* DBStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBStore.swift; sourceTree = "<group>"; };
 		18E6E676247BBDBF00D598C5 /* BlockDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDao.swift; sourceTree = "<group>"; };
 		18E6E67A247BCCD700D598C5 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveNotesViewController.swift; sourceTree = "<group>"; };
 		18E7BF76248BAB9D00B8AEC1 /* MenuHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHeaderView.swift; sourceTree = "<group>"; };
 		18E7BF78248BAEB300B8AEC1 /* SideMenuBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuBottomView.swift; sourceTree = "<group>"; };
 		18E7BF7A248BC7B900B8AEC1 /* UIButton+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Ex.swift"; sourceTree = "<group>"; };
@@ -648,6 +650,14 @@
 			path = Dao;
 			sourceTree = "<group>";
 		};
+		18E7663C24A46F5D005DCB03 /* ArchiveNotes */ = {
+			isa = PBXGroup;
+			children = (
+				18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */,
+			);
+			path = ArchiveNotes;
+			sourceTree = "<group>";
+		};
 		18E7BF7E248BD4D400B8AEC1 /* Board */ = {
 			isa = PBXGroup;
 			children = (
@@ -731,6 +741,7 @@
 		18E956882449AABA003755BF /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				18E7663C24A46F5D005DCB03 /* ArchiveNotes */,
 				186DDE7A249261C900A4C63C /* Trash */,
 				183FFA9E2469533C00FDA179 /* ContextMenu */,
 				1865AEF7244C79400006B48D /* Editor */,
@@ -986,6 +997,7 @@
 				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				1859A0FE248689B1008D51B4 /* BoardDao.swift in Sources */,
+				18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
 				18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */,
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,

@@ -48,6 +48,11 @@ class EmojiViewController:UIViewController {
         self.loadEmojis()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    
     private func setupUI() {
         self.view.backgroundColor = .white
         
