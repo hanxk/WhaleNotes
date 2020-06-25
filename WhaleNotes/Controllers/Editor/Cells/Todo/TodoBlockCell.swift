@@ -18,7 +18,7 @@ protocol TodoBlockCellDelegate: AnyObject {
 
 class TodoBlockCell: UITableViewCell {
     
-    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .light)
+    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .thin)
     
     lazy var uncheckedImage: UIImage = UIImage(systemName: "stop",withConfiguration: config)!
     lazy var checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill",withConfiguration: config)!

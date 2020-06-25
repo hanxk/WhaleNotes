@@ -13,10 +13,9 @@ class BoardIconCell: UITableViewCell {
     
     private lazy var iconButton = UIButton().then {
         $0.backgroundColor = UIColor.init(hexString: "#F6F6F6")
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor(hexString: "#ECECEC").cgColor
+        $0.layer.borderWidth = 0.5
+        $0.layer.borderColor = UIColor.dividerGray.cgColor
         $0.layer.cornerRadius = 8
-        $0.tintColor = UIColor.black.withAlphaComponent(0.4)
     }
     
     var board:Board! {

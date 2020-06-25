@@ -805,7 +805,7 @@ extension SideMenuViewController:UITableViewDelegate {
     static func generateCellSelectedView() ->UIView {
         return UIView().then {
             $0.backgroundColor = .sidemenuSelectedBg
-            let cornerRadius:CGFloat = 4
+            let cornerRadius:CGFloat = 8
             $0.layer.cornerRadius = CGFloat(cornerRadius)
             $0.clipsToBounds = true
             $0.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]

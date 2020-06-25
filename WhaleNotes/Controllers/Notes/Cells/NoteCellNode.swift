@@ -58,10 +58,14 @@ class NoteCellNode: ASCellNode {
     
     func setupBackBackground() {
         self.backgroundColor = UIColor(hexString: note.backgroundColor)
-               if note.backgroundColor.isWhiteHex {
-               }
-               self.borderWidth = 1
-        self.borderColor = UIColor.colorBoarder.cgColor
+        if note.backgroundColor.isWhiteHex {
+        }
+        self.borderWidth = 1
+        if note.backgroundColor.isWhiteHex {
+            self.borderColor = UIColor.colorBoarder.cgColor
+        }else {
+            self.borderColor = UIColor.colorBoarder2.cgColor
+        }
     }
     
     required init(note:Note,itemSize: CGSize) {
@@ -75,7 +79,7 @@ class NoteCellNode: ASCellNode {
         self.cornerRadius = cornerRadius
         //        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
         //        self.borderColor = UIColor(hexString: "#000000").cgColor
-       
+        
         //        self.backgroundColor = UIColor.init(hexString: "#FAFAFA")
         
         var titleHeight:CGFloat = 0
@@ -86,7 +90,7 @@ class NoteCellNode: ASCellNode {
         var remainHeight = contentHeight
         
         
-
+        
         // 标题
         if  note.rootBlock.text.isNotEmpty {
             let titleNode = ASTextNode()
@@ -131,7 +135,7 @@ class NoteCellNode: ASCellNode {
             self.addSubnode(imageNode)
         }
         
-                
+        
         
         
         var textHeight:CGFloat = 0
@@ -299,7 +303,7 @@ class NoteCellNode: ASCellNode {
         }
         
         let isEmptyContent = (stackLayout.children?.count ?? 0) == 0
-
+        
         let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
         
         // 图片卡
@@ -316,7 +320,7 @@ class NoteCellNode: ASCellNode {
             let imageNode = self.imageNodes[0]
             imageNode.style.width = cellWidth
             imageNode.style.height = cellHeight
-
+            
             
             let overlayLayout =  ASOverlayLayoutSpec(child: imageNode, overlay: bottombarLayout)
             return overlayLayout
@@ -404,14 +408,14 @@ class NoteCellNode: ASCellNode {
         }
         if let menuTodoImage = self.menuTodoImage,
             let menuTodoText = self.menuTodoText {
-//            menuTodoImage.backgroundColor = .red
-//            menuTodoText.backgroundColor = .red
+            //            menuTodoImage.backgroundColor = .red
+            //            menuTodoText.backgroundColor = .red
             let centerTodoText = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: menuTodoText)
             todoStack.children = [menuTodoImage,centerTodoText]
             
         }
         let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: Constants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
-
+        
         self.menuButton.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
         bottomLayout.children?.append(todoStackLayout)
         bottomLayout.children?.append(self.menuButton)
@@ -527,7 +531,7 @@ class NoteCellNode: ASCellNode {
         paragraphStyle.lineSpacing = 1.8
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
             .foregroundColor: UIColor.cardText,
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)
@@ -536,11 +540,11 @@ class NoteCellNode: ASCellNode {
     func getTextLabelAttributes(text: String) -> NSAttributedString {
         
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 3
+        paragraphStyle.lineSpacing = 4
         
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 15),
+            .font: UIFont.systemFont(ofSize: 16),
             .foregroundColor: UIColor.cardText,
             .paragraphStyle:paragraphStyle
         ]

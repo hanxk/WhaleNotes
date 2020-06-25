@@ -29,7 +29,7 @@ enum DisplayMode {
 
 enum NotesViewConstants {
     static let cellSpace: CGFloat = 12
-    static let cellHorizontalSpace: CGFloat = 16
+    static let cellHorizontalSpace: CGFloat = 14
     
     
     static let waterfall_cellSpace: CGFloat = 12

@@ -15,26 +15,26 @@ extension UIColor {
         }
     }
     
-
-        open class var cardText: UIColor {
-            get {
-    //            return UIColor(named: "PrimaryText")!
-//                 UIColor.init(hexString: "#333333")
-                 UIColor.init(hexString: "#2b292e")
-            }
+    
+    open class var cardText: UIColor {
+        get {
+            //            return UIColor(named: "PrimaryText")!
+            //                 UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#2b292e")
         }
+    }
     
     open class var primaryText: UIColor {
         get {
-//            return UIColor(named: "PrimaryText")!
-             UIColor.init(hexString: "#2b292e")
+            //            return UIColor(named: "PrimaryText")!
+            UIColor.init(hexString: "#2b292e")
         }
     }
     open class var primaryText2: UIColor {
-         get {
-             return UIColor(hexString: "#333333")
-         }
-     }
+        get {
+            return UIColor(hexString: "#333333")
+        }
+    }
     
     open class var buttonTintColor: UIColor {
         get {
@@ -43,10 +43,22 @@ extension UIColor {
     }
     
     open class var colorBoarder: UIColor {
-           get {
-//               return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08)
+        get {
+            //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
+//            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.06)
+//                        return UIColor(hexString: "#EFF0F1")
+            return  UIColor(red: 0.913, green: 0.913, blue: 0.92, alpha: 0.9)
+
+
+        }
+    }
+    open class var colorBoarder2: UIColor {
+        get {
+            //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
+//            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.04)
             return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
-           }
+            //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.06)
+        }
     }
     
     open class var thirdColor: UIColor {
@@ -92,22 +104,22 @@ extension UIColor {
     }
     
     convenience init(hexString: String) {
-         let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-         var int = UInt64()
-         Scanner(string: hex).scanHexInt64(&int)
-         let a, r, g, b: UInt64
-         switch hex.count {
-         case 3: // RGB (12-bit)
-             (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-         case 6: // RGB (24-bit)
-             (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-         case 8: // ARGB (32-bit)
-             (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-         default:
-             (a, r, g, b) = (255, 0, 0, 0)
-         }
-         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
-     }
+        let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int = UInt64()
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (255, 0, 0, 0)
+        }
+        self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+    }
 }
 
 
@@ -117,13 +129,15 @@ extension UIColor {
     // OLD: #EFEFEF
     open class var bg: UIColor {
         get {
-            return UIColor.init(hexString: "#F2F2F2")
+            return UIColor.init(hexString: "#F5F5F7")
+//            return UIColor.init(hexString: "#f2f2f2")
         }
     }
     
     open class var sidemenuBg: UIColor {
         get {
-            return UIColor.init(hexString: "#F6F6F6")
+//            return UIColor.init(hexString: "#F6F6F6")
+            return UIColor.init(hexString: "#FCFCFD")
         }
     }
     open class var sidemenuSelectedBg: UIColor {
