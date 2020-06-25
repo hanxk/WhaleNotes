@@ -52,9 +52,8 @@ class EmojiViewController:UIViewController {
         self.view.backgroundColor = .white
         
         
-        
-        let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
-        self.navigationItem.leftBarButtonItem = cancelButtonItem
+//        let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
+//        self.navigationItem.leftBarButtonItem = cancelButtonItem
         
         let barButtonItem = UIBarButtonItem(title: "随机", style: .done, target: self, action: #selector(self.doneButtonTapped))
         barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
@@ -111,7 +110,8 @@ class EmojiViewController:UIViewController {
     
     private func setEmojiSeleced(emoji: Emoji) {
         self.callbackEmojiSelected?(emoji)
-        self.dismiss(animated: true, completion: nil)
+//        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
 }
 

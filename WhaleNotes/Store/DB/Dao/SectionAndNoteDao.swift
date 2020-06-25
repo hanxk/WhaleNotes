@@ -73,7 +73,7 @@ class SectionAndNoteDao {
     }
     
     
-    func deleteByBoardId(_ boardId:Int64,noteId:Int64,sectionTable:Table) throws -> Bool{
+    func deleteByBoardId(_ boardId:Int64,noteId:Int64) throws -> Bool{
 //        let query = table.join(sectionTable, on: Field_SectionAndNote.sectionId == Field_Section.id).filter(sectionTable[Field_Section.boardId] == boardId)
 //        let query = table.join(sectionTable, on: Field_SectionAndNote.sectionId == sectionTable[Field_Section.id])
          try db.run("""
@@ -85,6 +85,18 @@ class SectionAndNoteDao {
         let rows = db.changes
         return rows > 0
     }
+    
+
+        func deleteByBoardId(_ boardId:Int64) throws -> Int{
+             try db.run("""
+                delete from section_note where id in (
+                    select section_note.id from section_note
+                    inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+                )
+        """)
+            let rows = db.changes
+            return rows
+        }
 }
 
 

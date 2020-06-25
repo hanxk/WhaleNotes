@@ -35,7 +35,7 @@ class BoardDao {
         return rowId
     }
     
-    func delete(id: Int64)  throws -> Bool {
+    func delete(_ id: Int64)  throws -> Bool {
         let boardData = table.filter(Field_Board.id == id)
         let rows = try db.run(boardData.delete())
         return rows > 0

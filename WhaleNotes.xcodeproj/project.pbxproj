@@ -48,6 +48,12 @@
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
 		1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */; };
+		1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADAB24A1EE49007B39EE /* BoardSettingViewController.swift */; };
+		1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADAE24A1F1B5007B39EE /* BoardSettingItemCell.swift */; };
+		1847ADB124A1F62B007B39EE /* BoardIconCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADB024A1F62B007B39EE /* BoardIconCell.swift */; };
+		1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADB224A1F9BC007B39EE /* BoardSettingTitleCell.swift */; };
+		1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADB424A1FB2A007B39EE /* BoardSettingButtonCell.swift */; };
+		1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADB624A20B50007B39EE /* BoardIconView.swift */; };
 		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
 		18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18494930245AB416001B61C3 /* UIViewController+Ex.swift */; };
 		1859A0FA24868416008D51B4 /* BoardRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A0F924868416008D51B4 /* BoardRepo.swift */; };
@@ -165,6 +171,12 @@
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
 		1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPageIndicatorView.swift; sourceTree = "<group>"; };
+		1847ADAB24A1EE49007B39EE /* BoardSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingViewController.swift; sourceTree = "<group>"; };
+		1847ADAE24A1F1B5007B39EE /* BoardSettingItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingItemCell.swift; sourceTree = "<group>"; };
+		1847ADB024A1F62B007B39EE /* BoardIconCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardIconCell.swift; sourceTree = "<group>"; };
+		1847ADB224A1F9BC007B39EE /* BoardSettingTitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingTitleCell.swift; sourceTree = "<group>"; };
+		1847ADB424A1FB2A007B39EE /* BoardSettingButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingButtonCell.swift; sourceTree = "<group>"; };
+		1847ADB624A20B50007B39EE /* BoardIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardIconView.swift; sourceTree = "<group>"; };
 		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
 		1849491F245A8B81001B61C3 /* WhaleNotes-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhaleNotes-bridge.h"; sourceTree = "<group>"; };
 		18494930245AB416001B61C3 /* UIViewController+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Ex.swift"; sourceTree = "<group>"; };
@@ -390,6 +402,27 @@
 				183FFA9F2469535500FDA179 /* ContextMenuCell.swift */,
 			);
 			path = ContextMenu;
+			sourceTree = "<group>";
+		};
+		1847ADAA24A1EE2F007B39EE /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				1847ADAD24A1F193007B39EE /* Cells */,
+				1847ADAB24A1EE49007B39EE /* BoardSettingViewController.swift */,
+			);
+			path = Setting;
+			sourceTree = "<group>";
+		};
+		1847ADAD24A1F193007B39EE /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				1847ADAE24A1F1B5007B39EE /* BoardSettingItemCell.swift */,
+				1847ADB024A1F62B007B39EE /* BoardIconCell.swift */,
+				1847ADB224A1F9BC007B39EE /* BoardSettingTitleCell.swift */,
+				1847ADB424A1FB2A007B39EE /* BoardSettingButtonCell.swift */,
+				1847ADB624A20B50007B39EE /* BoardIconView.swift */,
+			);
+			path = Cells;
 			sourceTree = "<group>";
 		};
 		1865AEF0244C5D4E0006B48D /* Extensions */ = {
@@ -618,6 +651,7 @@
 		18E7BF7E248BD4D400B8AEC1 /* Board */ = {
 			isa = PBXGroup;
 			children = (
+				1847ADAA24A1EE2F007B39EE /* Setting */,
 				18B0D285248E19C60082ACF6 /* Category */,
 				18E7BF8F248C9B4F00B8AEC1 /* Emoji */,
 				18E7BF84248C8DC900B8AEC1 /* Views */,
@@ -921,6 +955,7 @@
 				1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */,
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
+				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
@@ -933,6 +968,7 @@
 				1865AF12244D63700006B48D /* Ditionary+Ex.swift in Sources */,
 				18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */,
 				1820C4A2248CE35000484AF8 /* EmojiSectionHeaderView.swift in Sources */,
+				1847ADB124A1F62B007B39EE /* BoardIconCell.swift in Sources */,
 				188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */,
 				18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */,
 				18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */,
@@ -947,6 +983,7 @@
 				182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */,
 				18E7BF93248C9C5000B8AEC1 /* BoardCategoryViewController.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
+				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				1859A0FE248689B1008D51B4 /* BoardDao.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
@@ -954,9 +991,11 @@
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
 				181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */,
 				181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */,
+				1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */,
 				181D63DE248A256300B34E20 /* BoardCategoryDao.swift in Sources */,
 				181D63DA248A226D00B34E20 /* BoardCategory.swift in Sources */,
 				18E6E668247B98A100D598C5 /* Board.swift in Sources */,
+				1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
@@ -975,6 +1014,7 @@
 				1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */,
 				182BE8FB249A13E500C85F8F /* ChooseBoardViewController.swift in Sources */,
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
+				1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
 				186DDE7C249261D600A4C63C /* TrashView.swift in Sources */,

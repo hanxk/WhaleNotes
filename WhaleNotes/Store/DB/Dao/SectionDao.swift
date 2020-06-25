@@ -39,6 +39,12 @@ class SectionDao {
         return rows > 0
     }
     
+    func deleteByBoardId(boardId: Int64) throws -> Int {
+        let sectionData = table.filter(Field_Section.boardId == boardId)
+        let rows = try db.run(sectionData.delete())
+        return rows
+    }
+    
     func query(boardId:Int64) throws -> [Section] {
         var sections:[Section] = []
         let query = table.filter(Field_Section.boardId == boardId).order(Field_Section.sort.asc)

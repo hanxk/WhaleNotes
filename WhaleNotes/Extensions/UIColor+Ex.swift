@@ -32,7 +32,7 @@ extension UIColor {
     }
     open class var primaryText2: UIColor {
          get {
-             return UIColor(named: "PrimaryText2")!
+             return UIColor(hexString: "#333333")
          }
      }
     

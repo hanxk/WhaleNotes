@@ -381,7 +381,7 @@ extension DBStore {
                     if boards.contains(where: {$0.id == oldBoard.id}) {
                         continue
                     }
-                    isSuccess = try sectionNoteDao.deleteByBoardId(oldBoard.id, noteId: note.id, sectionTable: sectionDao.table)
+                    isSuccess = try sectionNoteDao.deleteByBoardId(oldBoard.id, noteId: note.id)
                     if !isSuccess  { break }
                 }
                 
@@ -470,6 +470,7 @@ extension DBStore {
             return DBResult<Bool>.failure(DBError(code: .None))
         }
     }
+    
     
     
     func getBoardCategoryInfos() -> DBResult<[BoardCategoryInfo]>  {
@@ -634,6 +635,40 @@ extension DBStore {
         } catch let err {
             print(err)
             return DBResult<[Section]>.failure(DBError(code: .None))
+        }
+    }
+}
+
+//MARK: Board
+extension DBStore {
+    func deleteBoard(boardId:Int64) -> DBResult<Bool> {
+        do {
+            try db.transaction {
+                // 获取 image block
+                let imageBocks = try blockDao.query(boardId:boardId, type: BlockType.image.rawValue)
+                
+                // 删除 所有block
+                _ = try blockDao.deleteByBoardId(boardId:boardId)
+                
+                // 删除 section note
+                _  = try sectionNoteDao.deleteByBoardId(boardId)
+                
+                // 删除 section
+                _ = try sectionDao.deleteByBoardId(boardId: boardId)
+                
+                // 删除 board
+                _ = try boardDao.delete(boardId)
+                
+                // 删除文件资源
+                try imageBocks.forEach {
+                    let path =  ImageUtil.sharedInstance.filePath(imageName: $0.source)
+                    try FileManager.default.removeItem(at:path)
+                }
+            }
+            return DBResult<Bool>.success(true)
+        } catch let err {
+            print(err)
+            return DBResult<Bool>.failure(DBError(code: .None))
         }
     }
 }

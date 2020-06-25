@@ -22,7 +22,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private lazy var disposeBag = DisposeBag()
     
     private var contentView:UIView?
-    private var sideMenuItemType:SideMenuItemType! {
+    private var sideMenuItemType:SideMenuItem! {
         didSet {
             if oldValue == sideMenuItemType {
                 return
@@ -33,6 +33,11 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private let titleButton:HomeTitleView = HomeTitleView()
     
+    
+    private lazy var sideMenuViewController = SideMenuViewController().then {
+        $0.delegate = self
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setup()
@@ -42,6 +47,23 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.view.backgroundColor = .bg
+        
+        titleButton.callbackTapped = {
+            if case .board(let board) = self.sideMenuItemType {
+                let settingVC = BoardSettingViewController()
+                settingVC.board = board
+                settingVC.callbackBoardSettingEdited = { boardEditedType in
+                    switch boardEditedType {
+                    case .update(let board):
+                        self.handleBoardUpdated(board: board)
+                    case .delete(let board):
+                        self.handleBoardDeleted(board: board)
+                    }
+                }
+                self.present(MyNavigationController(rootViewController: settingVC), animated: true, completion: nil)
+            }
+            
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -57,6 +79,23 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
 }
 
+
+//MARK: board edited
+extension HomeViewController {
+    private func handleBoardUpdated(board:Board) {
+        self.sideMenuItemType = SideMenuItem.board(board: board)
+        titleButton.setTitle(board.title,emoji: board.icon)
+        
+        self.sideMenuViewController.boardIsUpdated(board:board)
+        
+    }
+    
+    private func handleBoardDeleted(board:Board) {
+//        titleButton.setTitle(board.title,emoji: board.icon)
+        self.sideMenuViewController.boardIsDeleted(board: board)
+    }
+}
+
 //MARK: content view
 extension HomeViewController {
     
@@ -66,9 +105,11 @@ extension HomeViewController {
         
         switch sideMenuItemType {
             case .board(let board):
+                titleButton.isEnabled = true
                 self.setupBoardView(board:board)
                 break
             case .system(let systemMenu):
+                titleButton.isEnabled = false
                 self.setupSystemMenu(systemMenu: systemMenu)
                 break
         }
@@ -88,6 +129,7 @@ extension HomeViewController {
         if board.type == BoardType.user.rawValue {
             titleButton.setTitle(board.title,emoji: board.icon)
         }
+        
     }
     
     func setupSystemMenu(systemMenu: MenuSystemItem) {
@@ -133,7 +175,6 @@ extension HomeViewController {
 //        self.navigationItem.title = "东京旅行"
 //        self.navigationItem.largeTitleDisplayMode = .automatic
         self.navigationItem.leftBarButtonItems = [barButton]
-        
         self.navigationItem.titleView = titleButton
         
         if let titleView = self.navigationItem.titleView  {
@@ -161,10 +202,6 @@ extension HomeViewController {
             present(vc, animated: true, completion: nil)
         }
     }
-    
-
-    
-    
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {
         let modes: [SideMenuPresentationStyle] = [.menuSlideIn, .viewSlideOut, .viewSlideOutMenuIn, .menuDissolveIn]
         return modes[2]
@@ -192,8 +229,6 @@ extension HomeViewController {
         let settings = makeSettings()
         
         // Define the menus
-        let sideMenuViewController = SideMenuViewController()
-        sideMenuViewController.delegate = self
         
         let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
         leftMenuNavigationController.leftSide = true
@@ -212,9 +247,9 @@ extension HomeViewController {
 
 extension HomeViewController:SideMenuViewControllerDelegate {
     
-    func sideMenuItemSelected(menuItemType: SideMenuItemType) {
+    func sideMenuItemSelected(menuItemType: SideMenuItem) {
         self.sideMenuItemType = menuItemType
-        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
+//        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
     }
     //    func sideMenuSystemItemSelected(menuSystem: MenuSystemItem) {
     //        self.title = menuSystem.title

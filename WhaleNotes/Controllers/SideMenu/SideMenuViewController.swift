@@ -16,18 +16,18 @@ enum SideMenuCellContants {
 }
 
 protocol SideMenuViewControllerDelegate: AnyObject {
-    func sideMenuItemSelected(menuItemType:SideMenuItemType)
+    func sideMenuItemSelected(menuItemType:SideMenuItem)
 }
 
-enum SideMenuItemType:Equatable {
+enum SideMenuItem:Equatable {
     
     case system(menuInfo:MenuSystemItem)
     case board(board:Board)
     
-    static func == (lhs: SideMenuItemType, rhs: SideMenuItemType) -> Bool {
+    static func == (lhs: SideMenuItem, rhs: SideMenuItem) -> Bool {
         switch (lhs,rhs)  {
         case (.system(let lmenu),.system(let rmenu) ):
-            return  lmenu.id == rmenu.id
+            return  lmenu == rmenu
         case (.system,.board):
             return false
         case (.board(let board),.board(let board2)):
@@ -37,12 +37,6 @@ enum SideMenuItemType:Equatable {
         }
     }
 }
-
-//struct SystemMenuInfo {
-//    let title:String
-//    let icon:String
-//
-//}
 
 class SideMenuViewController: UIViewController {
     
@@ -58,6 +52,20 @@ class SideMenuViewController: UIViewController {
     
     var sectionSpecial = -1
     
+    private var deletedBoard: Board?
+    private var updatedBoard: Board?
+    
+    private var selectedMenuItem:SideMenuItem! {
+        
+        didSet {
+            if oldValue != selectedMenuItem {
+                delegate?.sideMenuItemSelected(menuItemType: selectedMenuItem)
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+        
+    }
+    
     private lazy var bottomView:SideMenuBottomView = SideMenuBottomView().then {
         
         $0.callbackNewBlock = { sender in
@@ -66,7 +74,7 @@ class SideMenuViewController: UIViewController {
                 ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
             ]
             ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
-                 vc.dismiss(animated: true, completion: nil)
+                vc.dismiss(animated: true, completion: nil)
                 guard let self = self,let flag = menuItem.tag as? Int else { return }
                 if flag == 1 {
                     BoardEditAlertViewController.showModel(vc: self) { emoji,title in
@@ -121,17 +129,26 @@ class SideMenuViewController: UIViewController {
     }
     private let sectionCategoryBeginIndex = 2
     
-    private var selectedIndexPath:IndexPath = IndexPath(row: 0, section: 0)
-    
     private lazy var cellSelectedBackgroundView = SideMenuViewController.generateCellSelectedView()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-//        self.loadBoards()
         self.tableView.reloadData()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if let deletedBoard = deletedBoard {
+            self.deletedBoard = nil
+            self.handleDeleteBoard(board: deletedBoard)
+        }else if let updatedBoard = updatedBoard {
+            self.updatedBoard = nil
+            self.handleUpdateBoard(board: updatedBoard)
+        }
     }
     
     private func setupUI() {
@@ -170,10 +187,11 @@ class SideMenuViewController: UIViewController {
         menuSectionTypes.removeAll()
         
         let systemMenuItems =    [
-                MenuSystemItem.board(board: boardsResult.0.0[0]),
-               MenuSystemItem.trash(icon: "trash", title: "废纸篓")
-           ]
+            MenuSystemItem.board(board: boardsResult.0.0[0]),
+            MenuSystemItem.trash(icon: "trash", title: "废纸篓")
+        ]
         self.systemMenuItems = systemMenuItems
+        
         
         menuSectionTypes.append(MenuSectionType.system(items:self.systemMenuItems))
         
@@ -185,8 +203,7 @@ class SideMenuViewController: UIViewController {
         for _ in 0..<self.boardCategories.count {
             menuSectionTypes.append(MenuSectionType.categories)
         }
-        
-        setMenuItemSelected()
+        self.selectedMenuItem =  SideMenuItem.system(menuInfo: systemMenuItems[0])
     }
     
 }
@@ -237,7 +254,7 @@ extension SideMenuViewController {
             ContextMenuItem(label: "删除分类", icon: "trash",tag:TAG_DEL)
         ]
         ContextMenuViewController.show(sourceView:sourceView, sourceVC: self, items: items) { [weak self] menuItem, vc in
-             vc.dismiss(animated: true, completion: nil)
+            vc.dismiss(animated: true, completion: nil)
             guard let self = self,let tag = menuItem.tag as? Int else { return }
             switch tag {
             case TAG_ADD:
@@ -341,14 +358,6 @@ extension SideMenuViewController {
             updatedRowsIndexPath.append(IndexPath(row: index, section: 1))
         }
         
-        
-        // 更新  indexpath
-        if self.selectedIndexPath.section == section {
-            let selectedBoard = boardCategoryInfo.boards[self.selectedIndexPath.row-1]
-            guard let newRow = self.boards.firstIndex(where: {$0.id == selectedBoard.id}) else { return }
-            self.selectedIndexPath = IndexPath(row: newRow, section: 1)
-        }
-        
         self.tableView.performBatchUpdates({
             self.tableView.deleteSections(IndexSet([2+categoryIndex]), with: .automatic)
             self.tableView.insertRows(at: updatedRowsIndexPath, with: .automatic)
@@ -360,6 +369,70 @@ extension SideMenuViewController {
             category.isExpand = !category.isExpand
             self.updateBoardCayegory(newBoardCategory: category)
         }
+    }
+    
+}
+
+extension SideMenuViewController {
+    
+    func boardIsUpdated(board:Board) {
+        self.updatedBoard = board
+    }
+    
+    func boardIsDeleted(board:Board) {
+        self.deletedBoard = board
+        setSelected(indexPath: IndexPath(row: 0, section: 0))
+    }
+    
+    private func handleUpdateBoard(board:Board) {
+        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
+        if indexPath.section == 1{
+            self.boards[indexPath.row] = board
+        }else {
+            self.boardCategories[indexPath.section - self.sectionCategoryBeginIndex].boards[indexPath.row-1] = board
+        }
+        
+        UIView.performWithoutAnimation {
+            self.tableView.performBatchUpdates({
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            }, completion: nil)
+        }
+        
+    }
+    
+    private func handleDeleteBoard(board:Board) {
+        
+        
+        setSelected(indexPath: IndexPath(row: 0, section: 0))
+        
+        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
+        if indexPath.section == 1{
+            self.boards.remove(at: indexPath.row)
+        }else {
+            self.boardCategories[indexPath.section - self.sectionCategoryBeginIndex].removeBoard(index: indexPath.row-1)
+        }
+        
+        
+        UIView.performWithoutAnimation {
+            self.tableView.performBatchUpdates({
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+            }, completion: nil)
+        }
+    }
+    
+    private func getBoardIndexPath(board:Board) -> IndexPath?{
+        var indexPath:IndexPath?
+        if let index = self.boards.firstIndex(where: {$0.id == board.id}) {
+            indexPath = IndexPath(row: index, section: 1)
+        }else {
+            for (_,category) in self.boardCategories.enumerated() {
+                if let row = category.boards.firstIndex(where: {$0.id == board.id}) {
+                    indexPath = IndexPath(row: row+1, section: getSectionIndex(categoryId: category.category.id))
+                    break
+                }
+            }
+        }
+        return indexPath
     }
 }
 
@@ -392,8 +465,6 @@ extension SideMenuViewController {
             DispatchQueue.main.asyncAfter(deadline: delayTime) {
                 
                 let insertIndexPath =  IndexPath(row: 1, section: section)
-                self.tryUpdateNewIndexPath(insertIndexPath: insertIndexPath)
-                
                 self.boardCategories[categoryIndex].boards.insert(insertedBoard, at: 0)
                 self.tableView.performBatchUpdates({
                     self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
@@ -402,40 +473,55 @@ extension SideMenuViewController {
             return
         }
         let insertIndexPath = IndexPath(row: 0, section: 1)
-        self.tryUpdateNewIndexPath(insertIndexPath: insertIndexPath)
         self.boards.insert(insertedBoard, at: 0)
         self.tableView.performBatchUpdates({
             self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
         })
     }
     
-    func tryUpdateNewIndexPath(insertIndexPath:IndexPath) {
-        if self.selectedIndexPath.section == insertIndexPath.section {
-            self.selectedIndexPath = IndexPath(row: self.selectedIndexPath.row+1,section: insertIndexPath.section)
-        }
-    }
     
     func setSelected(indexPath: IndexPath) {
-        let oldIndexPath =  self.selectedIndexPath
+        
         var updatedIndexPaths:[IndexPath]   = []
-        
-        if tableView.cellForRow(at: oldIndexPath) != nil {
-            updatedIndexPaths.append(oldIndexPath)
+        if let sideMenuItem = self.selectedMenuItem,
+        let oldSelectedIndexPath = findSideMenuItemIndex(sideMenuItem: sideMenuItem) {
+            updatedIndexPaths.append(oldSelectedIndexPath)
         }
         
-        self.selectedIndexPath = indexPath
-        if tableView.cellForRow(at: self.selectedIndexPath) != nil {
-            updatedIndexPaths.append( self.selectedIndexPath)
-        }
-        
-        if updatedIndexPaths.isEmpty { return }
-        
-        
-        self.setMenuItemSelected()
+        self.selectedMenuItem = findSideMenuItem(indexPath: indexPath)
+        updatedIndexPaths.append(indexPath)
         
         self.tableView.performBatchUpdates({
             self.tableView.reloadRows(at: updatedIndexPaths, with: .none)
         }, completion: nil)
+    }
+    
+    
+    private func isSideMenuSelected(indexPath: IndexPath) -> Bool {
+        return self.selectedMenuItem == findSideMenuItem(indexPath: indexPath)
+    }
+    
+    func findSideMenuItem(indexPath: IndexPath) -> SideMenuItem {
+        let sectionType = self.menuSectionTypes[indexPath.section]
+        switch sectionType {
+        case .system(let items):
+            return SideMenuItem.system(menuInfo: items[indexPath.row])
+        case .boards:
+            return SideMenuItem.board(board: self.boards[indexPath.row])
+        case .categories:
+            let board = getBoardCategoryInfo(section:indexPath.section).boards[indexPath.row-1]
+            return SideMenuItem.board(board: board)
+        }
+    }
+    
+    func findSideMenuItemIndex(sideMenuItem:SideMenuItem) -> IndexPath? {
+        switch sideMenuItem {
+        case .system(let sysMenuInfo):
+            guard let index = self.systemMenuItems.firstIndex(where: {$0 == sysMenuInfo}) else { return nil }
+            return IndexPath(row: index, section: 0)
+        case .board(let board):
+            return getBoardIndexPath(board: board)
+        }
     }
     
     func updateBoard(newBoard:Board,callback:(()->Void)? = nil) {
@@ -452,7 +538,7 @@ extension SideMenuViewController {
             .disposed(by: disposeBag)
     }
     
-    func handleBoardUpdated(board: Board) {
+    private func updateBoardDataSource(board: Board) {
         if board.categoryId == 0 {
             if let boardIndex = self.boards.firstIndex(where: {$0.id == board.id}) {
                 let isSortUpdate =  self.boards[boardIndex].sort != board.sort
@@ -588,10 +674,6 @@ extension SideMenuViewController {
         
         self.updateBoard(newBoard: fromBoard)
         
-        //        let insertIndexPath = IndexPath(row: insertRow, section: toSection)
-        
-        
-        
     }
     
     private func pringBoards(boards:[Board]) {
@@ -611,12 +693,12 @@ extension SideMenuViewController:UITableViewDelegate {
         case .system(let items):
             let sysCell = cell as! MenuSystemCell
             sysCell.menuSysItem = items[indexPath.row]
-            sysCell.cellIsSelected = selectedIndexPath == indexPath
+            sysCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
             break
         case .boards:
             let boardCell = cell as! MenuBoardCell
             boardCell.board = self.boards[indexPath.row]
-            boardCell.cellIsSelected = selectedIndexPath == indexPath
+            boardCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
             break
         case .categories:
             if indexPath.row == 0 {
@@ -629,11 +711,12 @@ extension SideMenuViewController:UITableViewDelegate {
             }else {
                 let boardCell = cell as! MenuBoardCell
                 boardCell.board = self.boardCategories[indexPath.section-2].boards[indexPath.row-1]
-                boardCell.cellIsSelected = selectedIndexPath == indexPath
+                boardCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
             }
         }
         return cell
     }
+    
     
     private func getCellIdentifier(sectionType:MenuSectionType,indexPath:IndexPath) -> String {
         switch sectionType {
@@ -686,11 +769,6 @@ extension SideMenuViewController:UITableViewDelegate {
             swapRowCrossSection(fromSection: fromSection, toSection: toSection, fromRow: fromRow, toRow: toRow)
         }else {
             swapRowInSameSection(section: fromSection, fromRow: fromRow, toRow: toRow)
-        }
-        
-        
-        if self.selectedIndexPath == sourceIndexPath {
-            self.selectedIndexPath = destinationIndexPath
         }
     }
     
@@ -825,25 +903,6 @@ extension SideMenuViewController: UITableViewDataSource {
             break
         }
     }
-    
-    func setMenuItemSelected() {
-        let sectionType = self.menuSectionTypes[selectedIndexPath.section]
-        switch sectionType {
-        case .system(let items):
-//            switch items[selectedIndexPath.row] {
-//            case .system(let board):
-//                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: board))
-//            case .trash:
-//                delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.trash)
-//            }
-            delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.system(menuInfo: items[selectedIndexPath.row]))
-        case .boards:
-            delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: self.boards[selectedIndexPath.row]))
-        case .categories:
-            let board = getBoardCategoryInfo(section: selectedIndexPath.section).boards[selectedIndexPath.row-1]
-            delegate?.sideMenuItemSelected(menuItemType: SideMenuItemType.board(board: board))
-        }
-    }
 }
 
 
@@ -871,9 +930,22 @@ fileprivate enum CellReuseIdentifier: String {
     case category = "category"
 }
 
-enum MenuSystemItem {
+enum MenuSystemItem:Equatable {
     case board(board: Board)
     case trash(icon:String,title:String)
+    
+    static func == (lhs: MenuSystemItem, rhs: MenuSystemItem) -> Bool {
+        switch (lhs,rhs)  {
+        case (.board(let lmenu),.board(let rmenu) ):
+            return  lmenu.id == rmenu.id
+        case (.board,.trash):
+            return false
+        case (.trash,.trash):
+            return true
+        case (.trash(icon:  _, title:  _), .board(board: _)):
+            return false
+        }
+    }
     
     var icon:String {
         switch self {
@@ -884,17 +956,8 @@ enum MenuSystemItem {
         }
     }
     
-    var id:Int64 {
-        switch self {
-        case .board(let board):
-            return board.id
-        case .trash:
-            return -1
-        }
-    }
-    
     var iconImage:UIImage? {
-         return UIImage(systemName: icon, pointSize: 15, weight: .regular)
+        return UIImage(systemName: icon, pointSize: 15, weight: .regular)
     }
     
     var title:String {

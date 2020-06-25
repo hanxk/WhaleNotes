@@ -50,6 +50,20 @@ class BoardRepo {
                  .observeOn(MainScheduler.instance)
     }
     
+    func deleteBoard(boardId: Int64) ->  Observable<Bool>  {
+       return Observable<Int64>.just(boardId)
+                  .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+                  .map({(boardId)  -> Bool in
+                      let result =  DBStore.shared.deleteBoard(boardId: boardId)
+                      switch result {
+                      case .success(let isSuccess):
+                          return isSuccess
+                      case .failure(let err):
+                          throw err
+                      }
+                  })
+                  .observeOn(MainScheduler.instance)
+    }
     
     func deleteBoardCategory(boardCategoryInfo: BoardCategoryInfo) ->  Observable<Bool>  {
            return Observable<BoardCategoryInfo>.just(boardCategoryInfo)
