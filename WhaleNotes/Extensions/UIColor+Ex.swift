@@ -56,11 +56,6 @@ extension UIColor {
     }
     
     
-    open class var bg: UIColor {
-        get {
-            return UIColor.init(hexString: "#EFEFEF")
-        }
-    }
     
     
     open class var tappedColor: UIColor {
@@ -118,6 +113,13 @@ extension UIColor {
 
 // sidebar
 extension UIColor {
+    
+    // OLD: #EFEFEF
+    open class var bg: UIColor {
+        get {
+            return UIColor.init(hexString: "#F2F2F2")
+        }
+    }
     
     open class var sidemenuBg: UIColor {
         get {

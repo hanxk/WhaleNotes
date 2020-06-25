@@ -159,7 +159,9 @@ extension HomeViewController {
     
     private func setupNavgationBar() {
         let button =  UIButton()
-        button.frame = CGRect(x: 0, y: 0, width: 24, height: 44)
+        button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+//        button.backgroundColor = .red
+        button.contentHorizontalAlignment = .leading
         button.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         let barButton = UIBarButtonItem(customView: button)
@@ -192,16 +194,16 @@ extension HomeViewController {
     
     func makeSettings() -> SideMenuSettings {
         let presentationStyle = selectedPresentationStyle()
-        presentationStyle.backgroundColor = .white
+//        presentationStyle.backgroundColor = .white
         //        presentationStyle.menuStartAlpha = CGFloat(menuAlphaSlider.value)
         //        presentationStyle.menuScaleFactor = CGFloat(menuScaleFactorSlider.value)
         //        presentationStyle.onTopShadowOpacity = shadowOpacitySlider.value
-        presentationStyle.presentingEndAlpha = 0.1
+//        presentationStyle.presentingEndAlpha = 0.1
         //        presentationStyle.presentingScaleFactor = CGFloat(presentingScaleFactorSlider.value)
         var settings = SideMenuSettings()
         settings.presentationStyle = presentationStyle
         settings.menuWidth = view.frame.width - 52
-        settings.statusBarEndAlpha = 0.1
+        settings.statusBarEndAlpha = 0
         //        let styles:[UIBlurEffect.Style?] = [nil, .dark, .light, .extraLight]
         //        settings.blurEffectStyle = styles[blurSegmentControl.selectedSegmentIndex
         

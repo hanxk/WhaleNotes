@@ -156,6 +156,8 @@ class BoardSettingViewController:UIViewController {
                         Logger.error(err)
                 })
                 .disposed(by: disposeBag)
+        }else {
+            self.dismiss(animated: true, completion: nil)
         }
     }
     

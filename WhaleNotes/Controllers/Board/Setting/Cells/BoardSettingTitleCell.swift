@@ -17,7 +17,7 @@ class BoardSettingTitleCell: UITableViewCell {
         $0.placeholder = "输入名称"
         $0.clearButtonMode = .whileEditing
         $0.returnKeyType = .done
-//        $0.delegate = self
+        $0.delegate = self
         $0.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
 
     }
@@ -54,19 +54,9 @@ class BoardSettingTitleCell: UITableViewCell {
 }
 
 extension BoardSettingTitleCell: UITextFieldDelegate {
-  
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        
-        return true
-    }
-    
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        let title = textField.text?.trimmingCharacters(in: .whitespaces) ?? ""
-        callbackTitleChanged?(title)
-        return true
-    }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+           return true
     }
 }
