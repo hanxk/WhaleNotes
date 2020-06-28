@@ -47,6 +47,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.view.backgroundColor = .bg
+        self.extendedLayoutIncludesOpaqueBars = true
         
         titleButton.callbackTapped = {
             if case .board(let board) = self.sideMenuItemType {
@@ -177,7 +178,7 @@ extension HomeViewController {
         }
         
         let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
-        let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: nil)
+        let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
 //        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItems = [search]
     }
@@ -187,6 +188,18 @@ extension HomeViewController {
             present(vc, animated: true, completion: nil)
         }
     }
+    
+    @objc func handleShowSearchbar() {
+        let vc = SearchViewController()
+        vc.callbackOpenBoard = { [weak self] board in
+            self?.sideMenuViewController.setBoardSelected(board: board)
+        }
+        let navVC = MyNavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+        navVC.modalTransitionStyle = .crossDissolve
+        self.navigationController?.present(navVC, animated: true, completion: nil)
+    }
+    
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {
         let modes: [SideMenuPresentationStyle] = [.menuSlideIn, .viewSlideOut, .viewSlideOutMenuIn, .menuDissolveIn]
         return modes[2]
@@ -194,11 +207,11 @@ extension HomeViewController {
     
     func makeSettings() -> SideMenuSettings {
         let presentationStyle = selectedPresentationStyle()
-//        presentationStyle.backgroundColor = .white
+        presentationStyle.backgroundColor = .bg
         //        presentationStyle.menuStartAlpha = CGFloat(menuAlphaSlider.value)
         //        presentationStyle.menuScaleFactor = CGFloat(menuScaleFactorSlider.value)
         //        presentationStyle.onTopShadowOpacity = shadowOpacitySlider.value
-//        presentationStyle.presentingEndAlpha = 0.1
+        presentationStyle.presentingEndAlpha = 0.2
         //        presentationStyle.presentingScaleFactor = CGFloat(presentingScaleFactorSlider.value)
         var settings = SideMenuSettings()
         settings.presentationStyle = presentationStyle

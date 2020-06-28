@@ -38,34 +38,34 @@ class NoteRepo {
     }
     
     func deleteNote(noteId: Int64) -> Observable<Bool> {
-         return Observable<Int64>.just(noteId)
-             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-             .map({(noteId)  -> Bool in
-                 let result =  DBStore.shared.deleteNoteBlock(noteBlockId: noteId)
-                 switch result {
-                 case .success(let isSuccess):
-                     return isSuccess
-                 case .failure(let err):
-                     throw err
-                 }
-             })
-             .observeOn(MainScheduler.instance)
-     }
+        return Observable<Int64>.just(noteId)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(noteId)  -> Bool in
+                let result =  DBStore.shared.deleteNoteBlock(noteBlockId: noteId)
+                switch result {
+                case .success(let isSuccess):
+                    return isSuccess
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
     
-     func deleteNotes(noteIds: [Int64]) -> Observable<Bool> {
-          return Observable<[Int64]>.just(noteIds)
-              .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-              .map({(noteIds)  -> Bool in
-                  let result =  DBStore.shared.deleteNoteBlocks(noteBlockIds: noteIds)
-                  switch result {
-                  case .success(let isSuccess):
-                      return isSuccess
-                  case .failure(let err):
-                      throw err
-                  }
-              })
-              .observeOn(MainScheduler.instance)
-      }
+    func deleteNotes(noteIds: [Int64]) -> Observable<Bool> {
+        return Observable<[Int64]>.just(noteIds)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(noteIds)  -> Bool in
+                let result =  DBStore.shared.deleteNoteBlocks(noteBlockIds: noteIds)
+                switch result {
+                case .success(let isSuccess):
+                    return isSuccess
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
     
     
     func updateBlock(block:Block) -> Observable<Block> {
@@ -168,17 +168,17 @@ class NoteRepo {
                 case .success(let blocks):
                     return blocks
                 case .failure(let err):
-                   throw err
+                    throw err
                 }
             })
             .observeOn(MainScheduler.instance)
-             .subscribe(onNext:{
+            .subscribe(onNext:{
                 success($0)
             }, onError: {
                 Logger.error($0)
                 failed()
             }, onCompleted: nil, onDisposed: nil)
-        .disposed(by: disposebag)
+            .disposed(by: disposebag)
     }
     
     func createImageBlocks(noteId:Int64,image: UIImage,success:@escaping ((Block)->Void),failed:@escaping()->Void) {
@@ -196,16 +196,16 @@ class NoteRepo {
                 throw DBError(code: .None, message: "createImageBlocks error")
             })
             .map({ (imageBlock) -> Block in
-                   let result = DBStore.shared.createBlock(block: imageBlock)
-                   switch result {
-                   case .success(let blocks):
-                       return blocks
-                   case .failure(let err):
-                      throw err
-                   }
+                let result = DBStore.shared.createBlock(block: imageBlock)
+                switch result {
+                case .success(let blocks):
+                    return blocks
+                case .failure(let err):
+                    throw err
+                }
             })
             .observeOn(MainScheduler.instance)
-             .subscribe(onNext:{
+            .subscribe(onNext:{
                 success($0)
             }, onError: {
                 Logger.error($0)
@@ -268,4 +268,21 @@ extension NoteRepo {
             })
             .observeOn(MainScheduler.instance)
     }
+    
+    
+    func searchNotes(keyword:String) -> Observable<[Note]> {
+        return Observable<String>.just(keyword)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(keyword)  -> [Note] in
+                let result =  DBStore.shared.searchNotes(keyword: keyword)
+                switch result {
+                case .success(let notes):
+                    return notes
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
+    
 }

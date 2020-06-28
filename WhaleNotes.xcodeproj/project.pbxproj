@@ -99,6 +99,8 @@
 		18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E676247BBDBF00D598C5 /* BlockDao.swift */; };
 		18E6E67B247BCCD700D598C5 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E67A247BCCD700D598C5 /* Note.swift */; };
 		18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */; };
+		18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7664024A5CD8E005DCB03 /* SearchViewController.swift */; };
+		18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7664224A5D3B2005DCB03 /* SearchNotesView.swift */; };
 		18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7BF76248BAB9D00B8AEC1 /* MenuHeaderView.swift */; };
 		18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7BF78248BAEB300B8AEC1 /* SideMenuBottomView.swift */; };
 		18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7BF7A248BC7B900B8AEC1 /* UIButton+Ex.swift */; };
@@ -224,6 +226,8 @@
 		18E6E676247BBDBF00D598C5 /* BlockDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDao.swift; sourceTree = "<group>"; };
 		18E6E67A247BCCD700D598C5 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveNotesViewController.swift; sourceTree = "<group>"; };
+		18E7664024A5CD8E005DCB03 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		18E7664224A5D3B2005DCB03 /* SearchNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchNotesView.swift; sourceTree = "<group>"; };
 		18E7BF76248BAB9D00B8AEC1 /* MenuHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHeaderView.swift; sourceTree = "<group>"; };
 		18E7BF78248BAEB300B8AEC1 /* SideMenuBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuBottomView.swift; sourceTree = "<group>"; };
 		18E7BF7A248BC7B900B8AEC1 /* UIButton+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Ex.swift"; sourceTree = "<group>"; };
@@ -658,6 +662,15 @@
 			path = ArchiveNotes;
 			sourceTree = "<group>";
 		};
+		18E7663F24A5CD77005DCB03 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				18E7664024A5CD8E005DCB03 /* SearchViewController.swift */,
+				18E7664224A5D3B2005DCB03 /* SearchNotesView.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
 		18E7BF7E248BD4D400B8AEC1 /* Board */ = {
 			isa = PBXGroup;
 			children = (
@@ -741,6 +754,7 @@
 		18E956882449AABA003755BF /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				18E7663F24A5CD77005DCB03 /* Search */,
 				18E7663C24A46F5D005DCB03 /* ArchiveNotes */,
 				186DDE7A249261C900A4C63C /* Trash */,
 				183FFA9E2469533C00FDA179 /* ContextMenu */,
@@ -967,11 +981,13 @@
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
 				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
+				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
+				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,

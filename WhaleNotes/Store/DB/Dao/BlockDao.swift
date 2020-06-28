@@ -158,26 +158,23 @@ class BlockDao {
     }
     
     
-    //    section_note on (section_note.note_id = block.id and section_note.)  ,noteBlockStatus: NoteBlockStatus = NoteBlockStatus.normal
-    //                       inner join section on
-    
-    //    func deleteTrashBlockss() {
-    //        // 删除子 block
-    //
-    //        // 删除 noteblock
-    //
-    //        // 删除
-    //       let selectSQL = """
-    //                   select b.id, b.type, b.text,section.sort as sort,b.is_checked,b.is_expand,b.source,b.created_at,b.updated_at,
-    //                   b.note_id,b.parent,b.status,b.properties,section.section_id
-    //                   from block as b
-    //                   inner join (
-    //                       select section_note.note_id, section_note.sort,section_note.section_id from section_note
-    //                       inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
-    //                   ) as section
-    //                   on (b.id = section.note_id  and b.status = \(status)) order by b.sort asc
-    //                   """
-    //    }
+    func searchNoteBlocks(keyword: String) throws -> [Block] {
+        let selectSQL = """
+        select * from block where type = 'note' and (
+            id in ( select note_id from block where text like '%\(keyword)%')
+            or
+            text like '%\(keyword)%'
+        )
+        """
+        let stmt = try db.prepare(selectSQL)
+        let rows = stmt.typedRows()
+        var blocks:[Block] = []
+        for row in rows {
+            let block = generateBlock(row: row)
+            blocks.append(block)
+        }
+        return blocks
+    }
     
     
     func queryNoteBlocksByBoardId(_ boardId:Int64 ,noteBlockStatus: NoteBlockStatus) throws -> [(Int64,Block)] {

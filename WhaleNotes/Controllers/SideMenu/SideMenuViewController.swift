@@ -383,6 +383,12 @@ extension SideMenuViewController {
         setSelected(indexPath: IndexPath(row: 0, section: 0))
     }
     
+    func setBoardSelected(board:Board) {
+        if let indexPath = getBoardIndexPath(board: board) {
+            setSelected(indexPath: indexPath)
+        }
+    }
+    
     private func handleUpdateBoard(board:Board) {
         guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
         if indexPath.section == 1{

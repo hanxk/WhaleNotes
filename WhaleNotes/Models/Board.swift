@@ -8,7 +8,7 @@
 import Foundation
 
 // 记事板
-struct Board {
+struct Board: Hashable {
     var id:Int64 = 0
     var icon:String
     var title:String

@@ -14,27 +14,29 @@ protocol NoteCellNodeDelegate:AnyObject {
     func noteCellMenuTapped(sender:UIView,note:Note)
 }
 
+enum NoteCellConstants {
+    static let horizontalPadding: CGFloat = 10
+    static let verticalPadding: CGFloat = 10
+    static let verticalPaddingBottom: CGFloat = 4
+    static let attachHeigh: CGFloat = 74
+    
+    static let contentVerticalSpacing: CGFloat = 2
+    
+    static let todoHeight:CGFloat = 22
+    static let todoVSpace:CGFloat = 0
+    static let todoTextSpace:CGFloat = 2
+    static let todoImageSize: CGFloat = 14
+    static let todoTextSize: CGFloat = 14
+    
+    static let bottomHeight: CGFloat = 30
+    
+    static let boardHeight: CGFloat = 32
+    
+    static let imageHeight: CGFloat = 74
+}
+
 class NoteCellNode: ASCellNode {
     
-    private enum Constants {
-        static let horizontalPadding: CGFloat = 10
-        static let verticalPadding: CGFloat = 10
-        static let verticalPaddingBottom: CGFloat = 4
-        static let attachHeigh: CGFloat = 74
-        
-        static let contentVerticalSpacing: CGFloat = 2
-        
-        static let todoHeight:CGFloat = 22
-        static let todoVSpace:CGFloat = 0
-        static let todoTextSpace:CGFloat = 2
-        static let todoImageSize: CGFloat = 14
-        static let todoTextSize: CGFloat = 14
-        
-        static let bottomHeight: CGFloat = 30
-        
-        
-        static let imageHeight: CGFloat = 74
-    }
     
     weak var delegate:NoteCellNodeDelegate?
     
@@ -56,36 +58,51 @@ class NoteCellNode: ASCellNode {
     
     var note:Note!
     
+    var cardbackground:ASDisplayNode!
+    
+    var callbackBoardButtonTapped:((Note)->Void)?
+    
+    
+    var boardButton:ASButtonNode?
+    
+    var itemSize:CGSize!
+    
     func setupBackBackground() {
-        self.backgroundColor = UIColor(hexString: note.backgroundColor)
+        self.cardbackground.backgroundColor = UIColor(hexString: note.backgroundColor)
         if note.backgroundColor.isWhiteHex {
-        }
-        self.borderWidth = 1
-        if note.backgroundColor.isWhiteHex {
-            self.borderColor = UIColor.colorBoarder.cgColor
+            self.cardbackground.borderColor = UIColor.colorBoarder.cgColor
         }else {
-            self.borderColor = UIColor.colorBoarder2.cgColor
+            self.cardbackground.borderColor = UIColor.colorBoarder2.cgColor
         }
     }
     
-    required init(note:Note,itemSize: CGSize) {
+    required init(note:Note,itemSize: CGSize,isShowBoard:Bool = false) {
         super.init()
+        
+        self.itemSize = itemSize
         
         self.note = note
         
-        self.setupBackBackground()
-        
         let cornerRadius:CGFloat = 6
-        self.cornerRadius = cornerRadius
-        //        self.borderColor = UIColor(hexString: "#e0e0e0").cgColor
-        //        self.borderColor = UIColor(hexString: "#000000").cgColor
+//        self.cornerRadius = cornerRadius
         
-        //        self.backgroundColor = UIColor.init(hexString: "#FAFAFA")
+        cardbackground = ASDisplayNode().then {
+            $0.backgroundColor = UIColor(hexString: note.backgroundColor)
+            $0.borderWidth = 1
+            if note.backgroundColor.isWhiteHex {
+                $0.borderColor = UIColor.colorBoarder.cgColor
+            }else {
+                $0.borderColor = UIColor.colorBoarder2.cgColor
+            }
+            $0.cornerRadius = cornerRadius
+        }
+        self.addSubnode(cardbackground)
+        
         
         var titleHeight:CGFloat = 0
         
-        let contentWidth = itemSize.width - Constants.horizontalPadding*2
-        let contentHeight = itemSize.height - Constants.verticalPadding - Constants.verticalPaddingBottom  -  Constants.bottomHeight
+        let contentWidth = itemSize.width - NoteCellConstants.horizontalPadding*2
+        let contentHeight = itemSize.height - NoteCellConstants.verticalPadding - NoteCellConstants.verticalPaddingBottom  -  NoteCellConstants.bottomHeight
         
         var remainHeight = contentHeight
         
@@ -125,12 +142,12 @@ class NoteCellNode: ASCellNode {
                 $0.image = image
                 $0.backgroundColor = .placeHolderColor
                 $0.style.width = ASDimensionMake(contentWidth)
-                $0.style.height = ASDimensionMake(Constants.imageHeight)
+                $0.style.height = ASDimensionMake(NoteCellConstants.imageHeight)
                 
             }
             imageNode.addTarget(self, action: #selector(self.noteCellImageBlockTapped), forControlEvents: .touchUpInside)
             imageNode.cornerRadius = 4
-            remainHeight -= Constants.imageHeight
+            remainHeight -= NoteCellConstants.imageHeight
             self.imageNodes.append(imageNode)
             self.addSubnode(imageNode)
         }
@@ -169,13 +186,13 @@ class NoteCellNode: ASCellNode {
             
             
             if textHeight == 0 {
-                let todoCount = Int(remainHeight / (Constants.todoHeight))
+                let todoCount = Int(remainHeight / (NoteCellConstants.todoHeight))
                 addTodoNodes(with: todoBlocks,maxCount:todoCount)
                 
             }else {
                 let textAndTodosHeight =  calculateTextAndTodoMaxHeight(remainHeight: remainHeight, textHeight: textHeight, todos: todoBlocks)
                 textNode?.style.maxHeight = ASDimensionMake(textAndTodosHeight.0)
-                let todoCount = Int(textAndTodosHeight.1 / Constants.todoHeight)
+                let todoCount = Int(textAndTodosHeight.1 / NoteCellConstants.todoHeight)
                 if todoCount > 0 {
                     addTodoNodes(with: todoBlocks,maxCount:todoCount)
                 }
@@ -192,20 +209,21 @@ class NoteCellNode: ASCellNode {
         }
         
         menuButton = ASButtonNode().then {
-            $0.style.height = ASDimensionMake(Constants.bottomHeight)
+            $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
             
             let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
             let iconImage = UIImage(systemName: "ellipsis", withConfiguration: config)?.withTintColor(UIColor.init(hexString: "#999999"))
             
             $0.setImage(iconImage, for: .normal)
-            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: Constants.horizontalPadding, bottom:0, right: Constants.horizontalPadding)
+            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: NoteCellConstants.horizontalPadding, bottom:0, right: NoteCellConstants.horizontalPadding)
             $0.contentMode = .center
+            $0.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
         }
         
         if self.todosElements.isNotEmpty {
             
             self.menuTodoImage = ASImageNode().then {
-                $0.image = UIImage(systemName: "checkmark.square", pointSize: Constants.todoImageSize, weight: .regular)?.withTintColor(UIColor.init(hexString: "#999999"))
+                $0.image = UIImage(systemName: "checkmark.square", pointSize: NoteCellConstants.todoImageSize, weight: .regular)?.withTintColor(UIColor.init(hexString: "#999999"))
                 $0.contentMode = .center
             }
             self.addSubnode(self.menuTodoImage!)
@@ -216,30 +234,47 @@ class NoteCellNode: ASCellNode {
             self.addSubnode(self.menuTodoText!)
         }
         
+        if isShowBoard {
+            let boardButton = ASButtonNode().then {
+                $0.style.height = ASDimensionMake(NoteCellConstants.boardHeight)
+                $0.style.width = ASDimensionMake(itemSize.width)
+//                $0.backgroundColor = .red
+                $0.contentHorizontalAlignment = .left
+                
+                let horizontalPadding:CGFloat = 2
+                $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: horizontalPadding, bottom:0, right: horizontalPadding)
+                
+                $0.setAttributedTitle(getBoardButtonAttributesText(text: note.boards[0].title), for: .normal)
+                $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
+            }
+            self.boardButton = boardButton
+            self.addSubnode(boardButton)
+        }
+        
         
         self.addSubnode(menuButton)
         
     }
     
     private func calculateTextAndTodoMaxHeight(remainHeight:CGFloat,textHeight:CGFloat,todos:[Block]) -> (CGFloat,CGFloat) {
-        let halfContentHeight = (remainHeight - Constants.contentVerticalSpacing)/2
-        let todosHeight = CGFloat(todos.count) * Constants.todoHeight
+        let halfContentHeight = (remainHeight - NoteCellConstants.contentVerticalSpacing)/2
+        let todosHeight = CGFloat(todos.count) * NoteCellConstants.todoHeight
         
-        if halfContentHeight < Constants.todoHeight { // 剩余高度不够，优先展示 todo
+        if halfContentHeight < NoteCellConstants.todoHeight { // 剩余高度不够，优先展示 todo
             return (remainHeight,0)
         }
         
         if textHeight > halfContentHeight && todosHeight > halfContentHeight { // 各占一半
-            let todoHeight = CGFloat(Int(halfContentHeight / Constants.todoHeight)) * Constants.todoHeight
+            let todoHeight = CGFloat(Int(halfContentHeight / NoteCellConstants.todoHeight)) * NoteCellConstants.todoHeight
             return (remainHeight - todoHeight,todoHeight)
         }
         
         if textHeight > halfContentHeight {
-            let newTextHeight = remainHeight - Constants.contentVerticalSpacing - todosHeight
+            let newTextHeight = remainHeight - NoteCellConstants.contentVerticalSpacing - todosHeight
             return (newTextHeight,todosHeight)
         }
         
-        let newTodoHeight = remainHeight - Constants.contentVerticalSpacing - textHeight
+        let newTodoHeight = remainHeight - NoteCellConstants.contentVerticalSpacing - textHeight
         return (halfContentHeight,newTodoHeight)
     }
     
@@ -248,8 +283,8 @@ class NoteCellNode: ASCellNode {
         for (index,block) in todoBlocks.enumerated() {
             let imageNode = ASImageNode().then {
                 let systemName =  block.isChecked ? "checkmark.square" :  "square"
-                $0.image = UIImage(systemName: systemName, pointSize: Constants.todoImageSize, weight: .light)?.withTintColor(UIColor.init(hexString: "#666666"))
-                $0.style.height = ASDimensionMake(Constants.todoHeight)
+                $0.image = UIImage(systemName: systemName, pointSize: NoteCellConstants.todoImageSize, weight: .light)?.withTintColor(UIColor.init(hexString: "#666666"))
+                $0.style.height = ASDimensionMake(NoteCellConstants.todoHeight)
                 $0.contentMode = .center
             }
             self.addSubnode(imageNode)
@@ -287,8 +322,8 @@ class NoteCellNode: ASCellNode {
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         
-        let cellWidth =  ASDimensionMake(constrainedSize.max.width)
-        let cellHeight =  ASDimensionMake(constrainedSize.max.height)
+        let cellWidth =  ASDimensionMake(itemSize.width)
+        let cellHeight =  ASDimensionMake(itemSize.height)
         
         let stackLayout = ASStackLayoutSpec.vertical().then {
             $0.justifyContent = .start
@@ -298,18 +333,18 @@ class NoteCellNode: ASCellNode {
         }
         
         // 内容
-        if  let contentLayout = renderContent(constrainedSize: constrainedSize) {
+        if  let contentLayout = renderContent() {
             stackLayout.children?.append(contentLayout)
         }
         
         let isEmptyContent = (stackLayout.children?.count ?? 0) == 0
         
-        let insets =  UIEdgeInsets.init(top: 0 , left: Constants.horizontalPadding, bottom: 0, right:  Constants.horizontalPadding)
+        let insets =  UIEdgeInsets.init(top: 0 , left: NoteCellConstants.horizontalPadding, bottom: 0, right:  NoteCellConstants.horizontalPadding)
         
         // 图片卡
         if isEmptyContent {
             
-            let bottomLayout = renderBottomBar(constrainedSize: constrainedSize)
+            let bottomLayout = renderBottomBar()
             let bottombarLayout = ASRelativeLayoutSpec(horizontalPosition: .start, verticalPosition: .end, sizingOption: [], child: bottomLayout)
             
             if self.imageNodes.isEmpty {
@@ -334,21 +369,27 @@ class NoteCellNode: ASCellNode {
         }
         
         // bottom bar
-        let bottomLayout = renderBottomBar(constrainedSize: constrainedSize)
+        let bottomLayout = renderBottomBar()
         stackLayout.children?.append(bottomLayout)
         
-        return  stackLayout
+        let itemLayout =  ASBackgroundLayoutSpec(child: stackLayout, background: self.cardbackground)
+        if let boardButton = self.boardButton {
+            let stackVLayout = ASStackLayoutSpec.vertical().then {
+                $0.style.width = cellWidth
+            }
+            stackVLayout.children = [itemLayout,boardButton]
+            return stackVLayout
+        }
+        return itemLayout
     }
     
-    private func renderContent(constrainedSize:ASSizeRange) -> ASInsetLayoutSpec? {
+    private func renderContent() -> ASInsetLayoutSpec? {
+        let insets =  UIEdgeInsets.init(top: NoteCellConstants.verticalPadding, left: NoteCellConstants.horizontalPadding, bottom: NoteCellConstants.verticalPaddingBottom, right:  NoteCellConstants.horizontalPadding)
         
-        
-        let insets =  UIEdgeInsets.init(top: Constants.verticalPadding, left: Constants.horizontalPadding, bottom: Constants.verticalPaddingBottom, right:  Constants.horizontalPadding)
-        
-        let contentHeight = ASDimensionMake(constrainedSize.max.height - Constants.bottomHeight)
+        let contentHeight = ASDimensionMake(itemSize.height - NoteCellConstants.bottomHeight)
         
         let contentLayout = ASStackLayoutSpec.vertical().then {
-            $0.spacing = Constants.contentVerticalSpacing
+            $0.spacing = NoteCellConstants.contentVerticalSpacing
             $0.justifyContent = .start
             $0.alignItems = .start
             $0.style.flexGrow = 1.0
@@ -371,11 +412,11 @@ class NoteCellNode: ASCellNode {
             todosVLayout.justifyContent = .start
             todosVLayout.alignItems = .start
             todosVLayout.style.flexShrink = 1.0
-            todosVLayout.spacing = Constants.todoVSpace
+            todosVLayout.spacing = NoteCellConstants.todoVSpace
             for i in 0..<todosElements.count {
                 
                 let todoStackSpec = ASStackLayoutSpec(direction: .horizontal,
-                                                      spacing: Constants.todoTextSpace,
+                                                      spacing: NoteCellConstants.todoTextSpace,
                                                       justifyContent: .start,
                                                       alignItems: .center,
                                                       children: [chkElements[i],todosElements[i]])
@@ -394,15 +435,15 @@ class NoteCellNode: ASCellNode {
         return nil
     }
     
-    private func renderBottomBar(constrainedSize:ASSizeRange) -> ASStackLayoutSpec {
+    private func renderBottomBar() -> ASStackLayoutSpec {
         let bottomLayout = ASStackLayoutSpec.horizontal().then {
-            $0.style.height = ASDimensionMake(Constants.bottomHeight)
-            $0.style.width = ASDimensionMake(constrainedSize.max.width)
+            $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
+            $0.style.width = ASDimensionMake(itemSize.width)
             $0.style.flexGrow = 1.0
             $0.justifyContent = .spaceBetween
         }
         let todoStack = ASStackLayoutSpec.horizontal().then {
-            $0.spacing = Constants.todoTextSpace
+            $0.spacing = NoteCellConstants.todoTextSpace
             $0.style.flexGrow = 1.0
             $0.style.flexShrink = 1.0
         }
@@ -414,9 +455,8 @@ class NoteCellNode: ASCellNode {
             todoStack.children = [menuTodoImage,centerTodoText]
             
         }
-        let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: Constants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
+        let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: NoteCellConstants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
         
-        self.menuButton.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
         bottomLayout.children?.append(todoStackLayout)
         bottomLayout.children?.append(self.menuButton)
         return bottomLayout
@@ -426,9 +466,14 @@ class NoteCellNode: ASCellNode {
         delegate?.noteCellMenuTapped(sender: sender.view, note: self.note)
     }
     
-    private func renderImageNodes(constrainedSize:ASSizeRange) -> ASLayoutElement {
+    @objc func boardButtonTapped() {
+        self.callbackBoardButtonTapped?(self.note)
+    }
+    
+    
+    private func renderImageNodes() -> ASLayoutElement {
         let height:CGFloat = 120
-        let width:CGFloat = constrainedSize.max.width
+        let width:CGFloat = itemSize.width
         let spacing:CGFloat = 2
         
         let singleWidth = (width - spacing)/2
@@ -436,7 +481,7 @@ class NoteCellNode: ASCellNode {
         
         if imageNodes.count == 1 {
             let imageNode = imageNodes[0]
-            imageNode.style.width = ASDimensionMake(constrainedSize.max.width)
+            imageNode.style.width = ASDimensionMake(itemSize.width)
             imageNode.style.height = ASDimensionMake(height)
             return imageNode
         }
@@ -586,6 +631,15 @@ class NoteCellNode: ASCellNode {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 13, weight: .regular),
             .foregroundColor:  UIColor.init(hexString: "#999999"),
+        ]
+        return NSMutableAttributedString(string: text, attributes: attributes)
+    }
+    
+    
+    func getBoardButtonAttributesText(text: String) -> NSAttributedString {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 13, weight: .regular),
+            .foregroundColor:  UIColor.init(hexString: "#666666"),
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)
     }

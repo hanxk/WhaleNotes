@@ -28,7 +28,7 @@ class DBStore {
     
     func setup() {
         #if DEBUG
-            db.trace { print($0) }
+        db.trace { print($0) }
         #endif
         
         blockDao = BlockDao(dbCon: db)
@@ -89,7 +89,7 @@ class DBStore {
                 if boards.isEmpty {
                     throw DBError(message: "创建 note 没有获取到 board")
                 }
-            
+                
             }
             return DBResult<Note>.success(Note(rootBlock: noteBlock, childBlocks:newBlocks,boards: boards))
         } catch let error  {
@@ -227,15 +227,15 @@ class DBStore {
             try db.transaction {
                 for noteBlockId in noteBlockIds {
                     // 删除自身
-                     isSuccess = try blockDao.delete(id: noteBlockId)
-                     // 删除 child blocks
+                    isSuccess = try blockDao.delete(id: noteBlockId)
+                    // 删除 child blocks
                     if isSuccess {
                         try blockDao.deleteByNoteId(noteId:noteBlockId)
                     }
-                     // 删除 section_note
-                     if isSuccess {
-                         isSuccess = try sectionNoteDao.deleteByNoteId(noteBlockId)
-                     }
+                    // 删除 section_note
+                    if isSuccess {
+                        isSuccess = try sectionNoteDao.deleteByNoteId(noteBlockId)
+                    }
                 }
             }
             return DBResult<Bool>.success(isSuccess)
@@ -244,22 +244,22 @@ class DBStore {
         }
     }
     
-//    func deleteNoteChildBlock(childBlock:Block) -> DBResult<Note> {
-//        do {
-//            var isSuccess = false
-//            try db.transaction {
-//                isSuccess = try tryUpdateBlockDate(block: childBlock)
-//                if isSuccess {
-//                    isSuccess = try blockDao.delete(id: childBlock.id)
-//                }
-//
-//
-//            }
-//            return DBResult<Bool>.success(isSuccess)
-//        } catch let error  {
-//            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
-//        }
-//    }
+    //    func deleteNoteChildBlock(childBlock:Block) -> DBResult<Note> {
+    //        do {
+    //            var isSuccess = false
+    //            try db.transaction {
+    //                isSuccess = try tryUpdateBlockDate(block: childBlock)
+    //                if isSuccess {
+    //                    isSuccess = try blockDao.delete(id: childBlock.id)
+    //                }
+    //
+    //
+    //            }
+    //            return DBResult<Bool>.success(isSuccess)
+    //        } catch let error  {
+    //            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
+    //        }
+    //    }
     func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
@@ -564,7 +564,7 @@ extension DBStore {
                         let block = rootBlock.1
                         
                         let childBlocks = try blockDao.query(noteId: block.id)
-
+                        
                         let boards:[Board] = try boardDao.queryByNoteBlockId(block.id).map{
                             if $0.type == 2 {
                                 return getLocalSystemBoardInfo(board: $0)
@@ -584,7 +584,81 @@ extension DBStore {
         }
     }
     
+//    func searchBoardNotes(keyword: String) -> DBResult<[(Board,[Note])]> {
+//        do {
+//            var notes:[Note] = []
+//            try db.transaction {
+//                let noteBlocks = try blockDao.searchNoteBlocks(keyword: keyword)
+//                for noteBlock in noteBlocks {
+//                    let childBlocks = try blockDao.query(noteId: noteBlock.id)
+//                    let boards:[Board] = try boardDao.queryByNoteBlockId(noteBlock.id).map{
+//                        if $0.type == BoardType.collect.rawValue {
+//                            return getLocalSystemBoardInfo(board: $0)
+//                        }
+//                        return $0
+//                    }
+//                    let note = Note(rootBlock: noteBlock, childBlocks: childBlocks,boards:boards)
+//                    notes.append(note)
+//                }
+//            }
+//            return DBResult<[Note]>.success(notes)
+//        }catch let err {
+//            print(err)
+//            return DBResult<[Note]>.failure(DBError(code: .None,message: err.localizedDescription))
+//        }
+//    }
     
+    func searchBoardNotes(keyword: String) -> DBResult<[Board:[Note]]> {
+        do {
+            var notes:[Note] = []
+            try db.transaction {
+                let noteBlocks = try blockDao.searchNoteBlocks(keyword: keyword)
+                for noteBlock in noteBlocks {
+                    let childBlocks = try blockDao.query(noteId: noteBlock.id)
+                    let boards:[Board] = try boardDao.queryByNoteBlockId(noteBlock.id).map{
+                        if $0.type == BoardType.collect.rawValue {
+                            return getLocalSystemBoardInfo(board: $0)
+                        }
+                        return $0
+                    }
+                    let note = Note(rootBlock: noteBlock, childBlocks: childBlocks,boards:boards)
+                    notes.append(note)
+                }
+            }
+            let boardsNotes = Dictionary(grouping: notes, by: {$0.boards[0]})
+            
+            return DBResult<[Board:[Note]]>.success(boardsNotes)
+        }catch let err {
+            print(err)
+            return DBResult<[Board:[Note]]>.failure(DBError(code: .None,message: err.localizedDescription))
+        }
+    }
+    
+    
+    
+    func searchNotes(keyword: String) -> DBResult<[Note]> {
+        do {
+            var notes:[Note] = []
+            try db.transaction {
+                let noteBlocks = try blockDao.searchNoteBlocks(keyword: keyword)
+                for noteBlock in noteBlocks {
+                    let childBlocks = try blockDao.query(noteId: noteBlock.id)
+                    let boards:[Board] = try boardDao.queryByNoteBlockId(noteBlock.id).map{
+                        if $0.type == BoardType.collect.rawValue {
+                            return getLocalSystemBoardInfo(board: $0)
+                        }
+                        return $0
+                    }
+                    let note = Note(rootBlock: noteBlock, childBlocks: childBlocks,boards:boards)
+                    notes.append(note)
+                }
+            }
+            return DBResult<[Note]>.success(notes)
+        }catch let err {
+            print(err)
+            return DBResult<[Note]>.failure(DBError(code: .None,message: err.localizedDescription))
+        }
+    }
     
     func getNotesByBoardId2(_ boardId:Int64,noteBlockStatus: NoteBlockStatus) ->DBResult<[Note]> {
         do {
@@ -595,7 +669,7 @@ extension DBStore {
                     
                     let block = rootBlock.1
                     let childBlocks = try blockDao.query(noteId: block.id)
-
+                    
                     let boards:[Board] = try boardDao.queryByNoteBlockId(block.id).map{
                         if $0.type == 2 {
                             return getLocalSystemBoardInfo(board: $0)
@@ -627,9 +701,9 @@ extension DBStore {
                     
                     let childBlocks = try blockDao.query(noteId: block.id)
                     
-
+                    
                     let boards:[Board] = try boardDao.queryByNoteBlockId(block.id).map{
-                        if $0.type == 2 {
+                        if $0.type == BoardType.collect.rawValue {
                             return getLocalSystemBoardInfo(board: $0)
                         }
                         return $0
@@ -648,14 +722,15 @@ extension DBStore {
     }
     
     func queryNotesCountByBoardId(_ boardId:Int64,noteBlockStatus: NoteBlockStatus) ->DBResult<Int64>  {
-         do {
-               let count = try blockDao.queryNotesCountByBoardId(boardId,noteBlockStatus:noteBlockStatus)
-               return DBResult<Int64>.success(count)
-           }catch let err {
-               print(err)
-               return DBResult<Int64>.failure(DBError(code: .None,message: err.localizedDescription))
-           }
+        do {
+            let count = try blockDao.queryNotesCountByBoardId(boardId,noteBlockStatus:noteBlockStatus)
+            return DBResult<Int64>.success(count)
+        }catch let err {
+            print(err)
+            return DBResult<Int64>.failure(DBError(code: .None,message: err.localizedDescription))
+        }
     }
+    
     
     func getSectionsByBoardId(_ boardId:Int64) -> DBResult<[Section]> {
         do {

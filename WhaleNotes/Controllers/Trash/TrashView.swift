@@ -58,17 +58,14 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     
 
-    private var numberOfColumns:CGFloat = 2
+    private var numberOfColumns = 2
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
         $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: Int(numberOfColumns), columnSpacing:  NotesViewConstants.waterfall_cellSpace, interItemSpacing: NotesViewConstants.waterfall_cellSpace, sectionInsets: UIEdgeInsets(top: 0, left: NotesViewConstants.waterfall_cellHorizontalSpace, bottom: 12, right:  NotesViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
     }
     
     private lazy var collectionLayout =  UICollectionViewFlowLayout().then {
         
-        let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
-        let itemWidth = validWidth / numberOfColumns
-        
-        $0.itemSize = CGSize(width: itemWidth, height: 214)
+        $0.itemSize = NotesView.getItemSize(numberOfColumns: self.numberOfColumns)
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
         $0.minimumLineSpacing = NotesViewConstants.cellSpace
     }

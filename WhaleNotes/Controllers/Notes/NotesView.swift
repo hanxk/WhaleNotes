@@ -34,6 +34,9 @@ enum NotesViewConstants {
     
     static let waterfall_cellSpace: CGFloat = 12
     static let waterfall_cellHorizontalSpace: CGFloat = 14
+    
+
+    
 }
 
 
@@ -57,13 +60,21 @@ class NotesView: UIView, UINavigationControllerDelegate {
         }
     }
     
+    static func getItemSize(numberOfColumns:Int) -> CGSize {
+        let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace * CGFloat(numberOfColumns) - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
+        let itemWidth = validWidth / CGFloat(numberOfColumns)
+        let itemHeight = itemWidth * 200 / 160
+        return CGSize(width: itemWidth, height: itemHeight)
+    }
+    
     var delegate:NotesViewDelegate?
     var callbackNotesCountChanged:((Int64)->Void)?
     
     private var board:Board!
     private var noteStatus:NoteBlockStatus = NoteBlockStatus.normal
     
-    private var numberOfColumns:CGFloat = 2
+    private var numberOfColumns = 2
+    private lazy var itemContentSize =  NotesView.getItemSize(numberOfColumns: self.numberOfColumns)
     
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
         $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: Int(numberOfColumns), columnSpacing:  NotesViewConstants.waterfall_cellSpace, interItemSpacing: NotesViewConstants.waterfall_cellSpace, sectionInsets: UIEdgeInsets(top: 12, left: NotesViewConstants.waterfall_cellHorizontalSpace, bottom: 12, right:  NotesViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
@@ -71,11 +82,9 @@ class NotesView: UIView, UINavigationControllerDelegate {
     
     
     private lazy var collectionLayout =  UICollectionViewFlowLayout().then {
-        
-        let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace*2 - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
-        let itemWidth = validWidth / numberOfColumns
-        
-        $0.itemSize = CGSize(width: itemWidth, height: 214)
+//        var itemSize = itemContentSize
+//        itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
+        $0.itemSize = itemContentSize
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
         $0.minimumLineSpacing = NotesViewConstants.cellSpace
     }
@@ -268,9 +277,8 @@ extension NotesView: ASCollectionDataSource {
     
     func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
         let note = self.noteInfos[indexPath.row]
-        let itemSize = self.collectionLayout.itemSize
         return {
-            let node =  NoteCellNode(note: note,itemSize: itemSize)
+            let node =  NoteCellNode(note: note,itemSize: self.itemContentSize)
             node.delegate = self
             return node
         }
