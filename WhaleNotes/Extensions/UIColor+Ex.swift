@@ -152,3 +152,13 @@ extension UIColor {
         }
     }
 }
+
+
+extension UIColor {
+    open class var chkCheckedTextColor: UIColor {
+        get {
+            UIColor(red: 0.216, green: 0.208, blue: 0.184, alpha: 0.38)
+        }
+    }
+    
+}

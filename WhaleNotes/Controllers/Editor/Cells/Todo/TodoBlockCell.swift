@@ -18,10 +18,11 @@ protocol TodoBlockCellDelegate: AnyObject {
 
 class TodoBlockCell: UITableViewCell {
     
-    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .thin)
+    let chkCheckedColor = UIColor.primaryText.withAlphaComponent(0.8)
     
-    lazy var uncheckedImage: UIImage = UIImage(systemName: "stop",withConfiguration: config)!
-    lazy var checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill",withConfiguration: config)!
+    
+    lazy var uncheckedImage: UIImage = UIImage(systemName: "stop", pointSize: 22, weight: .light)!
+    lazy var checkedImage: UIImage = UIImage(systemName: "checkmark.square", pointSize: 20, weight: .light)!
     
     var cellHeight: CGFloat = 0
     
@@ -29,12 +30,32 @@ class TodoBlockCell: UITableViewCell {
     
     var todoBlock: Block!{
         didSet {
-            textView.text = todoBlock.text
             isChecked = todoBlock.isChecked
             isEmpty = todoBlock.text.isEmpty
-            self.whiteView.isHidden = !todoBlock.isChecked
+            textView.attributedText = todoAttrText
         }
     }
+    
+    private var todoAttrText:NSMutableAttributedString {
+        
+        let attributedText : NSMutableAttributedString =  NSMutableAttributedString(string: todoBlock.text)
+        if isChecked {
+            attributedText.addAttributes([
+                            NSAttributedString.Key.strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                            NSAttributedString.Key.strikethroughColor: UIColor.chkCheckedTextColor,
+                            NSAttributedString.Key.foregroundColor:UIColor.chkCheckedTextColor,
+                            NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16.0)
+                            ], range: NSMakeRange(0, attributedText.length))
+        }else {
+            attributedText.addAttributes([
+                NSAttributedString.Key.foregroundColor:UIColor.primaryText,
+                            NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16.0)
+                            ], range: NSMakeRange(0, attributedText.length))
+        }
+        
+        return attributedText
+    }
+    
     var note:Note! {
         didSet {
             self.backgroundColor = UIColor(hexString: note.backgroundColor)
@@ -50,10 +71,10 @@ class TodoBlockCell: UITableViewCell {
     var isChecked: Bool = false {
         didSet {
             if isChecked == true {
-                self.chkbtn.tintColor = .brand
+                self.chkbtn.tintColor = .primaryText
                 self.chkbtn.setImage(checkedImage, for: UIControl.State.normal)
             } else {
-                self.chkbtn.tintColor = .buttonTintColor
+                self.chkbtn.tintColor = chkCheckedColor
                 self.chkbtn.setImage(uncheckedImage, for: UIControl.State.normal)
             }
         }
@@ -64,7 +85,7 @@ class TodoBlockCell: UITableViewCell {
             if isEmpty == true {
                 self.chkbtn.tintColor = .lightGray
             } else {
-                self.chkbtn.tintColor = self.isChecked ? UIColor.brand : UIColor.buttonTintColor
+                self.chkbtn.tintColor = self.isChecked ?   .chkCheckedTextColor : .primaryText
             }
             self.chkbtn.isEnabled = !isEmpty
         }
@@ -74,11 +95,6 @@ class TodoBlockCell: UITableViewCell {
         $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         $0.textColor = .lightGray
         $0.text = "新项目"
-    }
-    
-    
-    lazy var whiteView: UIView = UIView().then {
-        $0.backgroundColor = .clear
     }
     
     lazy var chkbtn: UIButton = UIButton().then {
@@ -118,15 +134,7 @@ class TodoBlockCell: UITableViewCell {
         let topSpace:CGFloat = 7.3
         
         self.selectionStyle = .none
-//        self.contentView.backgroundColor = .clear
-        
-        self.contentView.addSubview(whiteView)
-        whiteView.snp.makeConstraints { (make) in
-            make.width.equalTo(10)
-            make.height.equalTo(10)
-            make.leading.equalToSuperview().offset(20)
-            make.centerY.equalToSuperview()
-        }
+        self.contentView.backgroundColor = .clear
         
         self.contentView.addSubview(chkbtn)
         chkbtn.snp.makeConstraints { (make) in

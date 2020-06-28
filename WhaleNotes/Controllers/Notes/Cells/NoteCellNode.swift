@@ -25,7 +25,7 @@ enum NoteCellConstants {
     static let todoHeight:CGFloat = 22
     static let todoVSpace:CGFloat = 0
     static let todoTextSpace:CGFloat = 2
-    static let todoImageSize: CGFloat = 14
+    static let todoImageSize: CGFloat = 15
     static let todoTextSize: CGFloat = 14
     
     static let bottomHeight: CGFloat = 30
@@ -84,7 +84,7 @@ class NoteCellNode: ASCellNode {
         self.note = note
         
         let cornerRadius:CGFloat = 6
-//        self.cornerRadius = cornerRadius
+        self.cornerRadius = cornerRadius
         
         cardbackground = ASDisplayNode().then {
             $0.backgroundColor = UIColor(hexString: note.backgroundColor)
@@ -211,7 +211,7 @@ class NoteCellNode: ASCellNode {
         menuButton = ASButtonNode().then {
             $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
             
-            let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+            let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
             let iconImage = UIImage(systemName: "ellipsis", withConfiguration: config)?.withTintColor(UIColor.init(hexString: "#999999"))
             
             $0.setImage(iconImage, for: .normal)
@@ -223,7 +223,7 @@ class NoteCellNode: ASCellNode {
         if self.todosElements.isNotEmpty {
             
             self.menuTodoImage = ASImageNode().then {
-                $0.image = UIImage(systemName: "checkmark.square", pointSize: NoteCellConstants.todoImageSize, weight: .regular)?.withTintColor(UIColor.init(hexString: "#999999"))
+                $0.image = UIImage(systemName: "text.badge.checkmark", pointSize: 13, weight: .medium)?.withTintColor(UIColor(hexString: "#999999"))
                 $0.contentMode = .center
             }
             self.addSubnode(self.menuTodoImage!)
@@ -283,15 +283,18 @@ class NoteCellNode: ASCellNode {
         for (index,block) in todoBlocks.enumerated() {
             let imageNode = ASImageNode().then {
                 let systemName =  block.isChecked ? "checkmark.square" :  "square"
-                $0.image = UIImage(systemName: systemName, pointSize: NoteCellConstants.todoImageSize, weight: .light)?.withTintColor(UIColor.init(hexString: "#666666"))
+                let chkColor = UIColor.primaryText
+                $0.image = UIImage(systemName: systemName, pointSize: NoteCellConstants.todoImageSize, weight: .ultraLight)?.withTintColor(chkColor)
                 $0.style.height = ASDimensionMake(NoteCellConstants.todoHeight)
-                $0.contentMode = .center
+//                $0.style.width = 14
+                $0.contentMode = .left
+//                $0.backgroundColor = .red
             }
             self.addSubnode(imageNode)
             self.chkElements.append(imageNode)
             
             let todoNode = ASTextNode().then {
-                $0.attributedText = getTodoTextAttributes(text: block.text)
+                $0.attributedText = getTodoTextAttributes(text: block.text,isChecked: block.isChecked)
                 $0.style.flexShrink = 1.0
                 $0.maximumNumberOfLines = 1
                 $0.truncationMode = .byTruncatingTail
@@ -471,102 +474,6 @@ class NoteCellNode: ASCellNode {
     }
     
     
-    private func renderImageNodes() -> ASLayoutElement {
-        let height:CGFloat = 120
-        let width:CGFloat = itemSize.width
-        let spacing:CGFloat = 2
-        
-        let singleWidth = (width - spacing)/2
-        let singleHeight = (height - spacing)/2
-        
-        if imageNodes.count == 1 {
-            let imageNode = imageNodes[0]
-            imageNode.style.width = ASDimensionMake(itemSize.width)
-            imageNode.style.height = ASDimensionMake(height)
-            return imageNode
-        }
-        
-        
-        if imageNodes.count == 2 {
-            imageNodes.forEach {
-                $0.style.width = ASDimensionMake(singleWidth)
-                $0.style.height = ASDimensionMake(height)
-            }
-            let imagesStackSpec = ASStackLayoutSpec(direction: .horizontal,
-                                                    spacing: spacing,
-                                                    justifyContent: .start,
-                                                    alignItems: .start,
-                                                    children: imageNodes)
-            imagesStackSpec.style.flexShrink = 1.0
-            return imagesStackSpec
-        }
-        
-        if imageNodes.count == 3 {
-            
-            
-            let imagesStackSpec = ASStackLayoutSpec(direction: .horizontal,
-                                                    spacing: 2,
-                                                    justifyContent: .start,
-                                                    alignItems: .start,
-                                                    children: [])
-            imagesStackSpec.style.flexShrink = 1.0
-            
-            //左：1
-            let imageNode = imageNodes[0]
-            imageNode.style.width = ASDimensionMake(singleWidth)
-            imageNode.style.height = ASDimensionMake(height)
-            //            imageNode.cornerRadius
-            
-            //右：2
-            let twoImageNodes = [imageNodes[1], imageNodes[2]]
-            let twoImagesLayout = ASStackLayoutSpec(direction: .vertical,
-                                                    spacing: 2,
-                                                    justifyContent: .start,
-                                                    alignItems: .start,
-                                                    children: twoImageNodes)
-            twoImagesLayout.style.flexShrink = 1.0
-            
-            twoImageNodes.forEach {
-                $0.style.width = ASDimensionMake(singleWidth)
-                $0.style.height = ASDimensionMake(singleHeight)
-            }
-            
-            
-            
-            imagesStackSpec.children = [imageNode,twoImagesLayout]
-            
-            return imagesStackSpec
-        }
-        
-        // 4
-        
-        //左：1
-        let leftTwoImagesLayout = ASStackLayoutSpec(direction: .vertical,
-                                                    spacing: spacing,
-                                                    justifyContent: .start,
-                                                    alignItems: .start,
-                                                    children:  [imageNodes[0], imageNodes[1]])
-        
-        //右：2
-        let rightTwoImagesLayout = ASStackLayoutSpec(direction: .vertical,
-                                                     spacing: spacing,
-                                                     justifyContent: .start,
-                                                     alignItems: .start,
-                                                     children: [imageNodes[2], imageNodes[3]])
-        
-        imageNodes.forEach {
-            $0.style.width = ASDimensionMake(singleWidth)
-            $0.style.height = ASDimensionMake(singleHeight)
-        }
-        
-        let imagesStackSpec = ASStackLayoutSpec(direction: .horizontal,
-                                                spacing: spacing,
-                                                justifyContent: .start,
-                                                alignItems: .start,
-                                                children: [leftTwoImagesLayout,rightTwoImagesLayout])
-        return imagesStackSpec
-    }
-    
     override func didLoad() {
         
     }
@@ -613,15 +520,22 @@ class NoteCellNode: ASCellNode {
     }
     
     
-    func getTodoTextAttributes(text: String) -> NSAttributedString {
+    func getTodoTextAttributes(text: String,isChecked:Bool) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         //        paragraphStyle.lineSpacing = 1.2
         
-        let attributes: [NSAttributedString.Key: Any] = [
+        var attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15),
             .foregroundColor: UIColor.cardText,
             .paragraphStyle:paragraphStyle
         ]
+        
+        if isChecked {
+            attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
+            attributes[.strikethroughColor] = UIColor.chkCheckedTextColor
+            attributes[.foregroundColor] = UIColor.chkCheckedTextColor
+        }
+        
         
         return NSAttributedString(string: text, attributes: attributes)
     }
