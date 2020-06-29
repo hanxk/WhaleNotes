@@ -394,8 +394,14 @@ extension SideMenuViewController {
         if indexPath.section == 1{
             self.boards[indexPath.row] = board
         }else {
-            self.boardCategories[indexPath.section - self.sectionCategoryBeginIndex].boards[indexPath.row-1] = board
+            let index = indexPath.section - self.sectionCategoryBeginIndex
+            self.boardCategories[index].boards[indexPath.row-1] = board
+            let isExpand = self.boardCategories[index].category.isExpand
+            if !isExpand { // 被折叠
+                return
+            }
         }
+        
         
         UIView.performWithoutAnimation {
             self.tableView.performBatchUpdates({
@@ -406,17 +412,18 @@ extension SideMenuViewController {
     }
     
     private func handleDeleteBoard(board:Board) {
-        
-        
         setSelected(indexPath: IndexPath(row: 0, section: 0))
-        
         guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
         if indexPath.section == 1{
             self.boards.remove(at: indexPath.row)
         }else {
-            self.boardCategories[indexPath.section - self.sectionCategoryBeginIndex].removeBoard(index: indexPath.row-1)
+            let index = indexPath.section - self.sectionCategoryBeginIndex
+            self.boardCategories[index].removeBoard(index: indexPath.row-1)
+            let isExpand = self.boardCategories[index].category.isExpand
+            if !isExpand { // 被折叠
+                return
+            }
         }
-        
         
         UIView.performWithoutAnimation {
             self.tableView.performBatchUpdates({
@@ -490,7 +497,9 @@ extension SideMenuViewController {
         var updatedIndexPaths:[IndexPath]   = []
         if let sideMenuItem = self.selectedMenuItem,
         let oldSelectedIndexPath = findSideMenuItemIndex(sideMenuItem: sideMenuItem) {
-            updatedIndexPaths.append(oldSelectedIndexPath)
+            if let _ = tableView.cellForRow(at: oldSelectedIndexPath) { // cell 可能会被折叠
+                updatedIndexPaths.append(oldSelectedIndexPath)
+            }
         }
         
         self.selectedMenuItem = findSideMenuItem(indexPath: indexPath)
