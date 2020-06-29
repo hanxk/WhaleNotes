@@ -804,17 +804,17 @@ extension EditorViewController: UITableViewDataSource {
             self.tableView.performBatchUpdates({
                 self.tableView.insertRows(at: [targetIndex], with: .bottom)
             }, completion: { _ in
-                
-                //获取焦点
+            })
+            
+            //获取焦点
+            if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
+                cell.textView.becomeFirstResponder()
+            }else {
+                self.tableView.scrollToRow(at: targetIndex, at: .bottom, animated: false)
                 if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
                     cell.textView.becomeFirstResponder()
-                }else {
-                    self.tableView.scrollToRow(at: targetIndex, at: .bottom, animated: false)
-                    if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
-                        cell.textView.becomeFirstResponder()
-                    }
                 }
-            })
+            }
         }
         
     }
@@ -979,16 +979,19 @@ extension EditorViewController: UITableViewDelegate {
     
     func swapRowInSameSection(section:Int,fromRow:Int,toRow:Int) {
         
+        var todoBlock = self.note.todoBlocks[fromRow]
+        self.note.todoBlocks.remove(at: fromRow)
+        
         // 计算 sort
         let sort = self.calcNextTodoBlockSort(newTodoIndex: toRow)
-        
-        var todoBlock = self.note.todoBlocks[fromRow]
         todoBlock.sort = sort
         
-        self.tryUpdateBlock(block: todoBlock)
-        self.note.todoBlocks.remove(at: fromRow)
-        self.note.todoBlocks.insert(todoBlock, at: toRow)
-        
+        self.tryUpdateBlock(block: todoBlock) {
+            self.note.todoBlocks.insert(todoBlock, at: toRow)
+            if let todoCell = self.tableView.cellForRow(at: IndexPath(row: fromRow, section: section)) as? TodoBlockCell {// 刷新旧的数据
+                todoCell.todoBlock = todoBlock
+            }
+        }
         self.note.todoBlocks.forEach {
             Logger.info("\($0.text)  \($0.sort)")
         }
@@ -1172,6 +1175,10 @@ extension EditorViewController {
         noteRepo.createBlock(block: block)
             .subscribe(onNext: { newBlock in
                 self.note.addBlock(block: newBlock)
+                Logger.info("------------------------------")
+                self.note.todoBlocks.forEach {
+                    Logger.info("\($0.text)  \($0.sort)")
+                }
                 callback?(newBlock)
             },onError: {
                 Logger.error($0)
