@@ -41,20 +41,32 @@ class EditorViewController: UIViewController {
     private var textCell: TextBlockCell?
     var disposebag = DisposeBag()
     
-    
-    private var attachmentsCell: AttachmentsBlockCell? {
-        if let index = sections.firstIndex(where: {$0 == SectionType.images}),
-            let cell = tableView.cellForRow(at: IndexPath(row: 0, section: index)) as? AttachmentsBlockCell  {
-            return cell
-        }
-        return nil
-    }
+    private var attachmentsCell: AttachmentsBlockCell?
+    //    private var attachmentsCell: AttachmentsBlockCell? {
+    //        if let index = sections.firstIndex(where: {$0 == SectionType.images}),
+    //            let cell = tableView.cellForRow(at: IndexPath(row: 0, section: index)) as? AttachmentsBlockCell  {
+    //            return cell
+    //        }
+    //        return nil
+    //    }
     
     
     var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
     
     private let noteRepo = NoteRepo.shared
     
+    private var columnCount:Int {
+        return self.note.imageBlocks.count > 1 ? 2 : 1
+    }
+    private var imageWidth:CGFloat {
+        get {
+            let cellCountPerRow = CGFloat(columnCount)
+            let fullWidth = UIScreen.main.bounds.size.width - EditorViewController.space*2
+            let width: CGFloat  = (fullWidth - AttachmentsConstants.cellSpace*(cellCountPerRow-1)) / cellCountPerRow
+            return width
+        }
+    }
+    private var imageTotalHeight:CGFloat = 0
     
     // 索引
     private var note: Note!
@@ -92,7 +104,15 @@ class EditorViewController: UIViewController {
     
     var todoRowIndexMap:[Int:(Int,Int)] = [:]
     
-    private var sections:[SectionType] = []
+    private var sections:[SectionType] = [] {
+        
+        didSet {
+//            if oldValue.contains(SectionType.images) &&  !sections.contains(SectionType.images) { // 新增
+//                self.imageTotalHeight =
+//            }
+        }
+        
+    }
     
     var isTodoExpand = true
     
@@ -182,12 +202,12 @@ class EditorViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHideNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
         
-
+        
         self.bg = note.backgroundColor
         updateAt = self.note.updatedAt
     }
     @objc func rotated() {
-//        self.attachmentsCell?.handleScreenRotation()
+        //        self.attachmentsCell?.handleScreenRotation()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -349,15 +369,6 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
         self.hideKeyboard()
     }
     
-    private func moveNote2Trash(sender: UIButton) {
-        //        guard let noteNotificationToken = self.noteNotificationToken else { return }
-        //        DBManager.sharedInstance.moveNote2Trash(self.note, withoutNotifying: [noteNotificationToken]) {
-        //            self.mode = EditorMode.delete(note: self.note)
-        //            self.navigationController?.popViewController(animated: true)
-        //        }
-        
-    }
-    
     
     //MARK: 添加 block
     @objc func handleAddButtonTapped(sender: UIButton) {
@@ -486,8 +497,8 @@ extension EditorViewController {
         
         if note.imageBlocks.isNotEmpty {
             self.sections.append(SectionType.images)
+            self.imageTotalHeight = self.calculateTotalHeight()
         }
-//        self.sections.append(SectionType.boards)
     }
     
 }
@@ -627,14 +638,16 @@ extension EditorViewController: UITableViewDataSource {
             todoCell.delegate = self
         case .images:
             let imagesCell = cell as! AttachmentsBlockCell
-            imagesCell.heightChanged = { [weak tableView]  in
-                DispatchQueue.main.async {
-                    UIView.performWithoutAnimation {
-                        tableView?.beginUpdates()
-                        tableView?.endUpdates()
-                    }
-                }
-            }
+//            imagesCell.columnCount = self.columnCount
+            imagesCell.imageWidth = imageWidth
+//            imagesCell.heightChanged = { [weak tableView]  in
+//                DispatchQueue.main.async {
+//                    UIView.performWithoutAnimation {
+//                        tableView?.beginUpdates()
+//                        tableView?.endUpdates()
+//                    }
+//                }
+//            }
             imagesCell.callbackCellTapped  = { indexPath in
                 let browser = PhotoViewerViewController(note: self.note, pageIndex: indexPath.row)
                 browser.isFromNoteDetail = true
@@ -649,8 +662,8 @@ extension EditorViewController: UITableViewDataSource {
                 browser.show()
                 
             }
-            imagesCell.reloadData(imageBlocks:  self.note.imageBlocks)
-//            self.attachmentsCell = imagesCell
+            imagesCell.reloadData(imageBlocks: self.note.imageBlocks)
+            self.attachmentsCell = imagesCell
             break
         }
         return cell
@@ -661,17 +674,26 @@ extension EditorViewController: UITableViewDataSource {
         guard let index = self.sections.firstIndex(where: {$0 == SectionType.images}) else { return }
         if newNote.imageBlocks.isEmpty {
             self.sections.remove(at: index)
+            self.attachmentsCell = nil
             self.tableView.performBatchUpdates({
                 self.tableView.deleteSections(IndexSet([index]), with: .automatic)
             }, completion: nil)
         }else {
             
+            self.imageTotalHeight = self.calculateTotalHeight()
+            DispatchQueue.main.async {
+                UIView.performWithoutAnimation {
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                }
+            }
+            
             if let cell = self.attachmentsCell {
                 cell.reloadData(imageBlocks: self.note.imageBlocks)
             }
-//            self.tableView.performBatchUpdates({
-//                self.tableView.reloadSections(IndexSet([index]), with: .automatic)
-//            }, completion: nil)
+            //            self.tableView.performBatchUpdates({
+            //                self.tableView.reloadSections(IndexSet([index]), with: .automatic)
+            //            }, completion: nil)
         }
         
     }
@@ -720,7 +742,7 @@ extension EditorViewController: UITableViewDataSource {
         vc.note = note
         vc.callbackBoardChoosed = { newNote in
             if let boardSectionIndex = self.sections.firstIndex(of: SectionType.boards),
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: boardSectionIndex)) as? BoardsCell {
+               let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: boardSectionIndex)) as? BoardsCell {
                 self.note = newNote
                 cell.boards = newNote.boards
             }
@@ -890,13 +912,25 @@ extension EditorViewController: UITableViewDelegate {
         case .boards:
             return BoardsCell.cellHeight
         case .images:
-            if let cell = self.attachmentsCell {
-                return cell.totalHeight
+            if self.note.imageBlocks.isEmpty {
+                return 0
             }
-            return 0
+            return self.imageTotalHeight
         default:
             return UITableView.automaticDimension
         }
+    }
+    
+    func tableView(_ tableView: UITableView, dragPreviewParametersForRowAt indexPath: IndexPath) -> UIDragPreviewParameters? {
+        let param = UIDragPreviewParameters()
+        param.backgroundColor = .clear
+        return param
+    }
+    
+    func tableView(_ tableView: UITableView, dropPreviewParametersForRowAt indexPath: IndexPath) -> UIDragPreviewParameters? {
+        let param = UIDragPreviewParameters()
+        param.backgroundColor = .clear
+        return param
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -1059,7 +1093,7 @@ extension EditorViewController {
             self.bottombar.isKeyboardShow = true
             
             // 显示完成按钮
-//            self.navigationItem.rightBarButtonItem = completeBtn
+            //            self.navigationItem.rightBarButtonItem = completeBtn
             
             
         }
@@ -1090,7 +1124,7 @@ extension EditorViewController {
             
             
             self.bottombar.isKeyboardShow = false
-//            self.navigationItem.rightBarButtonItem =  nil
+            //            self.navigationItem.rightBarButtonItem =  nil
         }
     }
 }
@@ -1103,8 +1137,8 @@ extension EditorViewController {
                 if let self = self {
                     self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.note))
                 }
-                },onError: {
-                    Logger.error($0)
+            },onError: {
+                Logger.error($0)
             })
             .disposed(by: disposeBag)
     }
@@ -1118,8 +1152,8 @@ extension EditorViewController {
                     completion()
                     return
                 }
-                }, onError: {
-                    Logger.error($0)
+            }, onError: {
+                Logger.error($0)
             })
             .disposed(by: disposeBag)
     }
@@ -1144,8 +1178,8 @@ extension EditorViewController {
                 })
                 
                 
-                }, onError: {
-                    Logger.error($0)
+            }, onError: {
+                Logger.error($0)
             })
             .disposed(by: disposeBag)
     }
@@ -1163,8 +1197,8 @@ extension EditorViewController {
                 self.tableView.performBatchUpdates({
                     self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .automatic)
                 }, completion: nil)
-                }, onError: {
-                    Logger.error($0)
+            }, onError: {
+                Logger.error($0)
             })
             .disposed(by: disposeBag)
         
@@ -1211,18 +1245,36 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
         if  let imagesCell = self.attachmentsCell {
             //附加
             self.note.addImageBlocks(imageBlocks)
+            self.imageTotalHeight = self.calculateTotalHeight()
+            
             let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
             // 刷新 collection
             imagesCell.handleDataChanged(insertionIndices: insertionIndices, insertedImages: imageBlocks)
+            self.sroll2ImageShow()
             return
         }
         
         self.sections.append(SectionType.images)
         self.note.addImageBlocks(imageBlocks)
+        self.imageTotalHeight = self.calculateTotalHeight()
+        
         let sectionIndex = self.sections.count - 1
+        
+        
         self.tableView.performBatchUpdates({
             self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
-        }, completion: nil)
+        }, completion: { _ in
+            
+            self.sroll2ImageShow()
+        })
+    }
+    
+    private func sroll2ImageShow() {
+        guard  let sectionIndex = sections.firstIndex(where: {$0 == SectionType.images}) else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            // Code you want to be delayed
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: sectionIndex), at: .top, animated: true)
+        }
     }
 }
 
@@ -1269,6 +1321,49 @@ extension EditorViewController: UITextFieldDelegate {
             }
         }
         return true
+    }
+    
+}
+
+//MARK: 计算高度
+extension EditorViewController {
+    
+    func calculateTotalHeight() -> CGFloat{
+        Logger.info("计算高度啊。。。。。。。。。。。。。。。。。。")
+        var cellsHeight:[Int: CGFloat] = {
+            var cellsHeight:[Int: CGFloat] = [:]
+            for index in 0..<columnCount {
+                cellsHeight[index] = 0
+            }
+            return cellsHeight
+        }()
+        for (_,block) in self.note.imageBlocks.enumerated() {
+            
+            let width = block.properties["width"] as? CGFloat ?? 1000
+            let height = block.properties["height"] as? CGFloat ?? 1000
+            let fitHeight = self.imageWidth * height / width
+            
+            let columnIndex = getCurrentMinValueIndex(cellsHeight: cellsHeight)
+            let oldHeight = cellsHeight[columnIndex] ?? 0
+            let bottomSpace = ((oldHeight == 0) ? CGFloat.zero : AttachmentsConstants.cellSpace)
+            cellsHeight[columnIndex] = oldHeight + fitHeight + bottomSpace
+        }
+        return cellsHeight.values.max() ?? 0
+    }
+    
+    private func getCurrentMinValueIndex(cellsHeight:[Int: CGFloat] ) -> Int {
+        if cellsHeight.count == 0 {
+            return 0
+        }
+        var tempVal = CGFloat.greatestFiniteMagnitude
+        var index = 0
+        for (cellIndex, columnHeight) in cellsHeight {
+            if tempVal > columnHeight {
+                tempVal = columnHeight
+                index = cellIndex
+            }
+        }
+        return index
     }
     
 }

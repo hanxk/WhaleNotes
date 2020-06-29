@@ -51,4 +51,11 @@ extension UILabel {
         }
         attributedText = myString
     }
+    
+    func textDropShadow() {
+         self.layer.masksToBounds = false
+         self.layer.shadowRadius = 2.0
+         self.layer.shadowOpacity = 0.4
+         self.layer.shadowOffset = CGSize(width: 1, height: 2)
+     }
 }

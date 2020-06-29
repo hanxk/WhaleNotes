@@ -10,13 +10,13 @@ import SnapKit
 
 class BottomBarView: UIView {
     
-    let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .light)
+    let config = UIImage.SymbolConfiguration(pointSize: 23, weight: .light)
     lazy var addButton: UIButton = UIButton().then {
         $0.setImage(UIImage(systemName: "plus.circle",withConfiguration: config), for: .normal)
     }
     
     lazy var moreButton: UIButton = UIButton().then {
-        $0.setImage(UIImage(systemName:  "ellipsis", pointSize: 20, weight: .regular), for: .normal)
+        $0.setImage(UIImage(systemName:  "ellipsis.circle", pointSize: 23, weight: .light), for: .normal)
     }
     
     lazy var keyboardButton: UIButton = UIButton().then {

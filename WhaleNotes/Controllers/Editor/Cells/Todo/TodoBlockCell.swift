@@ -58,13 +58,8 @@ class TodoBlockCell: UITableViewCell {
     
     var note:Note! {
         didSet {
-            self.backgroundColor = UIColor(hexString: note.backgroundColor)
-            self.selectedBackgroundView?.backgroundColor =  self.backgroundColor
-            
             textView.isEditable = note.status != NoteBlockStatus.trash
             chkbtn.isEnabled =  note.status != NoteBlockStatus.trash
-            self.contentView.backgroundColor = UIColor(hexString: note.backgroundColor)
-            
         }
     }
     
@@ -122,6 +117,7 @@ class TodoBlockCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     private func setup() {
         self.selectionStyle = .none

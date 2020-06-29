@@ -42,8 +42,9 @@ class PhotoViewerViewController:JXPhotoBrowser {
     }
     
     private lazy var titleLabel:UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 18,weight: .medium)
+        $0.font = UIFont.systemFont(ofSize: 18,weight: .regular)
         $0.textColor = UIColor.white
+        $0.textDropShadow()
     }
     
     private lazy var closeButton:UIButton = UIButton().then {
