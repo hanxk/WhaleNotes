@@ -38,7 +38,7 @@ class HomeTitleView:UIView {
     }
     
     private let arrowImageView = UIImageView().then {
-        $0.image =  UIImage(systemName: "chevron.down", pointSize: 13, weight: .light)?.withRenderingMode(.alwaysTemplate)
+        $0.image =  UIImage(systemName: "chevron.down", pointSize: 13, weight: .regular)?.withRenderingMode(.alwaysTemplate)
         $0.tintColor  = UIColor.primaryText.withAlphaComponent(0.8)
     }
     

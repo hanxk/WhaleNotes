@@ -43,7 +43,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
         layer0.shadowOpacity = 1
         layer0.shadowRadius = 4
         layer0.shadowOffset = CGSize(width: 0, height: 2)
-        layer0.cornerRadius = 29
+        layer0.cornerRadius = FloatButtonConstants.btnSize/2
         layer0.backgroundColor = UIColor(red: 0.278, green: 0.627, blue: 0.957, alpha: 1).cgColor
         
         
@@ -124,12 +124,12 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     func setupFloatButtons() {
         
-        let btnSize:CGFloat = 58
+        let btnSize:CGFloat = FloatButtonConstants.btnSize
         self.addSubview(btnNewNote)
         btnNewNote.snp.makeConstraints { (make) -> Void in
             make.width.height.equalTo(btnSize)
-            make.bottom.equalTo(self).offset(-26)
-            make.trailing.equalTo(self).offset(-16)
+            make.bottom.equalTo(self).offset(-FloatButtonConstants.bottom)
+            make.trailing.equalTo(self).offset(-FloatButtonConstants.trailing)
         }
     }
     

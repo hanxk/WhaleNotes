@@ -79,7 +79,7 @@ extension UIColor {
     
     open class var iconColor: UIColor {
         get {
-            return UIColor(hexString: "#444444")
+            return UIColor(hexString: "#202020")
         }
     }
     

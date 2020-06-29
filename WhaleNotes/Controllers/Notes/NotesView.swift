@@ -35,7 +35,15 @@ enum NotesViewConstants {
     static let waterfall_cellSpace: CGFloat = 12
     static let waterfall_cellHorizontalSpace: CGFloat = 14
     
+    
+    
+}
 
+enum FloatButtonConstants {
+    
+    static let btnSize:CGFloat = 52
+    static let trailing:CGFloat = 15
+    static let bottom:CGFloat = 22
     
 }
 
@@ -369,34 +377,34 @@ extension NotesView {
     
     func setupFloatButtons() {
         
-        let btnSize:CGFloat = 54
         
-        let btnNewNote = makeButton().then {
-            $0.tintColor = .white
-            $0.backgroundColor = .brand
-
-            let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
-            $0.setImage(UIImage(systemName: "pencil",withConfiguration:config )?.withTintColor(.white), for: .normal)
-            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
-        }
-        self.addSubview(btnNewNote)
-        btnNewNote.snp.makeConstraints { (make) -> Void in
-            make.width.height.equalTo(btnSize)
-            make.bottom.equalTo(self).offset(-22)
-            make.trailing.equalTo(self).offset(-15)
-        }
+//        let btnNewNote = makeButton().then {
+//            $0.tintColor = .white
+//            $0.backgroundColor = .brand
+//
+//            let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+//            $0.setImage(UIImage(systemName: "pencil",withConfiguration:config )?.withTintColor(.white), for: .normal)
+//            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
+//        }
+//        self.addSubview(btnNewNote)
+//        btnNewNote.snp.makeConstraints { (make) -> Void in
+//            make.width.height.equalTo(btnSize)
+//            make.bottom.equalTo(self).offset(-22)
+//            make.trailing.equalTo(self).offset(-15)
+//        }
         
         let btnMore = makeButton().then {
-            $0.backgroundColor = .white
-            $0.tintColor = .brand
-            $0.setImage( UIImage(systemName: "ellipsis"), for: .normal)
+            $0.backgroundColor = .brand
+            $0.tintColor = .white
+            $0.layer.cornerRadius = FloatButtonConstants.btnSize / 2
+            $0.setImage( UIImage(systemName: "plus", pointSize: 25, weight: .regular), for: .normal)
             $0.addTarget(self, action: #selector(btnMoreTapped), for: .touchUpInside)
         }
         self.addSubview(btnMore)
         btnMore.snp.makeConstraints { (make) -> Void in
-            make.width.height.equalTo(btnSize)
-            make.bottom.equalTo(btnNewNote.snp.top).offset(-16)
-            make.trailing.equalTo(btnNewNote)
+            make.width.height.equalTo(FloatButtonConstants.btnSize)
+            make.bottom.equalTo(self).offset(-FloatButtonConstants.bottom)
+            make.trailing.equalTo(self).offset(-FloatButtonConstants.trailing)
         }
     }
     
@@ -489,7 +497,7 @@ extension NotesView {
         layer0.shadowOpacity = 1
         layer0.shadowRadius = 4
         layer0.shadowOffset = CGSize(width: 0, height: 2)
-        layer0.cornerRadius = 26
+        layer0.cornerRadius = 29
         layer0.backgroundColor = UIColor(red: 0.278, green: 0.627, blue: 0.957, alpha: 1).cgColor
         return btn
     }
