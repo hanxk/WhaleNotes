@@ -140,13 +140,15 @@ class NoteCellNode: ASCellNode {
                 let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
                 let image   = UIImage(contentsOfFile: imageUrlPath)
                 $0.image = image
-                $0.backgroundColor = .placeHolderColor
+                $0.backgroundColor = UIColor.placeHolderColor.withAlphaComponent(0.6)
                 $0.style.width = ASDimensionMake(contentWidth)
                 $0.style.height = ASDimensionMake(NoteCellConstants.imageHeight)
+                $0.addTarget(self, action: #selector(self.noteCellImageBlockTapped), forControlEvents: .touchUpInside)
+                $0.cornerRadius = cornerRadius
+                $0.borderWidth = 1
+                $0.borderColor = cardbackground.borderColor
                 
             }
-            imageNode.addTarget(self, action: #selector(self.noteCellImageBlockTapped), forControlEvents: .touchUpInside)
-            imageNode.cornerRadius = 4
             remainHeight -= NoteCellConstants.imageHeight
             self.imageNodes.append(imageNode)
             self.addSubnode(imageNode)
@@ -210,14 +212,14 @@ class NoteCellNode: ASCellNode {
         
         menuButton = ASButtonNode().then {
             $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
-            
+            $0.style.width = ASDimensionMake(30)
             let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
-            let iconImage = UIImage(systemName: "ellipsis", withConfiguration: config)?.withTintColor(UIColor.init(hexString: "#999999"))
             
-            $0.setImage(iconImage, for: .normal)
-            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: NoteCellConstants.horizontalPadding, bottom:0, right: NoteCellConstants.horizontalPadding)
+            $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config)!.withTintColor(UIColor(hexString: "#999999")), for: .normal)
+//            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: NoteCellConstants.horizontalPadding, bottom:0, right: NoteCellConstants.horizontalPadding)
             $0.contentMode = .center
             $0.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
+            $0.cornerRadius = 4
         }
         
         if self.todosElements.isNotEmpty {
@@ -335,6 +337,7 @@ class NoteCellNode: ASCellNode {
             $0.style.height = cellHeight
         }
         
+        
         // 内容
         if  let contentLayout = renderContent() {
             stackLayout.children?.append(contentLayout)
@@ -347,7 +350,7 @@ class NoteCellNode: ASCellNode {
         // 图片卡
         if isEmptyContent {
             
-            let bottomLayout = renderBottomBar()
+            let bottomLayout = renderBottomBar(isImageCard: true)
             let bottombarLayout = ASRelativeLayoutSpec(horizontalPosition: .start, verticalPosition: .end, sizingOption: [], child: bottomLayout)
             
             if self.imageNodes.isEmpty {
@@ -355,14 +358,21 @@ class NoteCellNode: ASCellNode {
                 return bottombarLayout
             }
             
+            
             let imageNode = self.imageNodes[0]
-            imageNode.style.width = cellWidth
-            imageNode.style.height = cellHeight
+            imageNode.style.width = ASDimensionMake(itemSize.width)
+            imageNode.style.height = ASDimensionMake(itemSize.height)
             
             
+//            let borderInsets =  UIEdgeInsets.init(top: 1 ,left:1, bottom: 1, right:  1)
             let overlayLayout =  ASOverlayLayoutSpec(child: imageNode, overlay: bottombarLayout)
+//            let imageLayout =  ASInsetLayoutSpec(insets:borderInsets, child: overlayLayout)
+//            stackLayout.child = imageNode
+            
             return overlayLayout
         }
+        
+        let itemLayout =  ASBackgroundLayoutSpec(child: stackLayout, background: self.cardbackground)
         
         // 添加图片
         if imageNodes.isNotEmpty {
@@ -375,7 +385,6 @@ class NoteCellNode: ASCellNode {
         let bottomLayout = renderBottomBar()
         stackLayout.children?.append(bottomLayout)
         
-        let itemLayout =  ASBackgroundLayoutSpec(child: stackLayout, background: self.cardbackground)
         if let boardButton = self.boardButton {
             let stackVLayout = ASStackLayoutSpec.vertical().then {
                 $0.style.width = cellWidth
@@ -438,7 +447,7 @@ class NoteCellNode: ASCellNode {
         return nil
     }
     
-    private func renderBottomBar() -> ASStackLayoutSpec {
+    private func renderBottomBar(isImageCard:Bool = false) -> ASStackLayoutSpec {
         let bottomLayout = ASStackLayoutSpec.horizontal().then {
             $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
             $0.style.width = ASDimensionMake(itemSize.width)
@@ -459,6 +468,12 @@ class NoteCellNode: ASCellNode {
             
         }
         let todoStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: NoteCellConstants.horizontalPadding, bottom: 0, right: 0), child: todoStack)
+        if isImageCard {
+            self.menuButton.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+        }else {
+            self.menuButton.backgroundColor = .clear
+        }
+//        imageNode.setImage(UIImage(systemName: "ellipsis", withConfiguration: config)!.withTintColor(UIColor(hexString: "#999999")), for: .normal)
         
         bottomLayout.children?.append(todoStackLayout)
         bottomLayout.children?.append(self.menuButton)
