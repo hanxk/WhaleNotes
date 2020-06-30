@@ -34,24 +34,12 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     
 
-    let btnNewNote = UIButton().then {
-
-        $0.contentMode = .center
-        $0.imageView?.contentMode = .scaleAspectFit
-        let layer0 = $0.layer
-        layer0.shadowColor = UIColor.black.withAlphaComponent(0.2).cgColor
-        layer0.shadowOpacity = 1
-        layer0.shadowRadius = 4
-        layer0.shadowOffset = CGSize(width: 0, height: 2)
-        layer0.cornerRadius = FloatButtonConstants.btnSize/2
-        layer0.backgroundColor = UIColor(red: 0.278, green: 0.627, blue: 0.957, alpha: 1).cgColor
-        
-        
+    let btnNewNote = NotesView.makeFloatButton().then {
         $0.tintColor = .white
         $0.backgroundColor = UIColor(hexString: "#EC4D3D")
         $0.isHidden = true
 
-        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .light)
+        let config = UIImage.SymbolConfiguration(pointSize: FloatButtonConstants.iconSize, weight: .light)
         $0.setImage(UIImage(systemName: "bin.xmark",withConfiguration:config )?.withTintColor(.white), for: .normal)
         $0.addTarget(self, action: #selector(btnClearTapped), for: .touchUpInside)
     }

@@ -22,10 +22,6 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
-    private var sectionNoteInfo:SectionNoteInfo! {
-        didSet {
-        }
-    }
     
     var callbackCellBoardButtonTapped:((Note)->Void)?
     
@@ -229,7 +225,7 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
     
     func noteMenuBackgroundChanged(note: Note) {
         guard let row = self.notes.firstIndex(where: {$0.id == note.id}) else { return }
-        self.sectionNoteInfo.notes[row] = note
+        self.notes[row] = note
         if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
             noteCell.note = note
             noteCell.setupBackBackground()
