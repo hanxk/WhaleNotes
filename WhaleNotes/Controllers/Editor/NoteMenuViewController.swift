@@ -18,40 +18,54 @@ enum NoteMenuType {
     case background
     case info
     case trash
-}
-
-
-enum NoteTrashMenuType {
+    case deleteBlock(blockType:BlockType)
+    
+    //废纸篓
     case restore
     case delete
+    
 }
 
+enum NoteMenuDisplayMode {
+    case detail
+    case list
+    case trash
+}
 
 protocol NoteMenuViewControllerDelegate: AnyObject {
     func noteMenuDataMoved(note: Note)
     func noteMenuMoveToTrash(note: Note)
     func noteMenuBackgroundChanged(note:Note)
     func noteMenuArchive(note: Note)
-}
-
-
-protocol NoteMenuViewControllerTrashDelegate: AnyObject {
+    
+    func noteBlockDelete(blockType:BlockType)
+    
     func noteMenuDeleteTapped(note: Note)
     func noteMenuDataRestored(note: Note)
+}
+
+extension NoteMenuViewControllerDelegate {
+    func noteMenuDataMoved(note: Note){}
+    func noteMenuMoveToTrash(note: Note){}
+    func noteMenuBackgroundChanged(note:Note){}
+    func noteMenuArchive(note: Note){}
+    func noteBlockDelete(blockType:BlockType) {}
+}
+
+// 废纸篓
+extension NoteMenuViewControllerDelegate {
+    func noteMenuDeleteTapped(note: Note) {}
+    func noteMenuDataRestored(note: Note) { }
 }
 
 class NoteMenuViewController: ContextMenuViewController {
     
     var note:Note!
+    var mode:NoteMenuDisplayMode!
     
     weak var delegate:NoteMenuViewControllerDelegate? {
         didSet {
             self.setupMenus()
-        }
-    }
-    weak var trashDelegate:NoteMenuViewControllerTrashDelegate? {
-        didSet {
-            self.setupTrashMenus()
         }
     }
     
@@ -63,17 +77,11 @@ class NoteMenuViewController: ContextMenuViewController {
     
     static let menuWidth:CGFloat = 200
     
-    static func show(note:Note,sourceView:UIView,delegate:NoteMenuViewControllerDelegate) {
+    static func show(mode:NoteMenuDisplayMode, note:Note,sourceView:UIView,delegate:NoteMenuViewControllerDelegate) {
         let menuVC =  NoteMenuViewController()
         menuVC.note = note
+        menuVC.mode = mode
         menuVC.delegate = delegate
-        menuVC.showContextMenu(sourceView: sourceView)
-    }
-    
-    static func showTrashMenu(note:Note,sourceView:UIView,delegate:NoteMenuViewControllerTrashDelegate) {
-        let menuVC =  NoteMenuViewController()
-        menuVC.note = note
-        menuVC.trashDelegate = delegate
         menuVC.showContextMenu(sourceView: sourceView)
     }
     
@@ -81,22 +89,16 @@ class NoteMenuViewController: ContextMenuViewController {
         self.init(nibName:nil, bundle:nil)
         self.menuWidth = NoteMenuViewController.menuWidth
     }
-    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
     
     private func setupMenus() {
         
-        let archiveTitle = note.status == NoteBlockStatus.archive ? "取消归档" : "归档"
+        self.setupMenuItems()
         
-        self.items = [
-//            ContextMenuItem(label: "置顶", icon: "arrow.up.to.line.alt", tag: NoteMenuType.pin),
-            ContextMenuItem(label: archiveTitle, icon: "archivebox", tag: NoteMenuType.archive),
-            ContextMenuItem(label: "移动至...", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move,isNeedJump: true),
-            ContextMenuItem(label: "背景色", icon: "paintbrush", tag: NoteMenuType.background,isNeedJump: true),
-            ContextMenuItem(label: "显示信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
-            ContextMenuItem(label: "移到废纸篓", icon: "trash", tag: NoteMenuType.trash),
-        ]
         self.itemTappedCallback = { menuItem,menuVC in
-            guard let tag = menuItem.tag as? NoteMenuType else { return }
+            guard let tag = menuItem.tag as? NoteMenuType else { return}
             switch tag {
             case .pin:
                 break
@@ -127,18 +129,10 @@ class NoteMenuViewController: ContextMenuViewController {
             case .trash:
                 self.move2Trash()
                 break
-            }
-        }
-    }
-    
-    private func setupTrashMenus() {
-        self.items = [
-            ContextMenuItem(label: "恢复", icon: "arrow.up.bin", tag: NoteTrashMenuType.restore),
-            ContextMenuItem(label: "彻底删除", icon: "trash", tag: NoteTrashMenuType.delete),
-        ]
-        self.itemTappedCallback = { menuItem,menuVC in
-            guard let tag = menuItem.tag as? NoteTrashMenuType else { return }
-            switch tag {
+            case .deleteBlock(let blockType):
+//                self.deleteBlock(blockType)
+                self.delegate?.noteBlockDelete(blockType: blockType)
+                break
             case .restore:
                 self.restoreNote()
                 break
@@ -149,10 +143,45 @@ class NoteMenuViewController: ContextMenuViewController {
         }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    private func setupMenuItems() {
+        if self.mode == NoteMenuDisplayMode.trash {
+            let menuItems = [
+                ContextMenuItem(label: "恢复", icon: "arrow.up.bin", tag: NoteMenuType.restore),
+                ContextMenuItem(label: "彻底删除", icon: "trash", tag: NoteMenuType.delete),
+            ]
+            self.items.append((SectionMenuItem(id: 1),menuItems))
+            return
+        }
+        
+        let archiveTitle = note.status == NoteBlockStatus.archive ? "取消归档" : "归档"
+        let menuItems = [
+            ContextMenuItem(label: archiveTitle, icon: "archivebox", tag: NoteMenuType.archive),
+            ContextMenuItem(label: "移动至...", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move,isNeedJump: true),
+            ContextMenuItem(label: "背景色", icon: "paintbrush", tag: NoteMenuType.background,isNeedJump: true),
+            ContextMenuItem(label: "显示信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
+            ContextMenuItem(label: "移到废纸篓", icon: "trash", tag: NoteMenuType.trash),
+        ]
+        self.items.append((SectionMenuItem(id: 1),menuItems))
+        
+        if mode == NoteMenuDisplayMode.detail {
+            var secondItems:[ContextMenuItem] = []
+            if note.textBlock != nil {
+                secondItems.append(ContextMenuItem(label: "删除 \"文本\"", icon: "textbox", tag: NoteMenuType.deleteBlock(blockType: BlockType.text)))
+            }
+            if note.rootTodoBlock != nil {
+                secondItems.append(ContextMenuItem(label: "删除 \"待办事项\"", icon: "checkmark.square", tag: NoteMenuType.deleteBlock(blockType: BlockType.todo)))
+            }
+            if note.imageBlocks.isNotEmpty {
+                secondItems.append(ContextMenuItem(label: "删除 \"图片集\"", icon: "photo.on.rectangle", tag: NoteMenuType.deleteBlock(blockType: BlockType.image)))
+            }
+            
+            if secondItems.isNotEmpty {
+                self.items.append((SectionMenuItem(id: 2),secondItems))
+            }
+        }
         
     }
+    
 }
 
 extension NoteMenuViewController {
@@ -168,9 +197,7 @@ extension NoteMenuViewController {
             .subscribe(onNext: { block in
                 var newNote = self.note!
                 newNote.rootBlock = block
-//                self.callbackNoteUpdated?(newNote, NoteMenuType.background)
                 self.delegate?.noteMenuBackgroundChanged(note: newNote)
-                
                 self.dismiss()
                 
             }, onError: { error in
@@ -199,6 +226,7 @@ extension NoteMenuViewController {
             self.delegate?.noteMenuMoveToTrash(note: $0)
         }
     }
+    
     
     private func archivenNote() {
         guard var noteBlock = self.note.rootBlock else { return }
@@ -232,7 +260,7 @@ extension NoteMenuViewController {
             .subscribe(onNext: {
                 var newNote = self.note!
                 newNote.rootBlock = $0
-                self.trashDelegate?.noteMenuDataRestored(note: self.note)
+                self.delegate?.noteMenuDataRestored(note: self.note)
             }, onError: { error in
                 Logger.error(error)
             },onCompleted: {
@@ -242,6 +270,6 @@ extension NoteMenuViewController {
     }
     
     func deleteNote() {
-        self.trashDelegate?.noteMenuDeleteTapped(note: self.note)
+        self.delegate?.noteMenuDeleteTapped(note: self.note)
     }
 }

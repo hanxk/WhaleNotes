@@ -16,13 +16,20 @@ class ContextMenuCell: UITableViewCell {
         didSet {
             labelView.text = menuItem.label
             iconView.image = UIImage(systemName: menuItem.icon)
+//            if menuItem.isDestructive {
+//                iconView.tintColor = .red
+//                labelView.textColor = .red
+//            }else {
+//                iconView.tintColor = UIColor.init(hexString: "#444444")
+//                labelView.textColor = .primaryText
+//            }
             arrowView.isHidden = !menuItem.isNeedJump
         }
     }
     
     static let padding:CGFloat = 12
     static let spacing:CGFloat = 10
-    static let cellHeight: CGFloat = 44
+    static let cellHeight: CGFloat = 46
     
     private static let labelTextFont = UIFont.systemFont(ofSize: 15)
     
@@ -39,8 +46,8 @@ class ContextMenuCell: UITableViewCell {
     
     private lazy var arrowView: UIImageView = UIImageView().then {
         $0.contentMode = .center
-        $0.image = UIImage(systemName: "chevron.right", pointSize: 12, weight: .light)
-        $0.tintColor = UIColor.init(hexString: "#999999")
+        $0.image = UIImage(systemName: "chevron.right", pointSize: 12, weight: .regular)
+        $0.tintColor = UIColor.init(hexString: "#666666")
         $0.isHidden = true
     }
     
@@ -65,12 +72,14 @@ class ContextMenuCell: UITableViewCell {
             make.leading.equalToSuperview().offset(NoteDetailMenuCell.padding)
         }
         
+        let spacing:CGFloat = 10
+        
         contentView.addSubview(labelView)
         contentView.addSubview(arrowView)
         labelView.snp.makeConstraints { (make) in
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(iconView.snp.trailing).offset(8)
-            make.trailing.equalTo(arrowView.snp.leading).offset(-8)
+            make.leading.equalTo(iconView.snp.trailing).offset(spacing)
+            make.trailing.equalTo(arrowView.snp.leading).offset(-spacing)
         }
         
         

@@ -93,6 +93,13 @@ class BlockDao {
         return rows > 0
     }
     
+    
+    func delete(noteId:Int64,type:String) throws -> Bool {
+        let blockTable = table.filter(Field_Block.noteId == noteId && Field_Block.type == type)
+        let rows = try db.run(blockTable.delete())
+        return rows > 0
+    }
+    
     func deleteByNoteId(noteId: Int64)  throws {
         let blockTable = table.filter(Field_Block.noteId == noteId)
         _ = try db.run(blockTable.delete())
@@ -116,6 +123,17 @@ class BlockDao {
     
     func query(noteId:Int64) throws ->[Block] {
         let query = table.filter(Field_Block.noteId == noteId).order(Field_Block.sort.asc)
+        let blockRows = try db.prepare(query)
+        var blocks:[Block] = []
+        for row in blockRows {
+            let block = generateBlock(row: row)
+            blocks.append(block)
+        }
+        return blocks
+    }
+    
+    func query(noteId:Int64,type:String) throws ->[Block] {
+        let query = table.filter(Field_Block.noteId == noteId && Field_Block.type == type).order(Field_Block.sort.asc)
         let blockRows = try db.prepare(query)
         var blocks:[Block] = []
         for row in blockRows {

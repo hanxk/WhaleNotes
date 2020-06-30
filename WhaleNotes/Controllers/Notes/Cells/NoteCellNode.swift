@@ -346,15 +346,16 @@ class NoteCellNode: ASCellNode {
         
         let insets =  UIEdgeInsets.init(top: 0 , left: NoteCellConstants.horizontalPadding, bottom: 0, right:  NoteCellConstants.horizontalPadding)
         
+        
+        let itemLayout =  ASBackgroundLayoutSpec(child: stackLayout, background: self.cardbackground)
+        let bottomLayout = renderBottomBar(isImageCard: self.imageNodes.isNotEmpty && titleNode == nil)
+        
         // 图片卡
         if isEmptyContent {
-            
-            let bottomLayout = renderBottomBar(isImageCard: true)
             let bottombarLayout = ASRelativeLayoutSpec(horizontalPosition: .start, verticalPosition: .end, sizingOption: [], child: bottomLayout)
-            
             if self.imageNodes.isEmpty {
-                
-                return bottombarLayout
+                stackLayout.child = bottombarLayout
+                return itemLayout
             }
             
             
@@ -362,16 +363,11 @@ class NoteCellNode: ASCellNode {
             imageNode.style.width = ASDimensionMake(itemSize.width)
             imageNode.style.height = ASDimensionMake(itemSize.height)
             
-            
-//            let borderInsets =  UIEdgeInsets.init(top: 1 ,left:1, bottom: 1, right:  1)
             let overlayLayout =  ASOverlayLayoutSpec(child: imageNode, overlay: bottombarLayout)
-//            let imageLayout =  ASInsetLayoutSpec(insets:borderInsets, child: overlayLayout)
-//            stackLayout.child = imageNode
+            stackLayout.child = overlayLayout
             
-            return overlayLayout
+            return itemLayout
         }
-        
-        let itemLayout =  ASBackgroundLayoutSpec(child: stackLayout, background: self.cardbackground)
         
         // 添加图片
         if imageNodes.isNotEmpty {
@@ -380,8 +376,7 @@ class NoteCellNode: ASCellNode {
             stackLayout.children?.append(children)
         }
         
-        // bottom bar
-        let bottomLayout = renderBottomBar()
+        
         stackLayout.children?.append(bottomLayout)
         
         if let boardButton = self.boardButton {

@@ -246,7 +246,7 @@ extension TrashView:NoteCellNodeDelegate {
     }
     
     func noteCellMenuTapped(sender: UIView,note:Note) {
-        NoteMenuViewController.showTrashMenu(note: note, sourceView: sender, delegate: self)
+        NoteMenuViewController.show(mode:.trash,note: note, sourceView: sender, delegate: self)
     }
     
     
@@ -255,7 +255,7 @@ extension TrashView:NoteCellNodeDelegate {
 
 
 //MARK: NoteMenuViewControllerDelegate
-extension TrashView:NoteMenuViewControllerTrashDelegate {
+extension TrashView:NoteMenuViewControllerDelegate {
     func noteMenuDeleteTapped(note: Note) {
         let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in

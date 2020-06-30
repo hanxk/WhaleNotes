@@ -265,43 +265,6 @@ class EditorViewController: UIViewController {
         self.registerTableViewTaped()
     }
     
-    private func registerTableViewTaped() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tableViewTapped))
-        tapGesture.cancelsTouchesInView = false
-        self.tableView.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
-        
-        if sender.state != .ended {
-            return
-        }
-        if self.sections.count == 0 {
-            titleTextField.becomeFirstResponder()
-            return
-        }
-        
-        let touch = sender.location(in: tableView)
-        if let _ = tableView.indexPathForRow(at: touch) { // 点击空白区域
-            return
-        }
-        
-        
-        let section = self.sections.count-1
-        let sectionType = self.sections[section]
-        switch sectionType {
-        case .text:
-            if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? TextBlockCell {
-                cell.textView.becomeFirstResponder()
-            }
-        case .todo:
-            if let cell = tableView.cellForRow(at: IndexPath(row: self.note.todoBlocks.count-1, section: section)) as? TodoBlockCell {
-                cell.textView.becomeFirstResponder()
-            }
-        default:
-            break
-        }
-    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -350,6 +313,33 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
         self.bg = note.backgroundColor
     }
     
+    func noteBlockDelete(blockType: BlockType) {
+        switch blockType {
+        case .text:
+            self.showDeleteBlockTip(tip: "文本") {
+                self.deleteTextBlock()
+            }
+        case .todo:
+            self.showDeleteBlockTip(tip: "待办事项") {
+                self.deleteRootTodoBlock()
+            }
+        case .image:
+            self.showDeleteBlockTip(tip: "图片") {
+                self.deleteImageBlocks()
+            }
+        default:
+            break
+        }
+    }
+    private func showDeleteBlockTip(tip:String,callback: @escaping ()->Void) {
+        let alert = UIAlertController(title: "删除\(tip)", message: "删除后内容将不能够被恢复,确认要删除吗？", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确认删除", style: .destructive, handler: { _ in
+            callback()
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    
     
     func noteMenuDataMoved(note: Note) {
         self.navigationController?.popViewController(animated: true)
@@ -358,9 +348,9 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
         if note.status == NoteBlockStatus.trash {
-            NoteMenuViewController.showTrashMenu(note: self.note, sourceView: sender, delegate: self)
+            NoteMenuViewController.show(mode: .trash, note: self.note, sourceView: sender,delegate: self)
         }else {
-            NoteMenuViewController.show(note: self.note, sourceView: sender,delegate: self)
+            NoteMenuViewController.show(mode: .detail, note: self.note, sourceView: sender,delegate: self)
         }
     }
     
@@ -442,7 +432,7 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
 }
 
 
-extension EditorViewController:NoteMenuViewControllerTrashDelegate {
+extension EditorViewController {
     func noteMenuDeleteTapped(note: Note) {
         let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
@@ -681,12 +671,7 @@ extension EditorViewController: UITableViewDataSource {
         }else {
             
             self.imageTotalHeight = self.calculateTotalHeight()
-            DispatchQueue.main.async {
-                UIView.performWithoutAnimation {
-                    self.tableView.beginUpdates()
-                    self.tableView.endUpdates()
-                }
-            }
+            self.refreshTableViewHeight()
             
             if let cell = self.attachmentsCell {
                 cell.reloadData(imageBlocks: self.note.imageBlocks)
@@ -825,8 +810,7 @@ extension EditorViewController: UITableViewDataSource {
         self.createBlock(block: todoBlock) { _ in
             self.tableView.performBatchUpdates({
                 self.tableView.insertRows(at: [targetIndex], with: .bottom)
-            }, completion: { _ in
-            })
+            }, completion: nil)
             
             //获取焦点
             if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
@@ -848,7 +832,7 @@ extension EditorViewController: UITableViewDataSource {
                 self.note.setupTodoBlocks(todoBlocks: $0)
                 self.setupSectionsTypes()
                 self.tableView.performBatchUpdates({
-                    self.tableView.insertSections(IndexSet([self.todoSectionIndex]), with: .automatic)
+                    self.tableView.insertSections(IndexSet([self.todoSectionIndex]), with: .bottom)
                 }) { _ in
                     if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: self.todoSectionIndex)) as? TodoBlockCell {
                         cell.textView.becomeFirstResponder()
@@ -867,6 +851,10 @@ extension EditorViewController: UITableViewDataSource {
 
 //MARK: TodoBlockCellDelegate
 extension EditorViewController: TodoBlockCellDelegate {
+    func textDidChange() {
+        self.refreshTableViewHeight()
+    }
+    
     func todoCheckedChange(newBlock: Block) {
         self.tryUpdateBlock(block: newBlock) {
             
@@ -880,7 +868,7 @@ extension EditorViewController: TodoBlockCellDelegate {
         }, completion: nil)
     }
     
-    func textDidChange() {
+    func refreshTableViewHeight() {
         DispatchQueue.main.async {
             UIView.performWithoutAnimation {[weak self] in
                 self?.tableView.beginUpdates()
@@ -1056,6 +1044,49 @@ extension EditorViewController: UITableViewDelegate {
     }
 }
 
+//MARK: 处理空白区域点击
+extension EditorViewController {
+    
+    private func registerTableViewTaped() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tableViewTapped))
+        tapGesture.cancelsTouchesInView = false
+        self.tableView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
+        
+        if sender.state != .ended {
+            return
+        }
+        if self.sections.count == 0 {
+//            titleTextField.becomeFirstResponder()
+            self.handleAddButtonTapped(sender: self.bottombar.addButton)
+            return
+        }
+        
+        let touch = sender.location(in: tableView)
+        if let _ = tableView.indexPathForRow(at: touch) { // 点击空白区域
+            return
+        }
+        
+        
+        let section = self.sections.count-1
+        let sectionType = self.sections[section]
+        switch sectionType {
+        case .text:
+            if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? TextBlockCell {
+                cell.textView.becomeFirstResponder()
+            }
+        case .todo:
+            if let cell = tableView.cellForRow(at: IndexPath(row: self.note.todoBlocks.count-1, section: section)) as? TodoBlockCell {
+                cell.textView.becomeFirstResponder()
+            }
+        default:
+            break
+        }
+    }
+}
+
 // drag and drop
 extension EditorViewController: UITableViewDragDelegate, UITableViewDropDelegate  {
     
@@ -1172,12 +1203,46 @@ extension EditorViewController {
                 
                 self.note.removeBlock(block: block)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .automatic)
+                    self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .fade)
                 }, completion: { _ in
                     
                 })
                 
                 
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func deleteTextBlock() {
+        guard let textBlock = self.note.textBlock,let textSectionIndex = self.sections.firstIndex(of: SectionType.text) else { return }
+        noteRepo.deleteBlock(block: textBlock)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                self.note.removeBlock(block: textBlock)
+                self.sections.remove(at: textSectionIndex)
+                self.tableView.performBatchUpdates({
+                    self.tableView.deleteSections(IndexSet([textSectionIndex]), with: .top)
+                }, completion: nil)
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    
+    private func deleteImageBlocks() {
+        if self.note.imageBlocks.isEmpty { return }
+        guard let imageSectionIndex = self.sections.firstIndex(of: SectionType.images) else { return }
+        noteRepo.deleteImageBlocks(noteId: self.note.id)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                self.note.removeAllImageBlocks()
+                self.sections.remove(at: imageSectionIndex)
+                self.tableView.performBatchUpdates({
+                    self.tableView.deleteSections(IndexSet([imageSectionIndex]),with:.fade)
+                }, completion: nil)
             }, onError: {
                 Logger.error($0)
             })
@@ -1246,8 +1311,11 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
             //附加
             self.note.addImageBlocks(imageBlocks)
             self.imageTotalHeight = self.calculateTotalHeight()
+            self.refreshTableViewHeight()
             
             let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
+            
+
             // 刷新 collection
             imagesCell.handleDataChanged(insertionIndices: insertionIndices, insertedImages: imageBlocks)
             self.sroll2ImageShow()
@@ -1257,6 +1325,7 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
         self.sections.append(SectionType.images)
         self.note.addImageBlocks(imageBlocks)
         self.imageTotalHeight = self.calculateTotalHeight()
+        self.refreshTableViewHeight()
         
         let sectionIndex = self.sections.count - 1
         

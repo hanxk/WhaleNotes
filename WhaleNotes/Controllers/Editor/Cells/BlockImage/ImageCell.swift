@@ -24,6 +24,8 @@ class ImageCell: UICollectionViewCell {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = AttachmentsConstants.radius
         $0.backgroundColor = .placeHolderColor
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = UIColor.divider.cgColor
     }
     
     var imageBlock:Block! {

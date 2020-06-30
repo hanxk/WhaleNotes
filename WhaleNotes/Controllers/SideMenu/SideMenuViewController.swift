@@ -74,7 +74,7 @@ class SideMenuViewController: UIViewController {
             ]
             ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
                 vc.dismiss(animated: true, completion: nil)
-                guard let self = self,let flag = menuItem.tag as? Int else { return }
+                guard let self = self,let flag = menuItem.tag as? Int else { return}
                 if flag == 1 {
                     BoardEditAlertViewController.showModel(vc: self) { emoji,title in
                         self.createBoard(emoji: emoji, title: title)
@@ -254,7 +254,7 @@ extension SideMenuViewController {
         ]
         ContextMenuViewController.show(sourceView:sourceView, sourceVC: self, items: items) { [weak self] menuItem, vc in
             vc.dismiss(animated: true, completion: nil)
-            guard let self = self,let tag = menuItem.tag as? Int else { return }
+            guard let self = self,let tag = menuItem.tag as? Int else { return}
             switch tag {
             case TAG_ADD:
                 BoardEditAlertViewController.showModel(vc: self) { emoji,title in

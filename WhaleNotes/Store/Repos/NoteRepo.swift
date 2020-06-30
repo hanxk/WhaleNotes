@@ -111,6 +111,22 @@ class NoteRepo {
     }
     
     
+    func deleteImageBlocks(noteId:Int64) -> Observable<Bool>{
+        return Observable<Int64>.just(noteId)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(noteId)  -> Bool in
+                let result =  DBStore.shared.deleteImageBlocks(noteId: noteId)
+                switch result {
+                case .success(let isSuccess):
+                    return isSuccess
+                case .failure(let err):
+                    throw err
+                }
+            })
+            .observeOn(MainScheduler.instance)
+    }
+    
+    
     func createBlock(block:Block)-> Observable<Block> {
         Observable<Block>.just(block)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))

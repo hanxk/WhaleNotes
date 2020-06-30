@@ -203,4 +203,9 @@ extension Note {
         }
     }
     
+    mutating func removeAllImageBlocks() {
+        self.rootBlock.updatedAt = Date()
+        self.imageBlocks.removeAll()
+    }
+    
 }

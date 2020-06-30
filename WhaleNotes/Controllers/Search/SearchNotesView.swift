@@ -206,7 +206,7 @@ extension SearchNotesView:NoteCellNodeDelegate {
     }
     
     func noteCellMenuTapped(sender: UIView,note:Note) {
-        NoteMenuViewController.show(note: note,sourceView: sender,delegate: self)
+        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
     }
     
     

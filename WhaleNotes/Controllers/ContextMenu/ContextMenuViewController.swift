@@ -12,10 +12,11 @@ import ContextMenu
 open class ContextMenuViewController: UIViewController {
     
     
-    var items:[ContextMenuItem]!
+    var items:[(SectionMenuItem,[ContextMenuItem])] = []
     var itemTappedCallback:((ContextMenuItem,UIViewController)->Void)!
     
     var menuWidth:CGFloat = 0
+    let sectionHeight:CGFloat = 8
 
     private lazy var  cellBackgroundView = UIView().then {
         $0.backgroundColor = UIColor.tappedColor
@@ -23,7 +24,7 @@ open class ContextMenuViewController: UIViewController {
     
     static func show(sourceView:UIView,sourceVC: UIViewController,menuWidth:CGFloat = 0,items:[ContextMenuItem],callback:@escaping (ContextMenuItem,UIViewController)->Void) {
         let menuVC =  ContextMenuViewController()
-        menuVC.items = items
+        menuVC.items = [(SectionMenuItem(id: 0),items)]
         menuVC.menuWidth = menuWidth
         menuVC.itemTappedCallback = callback
         ContextMenu.shared.show(
@@ -36,7 +37,7 @@ open class ContextMenuViewController: UIViewController {
     
     
     private lazy var tableView = UITableView().then { [weak self] in
-                $0.separatorColor = .clear
+         $0.separatorColor = .divider
         $0.delegate = self
         $0.dataSource = self
         $0.register(ContextMenuCell.self, forCellReuseIdentifier: "ContextMenuCell")
@@ -54,7 +55,17 @@ open class ContextMenuViewController: UIViewController {
     }
     
     private func setupUI() {
-        preferredContentSize = CGSize(width: caculateTextWidth(), height: CGFloat(items.count) * ContextMenuCell.cellHeight - 44)
+        
+        let maxHeight = 6.7 * ContextMenuCell.cellHeight - 44
+        
+        var itemsCount:CGFloat = 0
+        for item in items {
+            itemsCount += CGFloat(item.1.count)
+        }
+        
+        let height = itemsCount * ContextMenuCell.cellHeight - 44
+        
+        preferredContentSize = CGSize(width: caculateTextWidth(), height: min(height, maxHeight))
         self.view.backgroundColor = .blue
         
         self.view.addSubview(tableView)
@@ -70,9 +81,11 @@ open class ContextMenuViewController: UIViewController {
     
     private func caculateTextWidth() -> CGFloat {
         var longestText = ""
-        items.forEach {
-            if longestText.count < $0.label.count {
-                longestText =  $0.label
+        for section in items {
+            section.1.forEach {
+                if longestText.count < $0.label.count {
+                    longestText =  $0.label
+                }
             }
         }
         if menuWidth == 0 {
@@ -91,6 +104,13 @@ struct ContextMenuItem  {
     var icon: String
     var tag: Any?
     var isNeedJump: Bool = false
+    var isDestructive: Bool = false
+    var isPreventDismiss: Bool = false
+}
+
+struct SectionMenuItem {
+    var id:Int
+    var label:String = ""
 }
 
 
@@ -98,14 +118,18 @@ struct ContextMenuItem  {
 
 extension ContextMenuViewController: UITableViewDataSource{
     
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func numberOfSections(in tableView: UITableView) -> Int {
         return items.count
+    }
+    
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return items[section].1.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ContextMenuCell", for: indexPath) as! ContextMenuCell
-        cell.menuItem = items[indexPath.row]
-        cell.selectedBackgroundView = cellBackgroundView
+        cell.menuItem = items[indexPath.section].1[indexPath.row]
+//        cell.selectedBackgroundView = cellBackgroundView
         return cell
     }
     
@@ -113,20 +137,35 @@ extension ContextMenuViewController: UITableViewDataSource{
         return  ContextMenuCell.cellHeight
     }
     
+    public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section > 0 {
+            return sectionHeight
+        }
+        return CGFloat.leastNormalMagnitude
+    }
+    
+    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section > 0 {
+            let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: sectionHeight))
+            headerView.backgroundColor = .divider
+            return headerView
+        }
+        return nil
+    }
 }
 
 
 extension ContextMenuViewController: UITableViewDelegate{
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = self.items[indexPath.row]
-        if !item.isNeedJump {
+        let item = items[indexPath.section].1[indexPath.row]
+        if !item.isNeedJump && !item.isPreventDismiss {
             self.dismiss(animated: true, completion: {
                 self.itemTappedCallback(item,self)
             })
         }else {
             tableView.cellForRow(at: indexPath)?.isSelected = false
-            self.itemTappedCallback(item,self)
+            _ = self.itemTappedCallback(item,self)
         }
 
     }

@@ -277,6 +277,27 @@ class DBStore {
         }
     }
     
+    func deleteImageBlocks(noteId: Int64) -> DBResult<Bool> {
+        do {
+            var isSuccess = false
+            try db.transaction {
+                isSuccess = try blockDao.updateUpdatedAt(id:noteId, updatedAt: Date())
+                if isSuccess {
+                    isSuccess = try blockDao.delete(noteId: noteId, type: BlockType.image.rawValue)
+                    let imageBlocks = try blockDao.query(noteId: noteId,type:BlockType.image.rawValue)
+                    try imageBlocks.forEach {
+                        let path =  ImageUtil.sharedInstance.filePath(imageName: $0.source)
+                        try FileManager.default.removeItem(at:path)
+                    }
+                }
+            }
+            return DBResult<Bool>.success(isSuccess)
+        } catch let error  {
+            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
+        }
+    }
+    
+    
     private func tryUpdateBlockDate(block:Block) throws -> Bool  {
         var isSuccess = true
         if block.parent > 0 {
