@@ -1203,7 +1203,7 @@ extension EditorViewController {
                 
                 self.note.removeBlock(block: block)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .fade)
+                    self.tableView.deleteRows(at: [IndexPath(row: index, section: self.todoSectionIndex)], with: .automatic)
                 }, completion: { _ in
                     
                 })
@@ -1223,7 +1223,7 @@ extension EditorViewController {
                 self.note.removeBlock(block: textBlock)
                 self.sections.remove(at: textSectionIndex)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([textSectionIndex]), with: .top)
+                    self.tableView.deleteSections(IndexSet([textSectionIndex]), with: .none)
                 }, completion: nil)
             }, onError: {
                 Logger.error($0)
@@ -1241,7 +1241,7 @@ extension EditorViewController {
                 self.note.removeAllImageBlocks()
                 self.sections.remove(at: imageSectionIndex)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([imageSectionIndex]),with:.fade)
+                    self.tableView.deleteSections(IndexSet([imageSectionIndex]),with:.none)
                 }, completion: nil)
             }, onError: {
                 Logger.error($0)
@@ -1260,7 +1260,7 @@ extension EditorViewController {
                 let todoSectionIndex = self.todoSectionIndex
                 self.sections.remove(at: todoSectionIndex)
                 self.tableView.performBatchUpdates({
-                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .automatic)
+                    self.tableView.deleteSections(IndexSet([todoSectionIndex]), with: .none)
                 }, completion: nil)
             }, onError: {
                 Logger.error($0)
@@ -1331,7 +1331,7 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
         
         
         self.tableView.performBatchUpdates({
-            self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
+            self.tableView.insertSections(IndexSet([sectionIndex]), with: .none)
         }, completion: { _ in
             
             self.sroll2ImageShow()
