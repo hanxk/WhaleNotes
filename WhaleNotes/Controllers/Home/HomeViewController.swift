@@ -49,22 +49,35 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.view.backgroundColor = .bg
         self.extendedLayoutIncludesOpaqueBars = true
         
-        titleButton.callbackTapped = {
-            if case .board(let board) = self.sideMenuItemType {
-                let settingVC = BoardSettingViewController()
-                settingVC.board = board
-                settingVC.callbackBoardSettingEdited = { boardEditedType in
-                    switch boardEditedType {
-                    case .update(let board):
-                        self.handleBoardUpdated(board: board)
-                    case .delete(let board):
-                        self.handleBoardDeleted(board: board)
-                    }
+        func openBoardSetting(board: Board) {
+            let settingVC = BoardSettingViewController()
+            settingVC.board = board
+            settingVC.callbackBoardSettingEdited = { boardEditedType in
+                switch boardEditedType {
+                case .update(let board):
+                    self.handleBoardUpdated(board: board)
+                case .delete(let board):
+                    self.handleBoardDeleted(board: board)
                 }
-                let vc = MyNavigationController(rootViewController: settingVC)
-//                vc.modalPresentationStyle = .fullScreen
-                self.present(vc, animated: true, completion: nil)
             }
+            let vc = MyNavigationController(rootViewController: settingVC)
+            self.present(vc, animated: true, completion: nil)
+        }
+        
+        titleButton.callbackTapped = {
+            switch self.sideMenuItemType {
+                case .board(let board):
+                    openBoardSetting(board: board)
+                    break
+                case .system(let menuInfo):
+                    if case .board(let board) = menuInfo {
+                        openBoardSetting(board: board)
+                    }
+                    break
+               case .none:
+                   break
+            }
+            
             
         }
     }
@@ -108,7 +121,11 @@ extension HomeViewController {
                 self.setupBoardView(board:board)
                 break
             case .system(let systemMenu):
-                titleButton.isEnabled = false
+                if case .trash = systemMenu {
+                   titleButton.isEnabled = false
+                }else {
+                   titleButton.isEnabled = true
+                }
                 self.setupSystemMenu(systemMenu: systemMenu)
                 break
         }

@@ -86,6 +86,7 @@
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
 		189D962C24861318000E04C9 /* SectionAndNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189D962B24861318000E04C9 /* SectionAndNote.swift */; };
+		18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
 		18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CED671249F9259009181E0 /* TrashHeaderNode.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
@@ -213,6 +214,7 @@
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		189D962B24861318000E04C9 /* SectionAndNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionAndNote.swift; sourceTree = "<group>"; };
+		18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CreateBoardViewController.swift; path = ../../../../../../../../CreateBoardViewController.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
 		18CED671249F9259009181E0 /* TrashHeaderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashHeaderNode.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
@@ -687,6 +689,7 @@
 				18E7BF8F248C9B4F00B8AEC1 /* Emoji */,
 				18E7BF84248C8DC900B8AEC1 /* Views */,
 				18E7BF7F248BD50500B8AEC1 /* BoardEditAlertViewController.swift */,
+				18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */,
 			);
 			path = Board;
 			sourceTree = "<group>";
@@ -949,6 +952,7 @@
 				182BE900249A557C00C85F8F /* NoteDateViewController.swift in Sources */,
 				183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */,
 				1859A0FC248684CB008D51B4 /* SectionDao.swift in Sources */,
+				18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */,
 				18E9D6BF2470D985001E41A0 /* String+Ex.swift in Sources */,
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,

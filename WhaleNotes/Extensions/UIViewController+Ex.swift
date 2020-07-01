@@ -34,13 +34,20 @@ extension UIViewController {
 }
 
 extension UIViewController {
-    func showAlertMessage(message:String,positiveButtonText:String,isPositiveDestructive:Bool = false,callbackPositive:@escaping ()->Void) {
-        let alertVC = MessageAlertViewController()
-        alertVC.positiveButtonText = positiveButtonText
-        alertVC.callbackPositive = callbackPositive
-        alertVC.isPositiveDestructive = isPositiveDestructive
-        alertVC.msg = message
-        showAlertViewController(alertVC)
+    func showAlertMessage(title:String? = nil,message:String,positiveButtonText:String,isPositiveDestructive:Bool = false,callbackPositive:@escaping ()->Void) {
+//        let alertVC = MessageAlertViewController()
+//        alertVC.positiveButtonText = positiveButtonText
+//        alertVC.callbackPositive = callbackPositive
+//        alertVC.isPositiveDestructive = isPositiveDestructive
+//        alertVC.msg = message
+//        showAlertViewController(alertVC)
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: positiveButtonText, style: isPositiveDestructive ? .destructive :.default, handler: { _ in
+            callbackPositive()
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
     }
     
     func showAlertTextField(title:String = "",text:String = "",placeholder:String = "",callbackPositive:@escaping (String)->Void) {

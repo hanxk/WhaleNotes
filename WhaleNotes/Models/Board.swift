@@ -5,7 +5,7 @@
 //  Created by hanxk on 2020/5/25.
 //  Copyright © 2020 hanxk. All rights reserved.
 //
-import Foundation
+import UIKit
 
 // 记事板
 struct Board: Hashable {
@@ -25,6 +25,14 @@ struct Board: Hashable {
         self.categoryId = categoryId
         self.type = type
         self.createdAt = createdAt
+    }
+    
+    func getBoardIcon(fontSize:CGFloat) -> UIImage {
+        if self.type  == BoardType.user.rawValue {
+            return self.icon.emojiToImage(fontSize: fontSize)!
+        }else {
+            return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
+        }
     }
 }
 

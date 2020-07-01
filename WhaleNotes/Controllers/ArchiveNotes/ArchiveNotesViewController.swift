@@ -31,10 +31,6 @@ class ArchiveNotesViewController: UIViewController, UINavigationControllerDelega
         notesView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        if board.type == BoardType.user.rawValue {
-//            titleButton.setTitle(board.title,emoji: board.icon)
-            self.title = board.icon + board.title
-        }
-        
+        self.title = "已归档的便签"
     }
 }

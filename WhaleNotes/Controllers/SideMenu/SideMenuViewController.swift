@@ -76,19 +76,48 @@ class SideMenuViewController: UIViewController {
                 vc.dismiss(animated: true, completion: nil)
                 guard let self = self,let flag = menuItem.tag as? Int else { return}
                 if flag == 1 {
-                    BoardEditAlertViewController.showModel(vc: self) { emoji,title in
-                        self.createBoard(emoji: emoji, title: title)
-                    }
+                    self.openCreateBoardVC()
                 }else {
-                    self.showAlertTextField(title: "添加分类",text:"" ,placeholder: "输入分类名称") {[weak self] inputText in
-                        self?.createBoardCategory(title: inputText)
-                    }
+                    self.showCategoryInputAlert()
                 }
             }
             
         }
         
     }
+    
+    private func openCreateBoardVC(boardCategory:BoardCategory? = nil) {
+        let vc = CreateBoardViewController()
+        vc.callbackPositive = {emoji,title in
+            self.createBoard(emoji: emoji, title: title,boardCategory: boardCategory)
+        }
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    private func showCategoryInputAlert(boardCategory:BoardCategory? = nil) {
+        let ac = UIAlertController(title: boardCategory == nil ? "添加分类" : "编辑分类", message: nil, preferredStyle: .alert)
+        ac.addTextField()
+        ac.textFields![0].placeholder = "输入分类名称"
+        ac.textFields![0].text = boardCategory == nil ? "" :  boardCategory!.title
+        
+        let submitAction = UIAlertAction(title: "确定", style: .default) { [unowned ac] _ in
+            let title = ac.textFields![0].text!.trimmingCharacters(in: .whitespaces)
+            if title.isEmpty { return }
+            if let boardCategory = boardCategory {
+                var newBoardCategory  = boardCategory
+                newBoardCategory.title = title
+                self.updateBoardCayegory(newBoardCategory: newBoardCategory)
+            }else {
+              self.createBoardCategory(title: title)
+            }
+        }
+        ac.addAction(submitAction)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
+        ac.addAction(cancelAction)
+        present(ac, animated: true)
+    }
+
+    
     
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
@@ -257,17 +286,9 @@ extension SideMenuViewController {
             guard let self = self,let tag = menuItem.tag as? Int else { return}
             switch tag {
             case TAG_ADD:
-                BoardEditAlertViewController.showModel(vc: self) { emoji,title in
-                    self.createBoard(emoji: emoji, title: title,boardCategory:boardCategoryInfo.category)
-                }
+                self.openCreateBoardVC(boardCategory:boardCategoryInfo.category)
             case TAG_EDIT:
-                self.showAlertTextField(title: "编辑分类",text:boardCategoryInfo.category.title ,placeholder: "输入分类名称") {[weak self] inputText in
-                    guard let self = self, let boardCategory =  boardCategoryInfo.category else { return }
-                    if boardCategory.title == inputText { return }
-                    var newBoardCategory  = boardCategory
-                    newBoardCategory.title = inputText
-                    self.updateBoardCayegory(newBoardCategory: newBoardCategory)
-                }
+                self.showCategoryInputAlert(boardCategory: boardCategoryInfo.category)
                 break
             case TAG_DEL:
                 self.showAlertMessage(message: "确认删除该分类", positiveButtonText: "删除",isPositiveDestructive:true) {
@@ -300,7 +321,7 @@ extension SideMenuViewController {
         if self.boardCategories[categoryIndex].category.isExpand != newBoardCategory.isExpand { // 刷新 section
             self.boardCategories[categoryIndex].category = newBoardCategory
             self.tableView.performBatchUpdates({
-                self.tableView.reloadSections(IndexSet([section]), with: .automatic)
+                self.tableView.reloadSections(IndexSet([section]), with: .none)
             }, completion: nil)
             return
         }
@@ -358,7 +379,7 @@ extension SideMenuViewController {
         }
         
         self.tableView.performBatchUpdates({
-            self.tableView.deleteSections(IndexSet([2+categoryIndex]), with: .automatic)
+            self.tableView.deleteSections(IndexSet([2+categoryIndex]), with: .none)
             self.tableView.insertRows(at: updatedRowsIndexPath, with: .automatic)
         }, completion: nil)
     }

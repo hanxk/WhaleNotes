@@ -11,7 +11,7 @@ class BoardSettingTitleCell: UITableViewCell {
     
     var callbackTitleChanged:((String)->Void)?
     
-    private lazy var titleTextField = UITextField().then {
+    lazy var titleTextField = UITextField().then {
         $0.textColor = .primaryText2
         $0.font = UIFont.systemFont(ofSize: 15)
         $0.placeholder = "输入名称"
@@ -22,7 +22,7 @@ class BoardSettingTitleCell: UITableViewCell {
 
     }
     
-    var title:String = "" {
+    var title:String!{
         didSet {
             self.titleTextField.text = title
         }
@@ -42,6 +42,7 @@ class BoardSettingTitleCell: UITableViewCell {
     }
     
     private func setup() {
+        self.selectionStyle = .none
         self.contentView.addSubview(titleTextField)
         titleTextField.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(BoardSettingViewController.horizontalPadding)

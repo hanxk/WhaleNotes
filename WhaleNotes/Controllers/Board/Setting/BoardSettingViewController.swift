@@ -31,6 +31,11 @@ class BoardSettingViewController:UIViewController {
             if oldValue != nil {
                 isBoardEdited = true
             }
+            if  board.type == BoardType.user.rawValue {
+                self.settingItems = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.archived,BoardSettingItem.trash]
+            }else {
+                self.settingItems = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.archived]
+            }
         }
     }
     
@@ -69,7 +74,6 @@ class BoardSettingViewController:UIViewController {
         $0.register(BoardSettingButtonCell.self, forCellReuseIdentifier: BoardSettingItem.trash.rawValue)
         $0.backgroundColor = .bg
         
-        self.title = "便签板设置"
     }
     
     private lazy var  cellBackgroundView = UIView().then {
@@ -89,6 +93,7 @@ class BoardSettingViewController:UIViewController {
         self.navigationController?.navigationBar.barTintColor = .bg
         
         
+        self.title =  board.title
         self.navigationController?.presentationController?.delegate = self
         
         self.setupData()
@@ -212,12 +217,11 @@ extension BoardSettingViewController:UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: sectionType.rawValue)!
         switch sectionType {
         case .icon:
-            let iconCell = cell as! BoardIconCell
-            iconCell.board = board
             break
         case .title:
             let titleCell = cell as! BoardSettingTitleCell
             titleCell.title = board.title
+            titleCell.titleTextField.isEnabled = board.type == BoardType.user.rawValue
             titleCell.callbackTitleChanged = { title in
                 self.board.title = title
                 self.navigationItem.rightBarButtonItem?.isEnabled = title.isNotEmpty
@@ -235,22 +239,20 @@ extension BoardSettingViewController:UITableViewDataSource {
         return cell
     }
     
-//    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-//        return UIView(frame: .zero)
-//    }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = self.settingItems[section]
         switch sectionType {
         case .icon:
             if let iconView = tableView.dequeueReusableHeaderFooterView(withIdentifier: BoardSettingItem.icon.rawValue) as? BoardIconView {
-                iconView.board = self.board
+                iconView.iconImage = board.getBoardIcon(fontSize: 50)
+                iconView.isEdited = board.type == BoardType.user.rawValue
                 iconView.callbackTapped = {
                     let vc = EmojiViewController()
                     vc.callbackEmojiSelected = { [weak self] emoji in
                         guard let self = self else { return }
                         self.board.icon = emoji.value
-                        iconView.board = self.board
+                        iconView.iconImage = self.board.getBoardIcon(fontSize: 50)
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
@@ -276,7 +278,7 @@ extension BoardSettingViewController:UITableViewDataSource {
         let sectionType = self.settingItems[section]
         switch sectionType {
         case .icon:
-            return BoardIconView.cellHeight
+            return BoardIconView.getCellHeight(board: self.board)
         case .title:
             return 48
         case .archived:
@@ -285,11 +287,6 @@ extension BoardSettingViewController:UITableViewDataSource {
             return 40
         }
     }
-    
-//    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-//
-//        return CGFloat.leastNormalMagnitude
-//    }
 }
 
 

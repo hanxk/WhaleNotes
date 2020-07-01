@@ -18,6 +18,12 @@ class BoardIconCell: UITableViewCell {
         $0.layer.cornerRadius = 8
     }
     
+    var iconImage:UIImage! {
+        didSet {
+            iconButton.setImage(iconImage, for: .normal)
+        }
+    }
+    
     var board:Board! {
         didSet {
             let fontSize:CGFloat = 60
