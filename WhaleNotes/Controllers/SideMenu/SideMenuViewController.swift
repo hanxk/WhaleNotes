@@ -146,7 +146,7 @@ class SideMenuViewController: UIViewController {
     private var systemMenuItems:[MenuSystemItem]  =  []
     private var boards:[Board] = []
     
-    private var mapCategoryIdAnIndex:[Int64:Int]  = [:]
+    private var mapCategoryIdAnIndex:[String:Int]  = [:]
     private var boardCategories:[BoardCategoryInfo] = [] {
         didSet {
             self.mapCategoryIdAnIndex.removeAll()
@@ -242,7 +242,7 @@ extension SideMenuViewController {
     
     func createBoardCategory(title:String) {
         let sort = self.boardCategories.count == 0 ? 65536 : self.boardCategories[0].category.sort / 2
-        let boardCategory = BoardCategory(id: 0, title: title, sort: sort, isExpand: true, createdAt: Date())
+        let boardCategory = BoardCategory(title: title, sort: sort, isExpand: true, createdAt: Date())
         BoardRepo.shared.createBoardCategory(boardCategory: boardCategory)
             .subscribe(onNext: { [weak self] newBoardCategory in
                 self?.handleBoardCategoryInsert(insertedBoardCategory: newBoardCategory)
@@ -266,7 +266,7 @@ extension SideMenuViewController {
     }
     
     
-    func handleCategoryMenuEdit(categoryId: Int64,sourceView: UIView) {
+    func handleCategoryMenuEdit(categoryId: String,sourceView: UIView) {
         
         let TAG_ADD = 1
         let TAG_EDIT = 2
@@ -331,7 +331,7 @@ extension SideMenuViewController {
         }, completion: nil)
     }
     
-    func getSectionIndex(categoryId: Int64) -> Int {
+    func getSectionIndex(categoryId: String) -> Int {
         return (self.mapCategoryIdAnIndex[categoryId] ?? 0 ) + self.sectionCategoryBeginIndex
     }
     
@@ -345,7 +345,7 @@ extension SideMenuViewController {
         let count = deletedBoardCategoryInfo.boards.count
         for i in (0..<count).reversed() {
             baseSort /= 2
-            deletedBoardCategoryInfo.boards[i].categoryId = 0
+            deletedBoardCategoryInfo.boards[i].categoryId = ""
             deletedBoardCategoryInfo.boards[i].sort = baseSort
         }
         
@@ -474,7 +474,7 @@ extension SideMenuViewController {
 //MARK: board
 extension SideMenuViewController {
     func createBoard(emoji: Emoji,title:String,boardCategory: BoardCategory? = nil) {
-        let board = Board(icon: emoji.value, title: title, sort: self.getBoardSort(boardCategory:boardCategory),categoryId:boardCategory?.id ?? 0)
+        let board = Board(icon: emoji.value, title: title, sort: self.getBoardSort(boardCategory:boardCategory),categoryId:boardCategory?.id ?? "")
         BoardRepo.shared.createBoard(board: board)
             .subscribe(onNext: { [weak self] newBoard in
                 self?.handleBoardInsert(insertedBoard: newBoard)
@@ -485,7 +485,7 @@ extension SideMenuViewController {
     }
     
     func handleBoardInsert(insertedBoard: Board) {
-        if insertedBoard.categoryId > 0 { // 往分类里面添加 board
+        if insertedBoard.categoryId.isNotEmpty { // 往分类里面添加 board
             guard let categoryIndex = self.mapCategoryIdAnIndex[insertedBoard.categoryId] else { return }
             
             let section = categoryIndex + self.sectionCategoryBeginIndex
@@ -574,7 +574,7 @@ extension SideMenuViewController {
     }
     
     private func updateBoardDataSource(board: Board) {
-        if board.categoryId == 0 {
+        if board.categoryId.isNotEmpty {
             if let boardIndex = self.boards.firstIndex(where: {$0.id == board.id}) {
                 let isSortUpdate =  self.boards[boardIndex].sort != board.sort
                 self.boards[boardIndex] = board
@@ -698,7 +698,7 @@ extension SideMenuViewController {
             
         }else {
             fromBoard.sort =  self.calcSort(toRow: toRow, boards: self.boards)
-            fromBoard.categoryId = 0
+            fromBoard.categoryId = ""
             
             self.boards.insert(fromBoard, at: toRow)
             

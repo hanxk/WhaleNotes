@@ -36,6 +36,7 @@ PODS:
   - SQLite.swift/standard (0.12.2)
   - SwiftCSV (0.5.6)
   - SwiftDate (5.1.0)
+  - SwiftLinkPreview (3.1.0)
   - Texture (2.8.1):
     - Texture/AssetsLibrary (= 2.8.1)
     - Texture/Core (= 2.8.1)
@@ -75,6 +76,7 @@ DEPENDENCIES:
   - SQLite.swift (~> 0.12.0)
   - SwiftCSV
   - SwiftDate (~> 5.0)
+  - SwiftLinkPreview (~> 3.1.0)
   - Texture
   - Then
   - TLPhotoPicker
@@ -100,6 +102,7 @@ SPEC REPOS:
     - SQLite.swift
     - SwiftCSV
     - SwiftDate
+    - SwiftLinkPreview
     - Texture
     - Then
     - TLPhotoPicker
@@ -124,11 +127,12 @@ SPEC CHECKSUMS:
   SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   SwiftCSV: efb4a15dd7f2f1212b3d6986f97a3369ff6c5100
   SwiftDate: 6329e58969a2de31cea7f1ee1143b247693196e7
+  SwiftLinkPreview: 3d924eeaae8d17410a827a4b37675713af1a0a8a
   Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
   Then: 90cd104fd951cec1980a03f57704ad8f784d4d79
   TLPhotoPicker: a5c339732b8326bb16cbb4e00ed01a86f2bfbbb3
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
 
-PODFILE CHECKSUM: 18ba4d87402e4aef8ef8b3a619e9e79ba47350c2
+PODFILE CHECKSUM: 7a9678ec1266ece06333918857dad441e5adc4d7
 
 COCOAPODS: 1.9.1

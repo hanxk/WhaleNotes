@@ -18,7 +18,6 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    private let usecase = NotesUseCase()
     private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
@@ -229,11 +228,8 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
     
     func noteMenuDataMoved(note: Note) {
         self.handleNoteUpdated(note)
-        
-        if note.boards.isEmpty { return }
-        let board = note.boards[0]
-        
-        let message = board.type == BoardType.user.rawValue ? (board.icon+board.title) : board.title
+        guard let board  = note.board else { return }
+        let message = board.type == BoardType.user.rawValue ? (board.icon + board.title) : board.title
         self.showToast("便签已移动至：\"\(message)\"")
     }
     

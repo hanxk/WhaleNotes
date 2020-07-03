@@ -50,8 +50,8 @@ class BoardRepo {
                  .observeOn(MainScheduler.instance)
     }
     
-    func deleteBoard(boardId: Int64) ->  Observable<Bool>  {
-       return Observable<Int64>.just(boardId)
+    func deleteBoard(boardId: String) ->  Observable<Bool>  {
+       return Observable<String>.just(boardId)
                   .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
                   .map({(boardId)  -> Bool in
                       let result =  DBStore.shared.deleteBoard(boardId: boardId)
@@ -132,7 +132,7 @@ class BoardRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func getSectionNoteInfos(boardId:Int64,noteBlockStatus: NoteBlockStatus = NoteBlockStatus.normal) -> Observable<[SectionNoteInfo]>  {
+    func getSectionNoteInfos(boardId:String,noteBlockStatus: NoteBlockStatus = NoteBlockStatus.normal) -> Observable<[SectionNoteInfo]>  {
 
         return Observable<[SectionNoteInfo]>.create {  observer -> Disposable in
             let sectionsResult = DBStore.shared.getSectionsByBoardId(boardId)
@@ -140,7 +140,7 @@ class BoardRepo {
             
             var result:[SectionNoteInfo] = []
             var sections:[Section] = []
-            var sectionNotes:[(Int64,Note)] = []
+            var sectionNotes:[(String,Note)] = []
             
             switch sectionsResult {
                case .success(let s):
@@ -216,8 +216,8 @@ class BoardRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func getBoardsByNoteId(noteId:Int64) -> Observable<[Board]> {
-        return Observable<Int64>.just(noteId)
+    func getBoardsByNoteId(noteId:String) -> Observable<[Board]> {
+        return Observable<String>.just(noteId)
                    .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
                    .map({(noteId)  -> [Board] in
                     let result =  DBStore.shared.getBoardsByNoteId(noteId: noteId)
@@ -232,8 +232,8 @@ class BoardRepo {
     }
     
     
-    func getNotesCount(boardId:Int64,noteBlockStatus:NoteBlockStatus) -> Observable<Int64> {
-        return Observable<Int64>.just(boardId)
+    func getNotesCount(boardId:String,noteBlockStatus:NoteBlockStatus) -> Observable<Int64> {
+        return Observable<String>.just(boardId)
                    .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
                    .map({(noteId)  -> Int64 in
                     let result =  DBStore.shared.queryNotesCountByBoardId(boardId, noteBlockStatus: noteBlockStatus)

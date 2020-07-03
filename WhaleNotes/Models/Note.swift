@@ -11,14 +11,32 @@ import Foundation
 struct Note {
     
     var rootBlock:Block!
-    
     var textBlock:Block?
-    var id:Int64 {
-        return rootBlock.id
+    
+    var rootTodoBlock:Block?
+    var todoBlocks:[Block] = []
+    
+    private(set) var imageBlocks:[Block] = []
+    
+    var board:Board!
+    
+    init(rootBlock:Block,childBlocks:[Block],board:Board) {
+        self.rootBlock = rootBlock
+        self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
+        self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
+        self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue}.sorted(by: {$0.sort < $1.sort}))
+        self.board = board
     }
     
-    var boards:[Board] = []
     
+}
+
+// help property
+extension Note {
+    
+    var id:String {
+        return rootBlock.id
+    }
     var updatedAt:Date {
         get {
             return rootBlock.updatedAt
@@ -27,15 +45,11 @@ struct Note {
             self.rootBlock.updatedAt = newValue
         }
     }
-    
-    
     var status:NoteBlockStatus {
         get {
             return NoteBlockStatus(rawValue: rootBlock.status)!
         }
     }
-    
-    
     
     var sort:Double {
         get {
@@ -46,26 +60,12 @@ struct Note {
         }
     }
     
-    init(rootBlock:Block,childBlocks:[Block],boards:[Board] = []) {
-        self.rootBlock = rootBlock
-        self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
-        self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
-        self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue}.sorted(by: {$0.sort < $1.sort}))
-        self.boards = boards
-    }
-    
-    
-    var rootTodoBlock:Block?
-    var todoBlocks:[Block] = []
-    
     var isContentEmpry:Bool {
         return rootBlock.text.isEmpty &&
             textBlock?.text.isEmpty ?? true &&
         imageBlocks.isEmpty &&
             rootTodoBlock == nil
     }
-    
-    private(set) var imageBlocks:[Block] = []
     
     var createdDateStr:String {
         let dateFormatter = DateFormatter()
@@ -105,7 +105,7 @@ extension Note {
 // todo handler
 extension Note {
     mutating func setupTodoBlocks(todoBlocks:[Block]) {
-        guard let rootTodoBlock = todoBlocks.first(where: {$0.parent == 0}) else { return }
+        guard let rootTodoBlock = todoBlocks.first(where: {$0.parent == ""}) else { return }
         self.todoBlocks = todoBlocks.filter{$0.parent == rootTodoBlock.id}
         self.rootTodoBlock = rootTodoBlock
     }
@@ -127,7 +127,7 @@ extension Note {
             self.updateTodoBlock(todoBlock: block)
         case .image:
             break
-        case .none:
+        default:
             break
         }
     }
@@ -164,7 +164,7 @@ extension Note {
             break
         case .none:
             break
-        case .some(.note):
+        default:
             break
         }
     }
@@ -198,7 +198,7 @@ extension Note {
             break
         case .none:
             break
-        case .some(.note):
+        default:
             break
         }
     }

@@ -10,7 +10,7 @@ import Foundation
 import SQLite
 
 fileprivate enum Field_Block{
-    static let id = Expression<Int64>("id")
+    static let id = Expression<String>("id")
     static let type = Expression<String>("type")
     static let text = Expression<String>("text")
     static let sort = Expression<Double>("sort")
@@ -19,8 +19,8 @@ fileprivate enum Field_Block{
     static let source = Expression<String>("source")
     static let createdAt = Expression<Date>("created_at")
     static let updatedAt = Expression<Date>("updated_at")
-    static let noteId = Expression<Int64>("note_id")
-    static let parent = Expression<Int64>("parent")
+    static let noteId = Expression<String>("note_id")
+    static let parent = Expression<String>("parent")
     static let status = Expression<Int>("status")
     static let properties = Expression<String>("properties")
 }
@@ -36,21 +36,20 @@ class BlockDao {
         table = self.createTable()
     }
     
-    func insert( _ block:Block) throws -> Int64 {
-        let insertBlock = self.generateBookInsert(block: block,conflict: .ignore)
-        let rowId = try db.run(insertBlock)
-        return rowId
+    func insert( _ block:Block) throws {
+       let insertBlock = self.generateBookInsert(block: block)
+       try db.run(insertBlock)
     }
     
     
-    func updateText(id:Int64,text:String) throws -> Bool {
+    func updateText(id:String,text:String) throws -> Bool {
         let blockTable = table.filter(Field_Block.id == id)
         let rows = try db.run(blockTable.update(Field_Block.text <- text))
         return rows == 1
     }
     
     
-    func updateUpdatedAt(id:Int64,updatedAt:Date) throws -> Bool {
+    func updateUpdatedAt(id:String,updatedAt:Date) throws -> Bool {
         let blockTable = table.filter(Field_Block.id == id)
         let rows = try db.run(blockTable.update(Field_Block.updatedAt <- updatedAt))
         return rows == 1
@@ -75,37 +74,38 @@ class BlockDao {
         return rows == 1
     }
     
-    func updateNoteBlockStatus(boardId: Int,status:Int) throws -> Bool {
+    func updateNoteBlockStatus(boardId: String,status:Int) throws -> Bool {
         let updateSql = """
-        update block set status = \(status),updated_at = DATE('now') where id in (
+        update block set status = ?,updated_at = DATE('now') where id in (
         select section_note.noteId from section_note
-        inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+        inner join section on (section.id = section_note.section_id and section.board_id = ?)
         )
         """
-        try db.run(updateSql)
+        let stmt = try db.prepare(updateSql)
+        try stmt.run(boardId,status)
         return db.changes >= 0
     }
     
     
-    func delete(id:Int64) throws -> Bool {
+    func delete(id:String) throws -> Bool {
         let blockTable = table.filter(Field_Block.id == id)
         let rows = try db.run(blockTable.delete())
         return rows > 0
     }
     
     
-    func delete(noteId:Int64,type:String) throws -> Bool {
+    func delete(noteId:String,type:String) throws -> Bool {
         let blockTable = table.filter(Field_Block.noteId == noteId && Field_Block.type == type)
         let rows = try db.run(blockTable.delete())
         return rows > 0
     }
     
-    func deleteByNoteId(noteId: Int64)  throws {
+    func deleteByNoteId(noteId:String)  throws {
         let blockTable = table.filter(Field_Block.noteId == noteId)
         _ = try db.run(blockTable.delete())
     }
     
-    func deleteByParent(parent: Int64)  throws{
+    func deleteByParent(parent: String)  throws{
         let blockTable = table.filter(Field_Block.parent == parent)
         _ = try db.run(blockTable.delete())
     }
@@ -121,7 +121,7 @@ class BlockDao {
         return blocks
     }
     
-    func query(noteId:Int64) throws ->[Block] {
+    func query(noteId:String) throws ->[Block] {
         let query = table.filter(Field_Block.noteId == noteId).order(Field_Block.sort.asc)
         let blockRows = try db.prepare(query)
         var blocks:[Block] = []
@@ -132,7 +132,7 @@ class BlockDao {
         return blocks
     }
     
-    func query(noteId:Int64,type:String) throws ->[Block] {
+    func query(noteId:String,type:String) throws ->[Block] {
         let query = table.filter(Field_Block.noteId == noteId && Field_Block.type == type).order(Field_Block.sort.asc)
         let blockRows = try db.prepare(query)
         var blocks:[Block] = []
@@ -143,15 +143,15 @@ class BlockDao {
         return blocks
     }
     
-    func query(boardId:Int64,type:String) throws ->[Block] {
+    func query(boardId:String,type:String) throws ->[Block] {
         let selectSQL = """
                             select * from block where note_id in (
                             select section_note.note_id from section_note
-                            inner join section on  (section.id = section_note.section_id and section.board_id = \(boardId))
-                            ) and type = '\(type)'
+                            inner join section on  (section.id = section_note.section_id and section.board_id = ? )
+                            ) and type = ?
                         """
         let stmt = try db.prepare(selectSQL)
-        let rows = stmt.typedRows()
+        let rows = try stmt.run(boardId,type).typedRows()
         var blocks:[Block] = []
         for row in rows {
             let block = generateBlock(row: row)
@@ -161,17 +161,18 @@ class BlockDao {
     }
     
     
-    func deleteByBoardId(boardId:Int64) throws -> Int {
+    func deleteByBoardId(boardId:String) throws -> Int {
         let deleteSQL = """
                             delete from block where note_id in (
                             select section_note.note_id from section_note
-                            inner join section on  (section.id = section_note.section_id and section.board_id = \(boardId))
+                            inner join section on  (section.id = section_note.section_id and section.board_id = ?)
                             ) or id in (
                                 select section_note.note_id from section_note
-                                inner join section on  (section.id = section_note.section_id and section.board_id = \(boardId))
+                                inner join section on  (section.id = section_note.section_id and section.board_id = ?)
                             )
                         """
-        try db.run(deleteSQL)
+        let stmt = try db.prepare(deleteSQL)
+        try stmt.run(boardId,boardId)
         return db.changes
     }
     
@@ -195,7 +196,7 @@ class BlockDao {
     }
     
     
-    func queryNoteBlocksByBoardId(_ boardId:Int64 ,noteBlockStatus: NoteBlockStatus) throws -> [(Int64,Block)] {
+    func queryNoteBlocksByBoardId(_ boardId:String ,noteBlockStatus: NoteBlockStatus) throws -> [(String,Block)] {
         let status = noteBlockStatus.rawValue
         let selectSQL = """
         select b.id, b.type, b.text,section.sort as sort,b.is_checked,b.is_expand,b.source,b.created_at,b.updated_at,
@@ -203,17 +204,17 @@ class BlockDao {
         from block as b
         inner join (
         select section_note.note_id, section_note.sort,section_note.section_id from section_note
-        inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+        inner join section on (section.id = section_note.section_id and section.board_id = ?)
         ) as section
-        on (b.id = section.note_id  and b.status = \(status)) order by b.sort asc
+        on (b.id = section.note_id  and b.status = ?) order by b.sort asc
         """
         let stmt = try db.prepare(selectSQL)
-        let rows = stmt.typedRows()
+        let rows = try stmt.run(boardId,status).typedRows()
         
-        var blocks:[(Int64,Block)] = []
+        var blocks:[(String,Block)] = []
         for row in rows {
             let block = generateBlock(row: row)
-            let sectionId = row.i64("section_id")!
+            let sectionId = row.string("section_id")!
             blocks.append((sectionId,block))
         }
         
@@ -221,18 +222,19 @@ class BlockDao {
     }
     
     
-    func queryNotesCountByBoardId(_ boardId:Int64 ,noteBlockStatus: NoteBlockStatus) throws -> Int64 {
+    func queryNotesCountByBoardId(_ boardId:String ,noteBlockStatus: NoteBlockStatus) throws -> Int64 {
         let status = noteBlockStatus.rawValue
         let selectSQL = """
         select count(*)
         from block as b
         inner join (
         select section_note.note_id, section_note.sort,section_note.section_id from section_note
-        inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+        inner join section on (section.id = section_note.section_id and section.board_id = ?)
         ) as section
-        on (b.id = section.note_id  and b.status = \(status)) order by b.sort asc
+        on (b.id = section.note_id  and b.status = ?) order by b.sort asc
         """
-        let count = try db.scalar(selectSQL) as! Int64
+        let stmt = try db.prepare(selectSQL)
+        let count = try stmt.run(boardId,status).scalar() as! Int64
         return count
     }
 }
@@ -245,7 +247,7 @@ extension BlockDao {
         do {
             try! db.run(
                 tableBlock.create(ifNotExists: true, block: { (builder) in
-                    builder.column(Field_Block.id,primaryKey: .autoincrement)
+                    builder.column(Field_Block.id)
                     builder.column(Field_Block.type)
                     builder.column(Field_Block.text)
                     builder.column(Field_Block.sort)
@@ -267,7 +269,7 @@ extension BlockDao {
     
     func generateBookInsert(block: Block,conflict:OnConflict = OnConflict.fail) -> Insert {
         
-        if block.id > 0 {
+        
             return table.insert(or: conflict,
                                 Field_Block.id <- block.id,
                                 Field_Block.type <- block.type,
@@ -283,26 +285,11 @@ extension BlockDao {
                                 Field_Block.status <- block.status,
                                 Field_Block.properties <- block.properties.toJSON()
             )
-        }
-        return table.insert(or: conflict,
-                            Field_Block.type <- block.type,
-                            Field_Block.text <- block.text,
-                            Field_Block.sort <- block.sort,
-                            Field_Block.isChecked <- block.isChecked,
-                            Field_Block.isExpand <- block.isExpand,
-                            Field_Block.source <- block.source,
-                            Field_Block.createdAt <- block.createdAt,
-                            Field_Block.updatedAt <- block.updatedAt,
-                            Field_Block.noteId <- block.noteId,
-                            Field_Block.parent <- block.parent,
-                            Field_Block.status <- block.status,
-                            Field_Block.properties <- block.properties.toJSON()
-        )
         
     }
     
     fileprivate func generateBlock(row: TypedRow) -> Block {
-        let id = row.i64("id")!
+        let id = row.string("id")!
         let type = row.string("type")!
         let text = row.string("text")!
         let sort = row.double("sort")!
@@ -312,8 +299,8 @@ extension BlockDao {
         let createdAt = row.date("created_at")!
         let updatedAt = row.date("updated_at")!
         
-        let noteId = row.i64("note_id")!
-        let parent = row.i64("parent")!
+        let noteId = row.string("note_id")!
+        let parent = row.string("parent")!
         
         let status = row.int("status")!
         

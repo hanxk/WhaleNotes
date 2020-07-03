@@ -9,9 +9,9 @@
 import Foundation
 
 struct Section {
-    var id:Int64
+    var id:String = UUID.init().uuidString
     let title:String
     let sort:Double
-    let boardId:Int64
+    let boardId:String
     let createdAt:Date
 }

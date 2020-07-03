@@ -12,7 +12,7 @@ struct BoardCategoryInfo {
     var category:BoardCategory!
     var boards:[Board]!
     
-    var categoryId:Int64 {
+    var categoryId:String {
         return category.id
     }
     

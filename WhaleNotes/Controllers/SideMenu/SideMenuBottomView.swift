@@ -25,9 +25,9 @@ class SideMenuBottomView: UIView {
     }
     
     private lazy var settingBlockBtn: UIButton = UIButton().then {
-        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        let config = UIImage.SymbolConfiguration(pointSize: 19, weight: .regular)
         let image = UIImage(systemName: "slider.horizontal.3", withConfiguration: config)
-        $0.tintColor =  UIColor.init(hexString: "#666666")
+        $0.tintColor = UIColor.iconColor
         $0.setImage(image, for: .normal)
     }
     

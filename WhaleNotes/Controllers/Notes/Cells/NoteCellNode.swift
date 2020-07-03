@@ -245,7 +245,7 @@ class NoteCellNode: ASCellNode {
                 let horizontalPadding:CGFloat = 2
                 $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: horizontalPadding, bottom:0, right: horizontalPadding)
                 
-                $0.setAttributedTitle(getBoardButtonAttributesText(text: note.boards[0].title), for: .normal)
+                $0.setAttributedTitle(getBoardButtonAttributesText(text: note.board.title), for: .normal)
                 $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
             }
             self.boardButton = boardButton

@@ -50,13 +50,28 @@ extension UIViewController {
         self.present(alert, animated: true)
     }
     
-    func showAlertTextField(title:String = "",text:String = "",placeholder:String = "",callbackPositive:@escaping (String)->Void) {
-        let alertVC = TextFieldAlertViewController()
-        alertVC.callbackPositive = callbackPositive
-        alertVC.alertTitle = title
-        alertVC.text = text
-        alertVC.placeholder = placeholder
-        showAlertViewController(alertVC)
+    func showAlertTextField(title:String = "",text:String = "",placeholder:String = "",positiveBtnText:String,callbackPositive:@escaping (String)->Void) {
+//        let alertVC = TextFieldAlertViewController()
+//        alertVC.callbackPositive = callbackPositive
+//        alertVC.alertTitle = title
+//        alertVC.text = text
+//        alertVC.placeholder = placeholder
+//        showAlertViewController(alertVC)
+        let ac = UIAlertController(title:title, message: nil, preferredStyle: .alert)
+        ac.addTextField()
+        ac.textFields![0].placeholder = placeholder
+        ac.textFields![0].text = text
+        
+        let submitAction = UIAlertAction(title: positiveBtnText, style: .default) { [unowned ac] _ in
+            let title = ac.textFields![0].text!.trimmingCharacters(in: .whitespaces)
+            if title.isEmpty { return }
+            callbackPositive(title)
+        }
+        ac.addAction(submitAction)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
+        ac.addAction(cancelAction)
+        present(ac, animated: true)
+        
     }
     
     

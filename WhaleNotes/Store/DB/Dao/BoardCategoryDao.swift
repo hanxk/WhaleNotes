@@ -10,7 +10,7 @@ import Foundation
 import SQLite
 
 fileprivate enum Field_BoardCategory{
-    static let id = Expression<Int64>("id")
+    static let id = Expression<String>("id")
     static let title = Expression<String>("title")
     static let sort = Expression<Double>("sort")
     static let isExpand = Expression<Bool>("is_expand")
@@ -33,7 +33,7 @@ class BoardCategoryDao {
         return rowId
     }
     
-    func delete(id: Int64)  throws -> Bool {
+    func delete(id: String)  throws -> Bool {
         let boardData = table.filter(Field_BoardCategory.id == id)
         let rows = try db.run(boardData.delete())
         return rows > 0
@@ -70,7 +70,7 @@ extension BoardCategoryDao {
         do {
             try! db.run(
                 table.create(ifNotExists: true, block: { (builder) in
-                    builder.column(Field_BoardCategory.id,primaryKey: .autoincrement)
+                    builder.column(Field_BoardCategory.id)
                     builder.column(Field_BoardCategory.title)
                     builder.column(Field_BoardCategory.sort)
                     builder.column(Field_BoardCategory.isExpand)
@@ -83,20 +83,12 @@ extension BoardCategoryDao {
     
     
     fileprivate func generateInsert(boardCategory: BoardCategory,conflict:OnConflict = OnConflict.fail) -> Insert {
-        if boardCategory.id > 0 {
-            return table.insert(or: conflict,
-                                Field_BoardCategory.id <- boardCategory.id,
-                                Field_BoardCategory.title <- boardCategory.title,
-                                Field_BoardCategory.sort <- boardCategory.sort,
-                                Field_BoardCategory.isExpand <- boardCategory.isExpand,
-                                Field_BoardCategory.createdAt <- boardCategory.createdAt
-            )
-        }
         return table.insert(or: conflict,
-                                Field_BoardCategory.title <- boardCategory.title,
-                                Field_BoardCategory.sort <- boardCategory.sort,
-                                Field_BoardCategory.isExpand <- boardCategory.isExpand,
-                                Field_BoardCategory.createdAt <- boardCategory.createdAt
+                            Field_BoardCategory.id <- boardCategory.id,
+                            Field_BoardCategory.title <- boardCategory.title,
+                            Field_BoardCategory.sort <- boardCategory.sort,
+                            Field_BoardCategory.isExpand <- boardCategory.isExpand,
+                            Field_BoardCategory.createdAt <- boardCategory.createdAt
         )
     }
     

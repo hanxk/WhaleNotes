@@ -23,5 +23,6 @@ target 'WhaleNotes' do
   pod "SwiftCSV"
   pod 'JXPhotoBrowser', '~> 3.0'
   pod 'Toast-Swift', '~> 5.0.1'
+  pod 'SwiftLinkPreview', '~> 3.1.0'
   # Pods for WhaleNotes
 end

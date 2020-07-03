@@ -20,7 +20,6 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    private let usecase = NotesUseCase()
     private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
@@ -131,7 +130,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
     }
     
     private func clearTrash() {
-        var noteIds:[Int64] = []
+        var noteIds:[String] = []
         for data in self.trashedNotes {
             noteIds.append(contentsOf:data.1.map { return $0.id} )
         }

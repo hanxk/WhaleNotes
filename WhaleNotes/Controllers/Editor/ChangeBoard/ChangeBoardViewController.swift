@@ -13,7 +13,7 @@ class ChangeBoardViewController:UIViewController {
     private var menuSectionTypes:[BoardSectionType] = []
     private var systemMenuItems:[MenuSystemItem]  =  []
     private var boards:[Board] = []
-    private var mapCategoryIdAnIndex:[Int64:Int]  = [:]
+    private var mapCategoryIdAnIndex:[String:Int]  = [:]
     private var boardCategories:[BoardCategoryInfo] = [] {
         didSet {
             self.mapCategoryIdAnIndex.removeAll()
@@ -28,7 +28,7 @@ class ChangeBoardViewController:UIViewController {
     
     var note:Note! {
         didSet {
-            self.choosedBoards = note.boards
+            self.choosedBoards = [note.board]
         }
     }
     var choosedBoards:[Board] = []
@@ -83,19 +83,13 @@ class ChangeBoardViewController:UIViewController {
     }
     
     private func setupData(boardsResult:(([Board],[Board]) ,[BoardCategoryInfo])) {
-        let systemBoards = boardsResult.0.0.filter{board in self.note.boards.contains(where: {
-            return $0.id != board.id
-        })}
-        self.boards = boardsResult.0.1.filter{board in self.note.boards.contains(where: {
-            return $0.id != board.id
-        })}
+        let systemBoards = boardsResult.0.0.filter{ $0.id == self.note.board.id}
+        self.boards = boardsResult.0.1.filter{$0.id != self.note.board.id}
         
         self.boardCategories = boardsResult.1
         if self.boardCategories.isNotEmpty {
             for i in 0..<self.boardCategories.count {
-                self.boardCategories[i].boards =  self.boardCategories[i].boards.filter{board in self.note.boards.contains(where: {
-                    return $0.id != board.id
-                })}
+                self.boardCategories[i].boards =  self.boardCategories[i].boards.filter{$0.id != self.note.board.id}
             }
         }
         self.boardCategories = self.boardCategories.filter{$0.boards.isNotEmpty}

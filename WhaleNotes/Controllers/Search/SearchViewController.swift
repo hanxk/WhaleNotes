@@ -12,7 +12,7 @@ class SearchViewController: UIViewController {
     
     private lazy var notesView:SearchNotesView = SearchNotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)).then {
         $0.callbackCellBoardButtonTapped = { note in
-            self.callbackOpenBoard?(note.boards[0])
+            self.callbackOpenBoard?(note.board)
             self.dismiss(animated: true, completion: nil)
         }
     }

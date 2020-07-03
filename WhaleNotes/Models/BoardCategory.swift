@@ -9,7 +9,7 @@
 import Foundation
 
 struct BoardCategory {
-    var id:Int64
+    var id:String = UUID.init().uuidString
     var title:String
     var sort:Double
     var isExpand:Bool

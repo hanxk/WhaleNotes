@@ -308,7 +308,7 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuChooseBoards(note: Note) {
-        self.openChooseBoardsVC()
+//        self.openChooseBoardsVC()
     }
     
     func noteMenuBackgroundChanged(note: Note) {
@@ -398,6 +398,8 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
             vc.sourceType = .camera
             vc.mediaTypes = ["public.image"]
             present(vc, animated: true)
+        case .bookmark:
+            break;
         }
     }
     
@@ -587,9 +589,6 @@ extension EditorViewController: UITableViewDataSource {
             return CellReuseIdentifier.images.rawValue
         case .todo:
             return CellReuseIdentifier.todo.rawValue
-            
-        case .boards:
-            return CellReuseIdentifier.boards.rawValue
         }
         
     }
@@ -598,13 +597,6 @@ extension EditorViewController: UITableViewDataSource {
         let sectionObj = sections[indexPath.section]
         let cell = tableView.dequeueReusableCell(withIdentifier:getCellIdentifier(sectionType: sectionObj, indexPath: indexPath), for: indexPath)
         switch sectionObj {
-        case .boards:
-            let boardsCell = cell as! BoardsCell
-            boardsCell.boards =  note.boards
-            boardsCell.callbackTaped = { [weak self] in
-                self?.openChooseBoardsVC()
-            }
-            break
         case .text:
             let textCell = cell as! TextBlockCell
             textCell.note = note
@@ -724,19 +716,6 @@ extension EditorViewController: UITableViewDataSource {
         }
     }
     
-    
-    func openChooseBoardsVC()  {
-        let vc = ChooseBoardViewController()
-        vc.note = note
-        vc.callbackBoardChoosed = { newNote in
-            if let boardSectionIndex = self.sections.firstIndex(of: SectionType.boards),
-               let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: boardSectionIndex)) as? BoardsCell {
-                self.note = newNote
-                cell.boards = newNote.boards
-            }
-        }
-        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-    }
     
     fileprivate func handleTextViewEnterKey(textView: UITextView){
         let tableView = self.tableView
@@ -900,8 +879,6 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
-        case .boards:
-            return BoardsCell.cellHeight
         case .images:
             if self.note.imageBlocks.isEmpty {
                 return 0
@@ -1442,7 +1419,6 @@ extension EditorViewController {
 
 
 private enum SectionType {
-    case boards
     case text
     case todo
     case images
@@ -1465,5 +1441,5 @@ fileprivate enum TodoMode {
 enum CreateMode {
     case text
     case todo
-    case images(blocks:[Block])
+    case images(imagesNameAndProperty:[(String,[String:Any])])
 }

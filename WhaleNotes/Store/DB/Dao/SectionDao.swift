@@ -10,10 +10,10 @@ import Foundation
 import SQLite
 
 enum Field_Section{
-    static let id = Expression<Int64>("id")
+    static let id = Expression<String>("id")
     static let title = Expression<String>("title")
     static let sort = Expression<Double>("sort")
-    static let boardId = Expression<Int64>("board_id")
+    static let boardId = Expression<String>("board_id")
     static let createdAt = Expression<Date>("created_at")
 }
 
@@ -33,19 +33,19 @@ class SectionDao {
         return rowId
     }
     
-    func delete(id: Int64)  throws -> Bool {
+    func delete(id: String)  throws -> Bool {
         let sectionData = table.filter(Field_Section.id == id)
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
     
-    func deleteByBoardId(boardId: Int64) throws -> Int {
+    func deleteByBoardId(boardId: String) throws -> Int {
         let sectionData = table.filter(Field_Section.boardId == boardId)
         let rows = try db.run(sectionData.delete())
         return rows
     }
     
-    func query(boardId:Int64) throws -> [Section] {
+    func query(boardId:String) throws -> [Section] {
         var sections:[Section] = []
         let query = table.filter(Field_Section.boardId == boardId).order(Field_Section.sort.asc)
         let rows = try db.prepare(query)
@@ -65,7 +65,7 @@ extension SectionDao {
         do {
             try! db.run(
                 table.create(ifNotExists: true, block: { (builder) in
-                    builder.column(Field_Section.id,primaryKey: .autoincrement)
+                    builder.column(Field_Section.id)
                     builder.column(Field_Section.title)
                     builder.column(Field_Section.sort)
                     builder.column(Field_Section.boardId)
@@ -80,7 +80,7 @@ extension SectionDao {
     
     
     fileprivate func generateSectionInsert(section: Section,conflict:OnConflict = OnConflict.fail) -> Insert {
-        if section.id > 0 {
+        
             return table.insert(or: conflict,
                                 Field_Section.id <- section.id,
                                 Field_Section.title <- section.title,
@@ -88,13 +88,6 @@ extension SectionDao {
                                 Field_Section.boardId <- section.boardId,
                                 Field_Section.createdAt <- section.createdAt
             )
-        }
-        return table.insert(or: conflict,
-                        Field_Section.title <- section.title,
-                        Field_Section.sort <- section.sort,
-                        Field_Section.boardId <- section.boardId,
-                        Field_Section.createdAt <- section.createdAt
-        )
     }
     
     fileprivate func generateSection(row: Row) -> Section {

@@ -10,9 +10,9 @@ import Foundation
 import SQLite
 
 fileprivate enum Field_SectionAndNote{
-    static let id = Expression<Int64>("id")
-    static let sectionId = Expression<Int64>("section_id")
-    static let noteId = Expression<Int64>("note_id")
+    static let id = Expression<String>("id")
+    static let sectionId = Expression<String>("section_id")
+    static let noteId = Expression<String>("note_id")
     static let sort = Expression<Double>("sort")
 }
 
@@ -38,7 +38,7 @@ class SectionAndNoteDao {
         return rows > 0
     }
     
-    func queryBy(noteId: Int64,sectionId:Int64) throws -> SectionAndNote? {
+    func queryBy(noteId: String,sectionId:String) throws -> SectionAndNote? {
         let query = table.filter(Field_SectionAndNote.noteId  == noteId && Field_SectionAndNote.sectionId == sectionId)
         let rows = try db.prepare(query)
         for row in rows {
@@ -46,12 +46,14 @@ class SectionAndNoteDao {
         }
         return nil
     }
-    func isExists(noteId: Int64,boardId:Int64) throws -> Bool {
-        let count = try db.scalar("select count(*) from section_note inner join section on (section.id = section_note.section_id and section.board_id = \(boardId) and section_note.note_id = \(noteId) )")  as! Int64
+    func isExists(noteId: String,boardId:String) throws -> Bool {
+        
+        let stmt = try db.prepare("select count(*) from section_note inner join section on (section.id = section_note.section_id and section.board_id = ? and section_note.note_id = ? )")
+        let count = try stmt.scalar(boardId,noteId)  as! Int64
         return count > 0
    }
     
-    func queryFirst(sectionId:Int64) throws -> SectionAndNote? {
+    func queryFirst(sectionId:String) throws -> SectionAndNote? {
         let query = table.filter(Field_SectionAndNote.sectionId == sectionId).order(Field_SectionAndNote.sort.asc).limit(1)
         let rows = try db.prepare(query)
         for row in rows {
@@ -60,40 +62,40 @@ class SectionAndNoteDao {
         return nil
     }
     
-    func delete(id: Int64)  throws -> Bool {
+    func delete(id: String)  throws -> Bool {
         let sectionData = table.filter(Field_SectionAndNote.id == id)
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
     
-    func deleteByNoteId(_ noteId:Int64) throws -> Bool{
+    func deleteByNoteId(_ noteId:String) throws -> Bool{
         let sectionData = table.filter(Field_SectionAndNote.noteId == noteId)
         let rows = try db.run(sectionData.delete())
         return rows > 0
     }
     
     
-    func deleteByBoardId(_ boardId:Int64,noteId:Int64) throws -> Bool{
-//        let query = table.join(sectionTable, on: Field_SectionAndNote.sectionId == Field_Section.id).filter(sectionTable[Field_Section.boardId] == boardId)
-//        let query = table.join(sectionTable, on: Field_SectionAndNote.sectionId == sectionTable[Field_Section.id])
-         try db.run("""
+    func deleteByBoardId(_ boardId:String,noteId:String) throws -> Bool{
+        let stmt = try db.prepare("""
             delete from section_note where id in (
                 select section_note.id from section_note
-                inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
-            ) and section_note.note_id = \(noteId)
-    """)
+                inner join section on (section.id = section_note.section_id and section.board_id = ?)
+            ) and section_note.note_id = ?
+         """)
+        try stmt.run(boardId,noteId)
         let rows = db.changes
         return rows > 0
     }
     
 
-        func deleteByBoardId(_ boardId:Int64) throws -> Int{
-             try db.run("""
+        func deleteByBoardId(_ boardId:String) throws -> Int{
+            let stmt =  try db.prepare("""
                 delete from section_note where id in (
                     select section_note.id from section_note
-                    inner join section on (section.id = section_note.section_id and section.board_id = \(boardId))
+                    inner join section on (section.id = section_note.section_id and section.board_id = ?)
                 )
         """)
+            try stmt.run(boardId)
             let rows = db.changes
             return rows
         }
@@ -107,7 +109,7 @@ extension SectionAndNoteDao {
         do {
             try! db.run(
                 table.create(ifNotExists: true, block: { (builder) in
-                    builder.column(Field_SectionAndNote.id,primaryKey: .autoincrement)
+                    builder.column(Field_SectionAndNote.id)
                     builder.column(Field_SectionAndNote.sectionId)
                     builder.column(Field_SectionAndNote.noteId)
                     builder.column(Field_SectionAndNote.sort)
@@ -121,19 +123,13 @@ extension SectionAndNoteDao {
     
     
     fileprivate func generateSectionInsert(sa: SectionAndNote,conflict:OnConflict = OnConflict.fail) -> Insert {
-        if sa.id > 0 {
+        
             return table.insert(or: conflict,
                                 Field_SectionAndNote.id <- sa.id,
                                 Field_SectionAndNote.sectionId <- sa.sectionId,
                                 Field_SectionAndNote.noteId <- sa.noteId,
                                 Field_SectionAndNote.sort <- sa.sort
             )
-        }
-        return table.insert(or: conflict,
-                            Field_SectionAndNote.sectionId <- sa.sectionId,
-                            Field_SectionAndNote.noteId <- sa.noteId,
-                            Field_SectionAndNote.sort <- sa.sort
-        )
     }
     
     fileprivate func generateSectionAndNote(row: Row) -> SectionAndNote {
