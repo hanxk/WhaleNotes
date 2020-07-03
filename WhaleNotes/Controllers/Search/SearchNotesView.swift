@@ -25,11 +25,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     
     var callbackCellBoardButtonTapped:((Note)->Void)?
     
-    private var notes:[Note] = [] {
-        didSet {
-            self.collectionNode.reloadData()
-        }
-    }
+    private var notes:[Note] = []
     
     var delegate:NotesViewDelegate?
     
@@ -46,7 +42,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     
     private var mode:DisplayMode = .grid
     private(set) lazy var collectionNode = self.generateCollectionView(mode: mode)
-    
+    private var keyword:String = ""
     
     func generateCollectionView(mode:DisplayMode) -> ASCollectionNode {
        return ASCollectionNode(collectionViewLayout:collectionLayout).then { [weak self] in
@@ -75,6 +71,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     }
     
     func searchNotes(keyword:String) {
+        self.keyword = keyword
         if keyword.isEmpty {
             self.notes = []
             return
@@ -84,13 +81,13 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
             .subscribe(onNext: { [weak self] in
                 if let self = self {
                     self.notes = $0
+                    self.collectionNode.reloadData()
                 }
             }, onError: {
                 Logger.error($0)
             })
         .disposed(by: disposeBag)
     }
-    
 }
 
 extension SearchNotesView {
@@ -101,51 +98,43 @@ extension SearchNotesView {
     
     
     func viewWillDisappear(_ animated: Bool) {
-        //        notesToken?.invalidate()
     }
     
     func noteEditorUpdated(mode:EditorUpdateMode) {
-        //
         switch mode {
-        case .insert(let noteInfo):
-//            if self.checkBoardIsDel(noteInfo)  {
-//                return
-//            }
-//            sectionNoteInfo.notes.insert(noteInfo, at: 0)
-//            self.collectionNode.performBatchUpdates({
-//                self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
-//            }, completion: nil)
+        case .insert:
             break
-        case .update(let noteInfo):
+        case .update(let note):
+            self.handleNoteUpdated(note)
             break
-//            if self.checkBoardIsDel(noteInfo)  {
-//                return
-//            }
-//
-//            if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == noteInfo.rootBlock.id }) {
-//
-//                sectionNoteInfo.notes[row] = noteInfo
-//                self.collectionNode.performBatchUpdates({
-//                    self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
-//                }, completion: nil)
-//            }
         case .delete(let note):
-//            self.handleDeleteNote(note)
-             break
+            self.handleNoteDeleted(note)
         case .moved(let note):
-//             self.noteMenuDataMoved(note: note)?
-             break
+            self.handleNoteUpdated(note)
+        case .trashed(let note):
+            self.handleNoteUpdated(note)
+        case .archived(let note):
+              self.handleNoteUpdated(note)
+        case .trashedOut(let note):
+            self.handleNoteUpdated(note)
         }
     }
     
     
-    func handleDeleteNote(_ note:Note) {
-//        if let row = noteInfos.firstIndex(where: { $0.rootBlock.id == note.rootBlock.id }) {
-//            sectionNoteInfo.notes.remove(at: row)
-//            self.collectionNode.performBatchUpdates({
-//                self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
-//            }, completion: nil)
-//        }
+    func handleNoteUpdated(_ note:Note) {
+        guard let index =  self.notes.firstIndex(where: { $0.id == note.id }) else { return }
+        self.notes[index] = note
+        self.collectionNode.performBatchUpdates({
+            self.collectionNode.reloadItems(at: [IndexPath(row: index, section: 0)])
+        }, completion: nil)
+    }
+    
+    func handleNoteDeleted(_ note:Note) {
+        guard let index =  self.notes.firstIndex(where: { $0.id == note.id }) else { return }
+        self.notes.remove(at: index)
+        self.collectionNode.performBatchUpdates({
+            self.collectionNode.deleteItems(at: [IndexPath(row: index, section: 0)])
+        }, completion: nil)
     }
 }
 
@@ -157,7 +146,13 @@ extension SearchNotesView: ASCollectionDataSource {
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-        return self.notes.count
+        let count = self.notes.count
+        if count == 0 && self.keyword.isNotEmpty {
+            collectionNode.setEmptyMessage("没有找到相关的便签",y: 100)
+        }else {
+            collectionNode.clearEmptyMessage()
+        }
+        return count
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
@@ -202,7 +197,8 @@ extension SearchNotesView:NoteCellNodeDelegate {
     }
     
     func noteCellMenuTapped(sender: UIView,note:Note) {
-        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
+        let menuStyle = note.status == NoteBlockStatus.trash ? NoteMenuDisplayMode.trash : NoteMenuDisplayMode.list
+        NoteMenuViewController.show(mode: menuStyle, note: note,sourceView: sender,delegate: self)
     }
     
     
@@ -211,12 +207,11 @@ extension SearchNotesView:NoteCellNodeDelegate {
 //MARK: NoteMenuViewControllerDelegate
 extension SearchNotesView:NoteMenuViewControllerDelegate {
     func noteMenuArchive(note: Note) {
-        self.handleDeleteNote(note)
+        self.handleNoteUpdated(note)
     }
     
     func noteMenuMoveToTrash(note: Note) {
-        self.handleDeleteNote(note)
-//        self.showToast("便签已移动至废纸篓")
+        self.handleNoteUpdated(note)
     }
     
     func noteMenuChooseBoards(note: Note) {
@@ -233,13 +228,35 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuDataMoved(note: Note) {
-        self.handleDeleteNote(note)
+        self.handleNoteUpdated(note)
         
         if note.boards.isEmpty { return }
         let board = note.boards[0]
         
         let message = board.type == BoardType.user.rawValue ? (board.icon+board.title) : board.title
         self.showToast("便签已移动至：\"\(message)\"")
+    }
+    
+    func noteMenuDataRestored(note: Note) {
+        self.handleNoteUpdated(note)
+    }
+    
+    func noteMenuDeleteTapped(note: Note) {
+        let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
+            
+            NoteRepo.shared.deleteNote(noteId: note.id)
+                .subscribe(onNext: { _ in
+                    self.handleNoteDeleted(note)
+                }, onError: { error in
+                    Logger.error(error)
+                },onCompleted: {
+                })
+                .disposed(by: self.disposeBag)
+            
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel,handler: nil))
+        self.controller?.present(alert, animated: true)
     }
     
 }

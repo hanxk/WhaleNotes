@@ -33,19 +33,19 @@ class TrashView: UIView, UINavigationControllerDelegate {
     var delegate:NotesViewDelegate?
     
     
-
+    
     let btnNewNote = NotesView.makeFloatButton().then {
         $0.tintColor = .white
         $0.backgroundColor = UIColor(hexString: "#EC4D3D")
         $0.isHidden = true
-
+        
         let config = UIImage.SymbolConfiguration(pointSize: FloatButtonConstants.iconSize, weight: .light)
         $0.setImage(UIImage(systemName: "bin.xmark",withConfiguration:config )?.withTintColor(.white), for: .normal)
         $0.addTarget(self, action: #selector(btnClearTapped), for: .touchUpInside)
     }
     
     
-
+    
     private var numberOfColumns = 2
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
         $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: Int(numberOfColumns), columnSpacing:  NotesViewConstants.waterfall_cellSpace, interItemSpacing: NotesViewConstants.waterfall_cellSpace, sectionInsets: UIEdgeInsets(top: 0, left: NotesViewConstants.waterfall_cellHorizontalSpace, bottom: 12, right:  NotesViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
@@ -66,29 +66,29 @@ class TrashView: UIView, UINavigationControllerDelegate {
         switch mode {
         case .waterfall:
             return ASCollectionNode(layoutDelegate: layoutDelegate, layoutFacilitator: nil).then { [weak self] in
-                    guard let self = self else {return}
-                    $0.alwaysBounceVertical = true
-                    let _layoutInspector = layoutDelegate
-                    $0.dataSource = self
-                    $0.delegate = self
-                    $0.layoutInspector = _layoutInspector
-                    $0.contentInset = UIEdgeInsets(top: 0, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
-                    $0.showsVerticalScrollIndicator = false
-                    $0.registerSupplementaryNode(ofKind: UICollectionView.elementKindSectionHeader)
-                    
-                }
+                guard let self = self else {return}
+                $0.alwaysBounceVertical = true
+                let _layoutInspector = layoutDelegate
+                $0.dataSource = self
+                $0.delegate = self
+                $0.layoutInspector = _layoutInspector
+                $0.contentInset = UIEdgeInsets(top: 0, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                $0.showsVerticalScrollIndicator = false
+                $0.registerSupplementaryNode(ofKind: UICollectionView.elementKindSectionHeader)
+                
+            }
         case .grid:
             return ASCollectionNode(collectionViewLayout:collectionLayout).then { [weak self] in
-                    guard let self = self else {return}
-                    $0.alwaysBounceVertical = true
-                    $0.dataSource = self
-                    $0.delegate = self
-                    $0.contentInset = UIEdgeInsets(top: -6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
-                    $0.showsVerticalScrollIndicator = false
-
+                guard let self = self else {return}
+                $0.alwaysBounceVertical = true
+                $0.dataSource = self
+                $0.delegate = self
+                $0.contentInset = UIEdgeInsets(top: -6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                $0.showsVerticalScrollIndicator = false
+                
                 $0.registerSupplementaryNode(ofKind: UICollectionView.elementKindSectionHeader)
-                    
-                }
+                
+            }
         }
     }
     
@@ -101,7 +101,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
         self.setupUI()
         self.setupData()
     }
-
+    
     
     private func setupUI() {
         collectionNode.frame = self.frame
@@ -147,7 +147,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
             }, onError: {error in
                 Logger.error(error)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
     
@@ -161,7 +161,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
             }, onError: {
                 Logger.error($0)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
     
 }
@@ -170,7 +170,13 @@ class TrashView: UIView, UINavigationControllerDelegate {
 extension TrashView: ASCollectionDataSource {
     
     func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
-        return self.trashedNotes.count
+        let count = self.trashedNotes.count
+        if count == 0 {
+            collectionNode.setEmptyMessage("暂无便签")
+        }else {
+            collectionNode.clearEmptyMessage()
+        }
+        return count
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
@@ -221,8 +227,8 @@ extension TrashView:NoteCellNodeDelegate {
             return imageView.view
         })
         browser.callBackShowNoteButtonTapped = {
-//            if let indexPath = self.findNoteIndex(note)
-//            self.openEditorVC(note: self.noteInfos[])
+            //            if let indexPath = self.findNoteIndex(note)
+            //            self.openEditorVC(note: self.noteInfos[])
             self.openEditorVC(note: note)
         }
         browser.show()
@@ -311,8 +317,10 @@ extension TrashView: ASCollectionDelegate {
         switch mode {
         case .delete(let note):
             self.removeNodeFromCollectionView(note)
-           default:
-                break
+        case .trashedOut(let note):
+            self.removeNodeFromCollectionView(note)
+        default:
+            break
         }
     }
     

@@ -22,6 +22,9 @@ enum EditorUpdateMode {
     case update(noteInfo:Note)
     case delete(noteInfo:Note)
     case moved(noteInfo:Note)
+    case archived(noteInfo:Note)
+    case trashed(noteInfo:Note)
+    case trashedOut(noteInfo:Note)
 }
 
 enum EditorMode {
@@ -296,12 +299,12 @@ class EditorViewController: UIViewController {
 extension EditorViewController:NoteMenuViewControllerDelegate {
     func noteMenuArchive(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
     }
     
     func noteMenuMoveToTrash(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
     }
     
     func noteMenuChooseBoards(note: Note) {
@@ -453,7 +456,7 @@ extension EditorViewController {
     
     func noteMenuDataRestored(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: note))
+        self.callbackNoteUpdate?(EditorUpdateMode.trashedOut(noteInfo: note))
     }
     
 }

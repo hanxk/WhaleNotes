@@ -119,7 +119,6 @@ class NotesView: UIView, UINavigationControllerDelegate {
                     $0.delegate = self
                     $0.contentInset = UIEdgeInsets(top: 12, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
                     $0.showsVerticalScrollIndicator = false
-                    
                 }
         }
     }
@@ -212,6 +211,12 @@ extension NotesView {
             self.handleDeleteNote(note)
         case .moved(let note):
              self.noteMenuDataMoved(note: note)
+        case .archived(let note):
+            self.handleDeleteNote(note)
+        case .trashed(let note):
+            self.noteMenuDataMoved(note: note)
+        case .trashedOut(let note):
+            break
         }
     }
     
@@ -232,7 +237,7 @@ extension NotesView {
             sectionNoteInfo.notes.remove(at: row)
             self.collectionNode.performBatchUpdates({
                 self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
-            }, completion: nil)
+            }, completion:nil)
         }
     }
 }
@@ -276,7 +281,13 @@ extension NotesView: ASCollectionDataSource {
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-        return self.noteInfos.count
+        let count = self.noteInfos.count
+        if count == 0 {
+            collectionNode.setEmptyMessage("暂无便签")
+        }else {
+            collectionNode.clearEmptyMessage()
+        }
+        return count
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
@@ -554,7 +565,6 @@ extension NotesView: UIImagePickerControllerDelegate {
         }
     }
 }
-
 
 struct MenuItem  {
     var label: String

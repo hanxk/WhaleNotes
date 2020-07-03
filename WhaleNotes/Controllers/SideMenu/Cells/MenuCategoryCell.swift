@@ -64,7 +64,7 @@ class MenuCategoryCell: UITableViewCell {
     }
     
     func setupViews() {
-        self.backgroundColor = .clear
+        self.backgroundColor = .sidemenuBg
         self.selectionStyle = .none
         
         contentView.addSubview(arrowImageView)

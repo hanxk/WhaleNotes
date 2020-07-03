@@ -260,7 +260,7 @@ extension NoteMenuViewController {
             .subscribe(onNext: {
                 var newNote = self.note!
                 newNote.rootBlock = $0
-                self.delegate?.noteMenuDataRestored(note: self.note)
+                self.delegate?.noteMenuDataRestored(note: newNote)
             }, onError: { error in
                 Logger.error(error)
             },onCompleted: {

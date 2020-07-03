@@ -348,7 +348,7 @@ class NoteCellNode: ASCellNode {
         
         
         let itemLayout =  ASBackgroundLayoutSpec(child: stackLayout, background: self.cardbackground)
-        let bottomLayout = renderBottomBar(isImageCard: self.imageNodes.isNotEmpty && titleNode == nil)
+        let bottomLayout = renderBottomBar(isImageCard: self.imageNodes.isNotEmpty && titleNode == nil && textNode == nil && todosElements.isEmpty)
         
         // 图片卡
         if isEmptyContent {
