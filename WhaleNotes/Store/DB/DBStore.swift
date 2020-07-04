@@ -40,10 +40,16 @@ class DBStore {
         sectionNoteDao = SectionAndNoteDao(dbCon: db)
     }
     
-    func createNote(sectionId:String,noteBlock:Block,childBlocks:[Block]) -> DBResult<Note> {
+    func createNote(sectionId:String,childBlocks:[Block]) -> DBResult<Note> {
         do {
             var board:Board!
-            var note = noteBlock
+            var note = Block.newNoteBlock()
+            let newChildBlocks:[Block] = childBlocks.map {
+                var newBlock = $0
+                newBlock.noteId = note.id
+                return newBlock
+            }
+            
             try db.transaction {
                 
                 // 获取当前 section 的排序
@@ -56,12 +62,12 @@ class DBStore {
                 // 添加关联表
                 _  = try sectionNoteDao.insert(SectionAndNote(sectionId: sectionId, noteId: note.id, sort: note.sort))
                 
-                for block in childBlocks {
+                for block in newChildBlocks {
                     try blockDao.insert(block)
                 }
                 board = try boardDao.queryBySectionId(sectionId)!
             }
-            return DBResult<Note>.success(Note(rootBlock: note, childBlocks:childBlocks,board: board))
+            return DBResult<Note>.success(Note(rootBlock: note,childBlocks:newChildBlocks,board: board))
         } catch let error  {
             return DBResult<Note>.failure(DBError(code: .None,message: error.localizedDescription))
         }

@@ -67,6 +67,13 @@ extension Note {
             rootTodoBlock == nil
     }
     
+    
+    var noteCardType:NoteCardType {
+        
+        return .normal
+    }
+    
+    
     var createdDateStr:String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy年MM月dd日 HH:mm"
@@ -208,4 +215,10 @@ extension Note {
         self.imageBlocks.removeAll()
     }
     
+}
+
+enum NoteCardType {
+    case normal
+    case image
+    case bookmark
 }

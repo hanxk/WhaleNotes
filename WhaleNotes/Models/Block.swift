@@ -31,7 +31,7 @@ struct Block {
         return block
     }
     
-    static func newTextBlock(text: String = "",noteId:String) -> Block {
+    static func newTextBlock(text: String = "",noteId:String="") -> Block {
         var block = Block()
         block.text = ""
         block.noteId = noteId
@@ -44,7 +44,7 @@ struct Block {
         return properties[key]
     }
     
-    static func newTodoBlock(noteId:String,sort:Double = 0,text: String = "",parent:String = "") -> Block {
+    static func newTodoBlock(noteId:String="",sort:Double = 0,text: String = "",parent:String = "") -> Block {
         var block = Block()
         block.type = BlockType.todo.rawValue
         block.isChecked = false
@@ -55,7 +55,7 @@ struct Block {
         return block
     }
     
-    static func newImageBlock(imageUrl: String,noteId:String,properties:[String:Any] = [:]) -> Block {
+    static func newImageBlock(imageUrl: String,noteId:String="",properties:[String:Any] = [:]) -> Block {
         var block = Block()
         block.type = BlockType.image.rawValue
         block.sort = 4
@@ -66,7 +66,7 @@ struct Block {
     }
     
     
-    static func newBookmarkBlock(noteId:String,url: String,canonicalUrl:String,title:String,description:String,cover:String) -> Block {
+    static func newBookmarkBlock(noteId:String="",url: String,canonicalUrl:String,title:String,description:String,cover:String) -> Block {
         let properties:[String:Any] = [
             BlockBookmarkProperty.description.rawValue:description,
             BlockBookmarkProperty.cover.rawValue:cover,

@@ -363,7 +363,11 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     
-    //MARK: 添加 block
+}
+
+//MARK: 添加 block
+extension EditorViewController {
+    
     @objc func handleAddButtonTapped(sender: UIButton) {
         
         self.view.endEditing(true)
@@ -409,7 +413,7 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
             return
         }
         let sectionIndex = 0
-        self.createBlock(block: Block.newTextBlock(text: "", noteId: self.note.id)) { _ in
+        self.createBlock(block: Block.newTextBlock(noteId: self.note.id)) { _ in
             self.sections.insert(SectionType.text, at:sectionIndex)
             self.tableView.performBatchUpdates({
                 self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
@@ -1435,11 +1439,4 @@ fileprivate enum CellReuseIdentifier: String {
 fileprivate enum TodoMode {
     case unchecked
     case checked
-}
-
-
-enum CreateMode {
-    case text
-    case todo
-    case images(imagesNameAndProperty:[(String,[String:Any])])
 }

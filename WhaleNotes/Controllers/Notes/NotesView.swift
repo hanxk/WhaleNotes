@@ -242,38 +242,21 @@ extension NotesView {
 
 extension NotesView {
     
-    private func createNewNote(createMode: CreateMode) {
-        let noteBlock = Block.newNoteBlock()
-        let childBlocks = generateBlocks(createMode: createMode,noteId: noteBlock.id)
-        NoteRepo.shared.createNewNote(sectionId: self.sectionNoteInfo.section.id, noteBlock: noteBlock, childBlocks: childBlocks)
+    private func createNewNote(childBlock:Block,callback:((Note) -> Void)? = nil) {
+        self.createNewNote(childBlocks:[childBlock],callback:callback)
+    }
+    private func createNewNote(childBlocks:[Block],callback:((Note) -> Void)? = nil) {
+        NoteRepo.shared.createNewNote(sectionId: self.sectionNoteInfo.section.id, childBlocks: childBlocks)
             .subscribe { [weak self] note in
+                if let callback = callback {
+                    callback(note)
+                    return
+                }
                 self?.openEditorVC(note:note, isNew: true)
             } onError: {
                 Logger.error($0)
             }
             .disposed(by: disposeBag)
-    }
-    
-    fileprivate func generateBlocks(createMode: CreateMode,noteId:String) -> [Block]{
-        
-        var childBlocks:[Block] = []
-        switch createMode {
-        case .text:
-            childBlocks.append(Block.newTextBlock(noteId: noteId))
-            break
-        case .todo:
-            let rootTodoBlock = Block.newTodoBlock(noteId: noteId)
-            let todoBlock = Block.newTodoBlock(noteId: noteId,sort: 65536,parent: rootTodoBlock.id)
-            childBlocks.append(contentsOf: [rootTodoBlock,todoBlock])
-            break
-        case .images(let imageInfos):
-            let imageBlocks = imageInfos.map {
-                Block.newImageBlock(imageUrl: $0.0, noteId: noteId, properties: $0.1)
-            }
-            childBlocks.append(contentsOf: imageBlocks)
-            break
-        }
-        return childBlocks
     }
     
 }
@@ -383,7 +366,7 @@ extension NotesView: ASCollectionDelegate {
     }
 }
 
-// float buttons
+//MARK: 添加 block
 extension NotesView {
     
     func setupFloatButtons() {
@@ -418,16 +401,18 @@ extension NotesView {
     }
     
     @objc func btnNewNoteTapped (sender:UIButton) {
-        self.openEditor(createMode: .text)
+        self.createNewNote(childBlock:Block.newTextBlock())
         
     }
     
     private func openNoteEditor(type: MenuType) {
         switch type {
         case .text:
-            self.openEditor(createMode: .text)
+            self.createNewNote(childBlock:Block.newTextBlock())
         case .todo:
-            self.openEditor(createMode: .todo)
+            let rootTodoBlock = Block.newTodoBlock()
+            let todoBlock = Block.newTodoBlock(sort: 65536,parent: rootTodoBlock.id)
+            self.createNewNote(childBlocks:[rootTodoBlock,todoBlock])
         case .image:
             let viewController = TLPhotosPickerViewController()
             viewController.delegate = self
@@ -448,14 +433,10 @@ extension NotesView {
             break
         case .bookmark:
             self.controller?.showAlertTextField(title: "添加链接",placeholder: "example.com", positiveBtnText: "添加", callbackPositive: {
-                self.loadInfoFromUrl(url: $0)
+                self.fetchBookmarkFromUrl(url: $0)
             })
             break
         }
-    }
-    
-    func openEditor(createMode: CreateMode) {
-        self.createNewNote(createMode: createMode)
     }
     
     func openEditorVC(note: Note,isNew:Bool = false) {
@@ -468,19 +449,6 @@ extension NotesView {
     }
     
     @objc func btnMoreTapped (sender:UIButton) {
-//        let popMenuVC = PopBlocksViewController()
-//        popMenuVC.isFromHome = true
-//        popMenuVC.cellTapped = { [weak self] type in
-//            popMenuVC.dismiss(animated: true, completion: {
-//                self?.openNoteEditor(type:type)
-//            })
-//        }
-//        ContextMenu.shared.show(
-//            sourceViewController: self.controller!,
-//            viewController: popMenuVC,
-//            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(overlayColor: UIColor.black.withAlphaComponent(0.2))),
-//            sourceView: sender
-//        )
         NotesView.showNotesMenu(sourceView: sender, sourceVC: self.controller!) { [weak self]  menuType in
               self?.openNoteEditor(type:menuType)
         }
@@ -519,9 +487,8 @@ extension NotesView {
 //MARK: 超链接处理
 extension NotesView {
     
-    private func loadInfoFromUrl(url:String) {
-        let links = SwiftLinkPreview(session: .shared, workQueue: SwiftLinkPreview.defaultWorkQueue, responseQueue: DispatchQueue.main, disableInMemoryCache: true,cacheInvalidationTimeout: 1, cacheCleanupInterval: 1)
-        
+    private func fetchBookmarkFromUrl(url:String) {
+        let links = SwiftLinkPreview(session: .shared, workQueue: SwiftLinkPreview.defaultWorkQueue, responseQueue: DispatchQueue.main, disableInMemoryCache: true,cacheInvalidationTimeout: 0, cacheCleanupInterval: 0)
         links.preview(url,
                 onSuccess: { result in
                     let title = result.title ?? ""
@@ -529,15 +496,29 @@ extension NotesView {
                     let cover = result.image ?? ""
                     let finalUrl = result.finalUrl?.absoluteURL.absoluteString ?? url
                     let canonicalUrl = result.canonicalUrl ?? ""
-                    print("\(result)")
-                    let block = Block.newBookmarkBlock(noteId: "", url: finalUrl, canonicalUrl: canonicalUrl, title: title, description: description, cover: cover)
-                    self.createBookmarkBlock(block)
+                    self.createBookmarkBlock(ImageFetchInfo(title: title, description: description, cover: cover, finalUrl: finalUrl, canonicalUrl: canonicalUrl))
                 },
                 onError: { error in print("\(error)")})
     }
     
-    private func createBookmarkBlock(_ block:Block) {
+    private func createBookmarkBlock(_ imageInfo:ImageFetchInfo) {
+        if imageInfo.cover.isEmpty {
+            self.createNewNote(childBlock: imageInfo.toBookmarkBlock())
+            return
+        }
         
+        var newImageInfo = imageInfo
+        // 保存图片到本地
+        NoteRepo.shared.saveImage(url: imageInfo.cover)
+            .subscribe {
+                newImageInfo.cover = $0
+                self.createNewNote(childBlock: newImageInfo.toBookmarkBlock()) { note in
+                    
+                }
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
     }
     
 }
@@ -552,8 +533,9 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
     func handlePicker(images: [TLPHAsset]) {
         self.controller?.showHud()
         NoteRepo.shared.saveImages(images: images)
+            .observeOn(MainScheduler.instance)
             .subscribe {
-                self.createNewNote(createMode: .images(imagesNameAndProperty: $0))
+                self.createNewNote(childBlocks: $0)
             } onError: {
                 Logger.error($0)
             } onCompleted: {
@@ -577,8 +559,9 @@ extension NotesView: UIImagePickerControllerDelegate {
     func handlePicker(image: UIImage) {
         self.controller?.showHud()
         NoteRepo.shared.saveImage(image: image)
+            .observeOn(MainScheduler.instance)
             .subscribe {
-                self.createNewNote(createMode: .images(imagesNameAndProperty: [$0]))
+                self.createNewNote(childBlock: $0)
             } onError: {
                 Logger.error($0)
             } onCompleted: {

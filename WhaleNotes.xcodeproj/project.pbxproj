@@ -88,6 +88,7 @@
 		18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */; };
 		18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */; };
 		18A9C54324AF31CD0025E0EB /* ChooseBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54224AF31CD0025E0EB /* ChooseBoardViewController.swift */; };
+		18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
 		18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CED671249F9259009181E0 /* TrashHeaderNode.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
@@ -216,6 +217,7 @@
 		18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CreateBoardViewController.swift; path = ../../../../../../../../CreateBoardViewController.swift; sourceTree = "<group>"; };
 		18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+Ex.swift"; sourceTree = "<group>"; };
 		18A9C54224AF31CD0025E0EB /* ChooseBoardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseBoardViewController.swift; sourceTree = "<group>"; };
+		18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
 		18CED671249F9259009181E0 /* TrashHeaderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashHeaderNode.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
@@ -520,6 +522,7 @@
 				18E6E67A247BCCD700D598C5 /* Note.swift */,
 				189D962B24861318000E04C9 /* SectionAndNote.swift */,
 				186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */,
+				18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1036,6 +1039,7 @@
 				1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */,
 				181D63DE248A256300B34E20 /* BoardCategoryDao.swift in Sources */,
 				181D63DA248A226D00B34E20 /* BoardCategory.swift in Sources */,
+				18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */,
 				18E6E668247B98A100D598C5 /* Board.swift in Sources */,
 				1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,

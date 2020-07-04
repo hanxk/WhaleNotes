@@ -20,16 +20,16 @@ class NoteRepo {
     var disposebag = DisposeBag()
     
     
-    func createNewNote(sectionId:String,noteBlock:Block,childBlocks: [Block]) -> Observable<Note> {
+    func createNewNote(sectionId:String,childBlocks: [Block]) -> Observable<Note> {
         
         Observable<[Block]>.just(childBlocks)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(childBlocks)  -> Note in
-                let reuslt =  DBStore.shared.createNote(sectionId: sectionId,noteBlock:noteBlock, childBlocks: childBlocks)
+                let reuslt =  DBStore.shared.createNote(sectionId: sectionId,childBlocks: childBlocks)
                 switch reuslt {
                 case .success(let note):
                     return note
-
+                    
                 case .failure(let err):
                     throw err
                 }
@@ -158,26 +158,8 @@ class NoteRepo {
             .observeOn(MainScheduler.instance)
     }
     
-    
-    
-    
     func createImageBlocks(noteId:String,images:[TLPHAsset],success:@escaping (([Block])->Void),failed:@escaping()->Void) {
-        Observable<[TLPHAsset]>.just(images)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(images)  -> [Block] in
-                var imageBlocks:[Block] = []
-                images.forEach {
-                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
-                        let imageName =  $0.uuidName
-                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
-                        if success {
-                            let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,noteId: noteId,properties:properties))
-                        }
-                    }
-                }
-                return imageBlocks
-            })
+        self.saveImages(images: images)
             .map({ (imageBlocks) -> [Block] in
                 let result = DBStore.shared.createBlocks(blocks:imageBlocks)
                 switch result {
@@ -197,36 +179,54 @@ class NoteRepo {
             .disposed(by: disposebag)
     }
     
-    func saveImages(images:[TLPHAsset]) ->  Observable<[(String,[String:Any])]> {
+    func saveImages(images:[TLPHAsset]) ->  Observable<[Block]> {
         return Observable<[TLPHAsset]>.just(images)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(images)  -> [(String,[String:Any])] in
-                var imageBlocks:[(String,[String:Any])] = []
+            .map({(images)  -> [Block] in
+                var imageBlocks:[Block] = []
                 images.forEach {
                     if let image =  $0.fullResolutionImage?.fixedOrientation() {
                         let imageName =  $0.uuidName
                         let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
                         if success {
                             let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                            imageBlocks.append((imageName,properties))
+                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,properties: properties))
                         }
                     }
                 }
                 return imageBlocks
             })
+    }
+    
+    func saveImage(url:String)-> Observable<String> {
+        return Observable<String>.just(url)
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .map({(url)  -> String in
+                guard let imageURL = URL(string: url) else { return "" }
+                let data = try Data(contentsOf: imageURL)
+                guard let image = UIImage(data: data) else { return "" }
+                let imageName = UUID().uuidString+".png"
+                if let rightImage = image.fixedOrientation() {
+                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage)
+                    if success {
+                        return imageName
+                    }
+                }
+                throw DBError(code: .None, message: "createImageBlocks error")
+            })
             .observeOn(MainScheduler.instance)
     }
     
-    func saveImage(image: UIImage) ->  Observable<(String,[String:Any])> {
+    func saveImage(image: UIImage) -> Observable<Block> {
         return Observable<UIImage>.just(image)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(image)  -> (String,[String:Any]) in
+            .map({(image)  -> Block in
                 let imageName = UUID().uuidString+".png"
                 if let rightImage = image.fixedOrientation() {
                     let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
                     if success {
                         let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                        return (imageName,properties)
+                        return Block.newImageBlock(imageUrl: imageName, properties: properties)
                     }
                 }
                 throw DBError(code: .None, message: "createImageBlocks error")
@@ -237,19 +237,7 @@ class NoteRepo {
     
     
     func createImageBlocks(noteId:String,image: UIImage,success:@escaping ((Block)->Void),failed:@escaping()->Void) {
-        Observable<UIImage>.just(image)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(image)  -> Block in
-                let imageName = UUID().uuidString+".png"
-                if let rightImage = image.fixedOrientation() {
-                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
-                    if success {
-                        let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                        return Block.newImageBlock(imageUrl: imageName,noteId: noteId,properties:properties)
-                    }
-                }
-                throw DBError(code: .None, message: "createImageBlocks error")
-            })
+        self.saveImage(image: image)
             .map({ (imageBlock) -> Block in
                 let result = DBStore.shared.createBlock(block: imageBlock)
                 switch result {
@@ -269,20 +257,20 @@ class NoteRepo {
             .disposed(by: disposebag)
     }
     
-//    func updateNoteBoards(note:Note,boards:[Board]) -> Observable<Note> {
-//        return Observable<Note>.create {  observer -> Disposable in
-//            let result = DBStore.shared.updateNoteBoards(note:note,boards:boards)
-//            switch result {
-//            case .success(let newBlock):
-//                observer.onNext(newBlock)
-//                observer.onCompleted()
-//            case .failure(let err):
-//                observer.onError(err)
-//            }
-//            return Disposables.create()
-//        }
-//        .observeOn(MainScheduler.instance)
-//    }
+    //    func updateNoteBoards(note:Note,boards:[Board]) -> Observable<Note> {
+    //        return Observable<Note>.create {  observer -> Disposable in
+    //            let result = DBStore.shared.updateNoteBoards(note:note,boards:boards)
+    //            switch result {
+    //            case .success(let newBlock):
+    //                observer.onNext(newBlock)
+    //                observer.onCompleted()
+    //            case .failure(let err):
+    //                observer.onError(err)
+    //            }
+    //            return Disposables.create()
+    //        }
+    //        .observeOn(MainScheduler.instance)
+    //    }
     
     func moveNote2Board(note:Note,board:Board) -> Observable<Note>  {
         return Observable<Note>.create {  observer -> Disposable in
