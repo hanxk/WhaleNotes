@@ -14,8 +14,4 @@ struct ImageFetchInfo {
     var cover:String
     var finalUrl:String
     var canonicalUrl:String
-    
-    func toBookmarkBlock() -> Block {
-        return Block.newBookmarkBlock(url: finalUrl, canonicalUrl: canonicalUrl, title: title, description: description, cover: cover)
-    }
 }

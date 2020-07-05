@@ -47,7 +47,6 @@ class TextBlockCell: UITableViewCell {
     let placeholderLabel = UILabel().then {
         $0.textColor = .lightGray
         $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        $0.text = "写点什么..."
     }
     
     var textShouldBeginChange: ((UITextView) -> Void)?

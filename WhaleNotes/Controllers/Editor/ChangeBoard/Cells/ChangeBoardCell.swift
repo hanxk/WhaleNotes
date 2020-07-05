@@ -20,6 +20,12 @@ class ChangeBoardCell: UITableViewCell {
         }
     }
     
+    var isChoosed:Bool = false {
+        didSet {
+            self.checkImageView.isHidden = !isChoosed
+        }
+    }
+    
     
     private lazy var emojiLabel:UIImageView = UIImageView().then {
         $0.contentMode = .center
@@ -32,6 +38,13 @@ class ChangeBoardCell: UITableViewCell {
         $0.textColor = .primaryText
         $0.textAlignment = .left
     }
+    
+    
+    private lazy var checkImageView: UIImageView = UIImageView().then {
+        $0.image = UIImage(systemName: "checkmark", pointSize: 15, weight: .regular)
+        $0.isHidden = true
+    }
+    
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -54,6 +67,12 @@ class ChangeBoardCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
             $0.leading.equalTo(emojiLabel.snp.trailing).offset(ContextMenuCell.spacing)
+            $0.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
+            $0.centerY.equalToSuperview()
+        }
+        
+        contentView.addSubview(checkImageView)
+        checkImageView.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
             $0.centerY.equalToSuperview()
         }

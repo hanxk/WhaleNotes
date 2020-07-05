@@ -171,7 +171,7 @@ class NoteMenuViewController: ContextMenuViewController {
             if note.rootTodoBlock != nil {
                 secondItems.append(ContextMenuItem(label: "删除 \"待办事项\"", icon: "checkmark.square", tag: NoteMenuType.deleteBlock(blockType: BlockType.todo)))
             }
-            if note.imageBlocks.isNotEmpty {
+            if note.attachmentBlocks.isNotEmpty {
                 secondItems.append(ContextMenuItem(label: "删除 \"图片集\"", icon: "photo.on.rectangle", tag: NoteMenuType.deleteBlock(blockType: BlockType.image)))
             }
             
@@ -206,7 +206,11 @@ extension NoteMenuViewController {
             .disposed(by: disposeBag)
         
     }
-    func handleMove2Board(board:Board) {
+    func handleMove2Board(board:Board?) {
+        guard let board = board else {
+            self.dismiss()
+            return
+        }
         NoteRepo.shared.moveNote2Board(note: self.note, board: board)
             .subscribe(onNext: { [weak self] in
                 if let self = self {

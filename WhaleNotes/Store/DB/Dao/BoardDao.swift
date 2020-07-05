@@ -88,7 +88,7 @@ class BoardDao {
 
         var boards:[Board] = []
         for row in rows {
-            let board = generateBoardByTypeRow(row: row)
+            let board = self.generateBoardByTypeRow(row: row)
             boards.append(board)
         }
         
@@ -108,7 +108,7 @@ class BoardDao {
         let rows = try stmt.run(sectionId).typedRows()
 
         for row in rows {
-            let board = generateBoardByTypeRow(row: row)
+            let board = self.generateBoardByTypeRow(row: row)
             return board
         }
         return nil
@@ -124,15 +124,14 @@ class BoardDao {
                     """
         let stmt = try db.prepare(selectSQL)
         let rows = try stmt.run(noteBlockId).typedRows()
-
         for row in rows {
-            let board = generateBoardByTypeRow(row: row)
+            let board = self.generateBoardByTypeRow(row: row)
             return board
         }
         return nil
     }
     
-    private func generateBoardByTypeRow(row: TypedRow) -> Board {
+    func generateBoardByTypeRow(row: TypedRow) -> Board {
         let id = row.string("id")!
         let icon = row.string("icon")!
         let title = row.string("title")!
@@ -140,6 +139,19 @@ class BoardDao {
         let categoryId = row.string("category_id")!
         let type = row.int("type")!
         let createdAt = row.date("created_at")!
+        
+        let board = Board(id: id, icon: icon, title: title, sort: sort, categoryId: categoryId, type: type, createdAt: createdAt)
+        return board
+    }
+    
+    static func generateBoardByTypeRow(row: TypedRow) -> Board {
+        let id = row.string("board_id")!
+        let icon = row.string("board_icon")!
+        let title = row.string("board_title")!
+        let sort = row.double("board_sort")!
+        let categoryId = row.string("board_category_id")!
+        let type = row.int("board_type")!
+        let createdAt = row.date("board_created_at")!
         
         let board = Board(id: id, icon: icon, title: title, sort: sort, categoryId: categoryId, type: type, createdAt: createdAt)
         return board

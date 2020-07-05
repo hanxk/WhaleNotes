@@ -59,7 +59,7 @@ class EditorViewController: UIViewController {
     private let noteRepo = NoteRepo.shared
     
     private var columnCount:Int {
-        return self.note.imageBlocks.count > 1 ? 2 : 1
+        return self.note.attachmentBlocks.count > 1 ? 2 : 1
     }
     private var imageWidth:CGFloat {
         get {
@@ -413,7 +413,7 @@ extension EditorViewController {
             return
         }
         let sectionIndex = 0
-        self.createBlock(block: Block.newTextBlock(noteId: self.note.id)) { _ in
+        self.createBlock(block: Block.newTextBlock(parent: self.note.id)) { _ in
             self.sections.insert(SectionType.text, at:sectionIndex)
             self.tableView.performBatchUpdates({
                 self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
@@ -494,7 +494,7 @@ extension EditorViewController {
             self.sections.append(SectionType.todo)
         }
         
-        if note.imageBlocks.isNotEmpty {
+        if note.attachmentBlocks.isNotEmpty {
             self.sections.append(SectionType.images)
             self.imageTotalHeight = self.calculateTotalHeight()
         }
@@ -564,7 +564,7 @@ extension EditorViewController: UITableViewDataSource {
         if let section = sections.firstIndex(of: SectionType.todo) {
             return section
         }
-        var section = 1
+        var section = 0
         if let textSection = sections.firstIndex(of: SectionType.text) {
             section = textSection + 1
         }
@@ -651,7 +651,7 @@ extension EditorViewController: UITableViewDataSource {
                 browser.show()
                 
             }
-            imagesCell.reloadData(imageBlocks: self.note.imageBlocks)
+            imagesCell.reloadData(imageBlocks: self.note.attachmentBlocks)
             self.attachmentsCell = imagesCell
             break
         }
@@ -661,7 +661,7 @@ extension EditorViewController: UITableViewDataSource {
     private func handleImageBlocksUpdated(newNote:Note) {
         self.note = newNote
         guard let index = self.sections.firstIndex(where: {$0 == SectionType.images}) else { return }
-        if newNote.imageBlocks.isEmpty {
+        if newNote.attachmentBlocks.isEmpty {
             self.sections.remove(at: index)
             self.attachmentsCell = nil
             self.tableView.performBatchUpdates({
@@ -673,7 +673,7 @@ extension EditorViewController: UITableViewDataSource {
             self.refreshTableViewHeight()
             
             if let cell = self.attachmentsCell {
-                cell.reloadData(imageBlocks: self.note.imageBlocks)
+                cell.reloadData(imageBlocks: self.note.attachmentBlocks)
             }
             //            self.tableView.performBatchUpdates({
             //                self.tableView.reloadSections(IndexSet([index]), with: .automatic)
@@ -713,7 +713,6 @@ extension EditorViewController: UITableViewDataSource {
             self.tryUpdateBlock(block: block) {
                 //新增
                 let nextIndexPath = IndexPath(row: row+1, section: self.todoSectionIndex)
-                
                 let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
                 self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
             }
@@ -792,7 +791,7 @@ extension EditorViewController: UITableViewDataSource {
         
         guard let rootTodoBlock = self.note.rootTodoBlock else { return }
         // 新增
-        let todoBlock = Block.newTodoBlock(noteId: self.note.id, sort: sort,parent: rootTodoBlock.id)
+        let todoBlock = Block.newTodoBlock(parent: rootTodoBlock.id,sort: sort)
         self.createBlock(block: todoBlock) { _ in
             self.tableView.performBatchUpdates({
                 self.tableView.insertRows(at: [targetIndex], with: .bottom)
@@ -884,7 +883,7 @@ extension EditorViewController: UITableViewDelegate {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
         case .images:
-            if self.note.imageBlocks.isEmpty {
+            if self.note.attachmentBlocks.isEmpty {
                 return 0
             }
             return self.imageTotalHeight
@@ -1217,7 +1216,7 @@ extension EditorViewController {
     
     
     private func deleteImageBlocks() {
-        if self.note.imageBlocks.isEmpty { return }
+        if self.note.attachmentBlocks.isEmpty { return }
         guard let imageSectionIndex = self.sections.firstIndex(of: SectionType.images) else { return }
         noteRepo.deleteImageBlocks(noteId: self.note.id)
             .subscribe(onNext: { [weak self] _ in
@@ -1390,7 +1389,7 @@ extension EditorViewController {
             }
             return cellsHeight
         }()
-        for (_,block) in self.note.imageBlocks.enumerated() {
+        for (_,block) in self.note.attachmentBlocks.enumerated() {
             
             let width = block.properties["width"] as? CGFloat ?? 1000
             let height = block.properties["height"] as? CGFloat ?? 1000

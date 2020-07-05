@@ -22,9 +22,9 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     
     private var selectedIndexPath:IndexPath?
     
-    var callbackCellBoardButtonTapped:((Note)->Void)?
+    var callbackCellBoardButtonTapped:((Note,Board)->Void)?
     
-    private var notes:[Note] = []
+    private var notes:[NoteAndBoard] = []
     
     var delegate:NotesViewDelegate?
     
@@ -73,6 +73,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
         self.keyword = keyword
         if keyword.isEmpty {
             self.notes = []
+            self.collectionNode.reloadData()
             return
         }
         
@@ -121,15 +122,15 @@ extension SearchNotesView {
     
     
     func handleNoteUpdated(_ note:Note) {
-        guard let index =  self.notes.firstIndex(where: { $0.id == note.id }) else { return }
-        self.notes[index] = note
+        guard let index =  self.notes.firstIndex(where: { $0.note.id == note.id }) else { return }
+        self.notes[index] = NoteAndBoard(note: note, board: self.notes[index].board)
         self.collectionNode.performBatchUpdates({
             self.collectionNode.reloadItems(at: [IndexPath(row: index, section: 0)])
         }, completion: nil)
     }
     
     func handleNoteDeleted(_ note:Note) {
-        guard let index =  self.notes.firstIndex(where: { $0.id == note.id }) else { return }
+        guard let index =  self.notes.firstIndex(where: { $0.note.id == note.id }) else { return }
         self.notes.remove(at: index)
         self.collectionNode.performBatchUpdates({
             self.collectionNode.deleteItems(at: [IndexPath(row: index, section: 0)])
@@ -158,10 +159,10 @@ extension SearchNotesView: ASCollectionDataSource {
         let note = self.notes[indexPath.row]
         let itemSize = self.itemContentSize
         return {
-            let node =  NoteCellNode(note: note,itemSize: itemSize,isShowBoard: true)
+            let node =  NoteCellNode(note: note.note,itemSize: itemSize,board: note.board)
             node.delegate = self
-            node.callbackBoardButtonTapped = { note in
-                self.callbackCellBoardButtonTapped?(note)
+            node.callbackBoardButtonTapped = { note,board in
+                self.callbackCellBoardButtonTapped?(note,board)
             }
             return node
         }
@@ -218,8 +219,8 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuBackgroundChanged(note: Note) {
-        guard let row = self.notes.firstIndex(where: {$0.id == note.id}) else { return }
-        self.notes[row] = note
+        guard let row = self.notes.firstIndex(where: {$0.note.id == note.id}) else { return }
+        self.notes[row] = NoteAndBoard(note: note, board: self.notes[row].board)
         if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
             noteCell.note = note
             noteCell.setupBackBackground()
@@ -228,9 +229,9 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
     
     func noteMenuDataMoved(note: Note) {
         self.handleNoteUpdated(note)
-        guard let board  = note.board else { return }
-        let message = board.type == BoardType.user.rawValue ? (board.icon + board.title) : board.title
-        self.showToast("便签已移动至：\"\(message)\"")
+//        guard let board  = note.board else { return }
+//        let message = board.type == BoardType.user.rawValue ? (board.icon + board.title) : board.title
+//        self.showToast("便签已移动至：\"\(message)\"")
     }
     
     func noteMenuDataRestored(note: Note) {
@@ -262,7 +263,7 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
 extension SearchNotesView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
         let note = self.notes[indexPath.row]
-        self.openEditorVC(note: note)
+        self.openEditorVC(note: note.note)
     }
 }
 

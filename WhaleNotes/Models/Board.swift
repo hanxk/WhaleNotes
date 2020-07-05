@@ -8,7 +8,7 @@
 import UIKit
 
 // 记事板
-struct Board: Hashable {
+struct Board: Equatable,Hashable {
     var id:String
     var icon:String
     var title:String
@@ -33,6 +33,10 @@ struct Board: Hashable {
         }else {
             return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
         }
+    }
+    
+    static func == (lhs: Board, rhs: Board) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 

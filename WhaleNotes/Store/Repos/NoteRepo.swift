@@ -20,12 +20,12 @@ class NoteRepo {
     var disposebag = DisposeBag()
     
     
-    func createNewNote(sectionId:String,childBlocks: [Block]) -> Observable<Note> {
+    func createNewNote(sectionId:String,noteBlock:Block, childBlocks: [Block]) -> Observable<Note> {
         
         Observable<[Block]>.just(childBlocks)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(childBlocks)  -> Note in
-                let reuslt =  DBStore.shared.createNote(sectionId: sectionId,childBlocks: childBlocks)
+                let reuslt =  DBStore.shared.createNote(sectionId: sectionId,noteBlock:noteBlock,childBlocks: childBlocks)
                 switch reuslt {
                 case .success(let note):
                     return note
@@ -159,7 +159,7 @@ class NoteRepo {
     }
     
     func createImageBlocks(noteId:String,images:[TLPHAsset],success:@escaping (([Block])->Void),failed:@escaping()->Void) {
-        self.saveImages(images: images)
+        self.saveImages(images: images,noteId: noteId)
             .map({ (imageBlocks) -> [Block] in
                 let result = DBStore.shared.createBlocks(blocks:imageBlocks)
                 switch result {
@@ -179,7 +179,7 @@ class NoteRepo {
             .disposed(by: disposebag)
     }
     
-    func saveImages(images:[TLPHAsset]) ->  Observable<[Block]> {
+    func saveImages(images:[TLPHAsset],noteId:String="") ->  Observable<[Block]> {
         return Observable<[TLPHAsset]>.just(images)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(images)  -> [Block] in
@@ -190,7 +190,7 @@ class NoteRepo {
                         let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
                         if success {
                             let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,properties: properties))
+                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,parent: noteId,properties: properties))
                         }
                     }
                 }
@@ -217,7 +217,7 @@ class NoteRepo {
             .observeOn(MainScheduler.instance)
     }
     
-    func saveImage(image: UIImage) -> Observable<Block> {
+    func saveImage(image: UIImage,noteId: String="") -> Observable<Block> {
         return Observable<UIImage>.just(image)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map({(image)  -> Block in
@@ -226,7 +226,7 @@ class NoteRepo {
                     let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
                     if success {
                         let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                        return Block.newImageBlock(imageUrl: imageName, properties: properties)
+                        return Block.newImageBlock(imageUrl: imageName,parent: noteId, properties: properties)
                     }
                 }
                 throw DBError(code: .None, message: "createImageBlocks error")
@@ -237,7 +237,7 @@ class NoteRepo {
     
     
     func createImageBlocks(noteId:String,image: UIImage,success:@escaping ((Block)->Void),failed:@escaping()->Void) {
-        self.saveImage(image: image)
+        self.saveImage(image: image,noteId: noteId)
             .map({ (imageBlock) -> Block in
                 let result = DBStore.shared.createBlock(block: imageBlock)
                 switch result {
@@ -313,10 +313,10 @@ extension NoteRepo {
     }
     
     
-    func searchNotes(keyword:String) -> Observable<[Note]> {
+    func searchNotes(keyword:String) -> Observable<[NoteAndBoard]> {
         return Observable<String>.just(keyword)
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(keyword)  -> [Note] in
+            .map({(keyword)  -> [NoteAndBoard] in
                 let result =  DBStore.shared.searchNotes(keyword: keyword)
                 switch result {
                 case .success(let notes):

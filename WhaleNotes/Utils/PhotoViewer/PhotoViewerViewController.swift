@@ -18,7 +18,7 @@ class PhotoViewerViewController:JXPhotoBrowser {
     
     private var note:Note!
     private var imageBlocks:[Block] {
-        return note.imageBlocks
+        return note.attachmentBlocks
     }
     
     var callBackShowNoteButtonTapped:(()->Void)?
@@ -96,7 +96,7 @@ class PhotoViewerViewController:JXPhotoBrowser {
         self.refreshPageIndex()
     }
     private func refreshPageIndex() {
-        self.titleLabel.set(text: "\(pageIndex+1)/\(self.note.imageBlocks.count)")
+        self.titleLabel.set(text: "\(pageIndex+1)/\(self.note.attachmentBlocks.count)")
     }
     
     override func viewWillAppear(_ animated: Bool) {

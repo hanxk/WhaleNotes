@@ -16,16 +16,35 @@ struct Note {
     var rootTodoBlock:Block?
     var todoBlocks:[Block] = []
     
-    private(set) var imageBlocks:[Block] = []
+    // 图片，链接
+    private(set) var attachmentBlocks:[Block] = []
     
-    var board:Board!
+//    var board:Board!
     
-    init(rootBlock:Block,childBlocks:[Block],board:Board) {
+    init(rootBlock:Block,childBlocks:[Block]) {
         self.rootBlock = rootBlock
-        self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
-        self.imageBlocks = childBlocks.filter{$0.type == BlockType.image.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
-        self.setupTodoBlocks(todoBlocks: childBlocks.filter{$0.type == BlockType.todo.rawValue}.sorted(by: {$0.sort < $1.sort}))
-        self.board = board
+        
+        for childBlock in childBlocks {
+            if childBlock.type == BlockType.text.rawValue {
+                self.textBlock = childBlock
+                continue
+            }
+            if childBlock.type == BlockType.todo.rawValue {
+                if childBlock.parentId == rootBlock.id {
+                    self.rootTodoBlock = childBlock
+                }else {
+                    self.todoBlocks.append(childBlock)
+                }
+                continue
+            }
+            self.attachmentBlocks.append(childBlock)
+        }
+        
+//        self.textBlock = childBlocks.first { $0.type == BlockType.text.rawValue }
+//        self.attachmentBlocks = childBlocks.filter{$0.type ==  BlockType.image.rawValue && $0.type ==  BlockType.bookmark.rawValue }.sorted(by: {$0.createdAt > $1.createdAt})
+        
+//        self.todoBlocks = self.todoBlocks.sorted(by: {$0.sort < $1.sort})
+//        self.board = board
     }
     
     
@@ -63,7 +82,7 @@ extension Note {
     var isContentEmpry:Bool {
         return rootBlock.text.isEmpty &&
             textBlock?.text.isEmpty ?? true &&
-        imageBlocks.isEmpty &&
+        attachmentBlocks.isEmpty &&
             rootTodoBlock == nil
     }
     
@@ -100,20 +119,20 @@ extension Note {
         self.rootBlock.updatedAt = Date()
         var sortedImageBlocks = imageBlocks
         sortedImageBlocks.sort(by: {$0.createdAt > $1.createdAt})
-        self.imageBlocks.insert(contentsOf: sortedImageBlocks, at: 0)
+        self.attachmentBlocks.insert(contentsOf: sortedImageBlocks, at: 0)
     }
     
     mutating func replaceImageBlocks(_ imageBlocks: [Block]) {
         self.rootBlock.updatedAt = Date()
-        self.imageBlocks = imageBlocks
+        self.attachmentBlocks = imageBlocks
     }
 }
 
 // todo handler
 extension Note {
     mutating func setupTodoBlocks(todoBlocks:[Block]) {
-        guard let rootTodoBlock = todoBlocks.first(where: {$0.parent == ""}) else { return }
-        self.todoBlocks = todoBlocks.filter{$0.parent == rootTodoBlock.id}
+        guard let rootTodoBlock = todoBlocks.first(where: {$0.parentId == self.id}) else { return }
+        self.todoBlocks = todoBlocks.filter{$0.parentId == rootTodoBlock.id}
         self.rootTodoBlock = rootTodoBlock
     }
 }
@@ -201,7 +220,7 @@ extension Note {
         case .todo:
             self.removeTodoBlock(todoBlock: block)
         case .image:
-            self.imageBlocks.removeAll(where: {$0.id == block.id})
+            self.attachmentBlocks.removeAll(where: {$0.id == block.id})
             break
         case .none:
             break
@@ -212,7 +231,7 @@ extension Note {
     
     mutating func removeAllImageBlocks() {
         self.rootBlock.updatedAt = Date()
-        self.imageBlocks.removeAll()
+        self.attachmentBlocks.removeAll()
     }
     
 }

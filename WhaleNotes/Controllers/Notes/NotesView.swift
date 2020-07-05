@@ -220,11 +220,11 @@ extension NotesView {
     
     func checkBoardIsDel(_ newNote:Note) -> Bool {
         // 判断标签是否删除
-        let isBoardDel = newNote.board.id != self.board.id
-          if isBoardDel {
-              self.handleDeleteNote(newNote)
-              return true
-          }
+//        let isBoardDel = newNote.board.id != self.board.id
+//          if isBoardDel {
+//              self.handleDeleteNote(newNote)
+//              return true
+//          }
         return false
     }
     
@@ -242,11 +242,11 @@ extension NotesView {
 
 extension NotesView {
     
-    private func createNewNote(childBlock:Block,callback:((Note) -> Void)? = nil) {
-        self.createNewNote(childBlocks:[childBlock],callback:callback)
+    private func createNewNote(noteBlock:Block,childBlock:Block,callback:((Note) -> Void)? = nil) {
+        self.createNewNote(noteBlock:noteBlock,childBlocks:[childBlock],callback:callback)
     }
-    private func createNewNote(childBlocks:[Block],callback:((Note) -> Void)? = nil) {
-        NoteRepo.shared.createNewNote(sectionId: self.sectionNoteInfo.section.id, childBlocks: childBlocks)
+    private func createNewNote(noteBlock:Block,childBlocks:[Block],callback:((Note) -> Void)? = nil) {
+        NoteRepo.shared.createNewNote(sectionId: self.sectionNoteInfo.section.id,noteBlock:noteBlock, childBlocks: childBlocks)
             .subscribe { [weak self] note in
                 if let callback = callback {
                     callback(note)
@@ -349,10 +349,10 @@ extension NotesView:NoteMenuViewControllerDelegate {
     func noteMenuDataMoved(note: Note) {
         self.handleDeleteNote(note)
         
-        guard let board = note.board else { return }
-        
-        let message = board.type == BoardType.user.rawValue ? (board.icon+board.title) : board.title
-        self.showToast("便签已移动至：\"\(message)\"")
+//        guard let board = note.board else { return }
+//        
+//        let message = board.type == BoardType.user.rawValue ? (board.icon+board.title) : board.title
+//        self.showToast("便签已移动至：\"\(message)\"")
     }
     
 }
@@ -401,18 +401,23 @@ extension NotesView {
     }
     
     @objc func btnNewNoteTapped (sender:UIButton) {
-        self.createNewNote(childBlock:Block.newTextBlock())
+        let noteBlock = Block.newNoteBlock()
+        let textBlock = Block.newTextBlock(parent: noteBlock.id)
+        self.createNewNote(noteBlock: noteBlock, childBlock: textBlock)
         
     }
     
     private func openNoteEditor(type: MenuType) {
         switch type {
         case .text:
-            self.createNewNote(childBlock:Block.newTextBlock())
+            let noteBlock = Block.newNoteBlock()
+            let textBlock = Block.newTextBlock(parent: noteBlock.id)
+            self.createNewNote(noteBlock: noteBlock, childBlock: textBlock)
         case .todo:
-            let rootTodoBlock = Block.newTodoBlock()
-            let todoBlock = Block.newTodoBlock(sort: 65536,parent: rootTodoBlock.id)
-            self.createNewNote(childBlocks:[rootTodoBlock,todoBlock])
+            let noteBlock = Block.newNoteBlock()
+            let rootTodoBlock = Block.newTodoBlock(parent: noteBlock.id)
+            let todoBlock = Block.newTodoBlock(parent: rootTodoBlock.id,sort: 65536)
+            self.createNewNote(noteBlock: noteBlock, childBlocks: [rootTodoBlock,todoBlock])
         case .image:
             let viewController = TLPhotosPickerViewController()
             viewController.delegate = self
@@ -502,8 +507,15 @@ extension NotesView {
     }
     
     private func createBookmarkBlock(_ imageInfo:ImageFetchInfo) {
+        
+        func handleBookmark(_ imageInfo:ImageFetchInfo) {
+            let noteBlock = Block.newNoteBlock()
+            let bookmarkBlock = Block.newBookmarkBlock(parent: noteBlock.id, fetchInfo: imageInfo)
+            self.createNewNote(noteBlock: noteBlock, childBlock: bookmarkBlock)
+        }
+        
         if imageInfo.cover.isEmpty {
-            self.createNewNote(childBlock: imageInfo.toBookmarkBlock())
+            handleBookmark(imageInfo)
             return
         }
         
@@ -512,9 +524,7 @@ extension NotesView {
         NoteRepo.shared.saveImage(url: imageInfo.cover)
             .subscribe {
                 newImageInfo.cover = $0
-                self.createNewNote(childBlock: newImageInfo.toBookmarkBlock()) { note in
-                    
-                }
+                handleBookmark(imageInfo)
             } onError: {
                 Logger.error($0)
             }
@@ -532,10 +542,11 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
     
     func handlePicker(images: [TLPHAsset]) {
         self.controller?.showHud()
-        NoteRepo.shared.saveImages(images: images)
+        let noteBlock = Block.newNoteBlock()
+        NoteRepo.shared.saveImages(images: images,noteId: noteBlock.id)
             .observeOn(MainScheduler.instance)
             .subscribe {
-                self.createNewNote(childBlocks: $0)
+                self.createNewNote(noteBlock: noteBlock, childBlocks: $0)
             } onError: {
                 Logger.error($0)
             } onCompleted: {
@@ -558,10 +569,11 @@ extension NotesView: UIImagePickerControllerDelegate {
     
     func handlePicker(image: UIImage) {
         self.controller?.showHud()
-        NoteRepo.shared.saveImage(image: image)
+        let noteBlock = Block.newNoteBlock()
+        NoteRepo.shared.saveImage(image: image,noteId: noteBlock.id)
             .observeOn(MainScheduler.instance)
             .subscribe {
-                self.createNewNote(childBlock: $0)
+                self.createNewNote(noteBlock: noteBlock, childBlock: $0)
             } onError: {
                 Logger.error($0)
             } onCompleted: {

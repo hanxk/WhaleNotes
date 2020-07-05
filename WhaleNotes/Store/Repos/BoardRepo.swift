@@ -136,11 +136,11 @@ class BoardRepo {
 
         return Observable<[SectionNoteInfo]>.create {  observer -> Disposable in
             let sectionsResult = DBStore.shared.getSectionsByBoardId(boardId)
-            let notesResult = DBStore.shared.getNotesByBoardId(boardId,noteBlockStatus:noteBlockStatus)
+            let sectionNotesResult = DBStore.shared.getSectionNotesByBoardId(boardId,noteBlockStatus:noteBlockStatus)
             
             var result:[SectionNoteInfo] = []
             var sections:[Section] = []
-            var sectionNotes:[(String,Note)] = []
+            var sectionNotes:[String:[Note]] = [:]
             
             switch sectionsResult {
                case .success(let s):
@@ -149,7 +149,7 @@ class BoardRepo {
                    observer.onError(err)
                }
             
-            switch notesResult {
+            switch sectionNotesResult {
                case .success(let n):
                    sectionNotes = n
                case .failure(let err):
@@ -158,7 +158,7 @@ class BoardRepo {
             
             
             for section in sections {
-                let notes = sectionNotes.filter{ $0.0 == section.id }.map { $0.1 }.sorted(by: {$0.sort < $1.sort})
+                let notes = sectionNotes[section.id]  ?? []
                 result.append(SectionNoteInfo(section: section, notes: notes))
             }
             
@@ -172,9 +172,8 @@ class BoardRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func getBoardCategoryInfos() -> Observable<(([Board],[Board]) ,[BoardCategoryInfo])> {
-        return Observable<(([Board],[Board]) ,[BoardCategoryInfo])>.create {  observer -> Disposable in
-            
+    func getBoardCategoryInfos() -> Observable<BoardInfo> {
+        return Observable<BoardInfo>.create { observer -> Disposable in
             let systemBoardsResult = DBStore.shared.getSystemBoards()
             let boardsResult = DBStore.shared.getNoCategoryBoards()
             let boardCategoryInfoResult = DBStore.shared.getBoardCategoryInfos()
@@ -205,7 +204,7 @@ class BoardRepo {
                 observer.onError(err)
             }
             
-            let result = ((systemBoards,boards),boardCategoryInfos)
+            let result = BoardInfo(systemBoards: systemBoards, boards: boards, boardCategoryInfos: boardCategoryInfos)
 
             observer.onNext(result)
             observer.onCompleted()
@@ -216,19 +215,19 @@ class BoardRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func getBoardsByNoteId(noteId:String) -> Observable<[Board]> {
-        return Observable<String>.just(noteId)
-                   .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-                   .map({(noteId)  -> [Board] in
-                    let result =  DBStore.shared.getBoardsByNoteId(noteId: noteId)
-                       switch result {
-                       case .success(let isSuccess):
-                           return isSuccess
-                       case .failure(let err):
-                           throw err
-                       }
-                   })
-                   .observeOn(MainScheduler.instance)
+    func getBoardCategoryInfos(noteId:String) -> Observable<(Board?,BoardInfo)>{
+        return getBoardCategoryInfos()
+            .map { boardInfo -> (Board?,BoardInfo) in
+                let boardResult = DBStore.shared.getBoardsByNoteId(noteId: noteId)
+                var board:Board? = nil
+                switch boardResult {
+                case .success(let b):
+                    board = b
+                case .failure(let err):
+                    throw err
+                }
+                return (board,boardInfo)
+            }
     }
     
     

@@ -28,7 +28,9 @@ class ChangeBoardViewController:UIViewController {
     
     var note:Note! {
         didSet {
-            self.choosedBoards = [note.board]
+            if oldValue == nil {
+                self.loadBoards()
+            }
         }
     }
     var choosedBoards:[Board] = []
@@ -54,8 +56,6 @@ class ChangeBoardViewController:UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        self.loadBoards()
-        
     }
     
     private func setupUI() {
@@ -73,26 +73,25 @@ class ChangeBoardViewController:UIViewController {
     }
     
     private func loadBoards() {
-        BoardRepo.shared.getBoardCategoryInfos()
+        BoardRepo.shared.getBoardCategoryInfos(noteId:self.note.id)
             .subscribe(onNext: { [weak self] result in
-                self?.setupData(boardsResult: result)
+                self?.setupData(boardsResult:result)
                 }, onError: { err in
                     Logger.error(err)
             })
             .disposed(by: disposeBag)
     }
     
-    private func setupData(boardsResult:(([Board],[Board]) ,[BoardCategoryInfo])) {
-        let systemBoards = boardsResult.0.0.filter{ $0.id == self.note.board.id}
-        self.boards = boardsResult.0.1.filter{$0.id != self.note.board.id}
+    private func setupData(boardsResult:(Board?,BoardInfo)) {
+        let boardInfo = boardsResult.1
         
-        self.boardCategories = boardsResult.1
-        if self.boardCategories.isNotEmpty {
-            for i in 0..<self.boardCategories.count {
-                self.boardCategories[i].boards =  self.boardCategories[i].boards.filter{$0.id != self.note.board.id}
-            }
-        }
-        self.boardCategories = self.boardCategories.filter{$0.boards.isNotEmpty}
+        let board = boardsResult.0
+        self.choosedBoards = board == nil ? [] : [board!]
+        
+        let systemBoards = boardInfo.systemBoards
+        self.boards = boardInfo.boards
+        
+        self.boardCategories = boardInfo.boardCategoryInfos
         
         self.menuSectionTypes.append(BoardSectionType.system(systemBoards: systemBoards))
         if self.boards.isNotEmpty {
@@ -139,15 +138,18 @@ extension ChangeBoardViewController:UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: self.cellReuseIndentifier) as! ChangeBoardCell
         let sectionType = self.menuSectionTypes[indexPath.section]
+        var board:Board!
         switch sectionType {
         case .system(let systemBoards):
-            cell.board = systemBoards[indexPath.row]
+            board = systemBoards[indexPath.row]
             break
         case .boards:
-            cell.board  = self.boards[indexPath.row]
+            board  = self.boards[indexPath.row]
         case .categories:
-            cell.board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
+            board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
         }
+        cell.board = board
+        cell.isChoosed = self.choosedBoards.contains(board)
         return cell
     }
     
@@ -193,6 +195,10 @@ extension ChangeBoardViewController:UITableViewDelegate {
         case .categories:
              board = self.boardCategories[self.getCategoryIndex(section: indexPath.section)].boards[indexPath.row]
         }
+        if self.choosedBoards.contains(board) {
+            self.navigationController?.popViewController(animated: true)
+            return
+        }
         self.callbackBoardChoosed?(board)
     }
     
@@ -208,9 +214,3 @@ extension ChangeBoardViewController:UITableViewDelegate {
         }, completion: nil)
     }
 }
-
-//enum BoardSectionType {
-//    case system(systemBoards: [Board])
-//    case boards
-//    case categories
-//}

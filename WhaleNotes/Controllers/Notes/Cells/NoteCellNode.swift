@@ -57,15 +57,17 @@ class NoteCellNode: ASCellNode {
     var menuTodoText:ASTextNode?
     
     var note:Note!
+    var board:Board?
     
     var cardbackground:ASDisplayNode!
     
-    var callbackBoardButtonTapped:((Note)->Void)?
+    var callbackBoardButtonTapped:((Note,Board)->Void)?
     
     
     var boardButton:ASButtonNode?
     
     var itemSize:CGSize!
+    
     
     func setupBackBackground() {
         self.cardbackground.backgroundColor = UIColor(hexString: note.backgroundColor)
@@ -76,12 +78,13 @@ class NoteCellNode: ASCellNode {
         }
     }
     
-    required init(note:Note,itemSize: CGSize,isShowBoard:Bool = false) {
+    required init(note:Note,itemSize: CGSize,board:Board? = nil) {
         super.init()
         
         self.itemSize = itemSize
         
         self.note = note
+        self.board = board
         
         let cornerRadius:CGFloat = 6
         self.cornerRadius = cornerRadius
@@ -133,8 +136,8 @@ class NoteCellNode: ASCellNode {
         
         
         // 图片
-        if note.imageBlocks.isNotEmpty {
-            let imageBlock = note.imageBlocks[0]
+        if note.attachmentBlocks.isNotEmpty {
+            let imageBlock = note.attachmentBlocks[0]
             let imageNode = ASImageNode().then {
                 $0.contentMode = .scaleAspectFill
                 let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
@@ -235,7 +238,7 @@ class NoteCellNode: ASCellNode {
             self.addSubnode(self.menuTodoText!)
         }
         
-        if isShowBoard {
+        if let board = board {
             let boardButton = ASButtonNode().then {
                 $0.style.height = ASDimensionMake(NoteCellConstants.boardHeight)
                 $0.style.width = ASDimensionMake(itemSize.width)
@@ -245,7 +248,7 @@ class NoteCellNode: ASCellNode {
                 let horizontalPadding:CGFloat = 2
                 $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: horizontalPadding, bottom:0, right: horizontalPadding)
                 
-                $0.setAttributedTitle(getBoardButtonAttributesText(text: note.board.title), for: .normal)
+                $0.setAttributedTitle(getBoardButtonAttributesText(text: board.title), for: .normal)
                 $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
             }
             self.boardButton = boardButton
@@ -476,7 +479,9 @@ class NoteCellNode: ASCellNode {
     }
     
     @objc func boardButtonTapped() {
-        self.callbackBoardButtonTapped?(self.note)
+        if let board = self.board {
+            self.callbackBoardButtonTapped?(self.note,board)
+        }
     }
     
     

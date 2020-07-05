@@ -203,7 +203,7 @@ class SideMenuViewController: UIViewController {
     private func loadBoards() {
         BoardRepo.shared.getBoardCategoryInfos()
             .subscribe(onNext: { [weak self] result in
-                self?.setupData(boardsResult: result)
+                self?.setupData(boardInfo: result)
                 }, onError: { err in
                     Logger.error(err)
             })
@@ -211,11 +211,11 @@ class SideMenuViewController: UIViewController {
     }
     
     
-    private func setupData(boardsResult:(([Board],[Board]),[BoardCategoryInfo])) {
+    private func setupData(boardInfo:BoardInfo) {
         menuSectionTypes.removeAll()
         
-        let systemMenuItems =    [
-            MenuSystemItem.board(board: boardsResult.0.0[0]),
+        let systemMenuItems =  [
+            MenuSystemItem.board(board: boardInfo.systemBoards[0]),
             MenuSystemItem.trash(icon: "trash", title: "废纸篓")
         ]
         self.systemMenuItems = systemMenuItems
@@ -224,10 +224,10 @@ class SideMenuViewController: UIViewController {
         menuSectionTypes.append(MenuSectionType.system(items:self.systemMenuItems))
         
         
-        self.boards = boardsResult.0.1
+        self.boards = boardInfo.boards
         menuSectionTypes.append(MenuSectionType.boards)
         
-        self.boardCategories = boardsResult.1
+        self.boardCategories =  boardInfo.boardCategoryInfos
         for _ in 0..<self.boardCategories.count {
             menuSectionTypes.append(MenuSectionType.categories)
         }

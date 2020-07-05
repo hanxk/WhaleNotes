@@ -83,6 +83,8 @@
 		188328F624540FB40097A01D /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F524540FB40097A01D /* Logger.swift */; };
 		188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942A7246E845D006173F8 /* TodoGroupCell.swift */; };
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
+		188CBD2E24B19B5F0093171F /* BoardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188CBD2D24B19B5F0093171F /* BoardInfo.swift */; };
+		188CBD3024B1B1B60093171F /* NoteAndBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188CBD2F24B1B1B60093171F /* NoteAndBoard.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
 		189D962C24861318000E04C9 /* SectionAndNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189D962B24861318000E04C9 /* SectionAndNote.swift */; };
 		18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */; };
@@ -212,6 +214,8 @@
 		188328F524540FB40097A01D /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		188942A7246E845D006173F8 /* TodoGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroupCell.swift; sourceTree = "<group>"; };
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		188CBD2D24B19B5F0093171F /* BoardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardInfo.swift; sourceTree = "<group>"; };
+		188CBD2F24B1B1B60093171F /* NoteAndBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAndBoard.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		189D962B24861318000E04C9 /* SectionAndNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionAndNote.swift; sourceTree = "<group>"; };
 		18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CreateBoardViewController.swift; path = ../../../../../../../../CreateBoardViewController.swift; sourceTree = "<group>"; };
@@ -523,6 +527,8 @@
 				189D962B24861318000E04C9 /* SectionAndNote.swift */,
 				186DDE7824921CC400A4C63C /* SectionNoteInfo.swift */,
 				18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */,
+				188CBD2D24B19B5F0093171F /* BoardInfo.swift */,
+				188CBD2F24B1B1B60093171F /* NoteAndBoard.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1003,6 +1009,7 @@
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
+				188CBD2E24B19B5F0093171F /* BoardInfo.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
@@ -1048,6 +1055,7 @@
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
+				188CBD3024B1B1B60093171F /* NoteAndBoard.swift in Sources */,
 				18251C1C249B2F8D00484D23 /* NoteColorViewController.swift in Sources */,
 				1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */,
 				18E9D6C324715112001E41A0 /* NoteCellNode.swift in Sources */,
