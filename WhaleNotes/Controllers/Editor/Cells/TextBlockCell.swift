@@ -29,8 +29,8 @@ class TextBlockCell: UITableViewCell {
     
     private var textBlock: Block! {
         didSet {
-            textView.text = textBlock.text
-            placeholderLabel.isHidden = textBlock.text.isNotEmpty
+            textView.text = textBlock.blockTextProperties?.title ?? ""
+            placeholderLabel.isHidden = textView.text.isNotEmpty
         }
     }
     
@@ -121,8 +121,8 @@ extension TextBlockCell: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         let text = textView.text ?? ""
-        if  text != textBlock.text {
-            self.textBlock.text = text
+        if  text != textBlock.blockTextProperties!.title {
+            self.textBlock.blockTextProperties?.title = text
             blockUpdated?(self.textBlock)
         }
         return true

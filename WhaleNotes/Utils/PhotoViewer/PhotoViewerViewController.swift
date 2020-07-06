@@ -84,7 +84,7 @@ class PhotoViewerViewController:JXPhotoBrowser {
         
         self.reloadCellAtIndex = { context in
             if let browserCell = context.cell as? JXPhotoBrowserImageCell {
-                let fileURL = ImageUtil.sharedInstance.filePath(imageName: self.imageBlocks[context.index].source)
+                let fileURL = ImageUtil.sharedInstance.filePath(imageName: self.imageBlocks[context.index].blockImageProperties!.url)
                 browserCell.imageView.setLocalImage(fileURL: fileURL) {
                     browserCell.setNeedsLayout()
                 }

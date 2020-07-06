@@ -89,10 +89,13 @@ extension AttachmentsBlockCell {
     }
     
     private func getImageCGSize(block:Block) -> CGSize {
-        let width = block.properties["width"] as? CGFloat ?? 1000
-        let height = block.properties["height"] as? CGFloat ?? 1000
-        let fitHeight = self.imageWidth * height / width
-        return CGSize(width: self.imageWidth, height: fitHeight)
+        
+        guard let properties = block.properties as? BlockImageProperty else { return CGSize(width: 1000, height: 1000)}
+        
+        let width = properties.width
+        let height = properties.height
+        let fitHeight = Float(self.imageWidth) * height / width
+        return CGSize(width: self.imageWidth, height: CGFloat(fitHeight))
     }
     
 }

@@ -112,16 +112,18 @@ class NoteCellNode: ASCellNode {
         
         
         // 标题
-        if  note.rootBlock.text.isNotEmpty {
+        let title = note.rootBlock.blockNoteProperties?.title ?? ""
+        if title.isNotEmpty {
             let titleNode = ASTextNode()
-            titleNode.attributedText = getTitleLabelAttributes(text: note.rootBlock.text)
+            titleNode.attributedText = getTitleLabelAttributes(text: title)
             
             let titlePadding:CGFloat = 2
             titleNode.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: titlePadding, right: 0)
             self.addSubnode(titleNode)
             self.titleNode = titleNode
             
-            if note.todoBlocks.isEmpty && (note.textBlock?.text ?? "").isEmpty {
+            
+            if note.todoBlocks.isEmpty && (note.textBlock?.blockTextProperties?.title ?? "").isEmpty {
                 titleHeight = contentHeight
             }else {
                 titleHeight = titleNode.attributedText!.height(containerWidth: contentWidth) + titlePadding
@@ -140,7 +142,7 @@ class NoteCellNode: ASCellNode {
             let imageBlock = note.attachmentBlocks[0]
             let imageNode = ASImageNode().then {
                 $0.contentMode = .scaleAspectFill
-                let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
+                let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.blockImageProperties!.url).absoluteString
                 let image   = UIImage(contentsOfFile: imageUrlPath)
                 $0.image = image
                 $0.backgroundColor = UIColor.placeHolderColor.withAlphaComponent(0.6)
@@ -163,10 +165,10 @@ class NoteCellNode: ASCellNode {
         var textHeight:CGFloat = 0
         
         // 文本
-        if let textBlock = note.textBlock,textBlock.text.isNotEmpty {
+        if let text = note.text {
             
             let textNode = ASTextNode()
-            textNode.attributedText = getTextLabelAttributes(text: textBlock.text)
+            textNode.attributedText = getTextLabelAttributes(text: text)
             textNode.truncationMode = .byTruncatingTail
             
             textHeight = textNode.attributedText!.height(containerWidth: contentWidth)
@@ -183,7 +185,7 @@ class NoteCellNode: ASCellNode {
         if todoBlocks.isNotEmpty {
             
             for todoBlock  in todoBlocks {
-                if todoBlock.isChecked {
+                if todoBlock.blockTodoProperties!.isChecked {
                     todoInfo.0 = todoInfo.0 + 1
                 }
                 todoInfo.1 = todoInfo.1 + 1
@@ -286,7 +288,7 @@ class NoteCellNode: ASCellNode {
         
         for (index,block) in todoBlocks.enumerated() {
             let imageNode = ASImageNode().then {
-                let systemName =  block.isChecked ? "checkmark.square" :  "square"
+                let systemName =  block.blockTodoProperties!.isChecked ? "checkmark.square" :  "square"
                 let chkColor = UIColor.primaryText
                 $0.image = UIImage(systemName: systemName, pointSize: NoteCellConstants.todoImageSize, weight: .ultraLight)?.withTintColor(chkColor)
                 $0.style.height = ASDimensionMake(NoteCellConstants.todoHeight)
@@ -298,7 +300,7 @@ class NoteCellNode: ASCellNode {
             self.chkElements.append(imageNode)
             
             let todoNode = ASTextNode().then {
-                $0.attributedText = getTodoTextAttributes(text: block.text,isChecked: block.isChecked)
+                $0.attributedText = getTodoTextAttributes(text: block.blockTodoProperties!.title,isChecked: block.blockTodoProperties!.isChecked)
                 $0.style.flexShrink = 1.0
                 $0.maximumNumberOfLines = 1
                 $0.truncationMode = .byTruncatingTail
@@ -318,7 +320,7 @@ class NoteCellNode: ASCellNode {
         let imageBlock = imageBlocks[0]
         let imageNode = ASImageNode().then {
             $0.contentMode = .scaleAspectFill
-            let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.source).absoluteString
+            let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.blockImageProperties!.url).absoluteString
             let image   = UIImage(contentsOfFile: imageUrlPath)
             $0.image = image
             $0.backgroundColor = .placeHolderColor

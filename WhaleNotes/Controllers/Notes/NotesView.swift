@@ -501,30 +501,32 @@ extension NotesView {
                     let cover = result.image ?? ""
                     let finalUrl = result.finalUrl?.absoluteURL.absoluteString ?? url
                     let canonicalUrl = result.canonicalUrl ?? ""
-                    self.createBookmarkBlock(ImageFetchInfo(title: title, description: description, cover: cover, finalUrl: finalUrl, canonicalUrl: canonicalUrl))
+                    
+                    let properties = BlockBookmarkProperty(title:title,cover: cover, link:finalUrl,description: description, canonicalUrl: canonicalUrl)
+                    self.createBookmarkBlock(properties)
                 },
                 onError: { error in print("\(error)")})
     }
     
-    private func createBookmarkBlock(_ imageInfo:ImageFetchInfo) {
+    private func createBookmarkBlock(_ properties:BlockBookmarkProperty) {
         
-        func handleBookmark(_ imageInfo:ImageFetchInfo) {
+        func handleBookmark(_ properties:BlockBookmarkProperty) {
             let noteBlock = Block.newNoteBlock()
-            let bookmarkBlock = Block.newBookmarkBlock(parent: noteBlock.id, fetchInfo: imageInfo)
+            let bookmarkBlock = Block.newBookmarkBlock(parent: noteBlock.id, properties: properties)
             self.createNewNote(noteBlock: noteBlock, childBlock: bookmarkBlock)
         }
         
-        if imageInfo.cover.isEmpty {
-            handleBookmark(imageInfo)
+        if properties.cover.isEmpty {
+            handleBookmark(properties)
             return
         }
         
-        var newImageInfo = imageInfo
+        var newImageInfo = properties
         // 保存图片到本地
-        NoteRepo.shared.saveImage(url: imageInfo.cover)
+        NoteRepo.shared.saveImage(url: newImageInfo.cover)
             .subscribe {
                 newImageInfo.cover = $0
-                handleBookmark(imageInfo)
+                handleBookmark(newImageInfo)
             } onError: {
                 Logger.error($0)
             }

@@ -30,15 +30,21 @@ class TodoBlockCell: UITableViewCell {
     
     var todoBlock: Block!{
         didSet {
-            isChecked = todoBlock.isChecked
-            isEmpty = todoBlock.text.isEmpty
+            isChecked = todoProperties.isChecked
+            isEmpty = todoProperties.title.isEmpty
             textView.attributedText = todoAttrText
         }
     }
     
+    
+    private var todoProperties:BlockTodoProperty {
+        get { return todoBlock.blockTodoProperties! }
+        set { todoBlock.blockTodoProperties = newValue }
+    }
+    
     private var todoAttrText:NSMutableAttributedString {
         
-        let attributedText : NSMutableAttributedString =  NSMutableAttributedString(string: todoBlock.text)
+        let attributedText : NSMutableAttributedString =  NSMutableAttributedString(string: todoProperties.title)
         if isChecked {
             attributedText.addAttributes([
                             NSAttributedString.Key.strikethroughStyle: NSUnderlineStyle.single.rawValue,
@@ -151,7 +157,7 @@ class TodoBlockCell: UITableViewCell {
     
     @objc private func handleChkButtonTapped() {
         self.isChecked = !self.isChecked
-        self.todoBlock.isChecked = self.isChecked
+        self.todoProperties.isChecked = self.isChecked
         delegate?.todoCheckedChange(newBlock: self.todoBlock)
     }
 }
@@ -169,12 +175,12 @@ extension TodoBlockCell: UITextViewDelegate {
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         let text = textView.text ?? ""
         if text.isEmpty {
-            self.todoBlock.text = text
+            self.todoProperties.title = text
             delegate?.todoBlockNeedDelete(newBlock: self.todoBlock)
             return true
         }
-        if  text != todoBlock.text {
-            self.todoBlock.text = text
+        if  text != todoProperties.title {
+            self.todoProperties.title = text
             delegate?.todoBlockContentChange(newBlock: self.todoBlock)
         }
         return true
@@ -183,12 +189,12 @@ extension TodoBlockCell: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             let text = textView.text ?? ""
-            self.todoBlock.text = text
+            self.todoProperties.title = text
             delegate?.todoBlockEnterKeyInput(newBlock: self.todoBlock)
             return false
         }
         if text.isEmpty && textView.text.isEmpty {
-            self.todoBlock.text = ""
+            self.todoProperties.title = ""
             delegate?.todoBlockNeedDelete(newBlock: self.todoBlock)
             return false
         }

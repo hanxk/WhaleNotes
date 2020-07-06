@@ -31,7 +31,7 @@ class TitleBlockCell: UITableViewCell {
     
     var titleBlock:Block!{
             didSet {
-                textField.text = titleBlock.text
+                textField.text = ""
             }
     }
     
@@ -83,10 +83,10 @@ extension TitleBlockCell: UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         let title = textField.text ?? ""
-        if  title != titleBlock.text {
-            self.titleBlock.text = title
-            blockUpdated?(self.titleBlock)
-        }
+//        if  title != titleBlock.text {
+//            self.titleBlock.text = title
+//            blockUpdated?(self.titleBlock)
+//        }
         return true
     }
     

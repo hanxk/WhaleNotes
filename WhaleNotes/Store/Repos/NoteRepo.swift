@@ -96,7 +96,7 @@ class NoteRepo {
                 case .success(let isSuccess):
                     if block.type == BlockType.image.rawValue { //删除图片
                         do {
-                            let path =  ImageUtil.sharedInstance.filePath(imageName: block.source)
+                            let path =  ImageUtil.sharedInstance.filePath(imageName: block.blockImageProperties!.url)
                             try FileManager.default.removeItem(at:path)
                         } catch let error as NSError {
                             print("Error: \(error.domain)")
@@ -189,8 +189,8 @@ class NoteRepo {
                         let imageName =  $0.uuidName
                         let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
                         if success {
-                            let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                            imageBlocks.append(Block.newImageBlock(imageUrl: imageName,parent: noteId,properties: properties))
+                            let properties = BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
+                            imageBlocks.append(Block.newImageBlock(parent: noteId,properties: properties))
                         }
                     }
                 }
@@ -225,8 +225,8 @@ class NoteRepo {
                 if let rightImage = image.fixedOrientation() {
                     let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
                     if success {
-                        let properties:[String:Any] = ["width":image.size.width,"height":image.size.height]
-                        return Block.newImageBlock(imageUrl: imageName,parent: noteId, properties: properties)
+                        let pro = BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
+                        return Block.newImageBlock(parent: noteId, properties: pro)
                     }
                 }
                 throw DBError(code: .None, message: "createImageBlocks error")
@@ -296,21 +296,6 @@ extension NoteRepo {
 }
 
 extension NoteRepo {
-    
-    func getNotesByBoardId(_ boardId:String,noteBlockStatus: NoteBlockStatus) -> Observable<[Note]> {
-        return Observable<String>.just(boardId)
-            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map({(noteId)  -> [Note] in
-                let result =  DBStore.shared.getNotesByBoardId2(boardId, noteBlockStatus: noteBlockStatus)
-                switch result {
-                case .success(let notes):
-                    return notes
-                case .failure(let err):
-                    throw err
-                }
-            })
-            .observeOn(MainScheduler.instance)
-    }
     
     
     func searchNotes(keyword:String) -> Observable<[NoteAndBoard]> {

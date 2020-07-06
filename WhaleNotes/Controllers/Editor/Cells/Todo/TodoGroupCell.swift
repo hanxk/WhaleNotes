@@ -71,9 +71,9 @@ class TodoGroupCell: UITableViewCell {
     var todoGroupBlock:Block! {
 
         didSet {
-            let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
-                       arrowButton.setImage(btnImage, for: .normal)
-            titleField.text = todoGroupBlock.text.isEmpty ? "清单" : todoGroupBlock.text
+//            let btnImage = todoGroupBlock.isExpand ? arrowDownImage : arrowRightImage
+//                       arrowButton.setImage(btnImage, for: .normal)
+//            titleField.text = todoGroupBlock.text.isEmpty ? "清单" : todoGroupBlock.text
         }
     }
     
@@ -141,10 +141,10 @@ extension TodoGroupCell: UITextFieldDelegate {
             title = "清单"
             textField.text = title
         }
-        if  title != todoGroupBlock.text {
-            self.todoGroupBlock.text = title
-            self.delegate?.todoGroupTextChanged(todoGroupBlock: self.todoGroupBlock)
-        }
+//        if  title != todoGroupBlock.text {
+//            self.todoGroupBlock.text = title
+//            self.delegate?.todoGroupTextChanged(todoGroupBlock: self.todoGroupBlock)
+//        }
         return true
     }
 }

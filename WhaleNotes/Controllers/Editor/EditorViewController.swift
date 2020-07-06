@@ -229,7 +229,7 @@ class EditorViewController: UIViewController {
         switch mode {
         case .browser:
             if self.oldUpdatedAt != note.updatedAt{
-                if note.isContentEmpry {
+                if note.isContentEmpty {
                     self.deleteNote()
                     return
                 }
@@ -237,7 +237,7 @@ class EditorViewController: UIViewController {
             }
             break
         case .create:
-            if note.isContentEmpry {
+            if note.isContentEmpty {
                 self.deleteNote()
                 return
             }
@@ -479,7 +479,7 @@ extension EditorViewController {
         bottombar.updatedDateStr =  self.note.updatedDateStr
         bottombar.addButton.isEnabled = self.note.status != NoteBlockStatus.trash
         
-        self.titleTextField.text = self.note.rootBlock.text
+        self.titleTextField.text = self.note.title
         self.titleTextField.isEnabled = self.note.status != NoteBlockStatus.trash
         
     }
@@ -704,7 +704,7 @@ extension EditorViewController: UITableViewDataSource {
     fileprivate func handleTodoEnterKeyTapped(block:Block) {
         
         
-        if block.text.isEmpty { // 删除
+        if block.blockTodoProperties!.title.isEmpty { // 删除
             self.tryDeleteTodoBlock(block: block)
         }else { // 新增
             guard let row = self.note.todoBlocks.firstIndex(where: {$0.id == block.id}) else { return }
@@ -997,9 +997,9 @@ extension EditorViewController: UITableViewDelegate {
                 todoCell.todoBlock = todoBlock
             }
         }
-        self.note.todoBlocks.forEach {
-            Logger.info("\($0.text)  \($0.sort)")
-        }
+//        self.note.todoBlocks.forEach {
+////            Logger.info("\($0.text)  \($0.sort)")
+//        }
         
     }
     
@@ -1258,9 +1258,6 @@ extension EditorViewController {
             .subscribe(onNext: { newBlock in
                 self.note.addBlock(block: newBlock)
                 Logger.info("------------------------------")
-                self.note.todoBlocks.forEach {
-                    Logger.info("\($0.text)  \($0.sort)")
-                }
                 callback?(newBlock)
             },onError: {
                 Logger.error($0)
@@ -1365,10 +1362,10 @@ extension EditorViewController: UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         let title = textField.text ?? ""
-        if  title != note.rootBlock.text {
+        if  title != note.text {
             
             if  var titleBlock = note.rootBlock {
-                titleBlock.text = title
+                titleBlock.blockNoteProperties?.title = title
                 self.tryUpdateBlock(block: titleBlock)
             }
         }
@@ -1391,14 +1388,19 @@ extension EditorViewController {
         }()
         for (_,block) in self.note.attachmentBlocks.enumerated() {
             
-            let width = block.properties["width"] as? CGFloat ?? 1000
-            let height = block.properties["height"] as? CGFloat ?? 1000
-            let fitHeight = self.imageWidth * height / width
+//            let width = block.properties["width"] as? CGFloat ?? 1000
+//            let height = block.properties["height"] as? CGFloat ?? 1000
+            if let properties = block.properties as? BlockImageProperty {
+                
+                let fitHeight = self.imageWidth * CGFloat(properties.height) / CGFloat(properties.width)
+                
+                let columnIndex = getCurrentMinValueIndex(cellsHeight: cellsHeight)
+                let oldHeight = cellsHeight[columnIndex] ?? 0
+                let bottomSpace = ((oldHeight == 0) ? CGFloat.zero : AttachmentsConstants.cellSpace)
+                cellsHeight[columnIndex] = oldHeight + fitHeight + bottomSpace
+            }
             
-            let columnIndex = getCurrentMinValueIndex(cellsHeight: cellsHeight)
-            let oldHeight = cellsHeight[columnIndex] ?? 0
-            let bottomSpace = ((oldHeight == 0) ? CGFloat.zero : AttachmentsConstants.cellSpace)
-            cellsHeight[columnIndex] = oldHeight + fitHeight + bottomSpace
+            
         }
         return cellsHeight.values.max() ?? 0
     }

@@ -56,6 +56,14 @@ extension Note {
     var id:String {
         return rootBlock.id
     }
+    var title:String {
+        return rootBlock.blockNoteProperties?.title ?? ""
+    }
+    
+    var text:String? {
+        return textBlock?.blockTextProperties?.title
+    }
+    
     var updatedAt:Date {
         get {
             return rootBlock.updatedAt
@@ -66,7 +74,7 @@ extension Note {
     }
     var status:NoteBlockStatus {
         get {
-            return NoteBlockStatus(rawValue: rootBlock.status)!
+            return NoteBlockStatus(rawValue: rootBlock.blockNoteProperties!.status)!
         }
     }
     
@@ -79,11 +87,11 @@ extension Note {
         }
     }
     
-    var isContentEmpry:Bool {
-        return rootBlock.text.isEmpty &&
-            textBlock?.text.isEmpty ?? true &&
-        attachmentBlocks.isEmpty &&
-            rootTodoBlock == nil
+    var isContentEmpty:Bool {
+        return rootBlock.blockNoteProperties?.title.isEmpty ?? true &&
+               textBlock?.blockTextProperties?.title.isEmpty ?? true &&
+                attachmentBlocks.isEmpty &&
+                    rootTodoBlock == nil
     }
     
     
@@ -106,10 +114,10 @@ extension Note {
     
     var backgroundColor:String {
         get {
-            return (rootBlock.properties["background_color"] as? String) ?? "#FFFFFF"
+            return rootBlock.blockNoteProperties!.backgroundColor
         }
         set {
-            rootBlock.properties["background_color"] = newValue
+            rootBlock.blockNoteProperties?.backgroundColor = newValue
         }
     }
 }

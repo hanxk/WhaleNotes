@@ -67,7 +67,7 @@ class DBStore {
         do {
             var blocks:[Block] = []
             try db.transaction {
-                let rootTodoBlock = Block.newTodoBlock(parent:noteId,sort: 0)
+                let rootTodoBlock = Block.newTodoBlock(parent:noteId)
                 try blockDao.insert(rootTodoBlock)
                 let todoBlock = Block.newTodoBlock(parent: rootTodoBlock.id,sort: 65536)
                 try blockDao.insert(todoBlock)
@@ -195,7 +195,7 @@ class DBStore {
                     isSuccess = try blockDao.delete(noteId: noteId, type: BlockType.image.rawValue)
                     let imageBlocks = try blockDao.query(parentId: noteId,type:BlockType.image.rawValue)
                     try imageBlocks.forEach {
-                        let path =  ImageUtil.sharedInstance.filePath(imageName: $0.source)
+                        let path =  ImageUtil.sharedInstance.filePath(imageName: $0.blockImageProperties!.url)
                         try FileManager.default.removeItem(at:path)
                     }
                 }
@@ -507,34 +507,34 @@ extension DBStore {
         }
     }
     
-    func getNotesByBoardId2(_ boardId:String,noteBlockStatus: NoteBlockStatus) ->DBResult<[Note]> {
-        do {
-            var notes:[Note] = []
-            try db.transaction {
-                let rootBlocks = try blockDao.queryNoteBlocksByBoardId(boardId,noteBlockStatus:noteBlockStatus)
-                for rootBlock in rootBlocks {
-                    
-                    let block = rootBlock.1
-                    let childBlocks = try blockDao.query(noteId: block.id)
-                    
-                    var board:Board = try boardDao.queryByNoteBlockId(block.id)!
-                    board = getLocalSystemBoardInfo(board: board)
-                    let note = Note(rootBlock: block, childBlocks: childBlocks)
-                    notes.append(note)
-                }
-                
-            }
-            return DBResult<[Note]>.success(notes)
-        }catch let err {
-            print(err)
-            return DBResult<[Note]>.failure(DBError(code: .None,message: err.localizedDescription))
-        }
-    }
+//    func getNotesByBoardId2(_ boardId:String,noteBlockStatus: NoteBlockStatus) ->DBResult<[Note]> {
+//        do {
+//            var notes:[Note] = []
+//            try db.transaction {
+//                let rootBlocks = try blockDao.queryNoteBlocksByBoardId(boardId,noteBlockStatus:noteBlockStatus)
+//                for rootBlock in rootBlocks {
+//                    
+//                    let block = rootBlock.1
+//                    let childBlocks = try blockDao.query(noteId: block.id)
+//                    
+//                    var board:Board = try boardDao.queryByNoteBlockId(block.id)!
+//                    board = getLocalSystemBoardInfo(board: board)
+//                    let note = Note(rootBlock: block, childBlocks: childBlocks)
+//                    notes.append(note)
+//                }
+//                
+//            }
+//            return DBResult<[Note]>.success(notes)
+//        }catch let err {
+//            print(err)
+//            return DBResult<[Note]>.failure(DBError(code: .None,message: err.localizedDescription))
+//        }
+//    }
     
     
     func getSectionNotesByBoardId(_ boardId:String,noteBlockStatus: NoteBlockStatus) ->DBResult<[String:[Note]]> {
         do {
-            let sectionNotes:[String:[Note]] = try blockDao.querySectionNotes(boardId: boardId)
+            let sectionNotes:[String:[Note]] = try blockDao.querySectionNotes(boardId: boardId, noteBlockStatus: noteBlockStatus)
             return DBResult<[String:[Note]]>.success(sectionNotes)
         }catch let err {
             print(err)
@@ -595,7 +595,7 @@ extension DBStore {
                 
                 // 删除文件资源
                 try imageBocks.forEach {
-                    let path =  ImageUtil.sharedInstance.filePath(imageName: $0.source)
+                    let path =  ImageUtil.sharedInstance.filePath(imageName: $0.blockImageProperties!.url)
                     try FileManager.default.removeItem(at:path)
                 }
             }

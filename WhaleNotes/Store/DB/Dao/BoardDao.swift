@@ -80,7 +80,7 @@ class BoardDao {
                     (
                         select section.board_id from section_note
                         inner join section on (section_note.section_id = section.id)
-                        inner join block on (block.id = section_note.note_id and block.status = ?)
+                        inner join block on (block.id = section_note.note_id and json_extract(block.properties, '$.status') = ?)
                     )
                     """
         let stmt = try db.prepare(selectSQL)

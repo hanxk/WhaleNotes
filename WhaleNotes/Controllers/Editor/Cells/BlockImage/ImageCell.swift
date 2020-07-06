@@ -30,7 +30,7 @@ class ImageCell: UICollectionViewCell {
     
     var imageBlock:Block! {
         didSet {
-            let fileURL = ImageUtil.sharedInstance.filePath(imageName: imageBlock.source)
+            let fileURL = ImageUtil.sharedInstance.filePath(imageName: imageBlock.blockImageProperties!.url)
             imageView.setLocalImage(fileURL: fileURL)
         }
     }
