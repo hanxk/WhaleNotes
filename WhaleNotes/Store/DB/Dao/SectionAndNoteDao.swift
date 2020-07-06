@@ -74,6 +74,11 @@ class SectionAndNoteDao {
         return rows > 0
     }
     
+    func deleteByNoteIds(_ noteIds:[String]) throws -> Bool{
+        let sectionData = table.filter(noteIds.contains(Field_SectionAndNote.noteId))
+        let rows = try db.run(sectionData.delete())
+        return rows == noteIds.count
+    }
     
     func deleteByBoardId(_ boardId:String,noteId:String) throws -> Bool{
         let stmt = try db.prepare("""

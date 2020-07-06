@@ -84,32 +84,8 @@ class BlockDao {
         return db.changes >= 0
     }
     
-    
+    // 递归删除
     func delete(id:String) throws -> Bool {
-        let blockTable = table.filter(Field_Block.id == id)
-        let rows = try db.run(blockTable.delete())
-        return rows > 0
-    }
-    
-    
-    func delete(noteId:String,type:String) throws -> Bool {
-        let deleteSQL = """
-            delete from block where id in (
-                with recursive
-                b as (
-                        select * from block where id = ?
-                        union all
-                        select block.* from b join block on b.id = block.note_id and block.type = ?
-                )
-              select id from b
-            )
-        """
-        let stmt = try db.prepare(deleteSQL)
-        try stmt.run(noteId,type)
-        return db.changes > 0
-    }
-    
-    func deleteByNoteId(noteId:String)  throws {
         let deleteSQL = """
             delete from block where id in (
                 with recursive
@@ -122,12 +98,44 @@ class BlockDao {
             )
         """
         let stmt = try db.prepare(deleteSQL)
-        try stmt.run(noteId)
+        try stmt.run(id)
+        return db.changes > 0
     }
     
-    func deleteByParentId(parentId: String)  throws{
-        let blockTable = table.filter(Field_Block.parentId == parentId)
-        _ = try db.run(blockTable.delete())
+    
+    func deleteMultiple(noteBlockIds: [String]) throws -> Bool {
+        let ids = noteBlockIds.map{return "'\($0)'"}.joined(separator: ",")
+        let deleteSQL = """
+            delete from block where id in (
+                with recursive
+                b as (
+                        select * from block where id in (\(ids))
+                        union all
+                        select block.* from b join block on b.id = block.parent_id
+                )
+              select id from b
+            )
+        """
+        try db.run(deleteSQL)
+        return db.changes > 0
+    }
+    
+    
+    func delete(noteId:String,type:String) throws -> Bool {
+        let deleteSQL = """
+            delete from block where id in (
+                with recursive
+                b as (
+                        select * from block where id = ?
+                        union all
+                        select block.* from b join block on b.id = block.parent_id and block.type = ?
+                )
+              select id from b where id != ?
+            )
+        """
+        let stmt = try db.prepare(deleteSQL)
+        try stmt.run(noteId,type,noteId)
+        return db.changes > 0
     }
     
     func queryByType(type:String) throws ->[Block] {

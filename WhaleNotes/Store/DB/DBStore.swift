@@ -42,7 +42,6 @@ class DBStore {
     
     func createNote(sectionId:String,noteBlock:Block,childBlocks:[Block]) -> DBResult<Note> {
         do {
-            var board:Board!
             var note = noteBlock
             try db.transaction {
                 
@@ -57,7 +56,6 @@ class DBStore {
                 for block in childBlocks {
                     try blockDao.insert(block)
                 }
-                board = try boardDao.queryBySectionId(sectionId)!
             }
             return DBResult<Note>.success(Note(rootBlock: note,childBlocks:childBlocks))
         } catch let error  {
@@ -86,31 +84,12 @@ class DBStore {
     
     func deleteNote(id:String) -> DBResult<Bool> {
         do {
-            try db.transaction {
-                let isSuccess =  try blockDao.delete(id: id)
-                if isSuccess {
-                    _ = try blockDao.deleteByNoteId(noteId: id)
-                }
-            }
+            _ =  try blockDao.delete(id: id)
             return DBResult<Bool>.success(true)
         } catch let error  {
             return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
         }
     }
-    
-//    func getAllNotes() -> DBResult<[Note]>  {
-//        do {
-//            let noteBlocks = try blockDao.queryByType(type: BlockType.note.rawValue)
-//            let noteInfos:[Note] = try noteBlocks.map {
-//                let blocks = try blockDao.query(noteId: $0.id)
-//                return Note(rootBlock: $0, childBlocks: blocks)
-//            }
-//            return DBResult<[Note]>.success(noteInfos)
-//        } catch let err {
-//            print(err)
-//            return DBResult<[Note]>.failure(DBError(code: .None))
-//        }
-//    }
     
     func createBlock(block: Block) -> DBResult<Block> {
         do {
@@ -165,10 +144,6 @@ class DBStore {
             try db.transaction {
                 // 删除自身
                 isSuccess = try blockDao.delete(id: noteBlockId)
-                // 删除 child blocks
-                if isSuccess {
-                    try blockDao.deleteByNoteId(noteId:noteBlockId)
-                }
                 // 删除 section_note
                 if isSuccess {
                     isSuccess = try sectionNoteDao.deleteByNoteId(noteBlockId)
@@ -185,17 +160,11 @@ class DBStore {
         do {
             var isSuccess = false
             try db.transaction {
-                for noteBlockId in noteBlockIds {
-                    // 删除自身
-                    isSuccess = try blockDao.delete(id: noteBlockId)
-                    // 删除 child blocks
-                    if isSuccess {
-                        try blockDao.deleteByNoteId(noteId:noteBlockId)
-                    }
-                    // 删除 section_note
-                    if isSuccess {
-                        isSuccess = try sectionNoteDao.deleteByNoteId(noteBlockId)
-                    }
+                // 删除自身
+                isSuccess = try blockDao.deleteMultiple(noteBlockIds:noteBlockIds)
+                // 删除 section_note
+                if isSuccess {
+                    isSuccess = try sectionNoteDao.deleteByNoteIds(noteBlockIds)
                 }
             }
             return DBResult<Bool>.success(isSuccess)
@@ -204,32 +173,12 @@ class DBStore {
         }
     }
     
-    //    func deleteNoteChildBlock(childBlock:Block) -> DBResult<Note> {
-    //        do {
-    //            var isSuccess = false
-    //            try db.transaction {
-    //                isSuccess = try tryUpdateBlockDate(block: childBlock)
-    //                if isSuccess {
-    //                    isSuccess = try blockDao.delete(id: childBlock.id)
-    //                }
-    //
-    //
-    //            }
-    //            return DBResult<Bool>.success(isSuccess)
-    //        } catch let error  {
-    //            return DBResult<Bool>.failure(DBError(code: .None,message: error.localizedDescription))
-    //        }
-    //    }
     func deleteBlock(block: Block) -> DBResult<Bool> {
         do {
             var isSuccess = false
             try db.transaction {
                 isSuccess = try tryUpdateBlockDate(block: block)
-                if isSuccess {
-                    isSuccess = try blockDao.delete(id: block.id)
-                    // 删除子 block
-                    _ = try blockDao.deleteByParentId(parentId: block.id)
-                }
+                isSuccess = try blockDao.delete(id: block.id)
             }
             return DBResult<Bool>.success(isSuccess)
         } catch let error  {
@@ -548,54 +497,6 @@ extension DBStore {
         }
     }
     
-//    func searchBoardNotes(keyword: String) -> DBResult<[(Board,[Note])]> {
-//        do {
-//            var notes:[Note] = []
-//            try db.transaction {
-//                let noteBlocks = try blockDao.searchNoteBlocks(keyword: keyword)
-//                for noteBlock in noteBlocks {
-//                    let childBlocks = try blockDao.query(noteId: noteBlock.id)
-//                    let boards:[Board] = try boardDao.queryByNoteBlockId(noteBlock.id).map{
-//                        if $0.type == BoardType.collect.rawValue {
-//                            return getLocalSystemBoardInfo(board: $0)
-//                        }
-//                        return $0
-//                    }
-//                    let note = Note(rootBlock: noteBlock, childBlocks: childBlocks,boards:boards)
-//                    notes.append(note)
-//                }
-//            }
-//            return DBResult<[Note]>.success(notes)
-//        }catch let err {
-//            print(err)
-//            return DBResult<[Note]>.failure(DBError(code: .None,message: err.localizedDescription))
-//        }
-//    }
-    
-//    func searchBoardNotes(keyword: String) -> DBResult<[Board:[Note]]> {
-//        do {
-//            var notes:[Note] = []
-//            try db.transaction {
-//                let noteBlocks = try blockDao.searchNoteBlocks(keyword: keyword)
-//                for noteBlock in noteBlocks {
-//                    let childBlocks = try blockDao.query(noteId: noteBlock.id)
-//                    var board:Board = try boardDao.queryByNoteBlockId(noteBlock.id)!
-//                    board = getLocalSystemBoardInfo(board: board)
-//                    let note = Note(rootBlock: noteBlock, childBlocks: childBlocks)
-//                    notes.append(note)
-//                }
-//            }
-////            let boardsNotes = Dictionary(grouping: notes, by: {$0.board!})
-//
-//            return DBResult<[Board:[Note]]>.success([:])
-//        }catch let err {
-//            print(err)
-//            return DBResult<[Board:[Note]]>.failure(DBError(code: .None,message: err.localizedDescription))
-//        }
-//    }
-    
-    
-    
     func searchNotes(keyword: String) -> DBResult<[NoteAndBoard]> {
         do {
             let noteAndBoards = try blockDao.searchNoteBlocks(keyword: keyword)
@@ -633,29 +534,7 @@ extension DBStore {
     
     func getSectionNotesByBoardId(_ boardId:String,noteBlockStatus: NoteBlockStatus) ->DBResult<[String:[Note]]> {
         do {
-            var sectionNotes:[String:[Note]] = [:]
-            try db.transaction {
-                
-               sectionNotes = try blockDao.querySectionNotes(boardId: boardId)
-                
-//                let rootBlocks = try blockDao.queryNoteBlocksByBoardId(boardId,noteBlockStatus:noteBlockStatus)
-//                for rootBlock in rootBlocks {
-//
-//                    let sectionId = rootBlock.0
-//                    let block = rootBlock.1
-//
-//                    let childBlocks = try blockDao.query(noteId: block.id)
-//
-//
-//
-//                    var board:Board = try boardDao.queryByNoteBlockId(block.id)!
-//                    board = getLocalSystemBoardInfo(board: board)
-//                    let note = Note(rootBlock: block, childBlocks: childBlocks)
-//
-//                    notes.append((sectionId,note))
-//                }
-                
-            }
+            let sectionNotes:[String:[Note]] = try blockDao.querySectionNotes(boardId: boardId)
             return DBResult<[String:[Note]]>.success(sectionNotes)
         }catch let err {
             print(err)
