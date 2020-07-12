@@ -18,7 +18,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    private let editorUseCase = NoteRepo.shared
+//    private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
     
@@ -77,16 +77,16 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
             return
         }
         
-        NoteRepo.shared.searchNotes(keyword: keyword)
-            .subscribe(onNext: { [weak self] in
-                if let self = self {
-                    self.notes = $0
-                    self.collectionNode.reloadData()
-                }
-            }, onError: {
-                Logger.error($0)
-            })
-        .disposed(by: disposeBag)
+//        NoteRepo.shared.searchNotes(keyword: keyword)
+//            .subscribe(onNext: { [weak self] in
+//                if let self = self {
+//                    self.notes = $0
+//                    self.collectionNode.reloadData()
+//                }
+//            }, onError: {
+//                Logger.error($0)
+//            })
+//        .disposed(by: disposeBag)
     }
 }
 
@@ -242,14 +242,14 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
         let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
             
-            NoteRepo.shared.deleteNote(noteId: note.id)
-                .subscribe(onNext: { _ in
-                    self.handleNoteDeleted(note)
-                }, onError: { error in
-                    Logger.error(error)
-                },onCompleted: {
-                })
-                .disposed(by: self.disposeBag)
+//            NoteRepo.shared.deleteNote(noteId: note.id)
+//                .subscribe(onNext: { _ in
+//                    self.handleNoteDeleted(note)
+//                }, onError: { error in
+//                    Logger.error(error)
+//                },onCompleted: {
+//                })
+//                .disposed(by: self.disposeBag)
             
         }))
         alert.addAction(UIAlertAction(title: "取消", style: .cancel,handler: nil))

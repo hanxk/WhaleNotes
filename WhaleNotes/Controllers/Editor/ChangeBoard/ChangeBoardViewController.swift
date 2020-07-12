@@ -73,13 +73,14 @@ class ChangeBoardViewController:UIViewController {
     }
     
     private func loadBoards() {
-        BoardRepo.shared.getBoardCategoryInfos(noteId:self.note.id)
-            .subscribe(onNext: { [weak self] result in
-                self?.setupData(boardsResult:result)
-                }, onError: { err in
-                    Logger.error(err)
-            })
-            .disposed(by: disposeBag)
+        
+//        BoardRepo.shared.getBoardCategoryInfos(noteId:self.note.id)
+//            .subscribe(onNext: { [weak self] result in
+//                self?.setupData(boardsResult:result)
+//                }, onError: { err in
+//                    Logger.error(err)
+//            })
+//            .disposed(by: disposeBag)
     }
     
     private func setupData(boardsResult:(Board?,BoardInfo)) {

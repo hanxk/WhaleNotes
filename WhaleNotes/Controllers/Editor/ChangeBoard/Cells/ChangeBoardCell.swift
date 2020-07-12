@@ -11,11 +11,11 @@ class ChangeBoardCell: UITableViewCell {
     var board:Board! {
         didSet {
             let fontSize:CGFloat = 18
-            if board.type == BoardType.user.rawValue {
-                emojiLabel.image = board.icon.emojiToImage(fontSize: fontSize)
-            }else {
-                emojiLabel.image = UIImage(systemName: board.icon, pointSize: fontSize, weight: .light)
-            }
+//            if board.type == BoardType.user.rawValue {
+//                emojiLabel.image = board.icon.emojiToImage(fontSize: fontSize)
+//            }else {
+//                emojiLabel.image = UIImage(systemName: board.icon, pointSize: fontSize, weight: .light)
+//            }
             titleLabel.text = board.title
         }
     }

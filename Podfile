@@ -20,7 +20,7 @@ target 'WhaleNotes' do
   pod "Texture"
   pod "SwiftCSV"
   pod 'sqlite3/json1'
-  pod 'SQLite.swift', '~> 0.12.0'
+#  pod 'SQLite.swift', '~> 0.12.0'
   pod 'JXPhotoBrowser', '~> 3.0'
   pod 'Toast-Swift', '~> 5.0.1'
   pod 'SwiftLinkPreview', '~> 3.1.0'

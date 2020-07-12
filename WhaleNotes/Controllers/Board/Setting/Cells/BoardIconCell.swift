@@ -24,16 +24,16 @@ class BoardIconCell: UITableViewCell {
         }
     }
     
-    var board:Board! {
-        didSet {
-            let fontSize:CGFloat = 60
-            if board.type == BoardType.user.rawValue {
-                iconButton.setImage(board.icon.emojiToImage(fontSize: fontSize), for: .normal)
-            }else {
-                iconButton.setImage(UIImage(systemName: board.icon, pointSize: fontSize, weight: .light), for: .normal)
-            }
-        }
-    }
+//    var board:Board! {
+//        didSet {
+//            let fontSize:CGFloat = 60
+//            if board.type == BoardType.user.rawValue {
+//                iconButton.setImage(board.icon.emojiToImage(fontSize: fontSize), for: .normal)
+//            }else {
+//                iconButton.setImage(UIImage(systemName: board.icon, pointSize: fontSize, weight: .light), for: .normal)
+//            }
+//        }
+//    }
     
 
     required init?(coder: NSCoder) {

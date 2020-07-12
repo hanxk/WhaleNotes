@@ -7,81 +7,21 @@
 //
 
 import Foundation
-import SQLite
-
-//fileprivate enum Field_Block{
-//    static let id = Expression<String>("id")
-//    static let type = Expression<String>("type")
-//    static let text = Expression<String>("text")
-//    static let sort = Expression<Double>("sort")
-//    static let isChecked = Expression<Bool>("is_checked")
-//    static let isExpand = Expression<Bool>("is_expand")
-//    static let source = Expression<String>("source")
-//    static let createdAt = Expression<Date>("created_at")
-//    static let updatedAt = Expression<Date>("updated_at")
-//    static let parentId = Expression<String>("parent_id")
-//    static let status = Expression<Int>("status")
-//    static let properties = Expression<String>("properties")
-//
-//}
 
 class BlockDao {
     
-    private  var db: Connection!
+    private  var db: SQLiteDatabase!
     
-    init(dbCon: Connection) {
+    init(dbCon: SQLiteDatabase) {
         db = dbCon
-        self.createTable()
-    }
-    
-    func insert( _ block:Block) throws {
-        let insertSQL = "insert into block(id,type,properties,parent_id,sort,created_at,updated_at) values(?,?,?,?,?,?,?)"
-        let stmt = try db.prepare(insertSQL)
-        try stmt.run(block.id,block.type,block.propertyJSON,block.parentId,block.sort,
-                     block.createdAt.toSQLDateString(),
-                     block.updatedAt.toSQLDateString())
     }
     
     
-    func updateUpdatedAt(id:String,updatedAt:Date) throws -> Bool {
-        let updateSQL = """
-           update block set updated_at = ? where id = ?
-        """
-        let stmt = try db.prepare(updateSQL)
-        try stmt.run(updatedAt.toSQLDateString(),id)
-        return db.changes > 0
-    }
     
     
-    func updateBlock(block:Block) throws -> Bool {
-        let updateSQL = "update block set type = ?,properties = ?,parent_id = ?,sort = ?,updated_at = ? where id = ?"
-        let stmt = try db.prepare(updateSQL)
-        try stmt.run(block.type,block.propertyJSON,block.parentId,block.sort,
-                     block.updatedAt.toSQLDateString(),block.id)
-        return db.changes > 0
-    }
     
     
-    // 递归删除
-    func delete(id:String) throws -> Bool {
-        let deleteSQL = """
-            delete from block where id in (
-                with recursive
-                b as (
-                        select * from block where id = ?
-                        union all
-                        select block.* from b join block on b.id = block.parent_id
-                )
-              select id from b
-            )
-        """
-        let stmt = try db.prepare(deleteSQL)
-        try stmt.run(id)
-        return db.changes > 0
-    }
-    
-    
-    func deleteMultiple(noteBlockIds: [String]) throws -> Bool {
+    func deleteMultiple(noteBlockIds: [String]) throws -> Int {
         let ids = noteBlockIds.map{return "'\($0)'"}.joined(separator: ",")
         let deleteSQL = """
             delete from block where id in (
@@ -94,12 +34,12 @@ class BlockDao {
               select id from b
             )
         """
-        try db.run(deleteSQL)
-        return db.changes > 0
+        try db.execute(deleteSQL)
+        return 1
     }
     
     
-    func delete(noteId:String,type:String) throws -> Bool {
+    func delete(noteId:String,type:String) throws -> Int {
         let deleteSQL = """
             delete from block where id in (
                 with recursive
@@ -111,21 +51,21 @@ class BlockDao {
               select id from b where id != ?
             )
         """
-        let stmt = try db.prepare(deleteSQL)
-        try stmt.run(noteId,type,noteId)
-        return db.changes > 0
+        try db.execute(deleteSQL, args: noteId,type,noteId)
+        return 1
     }
     
     func queryByType(type:String) throws ->[Block] {
-        let selectSQL = "select * from block order by sort where type = ?"
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run(type).typedRows()
-        var blocks:[Block] = []
-        for row in rows {
-            let block = generateBlock(row: row)
-            blocks.append(block)
-        }
-        return blocks
+//        let selectSQL = "select * from block order by sort where type = ?"
+//        let stmt = try db.prepare(selectSQL)
+//        let rows = try stmt.run(type).typedRows()
+//        var blocks:[Block] = []
+//        for row in rows {
+//            let block = generateBlock(row: row)
+//            blocks.append(block)
+//        }
+//        return blocks
+        return []
     }
     
     func query(noteId:String) throws ->[Block] {
@@ -138,35 +78,17 @@ class BlockDao {
                                 )
                               select * from b where parent_id != ""
                         """
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run(noteId).typedRows()
-        var blocks:[Block] = []
-        for row in rows {
-            let block = generateBlock(row: row)
-            blocks.append(block)
-        }
-        return blocks
+//        let stmt = try db.prepare(selectSQL)
+//        let rows = try stmt.run(noteId).typedRows()
+//        var blocks:[Block] = []
+//        for row in rows {
+//            let block = generateBlock(row: row)
+//            blocks.append(block)
+//        }
+//        return blocks
+        return []
     }
     
-    func query(parentId:String,type:String) throws ->[Block] {
-        let selectSQL = """
-                                with recursive
-                                b as (
-                                        select * from block where id = ?
-                                        union all
-                                        select block.* from b join block on b.id = block.parent_id and block.type = ?
-                                )
-                              select * from b where parent_id != ""  order by sort asc
-                        """
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run(parentId).typedRows()
-        var blocks:[Block] = []
-        for row in rows {
-            let block = generateBlock(row: row)
-            blocks.append(block)
-        }
-        return blocks
-    }
     
     func query(boardId:String,type:String) throws ->[Block] {
         let selectSQL = """
@@ -175,14 +97,15 @@ class BlockDao {
                             inner join section on  (section.id = section_note.section_id and section.board_id = ? )
                             ) and type = ?
                         """
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run(boardId,type).typedRows()
-        var blocks:[Block] = []
-        for row in rows {
-            let block = generateBlock(row: row)
-            blocks.append(block)
-        }
-        return blocks
+//        let stmt = try db.prepare(selectSQL)
+//        let rows = try stmt.run(boardId,type).typedRows()
+//        var blocks:[Block] = []
+//        for row in rows {
+//            let block = generateBlock(row: row)
+//            blocks.append(block)
+//        }
+//        return blocks
+        return []
     }
     
     
@@ -196,64 +119,65 @@ class BlockDao {
                                 inner join section on  (section.id = section_note.section_id and section.board_id = ?)
                             )
                         """
-        let stmt = try db.prepare(deleteSQL)
-        try stmt.run(boardId,boardId)
-        return db.changes
+//        let stmt = try db.prepare(deleteSQL)
+//        try stmt.run(boardId,boardId)
+//        return db.changes
+        return 1
     }
     
-    func searchNoteBlocks(keyword: String) throws -> [NoteAndBoard] {
-        let selectSQL = """
-              with recursive
-                note_ids as (
-                                select block.* from block where json_extract(block.properties, '$.title') like ?
-                                union all
-                                select block.* from note_ids join block on note_ids.parent_id = block.id
-                ), b as (
-                                select block.*,
-                                board.id as board_id,board.icon as board_icon,board.title as board_title,board.sort as board_sort,board.category_id as board_category_id,board.type as board_type,board.created_at as board_created_at
-                                from block
-                                inner join section_note on section_note.note_id = block.id and block.id  in (select id from note_ids)
-                                inner join section on section.id = section_note.section_id
-                                inner join board on  board.id = section.board_id
-                                union all
-                                select block.*,
-                                0 as board_id, '' as board_icon,'' as board_title,0 as board_sort,'' as board_category_id, 0 as board_type,'' as board_created_at
-                                from b
-                                join block on b.id = block.parent_id
-                )
-              select * from b order by sort asc
-        """
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run("%\(keyword)%").typedRows()
-        var blockIdAndBoard:[String:Board] = [:]
-        
-        var noteBlocks:[Block] = []
-        var allChildBlocks:[Block] = []
-        for row in rows {
-            let block = generateBlock(row: row)
-            if block.type == BlockType.note.rawValue {
-                noteBlocks.append(block)
-                let board = BoardDao.generateBoardByTypeRow(row: row)
-                blockIdAndBoard[block.id] = board
-            }else {
-                allChildBlocks.append(block)
-            }
-        }
-        
-        var noteAndBoards:[NoteAndBoard] = []
-        
-        for noteBlock in noteBlocks {
-            var childBlocks:[Block] = []
-            getChildBlocksByBlock(blocks: allChildBlocks, childBlocks: &childBlocks, parentBlock: noteBlock)
-            
-            let note  = Note(rootBlock: noteBlock, childBlocks: childBlocks)
-            guard let board = blockIdAndBoard[noteBlock.id] else { continue }
-            noteAndBoards.append(NoteAndBoard(note: note, board: board))
-        }
-        
-        return noteAndBoards
-    }
-    
+//    func searchNoteBlocks(keyword: String) throws -> [NoteAndBoard] {
+//        let selectSQL = """
+//              with recursive
+//                note_ids as (
+//                                select block.* from block where json_extract(block.properties, '$.title') like ?
+//                                union all
+//                                select block.* from note_ids join block on note_ids.parent_id = block.id
+//                ), b as (
+//                                select block.*,
+//                                board.id as board_id,board.icon as board_icon,board.title as board_title,board.sort as board_sort,board.category_id as board_category_id,board.type as board_type,board.created_at as board_created_at
+//                                from block
+//                                inner join section_note on section_note.note_id = block.id and block.id  in (select id from note_ids)
+//                                inner join section on section.id = section_note.section_id
+//                                inner join board on  board.id = section.board_id
+//                                union all
+//                                select block.*,
+//                                0 as board_id, '' as board_icon,'' as board_title,0 as board_sort,'' as board_category_id, 0 as board_type,'' as board_created_at
+//                                from b
+//                                join block on b.id = block.parent_id
+//                )
+//              select * from b order by sort asc
+//        """
+//        let stmt = try db.prepare(selectSQL)
+//        let rows = try stmt.run("%\(keyword)%").typedRows()
+//        var blockIdAndBoard:[String:Board] = [:]
+//
+//        var noteBlocks:[Block] = []
+//        var allChildBlocks:[Block] = []
+//        for row in rows {
+//            let block = generateBlock(row: row)
+//            if block.type == BlockType.note.rawValue {
+//                noteBlocks.append(block)
+//                let board = BoardDao.generateBoardByTypeRow(row: row)
+//                blockIdAndBoard[block.id] = board
+//            }else {
+//                allChildBlocks.append(block)
+//            }
+//        }
+//
+//        var noteAndBoards:[NoteAndBoard] = []
+//
+//        for noteBlock in noteBlocks {
+//            var childBlocks:[Block] = []
+//            getChildBlocksByBlock(blocks: allChildBlocks, childBlocks: &childBlocks, parentBlock: noteBlock)
+//
+//            let note  = Note(rootBlock: noteBlock, childBlocks: childBlocks)
+//            guard let board = blockIdAndBoard[noteBlock.id] else { continue }
+//            noteAndBoards.append(NoteAndBoard(note: note, board: board))
+//        }
+//        
+//        return []
+//    }
+//    
     
     func getChildBlocksByBlock(blocks:[Block],childBlocks:inout [Block], parentBlock:Block) {
         let tempChildBlocks = blocks.filter { $0.parentId == parentBlock.id }
@@ -278,45 +202,45 @@ class BlockDao {
                 )
                select * from b order by sort asc
         """
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run(noteBlockStatus.rawValue,boardId).typedRows()
-        
-        var blocks:[Block] = []
-        
-        
-        var sectionNotes:[String:[Note]] = [:]
-        var noteAndSectionIds:[String:String] = [:]
-        
-        for row in rows {
-            let block = generateBlock(row: row)
-            let sectionId = row.string("section_id")!
+//        let stmt = try db.prepare(selectSQL)
+//        let rows = try stmt.run(noteBlockStatus.rawValue,boardId).typedRows()
+//
+//        var blocks:[Block] = []
+//
+//
+//        var sectionNotes:[String:[Note]] = [:]
+//        var noteAndSectionIds:[String:String] = [:]
+//
+//        for row in rows {
+//            let block = generateBlock(row: row)
+//            let sectionId = row.string("section_id")!
+//
+//            if sectionId.isNotEmpty {
+//                noteAndSectionIds[block.id] = sectionId
+//            }
+//            blocks.append(block)
+//        }
+//
+//        let noteBlocks = blocks.filter { $0.type == BlockType.note.rawValue }
+//        if noteBlocks.isEmpty {
+//            return sectionNotes
+//        }
+//
+//        for noteBlock in noteBlocks {
+//            var childBlocks:[Block] = []
+//            getChildBlocksByBlock(blocks:blocks,childBlocks: &childBlocks, parentBlock: noteBlock)
+//
+//            let note = Note(rootBlock: noteBlock, childBlocks: childBlocks)
+//            if let sectionId = noteAndSectionIds[noteBlock.id] {
+//
+//               var notes =  sectionNotes[sectionId] ?? []
+//               notes.append(note)
+//               sectionNotes[sectionId] = notes
+//            }
+//
+//        }
             
-            if sectionId.isNotEmpty {
-                noteAndSectionIds[block.id] = sectionId
-            }
-            blocks.append(block)
-        }
-        
-        let noteBlocks = blocks.filter { $0.type == BlockType.note.rawValue }
-        if noteBlocks.isEmpty {
-            return sectionNotes
-        }
-
-        for noteBlock in noteBlocks {
-            var childBlocks:[Block] = []
-            getChildBlocksByBlock(blocks:blocks,childBlocks: &childBlocks, parentBlock: noteBlock)
-            
-            let note = Note(rootBlock: noteBlock, childBlocks: childBlocks)
-            if let sectionId = noteAndSectionIds[noteBlock.id] {
-                
-               var notes =  sectionNotes[sectionId] ?? []
-               notes.append(note)
-               sectionNotes[sectionId] = notes
-            }
-            
-        }
-            
-        return sectionNotes
+        return [:]
     }
     
     func queryNoteBlocksByBoardId(_ boardId:String ,noteBlockStatus: NoteBlockStatus) throws -> [(String,Block)] {
@@ -331,17 +255,17 @@ class BlockDao {
         ) as section
         on (b.id = section.note_id and json_extract(b.properties, '$.status') = ?) order by b.sort asc
         """
-        let stmt = try db.prepare(selectSQL)
-        let rows = try stmt.run(boardId,status).typedRows()
-        
-        var blocks:[(String,Block)] = []
-        for row in rows {
-            let block = generateBlock(row: row)
-            let sectionId = row.string("section_id")!
-            blocks.append((sectionId,block))
-        }
-        
-        return blocks
+//        let stmt = try db.prepare(selectSQL)
+//        let rows = try stmt.run(boardId,status).typedRows()
+//
+//        var blocks:[(String,Block)] = []
+//        for row in rows {
+//            let block = generateBlock(row: row)
+//            let sectionId = row.string("section_id")!
+//            blocks.append((sectionId,block))
+//        }
+//
+        return []
     }
     
     
@@ -356,60 +280,168 @@ class BlockDao {
         ) as section
         on (b.id = section.note_id  and json_extract(b.properties, '$.status') = ?) order by b.sort asc
         """
-        let stmt = try db.prepare(selectSQL)
-        let count = try stmt.run(boardId,status).scalar() as! Int64
-        return count
+//        let stmt = try db.prepare(selectSQL)
+//        let count = try stmt.run(boardId,status).scalar() as! Int64
+//        return count
+        return 1
     }
 }
 
 
 extension BlockDao {
-    fileprivate func createTable(){
+    
+//    fileprivate func generateBlock(row: TypedRow) -> Block {
+//        let id = row.string("id")!
+//        let type = row.string("type")!
+//        let properties = row.string("properties") ?? ""
+//        let parentId = row.string("parent_id")!
+//        let sort = row.double("sort")!
+//        let createdAt = row.date("created_at")!
+//        let updatedAt = row.date("updated_at")!
+//
+//        let block = Block(id: id, type: type, properties: self.convertProperties(json: properties, type: type), parentId: parentId, sort: sort, createdAt: createdAt, updatedAt: updatedAt)
+//        return block
+//    }
+//
+
+}
+
+
+
+extension BlockDao {
+    
+    func insert( _ block:Block) throws {
+        let insertSQL = "insert into block(id,type,properties,content,parent_id,parent_table,created_at,updated_at) values(?,?,?,?,?,?,?,?)"
         
-        let createSQL = """
-                    CREATE TABLE IF NOT EXISTS "block" (
-                      "id" TEXT UNIQUE NOT NULL,
-                      "type" TEXT NOT NULL,
-                      "properties" JSON NOT NULL,
-                      "parent_id" TEXT NOT NULL,
-                      "sort" REAL NOT NULL,
-                      "created_at" TEXT NOT NULL,
-                      "updated_at" TEXT NOT NULL
-                    );
-        """
         
-        do {
-            try! db.run(createSQL)
+        try db.execute(insertSQL, args: block.id,block.type.rawValue,block.propertiesJSON,block.contentJSON,block.parentId,block.parentTable.rawValue,
+                       block.createdAt.timeIntervalSince1970,
+                                            block.updatedAt.timeIntervalSince1970)
+    }
+    
+    
+    func updateUpdatedAt(id:String,updatedAt:Date) throws {
+        let updateSQL = " update block set updated_at = ? where id = ?"
+        try db.execute(updateSQL, args: updatedAt.toSQLDateString(),id)
+    }
+    
+    
+    func updateBlock(block:Block) throws -> Int {
+        let updateSQL = "update block set type = ?,properties = ?,content = ?,parent_id = ?,parent_table = ? where id = ?"
+        try db.execute(updateSQL, args: block.propertiesJSON,block.contentJSON,block.parentId,block.parentTable,block.id)
+        return 1
+    }
+    
+    private func query(id: String) throws -> Block? {
+        let selectSql = "SELECT * FROM block WHERE id = ?"
+        let rows = try db.query(selectSql, args: id)
+        if rows.isEmpty {
+            return nil
         }
+        return extract(row: rows[0])
     }
     
     
-    fileprivate func generateBlock(row: TypedRow) -> Block {
-        let id = row.string("id")!
-        let type = row.string("type")!
-        let properties = row.string("properties") ?? ""
-        let parentId = row.string("parent_id")!
-        let sort = row.double("sort")!
-        let createdAt = row.date("created_at")!
-        let updatedAt = row.date("updated_at")!
+    func query(parentId:String) throws ->[Block] {
+        let selectSQL = """
+                                with recursive
+                                b as (
+                                        select * from block where parent_id = ?
+                                        union all
+                                        select block.* from b join block on b.id = block.parent_id
+                                )
+                              select * from b
+                        """
+        let rows = try db.query(selectSQL, args: parentId)
+        return extract(rows: rows)
+    }
+    
+    
+    func queryContent(content:[String]) throws ->[Block] {
+        let ids = content.map{return "'\($0)'"}.joined(separator: ",")
+        let selectSQL = """
+                                with recursive
+                                b as (
+                                        select * from block where id in (\(ids))
+                                        union all
+                                        select block.* from b join block on b.id = block.parent_id
+                                )
+                              select * from b
+                        """
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
+    
+    
+    func delete(id:String,includeChild:Bool) throws {
         
-        let block = Block(id: id, type: type, properties: self.convertProperties(json: properties, type: type), parentId: parentId, sort: sort, createdAt: createdAt, updatedAt: updatedAt)
-        return block
+        var deleteSql:String
+        if includeChild {
+            deleteSql = """
+                delete from block where id in (
+                    with recursive
+                    b as (
+                            select * from block where id = ?
+                            union all
+                            select block.* from b join block on b.id = block.parent_id
+                    )
+                  select id from b
+                )
+            """
+        }else {
+            deleteSql = "delete from block where id = ?"
+        }
+        try db.execute(deleteSql, args: id)
     }
     
-    private func convertProperties(json:String,type:String) -> Any {
-        let blockType = BlockType.init(rawValue: type)!
+}
+
+
+
+extension BlockDao {
+    
+    fileprivate func extract(rows: [Row]) -> [Block] {
+        var blocks:[Block] = []
+        for row in rows {
+            blocks.append(extract(row: row))
+        }
+        return blocks
+    }
+    
+    fileprivate func extract(row: Row) -> Block {
+        
+        let id = row["id"] as! String
+        let type = BlockType.init(rawValue:  row["type"] as! String)!
+        
+        let propertiesJSON = row["properties"] as! String
+        let properties = convertProperties(json: propertiesJSON, blockType: type)
+        
+        let content = json2Object(row["content"] as! String, type: [String].self)!
+        let parentId = row["parent_id"] as! String
+        let parentTable = TableType.init(rawValue: row["parent_table"] as! String)!
+        let createdAt = Date(timeIntervalSince1970: row["created_at"] as! Double)
+        let updatedAt = Date(timeIntervalSince1970: row["updated_at"] as! Double)
+        
+        return Block(id: id, type: type, properties: properties, content: content, parentId: parentId, parentTable: parentTable, createdAt: createdAt, updatedAt: updatedAt)
+    }
+    
+    fileprivate func convertProperties(json:String,blockType:BlockType) -> Any {
         switch blockType {
         case .note:
-            return BlockNoteProperty.toStruct(json: json)
+            return json2Object(json, type: BlockNoteProperty.self)!
         case .text:
-            return BlockTextProperty.toStruct(json: json)
+            return json2Object(json, type: BlockTextProperty.self)!
         case .todo:
-            return BlockTodoProperty.toStruct(json: json)
+            return json2Object(json, type: BlockTodoProperty.self)!
         case .image:
-            return BlockImageProperty.toStruct(json: json)
+            return json2Object(json, type: BlockImageProperty.self)!
         case .bookmark:
-            return BlockBookmarkProperty.toStruct(json: json)
+            return json2Object(json, type: BlockBookmarkProperty.self)!
+        case .board:
+            return json2Object(json, type: BlockBoardProperty.self)!
+        case .toggle:
+            return json2Object(json, type: BlockToggleProperty.self)!
         }
+        
     }
 }

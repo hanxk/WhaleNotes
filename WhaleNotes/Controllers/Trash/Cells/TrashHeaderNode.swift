@@ -11,23 +11,23 @@ import AsyncDisplayKit
 
 class TrashHeaderNode: ASCellNode {
     
-    private var board:Board!
+//    private var board:Board!
     private var topPadding:CGFloat!
 
     private let titleNode = ASTextNode()
     
-    required init(board:Board,topPadding:CGFloat) {
-        super.init()
-        self.board = board
-        self.topPadding = topPadding
-        
-        let attributedText = NSAttributedString(string: board.icon+" "+board.title, attributes: [
-            .font: UIFont.systemFont(ofSize: 14,weight: .medium),
-            .foregroundColor: UIColor(hexString: "#444444").withAlphaComponent(0.8),
-            ])
-        titleNode.attributedText = attributedText
-        addSubnode(titleNode)
-    }
+//    required init(board:Board,topPadding:CGFloat) {
+//        super.init()
+//        self.board = board
+//        self.topPadding = topPadding
+//        
+//        let attributedText = NSAttributedString(string: board.icon+" "+board.title, attributes: [
+//            .font: UIFont.systemFont(ofSize: 14,weight: .medium),
+//            .foregroundColor: UIColor(hexString: "#444444").withAlphaComponent(0.8),
+//            ])
+//        titleNode.attributedText = attributedText
+//        addSubnode(titleNode)
+//    }
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         

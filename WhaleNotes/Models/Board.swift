@@ -28,11 +28,12 @@ struct Board: Equatable,Hashable {
     }
     
     func getBoardIcon(fontSize:CGFloat) -> UIImage {
-        if self.type  == BoardType.user.rawValue {
-            return self.icon.emojiToImage(fontSize: fontSize)!
-        }else {
-            return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
-        }
+//        if self.type  == BoardType.user.rawValue {
+//            return self.icon.emojiToImage(fontSize: fontSize)!
+//        }else {
+//            return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
+//        }
+        return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
     }
     
     static func == (lhs: Board, rhs: Board) -> Bool {
@@ -40,13 +41,3 @@ struct Board: Equatable,Hashable {
     }
 }
 
-
-enum BoardType:Int {
-    case user = 1
-    case collect = 2
-}
-
-
-func getSystemBoard(type:BoardType) {
-    
-}

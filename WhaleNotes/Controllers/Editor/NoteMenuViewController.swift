@@ -193,17 +193,17 @@ extension NoteMenuViewController {
         note.backgroundColor = color
         guard var block = note.rootBlock else { return }
         block.updatedAt = Date()
-        NoteRepo.shared.updateBlock(block: block)
-            .subscribe(onNext: { block in
-                var newNote = self.note!
-                newNote.rootBlock = block
-                self.delegate?.noteMenuBackgroundChanged(note: newNote)
-                self.dismiss()
-                
-            }, onError: { error in
-                Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        NoteRepo.shared.updateBlock(block: block)
+//            .subscribe(onNext: { block in
+//                var newNote = self.note!
+//                newNote.rootBlock = block
+//                self.delegate?.noteMenuBackgroundChanged(note: newNote)
+//                self.dismiss()
+//                
+//            }, onError: { error in
+//                Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
         
     }
     func handleMove2Board(board:Board?) {
@@ -211,16 +211,16 @@ extension NoteMenuViewController {
             self.dismiss()
             return
         }
-        NoteRepo.shared.moveNote2Board(note: self.note, board: board)
-            .subscribe(onNext: { [weak self] in
-                if let self = self {
-                    self.dismiss()
-                    self.delegate?.noteMenuDataMoved(note: $0)
-                }
-            }, onError:{ error in
-                Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        NoteRepo.shared.moveNote2Board(note: self.note, board: board)
+//            .subscribe(onNext: { [weak self] in
+//                if let self = self {
+//                    self.dismiss()
+//                    self.delegate?.noteMenuDataMoved(note: $0)
+//                }
+//            }, onError:{ error in
+//                Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
     }
     
     private func move2Trash() {
@@ -242,15 +242,15 @@ extension NoteMenuViewController {
     
     
     private func updateNoteBlock(noteBlock:Block,callback:@escaping (Note)->Void) {
-        NoteRepo.shared.updateBlock(block: noteBlock)
-            .subscribe(onNext: {
-                var newNote = self.note!
-                 newNote.rootBlock = $0
-                callback(newNote)
-            }, onError: { error in
-                Logger.error(error)
-            })
-        .disposed(by: disposeBag)
+//        NoteRepo.shared.updateBlock(block: noteBlock)
+//            .subscribe(onNext: {
+//                var newNote = self.note!
+//                 newNote.rootBlock = $0
+//                callback(newNote)
+//            }, onError: { error in
+//                Logger.error(error)
+//            })
+//        .disposed(by: disposeBag)
     }
 }
 
@@ -260,17 +260,17 @@ extension NoteMenuViewController {
     func restoreNote() {
         guard var noteBlock = self.note.rootBlock else { return }
         noteBlock.blockNoteProperties!.status = NoteBlockStatus.normal.rawValue
-        NoteRepo.shared.updateBlock(block: noteBlock)
-            .subscribe(onNext: {
-                var newNote = self.note!
-                newNote.rootBlock = $0
-                self.delegate?.noteMenuDataRestored(note: newNote)
-            }, onError: { error in
-                Logger.error(error)
-            },onCompleted: {
-                self.dismiss()
-            })
-        .disposed(by: disposeBag)
+//        NoteRepo.shared.updateBlock(block: noteBlock)
+//            .subscribe(onNext: {
+//                var newNote = self.note!
+//                newNote.rootBlock = $0
+//                self.delegate?.noteMenuDataRestored(note: newNote)
+//            }, onError: { error in
+//                Logger.error(error)
+//            },onCompleted: {
+//                self.dismiss()
+//            })
+//        .disposed(by: disposeBag)
     }
     
     func deleteNote() {

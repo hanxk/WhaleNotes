@@ -184,21 +184,21 @@ class PhotoViewerViewController:JXPhotoBrowser {
     
     private func handleImageDeleted() {
         let block = self.imageBlocks[self.pageIndex]
-        NoteRepo.shared.deleteBlock(block: block)
-            .subscribe(onNext: { isSuccess in
-                self.note.removeBlock(block: block)
-                self.isBlockDeleted = true
-                if self.imageBlocks.isEmpty {
-                    self.dismiss(animated: true, completion: nil)
-                    return
-                }
-                self.browserView.reloadData()
-                self.refreshPageIndex()
-                
-            }, onError: { error in
-                Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        NoteRepo.shared.deleteBlock(block: block)
+//            .subscribe(onNext: { isSuccess in
+//                self.note.removeBlock(block: block)
+//                self.isBlockDeleted = true
+//                if self.imageBlocks.isEmpty {
+//                    self.dismiss(animated: true, completion: nil)
+//                    return
+//                }
+//                self.browserView.reloadData()
+//                self.refreshPageIndex()
+//                
+//            }, onError: { error in
+//                Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
         
     }
     

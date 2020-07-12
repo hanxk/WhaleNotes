@@ -8,13 +8,29 @@
 import UIKit
 class MenuCategoryCell: UITableViewCell {
     
-    var boardCategory:BoardCategory! {
+    private var idContenHidden:Bool {
+        return properties.title.isEmpty
+    }
+    
+    private var properties:BlockToggleProperty! {
         didSet {
-            titleLabel.text = boardCategory.title
-            arrowImageView.image = boardCategory.isExpand ? arrowDownImage : arrowRightImage
+            if !idContenHidden {
+                titleLabel.text = properties.title
+                arrowImageView.image = properties.isFolded ?arrowRightImage  : arrowDownImage
+            }
+            
+            arrowImageView.isHidden = idContenHidden
+            titleLabel.isHidden = idContenHidden
+            menuButton.isHidden = idContenHidden
         }
     }
-    var callbackMenuTapped:((UIView, BoardCategory)->Void)?
+    
+    var toggleBlock:Block! {
+        didSet {
+            self.properties = toggleBlock.blockToggleProperties!
+        }
+    }
+    var callbackMenuTapped:((UIView, String)->Void)?
     private lazy var cellBgView = SideMenuViewController.generateCellSelectedView()
     
     private lazy var arrowDownImage:UIImage = {
@@ -44,13 +60,13 @@ class MenuCategoryCell: UITableViewCell {
     
     
     private lazy var menuButton: UIButton = UIButton().then {
-         $0.contentMode = .center
-         $0.imageView?.contentMode = .scaleAspectFit
-         $0.tintColor  = .thirdColor
-         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .light)
-         $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
-         $0.addTarget(self, action: #selector(self.menuButtonTapped), for: .touchUpInside)
-     }
+        $0.contentMode = .center
+        $0.imageView?.contentMode = .scaleAspectFit
+        $0.tintColor  = .thirdColor
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .light)
+        $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
+        $0.addTarget(self, action: #selector(self.menuButtonTapped), for: .touchUpInside)
+    }
     
     
     
@@ -92,6 +108,6 @@ class MenuCategoryCell: UITableViewCell {
     }
     
     @objc func menuButtonTapped() {
-        self.callbackMenuTapped?(menuButton,self.boardCategory)
+        self.callbackMenuTapped?(menuButton,self.toggleBlock.id)
     }
 }

@@ -22,7 +22,7 @@ protocol SideMenuViewControllerDelegate: AnyObject {
 enum SideMenuItem:Equatable {
     
     case system(menuInfo:MenuSystemItem)
-    case board(board:Board)
+    case board(board:Block)
     
     static func == (lhs: SideMenuItem, rhs: SideMenuItem) -> Bool {
         switch (lhs,rhs)  {
@@ -42,6 +42,9 @@ class SideMenuViewController: UIViewController {
     
     private var menuSectionTypes:[MenuSectionType] = []
     
+    var space:Space!
+    var blocksMap:[String:Block] = [:]
+    
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
         didSet {
@@ -51,8 +54,8 @@ class SideMenuViewController: UIViewController {
     
     var sectionSpecial = -1
     
-    private var deletedBoard: Board?
-    private var updatedBoard: Board?
+    private var deletedBoard: Block?
+    private var updatedBoard: Block?
     
     private var selectedMenuItem:SideMenuItem! {
         
@@ -75,47 +78,47 @@ class SideMenuViewController: UIViewController {
             ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
                 vc.dismiss(animated: true, completion: nil)
                 guard let self = self,let flag = menuItem.tag as? Int else { return}
-                if flag == 1 {
-                    self.openCreateBoardVC()
-                }else {
-                    self.showCategoryInputAlert()
-                }
+//                if flag == 1 {
+//                    self.openCreateBoardVC()
+//                }else {
+//                    self.showCategoryInputAlert()
+//                }
             }
             
         }
         
     }
     
-    private func openCreateBoardVC(boardCategory:BoardCategory? = nil) {
-        let vc = CreateBoardViewController()
-        vc.callbackPositive = {emoji,title in
-            self.createBoard(emoji: emoji, title: title,boardCategory: boardCategory)
-        }
-        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-    }
+//    private func openCreateBoardVC(boardCategory:BoardCategory? = nil) {
+//        let vc = CreateBoardViewController()
+//        vc.callbackPositive = {emoji,title in
+//            self.createBoard(emoji: emoji, title: title,boardCategory: boardCategory)
+//        }
+//        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+//    }
     
-    private func showCategoryInputAlert(boardCategory:BoardCategory? = nil) {
-        let ac = UIAlertController(title: boardCategory == nil ? "添加分类" : "编辑分类", message: nil, preferredStyle: .alert)
-        ac.addTextField()
-        ac.textFields![0].placeholder = "输入分类名称"
-        ac.textFields![0].text = boardCategory == nil ? "" :  boardCategory!.title
-        
-        let submitAction = UIAlertAction(title: "确定", style: .default) { [unowned ac] _ in
-            let title = ac.textFields![0].text!.trimmingCharacters(in: .whitespaces)
-            if title.isEmpty { return }
-            if let boardCategory = boardCategory {
-                var newBoardCategory  = boardCategory
-                newBoardCategory.title = title
-                self.updateBoardCayegory(newBoardCategory: newBoardCategory)
-            }else {
-              self.createBoardCategory(title: title)
-            }
-        }
-        ac.addAction(submitAction)
-        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
-        ac.addAction(cancelAction)
-        present(ac, animated: true)
-    }
+//    private func showCategoryInputAlert(boardCategory:BoardCategory? = nil) {
+//        let ac = UIAlertController(title: boardCategory == nil ? "添加分类" : "编辑分类", message: nil, preferredStyle: .alert)
+//        ac.addTextField()
+//        ac.textFields![0].placeholder = "输入分类名称"
+//        ac.textFields![0].text = boardCategory == nil ? "" :  boardCategory!.title
+//        
+//        let submitAction = UIAlertAction(title: "确定", style: .default) { [unowned ac] _ in
+//            let title = ac.textFields![0].text!.trimmingCharacters(in: .whitespaces)
+//            if title.isEmpty { return }
+//            if let boardCategory = boardCategory {
+//                var newBoardCategory  = boardCategory
+//                newBoardCategory.title = title
+//                self.updateBoardCayegory(newBoardCategory: newBoardCategory)
+//            }else {
+//              self.createBoardCategory(title: title)
+//            }
+//        }
+//        ac.addAction(submitAction)
+//        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
+//        ac.addAction(cancelAction)
+//        present(ac, animated: true)
+//    }
 
     
     
@@ -144,17 +147,16 @@ class SideMenuViewController: UIViewController {
         $0.dragInteractionEnabled = true
     }
     private var systemMenuItems:[MenuSystemItem]  =  []
-    private var boards:[Board] = []
-    
-    private var mapCategoryIdAnIndex:[String:Int]  = [:]
-    private var boardCategories:[BoardCategoryInfo] = [] {
-        didSet {
-            self.mapCategoryIdAnIndex.removeAll()
-            for (index,boardCategoryInfo) in boardCategories.enumerated() {
-                mapCategoryIdAnIndex[boardCategoryInfo.category.id] = index
-            }
-        }
-    }
+//    private var boards:[Board] = []
+//    private var mapCategoryIdAnIndex:[String:Int]  = [:]
+//    private var boardCategories:[BoardCategoryInfo] = [] {
+//        didSet {
+//            self.mapCategoryIdAnIndex.removeAll()
+//            for (index,boardCategoryInfo) in boardCategories.enumerated() {
+//                mapCategoryIdAnIndex[boardCategoryInfo.category.id] = index
+//            }
+//        }
+//    }
     private let sectionCategoryBeginIndex = 2
     
     private lazy var cellSelectedBackgroundView = SideMenuViewController.generateCellSelectedView()
@@ -201,37 +203,45 @@ class SideMenuViewController: UIViewController {
     }
     
     private func loadBoards() {
-        BoardRepo.shared.getBoardCategoryInfos()
-            .subscribe(onNext: { [weak self] result in
-                self?.setupData(boardInfo: result)
-                }, onError: { err in
-                    Logger.error(err)
-            })
+        
+        SpaceRepo.shared.getSpace()
+            .flatMap { space -> Observable<[Block]> in
+                self.space = space
+                return BlockRepo.shared.getBlocks(parentId: space.id)
+            }
+            .subscribe {
+                self.setupData(blocks: $0)
+            } onError: { error in
+                print(error)
+            }
             .disposed(by: disposeBag)
     }
     
     
-    private func setupData(boardInfo:BoardInfo) {
-        menuSectionTypes.removeAll()
+    private func setupData(blocks:[Block]) {
+        
+        for block in blocks {
+            if let boardType =  block.blockBoardProperties?.type,boardType == .collect {
+               blocksMap[block.id] = Block.convert2LocalSystemBoard(board: block)
+               continue
+            }
+            blocksMap[block.id] = block
+        }
+        
+        let collectBoard:Block = blocksMap[self.space.collectBoardId]!
         
         let systemMenuItems =  [
-            MenuSystemItem.board(board: boardInfo.systemBoards[0]),
+            MenuSystemItem.board(board: collectBoard),
             MenuSystemItem.trash(icon: "trash", title: "废纸篓")
         ]
+        menuSectionTypes.removeAll()
+        
         self.systemMenuItems = systemMenuItems
+        menuSectionTypes.append(MenuSectionType.system(items:systemMenuItems))
         
-        
-        menuSectionTypes.append(MenuSectionType.system(items:self.systemMenuItems))
-        
-        
-        self.boards = boardInfo.boards
-        menuSectionTypes.append(MenuSectionType.boards)
-        
-        self.boardCategories =  boardInfo.boardCategoryInfos
-        for _ in 0..<self.boardCategories.count {
-            menuSectionTypes.append(MenuSectionType.categories)
+        for groupId in  space.boardGroupIds {
+            menuSectionTypes.append(MenuSectionType.boards(groupId: groupId))
         }
-        self.selectedMenuItem =  SideMenuItem.system(menuInfo: systemMenuItems[0])
     }
     
 }
@@ -241,29 +251,29 @@ class SideMenuViewController: UIViewController {
 extension SideMenuViewController {
     
     func createBoardCategory(title:String) {
-        let sort = self.boardCategories.count == 0 ? 65536 : self.boardCategories[0].category.sort / 2
-        let boardCategory = BoardCategory(title: title, sort: sort, isExpand: true, createdAt: Date())
-        BoardRepo.shared.createBoardCategory(boardCategory: boardCategory)
-            .subscribe(onNext: { [weak self] newBoardCategory in
-                self?.handleBoardCategoryInsert(insertedBoardCategory: newBoardCategory)
-                }, onError: { error in
-                    Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        let sort = self.boardCategories.count == 0 ? 65536 : self.boardCategories[0].category.sort / 2
+//        let boardCategory = BoardCategory(title: title, sort: sort, isExpand: true, createdAt: Date())
+//        BoardRepo.shared.createBoardCategory(boardCategory: boardCategory)
+//            .subscribe(onNext: { [weak self] newBoardCategory in
+//                self?.handleBoardCategoryInsert(insertedBoardCategory: newBoardCategory)
+//                }, onError: { error in
+//                    Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
     }
     
-    func handleBoardCategoryInsert(insertedBoardCategory: BoardCategory) {
-        self.boardCategories.insert(BoardCategoryInfo(category: insertedBoardCategory, boards: []), at: 0)
-        self.menuSectionTypes.insert(MenuSectionType.categories, at: sectionCategoryBeginIndex)
-        self.tableView.performBatchUpdates({
-            self.tableView.insertSections(IndexSet([sectionCategoryBeginIndex]), with: .automatic)
-        }, completion: { _ in
-            DispatchQueue.main.async {
-                let indexPath = IndexPath(item:0, section: self.sectionCategoryBeginIndex)
-                self.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
-            }
-        })
-    }
+//    func handleBoardCategoryInsert(insertedBoardCategory: BoardCategory) {
+//        self.boardCategories.insert(BoardCategoryInfo(category: insertedBoardCategory, boards: []), at: 0)
+//        self.menuSectionTypes.insert(MenuSectionType.categories, at: sectionCategoryBeginIndex)
+//        self.tableView.performBatchUpdates({
+//            self.tableView.insertSections(IndexSet([sectionCategoryBeginIndex]), with: .automatic)
+//        }, completion: { _ in
+//            DispatchQueue.main.async {
+//                let indexPath = IndexPath(item:0, section: self.sectionCategoryBeginIndex)
+//                self.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+//            }
+//        })
+//    }
     
     
     func handleCategoryMenuEdit(categoryId: String,sourceView: UIView) {
@@ -272,200 +282,202 @@ extension SideMenuViewController {
         let TAG_EDIT = 2
         let TAG_DEL = 3
         
-        guard let index = self.mapCategoryIdAnIndex[categoryId] else { return }
-        let boardCategoryInfo = self.boardCategories[index]
-        
-        
-        let items = [
-            ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: TAG_ADD),
-            ContextMenuItem(label: "编辑分类", icon: "pencil",tag:TAG_EDIT),
-            ContextMenuItem(label: "删除分类", icon: "trash",tag:TAG_DEL)
-        ]
-        ContextMenuViewController.show(sourceView:sourceView, sourceVC: self, items: items) { [weak self] menuItem, vc in
-            vc.dismiss(animated: true, completion: nil)
-            guard let self = self,let tag = menuItem.tag as? Int else { return}
-            switch tag {
-            case TAG_ADD:
-                self.openCreateBoardVC(boardCategory:boardCategoryInfo.category)
-            case TAG_EDIT:
-                self.showCategoryInputAlert(boardCategory: boardCategoryInfo.category)
-                break
-            case TAG_DEL:
-                self.showAlertMessage(message: "确认删除该分类", positiveButtonText: "删除",isPositiveDestructive:true) {
-                    self.deleteBoardCategory(boardCategoryInfo: boardCategoryInfo)
-                }
-                break
-            default:
-                break
-                
-            }
-        }
+//        guard let index = self.mapCategoryIdAnIndex[categoryId] else { return }
+//        let boardCategoryInfo = self.boardCategories[index]
+//
+//
+//        let items = [
+//            ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: TAG_ADD),
+//            ContextMenuItem(label: "编辑分类", icon: "pencil",tag:TAG_EDIT),
+//            ContextMenuItem(label: "删除分类", icon: "trash",tag:TAG_DEL)
+//        ]
+//        ContextMenuViewController.show(sourceView:sourceView, sourceVC: self, items: items) { [weak self] menuItem, vc in
+//            vc.dismiss(animated: true, completion: nil)
+//            guard let self = self,let tag = menuItem.tag as? Int else { return}
+//            switch tag {
+//            case TAG_ADD:
+//                self.openCreateBoardVC(boardCategory:boardCategoryInfo.category)
+//            case TAG_EDIT:
+//                self.showCategoryInputAlert(boardCategory: boardCategoryInfo.category)
+//                break
+//            case TAG_DEL:
+////                self.showAlertMessage(message: "确认删除该分类", positiveButtonText: "删除",isPositiveDestructive:true) {
+////                    self.deleteBoardCategory(boardCategoryInfo: boardCategoryInfo)
+////                }
+//                break
+//            default:
+//                break
+//
+//            }
+//        }
     }
     
     
-    func updateBoardCayegory(newBoardCategory:BoardCategory) {
-        BoardRepo.shared.updateBoardCategory(boardCategory: newBoardCategory)
-            .subscribe(onNext: { [weak self] isSuccess in
-                if isSuccess {
-                    self?.handleBoardCategoryUpdate(newBoardCategory: newBoardCategory)
-                }
-                }, onError: { error in
-                    Logger.error(error)
-            })
-            .disposed(by: disposeBag)
-    }
+//    func updateBoardCayegory(newBoardCategory:BoardCategory) {
+//        BoardRepo.shared.updateBoardCategory(boardCategory: newBoardCategory)
+//            .subscribe(onNext: { [weak self] isSuccess in
+//                if isSuccess {
+//                    self?.handleBoardCategoryUpdate(newBoardCategory: newBoardCategory)
+//                }
+//                }, onError: { error in
+//                    Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
+//    }
     
-    func handleBoardCategoryUpdate(newBoardCategory: BoardCategory) {
-        guard let categoryIndex = self.mapCategoryIdAnIndex[newBoardCategory.id] else { return }
-        let section = getSectionIndex(categoryId: newBoardCategory.id)
-        if self.boardCategories[categoryIndex].category.isExpand != newBoardCategory.isExpand { // 刷新 section
-            self.boardCategories[categoryIndex].category = newBoardCategory
-            self.tableView.performBatchUpdates({
-                self.tableView.reloadSections(IndexSet([section]), with: .none)
-            }, completion: nil)
-            return
-        }
-        self.boardCategories[categoryIndex].category = newBoardCategory
-        self.tableView.performBatchUpdates({
-            self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .none)
-        }, completion: nil)
-    }
+//    func handleBoardCategoryUpdate(newBoardCategory: BoardCategory) {
+//        guard let categoryIndex = self.mapCategoryIdAnIndex[newBoardCategory.id] else { return }
+//        let section = getSectionIndex(categoryId: newBoardCategory.id)
+//        if self.boardCategories[categoryIndex].category.isExpand != newBoardCategory.isExpand { // 刷新 section
+//            self.boardCategories[categoryIndex].category = newBoardCategory
+//            self.tableView.performBatchUpdates({
+//                self.tableView.reloadSections(IndexSet([section]), with: .none)
+//            }, completion: nil)
+//            return
+//        }
+//        self.boardCategories[categoryIndex].category = newBoardCategory
+//        self.tableView.performBatchUpdates({
+//            self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .none)
+//        }, completion: nil)
+//    }
     
     func getSectionIndex(categoryId: String) -> Int {
-        return (self.mapCategoryIdAnIndex[categoryId] ?? 0 ) + self.sectionCategoryBeginIndex
+//        return (self.mapCategoryIdAnIndex[categoryId] ?? 0 ) + self.sectionCategoryBeginIndex
+        return 1
     }
     
     
-    func deleteBoardCategory(boardCategoryInfo:BoardCategoryInfo) {
-        
-        var deletedBoardCategoryInfo = boardCategoryInfo
-        
-        var baseSort = self.boards.count == 0 ? 65536 : self.boards[0].sort
-        
-        let count = deletedBoardCategoryInfo.boards.count
-        for i in (0..<count).reversed() {
-            baseSort /= 2
-            deletedBoardCategoryInfo.boards[i].categoryId = ""
-            deletedBoardCategoryInfo.boards[i].sort = baseSort
-        }
-        
-        BoardRepo.shared.deleteBoardCategory(boardCategoryInfo:deletedBoardCategoryInfo)
-            .subscribe(onNext: { [weak self] isSuccess in
-                if isSuccess {
-                    self?.handleBoardCategoryInfoDelete(boardCategoryInfo: deletedBoardCategoryInfo)
-                }
-                }, onError: { error in
-                    Logger.error(error)
-            })
-            .disposed(by: disposeBag)
-    }
+//    func deleteBoardCategory(boardCategoryInfo:BoardCategoryInfo) {
+//
+//        var deletedBoardCategoryInfo = boardCategoryInfo
+//
+//        var baseSort = self.boards.count == 0 ? 65536 : self.boards[0].sort
+//
+//        let count = deletedBoardCategoryInfo.boards.count
+//        for i in (0..<count).reversed() {
+//            baseSort /= 2
+//            deletedBoardCategoryInfo.boards[i].categoryId = ""
+//            deletedBoardCategoryInfo.boards[i].sort = baseSort
+//        }
+//
+//        BoardRepo.shared.deleteBoardCategory(boardCategoryInfo:deletedBoardCategoryInfo)
+//            .subscribe(onNext: { [weak self] isSuccess in
+//                if isSuccess {
+//                    self?.handleBoardCategoryInfoDelete(boardCategoryInfo: deletedBoardCategoryInfo)
+//                }
+//                }, onError: { error in
+//                    Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
+//    }
     
     
-    func handleBoardCategoryInfoDelete(boardCategoryInfo: BoardCategoryInfo) {
-        //移除 category
-        guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategoryInfo.category.id] else { return }
-        
-        let section = categoryIndex + self.sectionCategoryBeginIndex
-        
-        self.boards.insert(contentsOf: boardCategoryInfo.boards, at: 0)
-        self.pringBoards(boards: self.boards)
-        
-        self.menuSectionTypes.remove(at: section)
-        self.boardCategories.remove(at: categoryIndex)
-        
-        var updatedRowsIndexPath:[IndexPath] = []
-        for (index,_) in  boardCategoryInfo.boards.enumerated() {
-            updatedRowsIndexPath.append(IndexPath(row: index, section: 1))
-        }
-        
-        self.tableView.performBatchUpdates({
-            self.tableView.deleteSections(IndexSet([2+categoryIndex]), with: .none)
-            self.tableView.insertRows(at: updatedRowsIndexPath, with: .automatic)
-        }, completion: nil)
-    }
+//    func handleBoardCategoryInfoDelete(boardCategoryInfo: BoardCategoryInfo) {
+//        //移除 category
+//        guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategoryInfo.category.id] else { return }
+//
+//        let section = categoryIndex + self.sectionCategoryBeginIndex
+//
+//        self.boards.insert(contentsOf: boardCategoryInfo.boards, at: 0)
+//        self.pringBoards(boards: self.boards)
+//
+//        self.menuSectionTypes.remove(at: section)
+//        self.boardCategories.remove(at: categoryIndex)
+//
+//        var updatedRowsIndexPath:[IndexPath] = []
+//        for (index,_) in  boardCategoryInfo.boards.enumerated() {
+//            updatedRowsIndexPath.append(IndexPath(row: index, section: 1))
+//        }
+//
+//        self.tableView.performBatchUpdates({
+//            self.tableView.deleteSections(IndexSet([2+categoryIndex]), with: .none)
+//            self.tableView.insertRows(at: updatedRowsIndexPath, with: .automatic)
+//        }, completion: nil)
+//    }
     
     func expandOrCollapse(section:Int) {
-        if var  category = self.boardCategories[section-2].category {
-            category.isExpand = !category.isExpand
-            self.updateBoardCayegory(newBoardCategory: category)
-        }
+//        if var  category = self.boardCategories[section-2].category {
+//            category.isExpand = !category.isExpand
+//            self.updateBoardCayegory(newBoardCategory: category)
+//        }
     }
     
 }
 
 extension SideMenuViewController {
     
-    func boardIsUpdated(board:Board) {
+    func boardIsUpdated(board:Block) {
         self.updatedBoard = board
     }
     
-    func boardIsDeleted(board:Board) {
+    func boardIsDeleted(board:Block) {
         self.deletedBoard = board
         setSelected(indexPath: IndexPath(row: 0, section: 0))
     }
     
-    func setBoardSelected(board:Board) {
+    func setBoardSelected(board:Block) {
         if let indexPath = getBoardIndexPath(board: board) {
             setSelected(indexPath: indexPath)
         }
     }
     
-    private func handleUpdateBoard(board:Board) {
+    private func handleUpdateBoard(board:Block) {
         guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
-        if indexPath.section == 1{
-            self.boards[indexPath.row] = board
-        }else {
-            let index = indexPath.section - self.sectionCategoryBeginIndex
-            self.boardCategories[index].boards[indexPath.row-1] = board
-            let isExpand = self.boardCategories[index].category.isExpand
-            if !isExpand { // 被折叠
-                return
-            }
-        }
-        
-        
-        UIView.performWithoutAnimation {
-            self.tableView.performBatchUpdates({
-                self.tableView.reloadRows(at: [indexPath], with: .none)
-            }, completion: nil)
-        }
+//        if indexPath.section == 1{
+//            self.boards[indexPath.row] = board
+//        }else {
+//            let index = indexPath.section - self.sectionCategoryBeginIndex
+//            self.boardCategories[index].boards[indexPath.row-1] = board
+//            let isExpand = self.boardCategories[index].category.isExpand
+//            if !isExpand { // 被折叠
+//                return
+//            }
+//        }
+//
+//
+//        UIView.performWithoutAnimation {
+//            self.tableView.performBatchUpdates({
+//                self.tableView.reloadRows(at: [indexPath], with: .none)
+//            }, completion: nil)
+//        }
         
     }
     
-    private func handleDeleteBoard(board:Board) {
-        setSelected(indexPath: IndexPath(row: 0, section: 0))
-        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
-        if indexPath.section == 1{
-            self.boards.remove(at: indexPath.row)
-        }else {
-            let index = indexPath.section - self.sectionCategoryBeginIndex
-            self.boardCategories[index].removeBoard(index: indexPath.row-1)
-            let isExpand = self.boardCategories[index].category.isExpand
-            if !isExpand { // 被折叠
-                return
-            }
-        }
-        
-        UIView.performWithoutAnimation {
-            self.tableView.performBatchUpdates({
-                self.tableView.deleteRows(at: [indexPath], with: .none)
-            }, completion: nil)
-        }
+    private func handleDeleteBoard(board:Block) {
+//        setSelected(indexPath: IndexPath(row: 0, section: 0))
+//        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
+//        if indexPath.section == 1{
+//            self.boards.remove(at: indexPath.row)
+//        }else {
+//            let index = indexPath.section - self.sectionCategoryBeginIndex
+//            self.boardCategories[index].removeBoard(index: indexPath.row-1)
+//            let isExpand = self.boardCategories[index].category.isExpand
+//            if !isExpand { // 被折叠
+//                return
+//            }
+//        }
+//
+//        UIView.performWithoutAnimation {
+//            self.tableView.performBatchUpdates({
+//                self.tableView.deleteRows(at: [indexPath], with: .none)
+//            }, completion: nil)
+//        }
     }
     
-    private func getBoardIndexPath(board:Board) -> IndexPath?{
-        var indexPath:IndexPath?
-        if let index = self.boards.firstIndex(where: {$0.id == board.id}) {
-            indexPath = IndexPath(row: index, section: 1)
-        }else {
-            for (_,category) in self.boardCategories.enumerated() {
-                if let row = category.boards.firstIndex(where: {$0.id == board.id}) {
-                    indexPath = IndexPath(row: row+1, section: getSectionIndex(categoryId: category.category.id))
-                    break
-                }
-            }
-        }
-        return indexPath
+    private func getBoardIndexPath(board:Block) -> IndexPath?{
+//        var indexPath:IndexPath?
+//        if let index = self.boards.firstIndex(where: {$0.id == board.id}) {
+//            indexPath = IndexPath(row: index, section: 1)
+//        }else {
+////            for (_,category) in self.boardCategories.enumerated() {
+////                if let row = category.boards.firstIndex(where: {$0.id == board.id}) {
+////                    indexPath = IndexPath(row: row+1, section: getSectionIndex(categoryId: category.category.id))
+////                    break
+////                }
+////            }
+//        }
+//        return indexPath
+        return nil
     }
 }
 
@@ -473,43 +485,43 @@ extension SideMenuViewController {
 
 //MARK: board
 extension SideMenuViewController {
-    func createBoard(emoji: Emoji,title:String,boardCategory: BoardCategory? = nil) {
-        let board = Board(icon: emoji.value, title: title, sort: self.getBoardSort(boardCategory:boardCategory),categoryId:boardCategory?.id ?? "")
-        BoardRepo.shared.createBoard(board: board)
-            .subscribe(onNext: { [weak self] newBoard in
-                self?.handleBoardInsert(insertedBoard: newBoard)
-                }, onError: { error in
-                    Logger.error(error)
-            })
-            .disposed(by: disposeBag)
-    }
+//    func createBoard(emoji: Emoji,title:String,boardCategory: BoardCategory? = nil) {
+//        let board = Board(icon: emoji.value, title: title, sort: self.getBoardSort(boardCategory:boardCategory),categoryId:boardCategory?.id ?? "")
+//        BoardRepo.shared.createBoard(board: board)
+//            .subscribe(onNext: { [weak self] newBoard in
+//                self?.handleBoardInsert(insertedBoard: newBoard)
+//                }, onError: { error in
+//                    Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
+//    }
     
     func handleBoardInsert(insertedBoard: Board) {
-        if insertedBoard.categoryId.isNotEmpty { // 往分类里面添加 board
-            guard let categoryIndex = self.mapCategoryIdAnIndex[insertedBoard.categoryId] else { return }
-            
-            let section = categoryIndex + self.sectionCategoryBeginIndex
-            var delayTime:DispatchTime = DispatchTime.now()
-            if !self.boardCategories[categoryIndex].category.isExpand {
-                delayTime = DispatchTime.now() + DispatchTimeInterval.milliseconds(500)
-                // 先展开
-                self.expandOrCollapse(section:section)
-            }
-            DispatchQueue.main.asyncAfter(deadline: delayTime) {
-                
-                let insertIndexPath =  IndexPath(row: 1, section: section)
-                self.boardCategories[categoryIndex].boards.insert(insertedBoard, at: 0)
-                self.tableView.performBatchUpdates({
-                    self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
-                })
-            }
-            return
-        }
-        let insertIndexPath = IndexPath(row: 0, section: 1)
-        self.boards.insert(insertedBoard, at: 0)
-        self.tableView.performBatchUpdates({
-            self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
-        })
+//        if insertedBoard.categoryId.isNotEmpty { // 往分类里面添加 board
+//            guard let categoryIndex = self.mapCategoryIdAnIndex[insertedBoard.categoryId] else { return }
+//
+//            let section = categoryIndex + self.sectionCategoryBeginIndex
+//            var delayTime:DispatchTime = DispatchTime.now()
+//            if !self.boardCategories[categoryIndex].category.isExpand {
+//                delayTime = DispatchTime.now() + DispatchTimeInterval.milliseconds(500)
+//                // 先展开
+//                self.expandOrCollapse(section:section)
+//            }
+//            DispatchQueue.main.asyncAfter(deadline: delayTime) {
+//
+//                let insertIndexPath =  IndexPath(row: 1, section: section)
+//                self.boardCategories[categoryIndex].boards.insert(insertedBoard, at: 0)
+//                self.tableView.performBatchUpdates({
+//                    self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
+//                })
+//            }
+//            return
+//        }
+//        let insertIndexPath = IndexPath(row: 0, section: 1)
+//        self.boards.insert(insertedBoard, at: 0)
+//        self.tableView.performBatchUpdates({
+//            self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
+//        })
     }
     
     
@@ -523,7 +535,7 @@ extension SideMenuViewController {
             }
         }
         
-        self.selectedMenuItem = findSideMenuItem(indexPath: indexPath)
+//        self.selectedMenuItem = findSideMenuItem(indexPath: indexPath)
         updatedIndexPaths.append(indexPath)
         
         self.tableView.performBatchUpdates({
@@ -533,21 +545,22 @@ extension SideMenuViewController {
     
     
     private func isSideMenuSelected(indexPath: IndexPath) -> Bool {
-        return self.selectedMenuItem == findSideMenuItem(indexPath: indexPath)
+//        return self.selectedMenuItem == findSideMenuItem(indexPath: indexPath)
+        return false
     }
     
-    func findSideMenuItem(indexPath: IndexPath) -> SideMenuItem {
-        let sectionType = self.menuSectionTypes[indexPath.section]
-        switch sectionType {
-        case .system(let items):
-            return SideMenuItem.system(menuInfo: items[indexPath.row])
-        case .boards:
-            return SideMenuItem.board(board: self.boards[indexPath.row])
-        case .categories:
-            let board = getBoardCategoryInfo(section:indexPath.section).boards[indexPath.row-1]
-            return SideMenuItem.board(board: board)
-        }
-    }
+//    func findSideMenuItem(indexPath: IndexPath) -> SideMenuItem {
+//        let sectionType = self.menuSectionTypes[indexPath.section]
+//        switch sectionType {
+//        case .system(let items):
+//            return SideMenuItem.system(menuInfo: items[indexPath.row])
+//        case .boards:
+//            return SideMenuItem.board(board: self.boards[indexPath.row])
+//        case .categories:
+//            let board = getBoardCategoryInfo(section:indexPath.section).boards[indexPath.row-1]
+//            return SideMenuItem.board(board: board)
+//        }
+//    }
     
     func findSideMenuItemIndex(sideMenuItem:SideMenuItem) -> IndexPath? {
         switch sideMenuItem {
@@ -560,60 +573,60 @@ extension SideMenuViewController {
     }
     
     func updateBoard(newBoard:Board,callback:(()->Void)? = nil) {
-        BoardRepo.shared.updateBoard(board: newBoard)
-            .subscribe(onNext: { isSuccess in
-                if isSuccess  {
-                    if let callback = callback {
-                        callback()
-                    }
-                }
-            }, onError: { error in
-                Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        BoardRepo.shared.updateBoard(board: newBoard)
+//            .subscribe(onNext: { isSuccess in
+//                if isSuccess  {
+//                    if let callback = callback {
+//                        callback()
+//                    }
+//                }
+//            }, onError: { error in
+//                Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
     }
     
     private func updateBoardDataSource(board: Board) {
-        if board.categoryId.isNotEmpty {
-            if let boardIndex = self.boards.firstIndex(where: {$0.id == board.id}) {
-                let isSortUpdate =  self.boards[boardIndex].sort != board.sort
-                self.boards[boardIndex] = board
-                if isSortUpdate {
-                    self.boards =  self.boards.sorted(by: {$0.sort < $1.sort})
-                }
-            }
-        }else {
-            if let categoryIndex = self.mapCategoryIdAnIndex[board.categoryId],
-                let boardIndex =  self.boardCategories[categoryIndex].boards.firstIndex(where: { $0.id == board.id})
-            {
-                
-                guard var boards =  self.boardCategories[categoryIndex].boards else { return }
-                
-                let isSortUpdate = boards[boardIndex].sort != board.sort
-                boards[boardIndex] = board
-                if isSortUpdate {
-                    boards =  boards.sorted(by: {$0.sort < $1.sort})
-                }
-                self.boardCategories[categoryIndex].boards = boards
-                
-                
-            }
-        }
+//        if board.categoryId.isNotEmpty {
+//            if let boardIndex = self.boards.firstIndex(where: {$0.id == board.id}) {
+//                let isSortUpdate =  self.boards[boardIndex].sort != board.sort
+//                self.boards[boardIndex] = board
+//                if isSortUpdate {
+//                    self.boards =  self.boards.sorted(by: {$0.sort < $1.sort})
+//                }
+//            }
+//        }else {
+//            if let categoryIndex = self.mapCategoryIdAnIndex[board.categoryId],
+//                let boardIndex =  self.boardCategories[categoryIndex].boards.firstIndex(where: { $0.id == board.id})
+//            {
+//
+//                guard var boards =  self.boardCategories[categoryIndex].boards else { return }
+//
+//                let isSortUpdate = boards[boardIndex].sort != board.sort
+//                boards[boardIndex] = board
+//                if isSortUpdate {
+//                    boards =  boards.sorted(by: {$0.sort < $1.sort})
+//                }
+//                self.boardCategories[categoryIndex].boards = boards
+//
+//
+//            }
+//        }
     }
     
-    func getBoardSort(boardCategory: BoardCategory?) -> Double {
-        
-        var boards = self.boards
-        if let boardCategory = boardCategory {
-            guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategory.id] else { return 65536}
-            boards = self.boardCategories[categoryIndex].boards
-        }
-        
-        if boards.count == 0 {
-            return 65536
-        }
-        return boards[0].sort / 2
-    }
+//    func getBoardSort(boardCategory: BoardCategory?) -> Double {
+//
+//        var boards = self.boards
+//        if let boardCategory = boardCategory {
+//            guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategory.id] else { return 65536}
+//            boards = self.boardCategories[categoryIndex].boards
+//        }
+//
+//        if boards.count == 0 {
+//            return 65536
+//        }
+//        return boards[0].sort / 2
+//    }
     
     func calcSort(toRow:Int,boards:[Board])->Double {
         if boards.count == 0 {
@@ -631,83 +644,83 @@ extension SideMenuViewController {
     
     // 排序处理
     func swapRowInSameSection(section: Int,fromRow: Int, toRow: Int) {
-        if case .boards = self.menuSectionTypes[section] {
-            
-            var board = self.boards[fromRow]
-            self.boards.remove(at: fromRow)
-            
-            board.sort = calcSort(toRow: toRow, boards: self.boards)
-            self.boards.insert(board, at: toRow)
-            
-            self.updateBoard(newBoard: board) {
-                self.pringBoards(boards: self.boards)
-            }
-        }else {
-            
-            let newBoard = self.boardCategories[section-2].swapBoard(from: fromRow-1, to: toRow-1)
-            self.updateBoard(newBoard: newBoard) {
-                self.pringBoards(boards: self.boardCategories[section-2].boards)
-            }
-            
-            
-        }
+//        if case .boards = self.menuSectionTypes[section] {
+//
+//            var board = self.boards[fromRow]
+//            self.boards.remove(at: fromRow)
+//
+//            board.sort = calcSort(toRow: toRow, boards: self.boards)
+//            self.boards.insert(board, at: toRow)
+//
+//            self.updateBoard(newBoard: board) {
+//                self.pringBoards(boards: self.boards)
+//            }
+//        }else {
+//
+//            let newBoard = self.boardCategories[section-2].swapBoard(from: fromRow-1, to: toRow-1)
+//            self.updateBoard(newBoard: newBoard) {
+//                self.pringBoards(boards: self.boardCategories[section-2].boards)
+//            }
+//
+//
+//        }
     }
     
-    func getBoardCategoryInfo(section:Int) -> BoardCategoryInfo {
-        return self.boardCategories[section - self.sectionCategoryBeginIndex]
-    }
+//    func getBoardCategoryInfo(section:Int) -> BoardCategoryInfo {
+//        return self.boardCategories[section - self.sectionCategoryBeginIndex]
+//    }
     
     
     func swapRowCrossSection(fromSection: Int,toSection: Int,fromRow: Int, toRow: Int) {
         
         var board:Board?
         // 移除 from 中的 board
-        if case .categories = self.menuSectionTypes[fromSection] {
-            board = self.boardCategories[fromSection - self.sectionCategoryBeginIndex].boards[fromRow-1]
-            self.boardCategories[fromSection - self.sectionCategoryBeginIndex].removeBoard(index:  fromRow - 1)
-        }else {
-            board = self.boards[fromRow]
-            self.boards.remove(at: fromRow)
-        }
+//        if case .categories = self.menuSectionTypes[fromSection] {
+//            board = self.boardCategories[fromSection - self.sectionCategoryBeginIndex].boards[fromRow-1]
+//            self.boardCategories[fromSection - self.sectionCategoryBeginIndex].removeBoard(index:  fromRow - 1)
+//        }else {
+//            board = self.boards[fromRow]
+//            self.boards.remove(at: fromRow)
+//        }
         
-        guard var fromBoard = board else { return }
-        
-        if case .categories = self.menuSectionTypes[toSection] {
+//        guard var fromBoard = board else { return }
+//
+//        if case .categories = self.menuSectionTypes[toSection] {
             
-            var boardCategoryInfo = getBoardCategoryInfo(section: toSection)
-            fromBoard.categoryId = boardCategoryInfo.categoryId
-            fromBoard.sort =  self.calcSort(toRow: toRow-1, boards: boardCategoryInfo.boards)
-            boardCategoryInfo.boards.insert(fromBoard, at: toRow-1)
-            
-            self.boardCategories[toSection - self.sectionCategoryBeginIndex] = boardCategoryInfo
-            
-            let isExpand = boardCategoryInfo.category.isExpand
-            if !isExpand {
-                
-                // 先显示，然后再删除
-                sectionSpecial = toSection
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()+0.3) {
-                    self.tableView.performBatchUpdates({
-                        self.tableView.reloadSections(IndexSet([toSection]), with: .fade)
-                    }, completion: nil)
-                }
-            }
-            
-            self.pringBoards(boards: boardCategoryInfo.boards)
-            
-            
-        }else {
-            fromBoard.sort =  self.calcSort(toRow: toRow, boards: self.boards)
-            fromBoard.categoryId = ""
-            
-            self.boards.insert(fromBoard, at: toRow)
-            
-            self.pringBoards(boards: self.boards)
+//            var boardCategoryInfo = getBoardCategoryInfo(section: toSection)
+//            fromBoard.categoryId = boardCategoryInfo.categoryId
+//            fromBoard.sort =  self.calcSort(toRow: toRow-1, boards: boardCategoryInfo.boards)
+//            boardCategoryInfo.boards.insert(fromBoard, at: toRow-1)
+//
+//            self.boardCategories[toSection - self.sectionCategoryBeginIndex] = boardCategoryInfo
+//
+//            let isExpand = boardCategoryInfo.category.isExpand
+//            if !isExpand {
+//
+//                // 先显示，然后再删除
+//                sectionSpecial = toSection
+//                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()+0.3) {
+//                    self.tableView.performBatchUpdates({
+//                        self.tableView.reloadSections(IndexSet([toSection]), with: .fade)
+//                    }, completion: nil)
+//                }
+//            }
+//
+//            self.pringBoards(boards: boardCategoryInfo.boards)
             
             
-        }
-        
-        self.updateBoard(newBoard: fromBoard)
+//        }else {
+//            fromBoard.sort =  self.calcSort(toRow: toRow, boards: self.boards)
+//            fromBoard.categoryId = ""
+//
+//            self.boards.insert(fromBoard, at: toRow)
+//
+//            self.pringBoards(boards: self.boards)
+//
+//
+//        }
+//
+//        self.updateBoard(newBoard: fromBoard)
         
     }
     
@@ -730,22 +743,18 @@ extension SideMenuViewController:UITableViewDelegate {
             sysCell.menuSysItem = items[indexPath.row]
             sysCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
             break
-        case .boards:
-            let boardCell = cell as! MenuBoardCell
-            boardCell.board = self.boards[indexPath.row]
-            boardCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
-            break
-        case .categories:
+        case .boards(let groupId):
             if indexPath.row == 0 {
-                let boardCategoryInfo = getBoardCategoryInfo(section: indexPath.section)
+//                let boardCategoryInfo = getBoardCategoryInfo(section: indexPath.section)
                 let categoryCell = cell as! MenuCategoryCell
-                categoryCell.boardCategory = boardCategoryInfo.category
-                categoryCell.callbackMenuTapped = { [weak self] button,boardCategory in
-                    self?.handleCategoryMenuEdit(categoryId: boardCategory.id,sourceView: button)
-                }
+                categoryCell.toggleBlock = self.blocksMap[groupId]!
+//                categoryCell.boardCategory = boardCategoryInfo.category
+//                categoryCell.callbackMenuTapped = { [weak self] button,boardCategory in
+//                    self?.handleCategoryMenuEdit(categoryId: boardCategory.id,sourceView: button)
+//                }
             }else {
                 let boardCell = cell as! MenuBoardCell
-                boardCell.board = self.boardCategories[indexPath.section-2].boards[indexPath.row-1]
+//                boardCell.board = self.boardCategories[indexPath.section-2].boards[indexPath.row-1]
                 boardCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
             }
         }
@@ -758,12 +767,15 @@ extension SideMenuViewController:UITableViewDelegate {
         case .system:
             return CellReuseIdentifier.system.rawValue
         case .boards:
-            return CellReuseIdentifier.board.rawValue
-        case .categories:
             if indexPath.row == 0 {
                 return CellReuseIdentifier.category.rawValue
             }
             return CellReuseIdentifier.board.rawValue
+//        case .categories:
+//            if indexPath.row == 0 {
+//                return CellReuseIdentifier.category.rawValue
+//            }
+//            return CellReuseIdentifier.board.rawValue
         }
     }
     
@@ -784,8 +796,8 @@ extension SideMenuViewController:UITableViewDelegate {
         switch sectionType {
         case .boards:
             return true
-        case .categories:
-            return indexPath.row > 0 //第一行是 group title
+//        case .categories:
+//            return indexPath.row > 0 //第一行是 group title
         default:
             return false
         }
@@ -817,24 +829,25 @@ extension SideMenuViewController:UITableViewDelegate {
         let desSectionType = self.menuSectionTypes[destSection]
         
         
-        switch desSectionType {
-        case .boards:
-            return proposedDestinationIndexPath
-        case .categories:
-            if proposedDestinationIndexPath.row == 0 {
-                return IndexPath(row: 1, section: proposedDestinationIndexPath.section)
-            }
-            return proposedDestinationIndexPath
-        case .system:
-            if destSection > sourceSection {
-                return IndexPath(row: self.tableView(tableView, numberOfRowsInSection:sourceSection)-1, section: sourceSection)
-            }
-            if case .categories  = sourSectionType {
-                return IndexPath(row: 1, section: sourceSection)
-            }
-            return IndexPath(row: 0, section: sourceSection)
-            
-        }
+//        switch desSectionType {
+//        case .boards:
+//            return proposedDestinationIndexPath
+//        case .categories:
+//            if proposedDestinationIndexPath.row == 0 {
+//                return IndexPath(row: 1, section: proposedDestinationIndexPath.section)
+//            }
+//            return proposedDestinationIndexPath
+//        case .system:
+//            if destSection > sourceSection {
+//                return IndexPath(row: self.tableView(tableView, numberOfRowsInSection:sourceSection)-1, section: sourceSection)
+//            }
+//            if case .categories  = sourSectionType {
+//                return IndexPath(row: 1, section: sourceSection)
+//            }
+//            return IndexPath(row: 0, section: sourceSection)
+//
+//        }
+        return IndexPath(row: 0, section: sourceSection)
     }
     
     
@@ -858,19 +871,8 @@ extension SideMenuViewController: UITableViewDataSource {
         switch self.menuSectionTypes[section] {
         case .system(let items):
             return items.count
-        case .boards:
-            return self.boards.count
-        case .categories: // 分类作为单独一个 cell
-            let categoryInfo = self.boardCategories[section-2]
-            if !categoryInfo.category.isExpand {
-                
-                if self.sectionSpecial == section {
-                    self.sectionSpecial = -1
-                    return 2
-                }
-                return 1
-            }
-            return categoryInfo.boards.count + 1
+        case .boards(let groupId):  // 分类作为单独一个 cell
+            return (self.blocksMap[groupId]?.content.count ?? 0) + 1
         }
     }
     
@@ -895,29 +897,17 @@ extension SideMenuViewController: UITableViewDataSource {
         switch sectionType {
         case .system:
             return 44
-        case .categories:
-            if case .categories = self.menuSectionTypes[section-1] {
-                return 2
-            }
-            return sectionSpace
         case .boards:
-            return sectionSpace
+            return section > 1 ? 0 : sectionSpace
         }
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let sectionType = self.menuSectionTypes[section]
         switch sectionType {
-        case .categories:
-            let categoryInfo = self.boardCategories[section-2]
-            if categoryInfo.category.isExpand {
-                return 20
-            }
-            break
         default:
             return 0
         }
-        return 0
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -927,12 +917,9 @@ extension SideMenuViewController: UITableViewDataSource {
             self.setSelected(indexPath: indexPath)
             break
         case .boards:
-            self.setSelected(indexPath: indexPath)
-            break
-        case .categories:
             if indexPath.row > 0 {
                 self.setSelected(indexPath: indexPath)
-            }else {
+            }else if indexPath.section > 1{
                 self.expandOrCollapse(section: indexPath.section)
             }
             break
@@ -955,8 +942,7 @@ extension SideMenuViewController: UITableViewDragDelegate, UITableViewDropDelega
 
 enum MenuSectionType {
     case system(items: [MenuSystemItem])
-    case boards
-    case categories
+    case boards(groupId:String)
 }
 
 fileprivate enum CellReuseIdentifier: String {
@@ -966,7 +952,7 @@ fileprivate enum CellReuseIdentifier: String {
 }
 
 enum MenuSystemItem:Equatable {
-    case board(board: Board)
+    case board(board: Block)
     case trash(icon:String,title:String)
     
     static func == (lhs: MenuSystemItem, rhs: MenuSystemItem) -> Bool {
@@ -985,7 +971,7 @@ enum MenuSystemItem:Equatable {
     var icon:String {
         switch self {
         case .board(let board):
-            return board.icon
+            return board.blockBoardProperties?.icon ?? ""
         case .trash(let icon,_):
             return icon
         }
@@ -998,7 +984,7 @@ enum MenuSystemItem:Equatable {
     var title:String {
         switch self {
         case .board(let board):
-            return board.title
+            return board.blockBoardProperties?.title ?? ""
         case .trash(_,let title):
             return title
         }

@@ -49,17 +49,17 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.view.backgroundColor = .bg
         self.extendedLayoutIncludesOpaqueBars = true
         
-        func openBoardSetting(board: Board) {
+        func openBoardSetting(board: Block) {
             let settingVC = BoardSettingViewController()
-            settingVC.board = board
-            settingVC.callbackBoardSettingEdited = { boardEditedType in
-                switch boardEditedType {
-                case .update(let board):
-                    self.handleBoardUpdated(board: board)
-                case .delete(let board):
-                    self.handleBoardDeleted(board: board)
-                }
-            }
+//            settingVC.board = board
+//            settingVC.callbackBoardSettingEdited = { boardEditedType in
+//                switch boardEditedType {
+//                case .update(let board):
+//                    self.handleBoardUpdated(board: board)
+//                case .delete(let board):
+//                    self.handleBoardDeleted(board: board)
+//                }
+//            }
             let vc = MyNavigationController(rootViewController: settingVC)
             self.present(vc, animated: true, completion: nil)
         }
@@ -95,16 +95,16 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
 
 //MARK: board edited
 extension HomeViewController {
-    private func handleBoardUpdated(board:Board) {
-        self.sideMenuItemType = SideMenuItem.board(board: board)
-        titleButton.setTitle(board.title,emoji: board.icon)
-        
-        self.sideMenuViewController.boardIsUpdated(board:board)
+    private func handleBoardUpdated(board:Block) {
+//        self.sideMenuItemType = SideMenuItem.board(board: board)
+//        titleButton.setTitle(board.title,emoji: board.icon)
+//
+//        self.sideMenuViewController.boardIsUpdated(board:board)
         
     }
     
-    private func handleBoardDeleted(board:Board) {
-        self.sideMenuViewController.boardIsDeleted(board: board)
+    private func handleBoardDeleted(board:Block) {
+//        self.sideMenuViewController.boardIsDeleted(board: board)
     }
 }
 
@@ -131,19 +131,19 @@ extension HomeViewController {
         }
     }
     
-    func setupBoardView(board:Board) {
+    func setupBoardView(board:Block) {
         if let oldView =  self.contentView {
             oldView.removeFromSuperview()
         }
-        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
-        self.contentView = notesView
-        self.view.addSubview(notesView)
-        notesView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        if board.type == BoardType.user.rawValue {
-            titleButton.setTitle(board.title,emoji: board.icon)
-        }
+//        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
+//        self.contentView = notesView
+//        self.view.addSubview(notesView)
+//        notesView.snp.makeConstraints { make in
+//            make.edges.equalToSuperview()
+//        }
+//        if board.type == BoardType.user.rawValue {
+//            titleButton.setTitle(board.title,emoji: board.icon)
+//        }
         
     }
     
@@ -151,7 +151,7 @@ extension HomeViewController {
         switch systemMenu {
         case .board(let board):
              self.setupBoardView(board:board)
-             self.titleButton.setTitle(board.title, icon:systemMenu.iconImage)
+//             self.titleButton.setTitle(board.title, icon:systemMenu.iconImage)
         case .trash:
             self.titleButton.setTitle(systemMenu.title, icon:systemMenu.iconImage)
             self.setupTrashView()
@@ -209,7 +209,7 @@ extension HomeViewController {
     @objc func handleShowSearchbar() {
         let vc = SearchViewController()
         vc.callbackOpenBoard = { [weak self] board in
-            self?.sideMenuViewController.setBoardSelected(board: board)
+//            self?.sideMenuViewController.setBoardSelected(board: board)
         }
         let navVC = MyNavigationController(rootViewController: vc)
         navVC.modalPresentationStyle = .overFullScreen

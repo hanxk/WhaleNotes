@@ -25,11 +25,11 @@ struct Note {
         self.rootBlock = rootBlock
         
         for childBlock in childBlocks {
-            if childBlock.type == BlockType.text.rawValue {
+            if childBlock.type == BlockType.text {
                 self.textBlock = childBlock
                 continue
             }
-            if childBlock.type == BlockType.todo.rawValue {
+            if childBlock.type == BlockType.todo {
                 if childBlock.parentId == rootBlock.id {
                     self.rootTodoBlock = childBlock
                 }else {
@@ -80,10 +80,11 @@ extension Note {
     
     var sort:Double {
         get {
-            return rootBlock.sort
+//            return rootBlock.sort
+            return 1
         }
         set {
-            self.rootBlock.sort = newValue
+//            self.rootBlock.sort = newValue
         }
     }
     
@@ -151,8 +152,7 @@ extension Note {
     
     mutating func updateBlock(block:Block) {
         self.rootBlock.updatedAt = Date()
-        let blockType = BlockType.init(rawValue: block.type)
-        switch  blockType{
+        switch  block.type{
         case .note:
             self.rootBlock = block
         case .text:
@@ -188,8 +188,7 @@ extension Note {
     
     mutating func addBlock(block:Block) {
         self.rootBlock.updatedAt = Date()
-        let blockType = BlockType.init(rawValue: block.type)
-        switch  blockType{
+        switch  block.type{
         case .text:
             self.textBlock = block
         case .todo:
@@ -206,12 +205,12 @@ extension Note {
     
     private mutating func addTodoBlock(todoBlock:Block) {
         self.rootBlock.updatedAt = Date()
-        let newIndex = { () -> Int in
-           if self.todoBlocks.isEmpty { return 0}
-            let newIndex = self.todoBlocks.firstIndex(where: {$0.sort > todoBlock.sort}) ?? self.todoBlocks.count
-           return newIndex
-        }()
-        self.todoBlocks.insert(todoBlock, at: newIndex)
+//        let newIndex = { () -> Int in
+//           if self.todoBlocks.isEmpty { return 0}
+//            let newIndex = self.todoBlocks.firstIndex(where: {$0.sort > todoBlock.sort}) ?? self.todoBlocks.count
+//           return newIndex
+//        }()
+//        self.todoBlocks.insert(todoBlock, at: newIndex)
     }
     
     
@@ -221,8 +220,7 @@ extension Note {
     
     mutating func removeBlock(block:Block) {
         self.rootBlock.updatedAt = Date()
-        let blockType = BlockType.init(rawValue: block.type)
-        switch  blockType{
+        switch  block.type{
         case .text:
             self.textBlock = nil
         case .todo:

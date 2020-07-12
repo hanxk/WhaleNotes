@@ -20,14 +20,14 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    private let editorUseCase = NoteRepo.shared
+//    private let editorUseCase = NoteRepo.shared
     
     private var selectedIndexPath:IndexPath?
-    private var trashedNotes:[(Board,[Note])] = [] {
-        didSet {
-            btnNewNote.isHidden = trashedNotes.isEmpty
-        }
-    }
+//    private var trashedNotes:[(Board,[Note])] = [] {
+//        didSet {
+//            btnNewNote.isHidden = trashedNotes.isEmpty
+//        }
+//    }
     
     var delegate:NotesViewDelegate?
     
@@ -130,37 +130,37 @@ class TrashView: UIView, UINavigationControllerDelegate {
     }
     
     private func clearTrash() {
-        var noteIds:[String] = []
-        for data in self.trashedNotes {
-            noteIds.append(contentsOf:data.1.map { return $0.id} )
-        }
-        if noteIds.isEmpty {
-            return
-        }
-        NoteRepo.shared.deleteNotes(noteIds: noteIds)
-            .subscribe(onNext: { isSuccess in
-                if isSuccess {
-                    self.trashedNotes.removeAll()
-                    self.collectionNode.reloadData()
-                }
-            }, onError: {error in
-                Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        var noteIds:[String] = []
+//        for data in self.trashedNotes {
+//            noteIds.append(contentsOf:data.1.map { return $0.id} )
+//        }
+//        if noteIds.isEmpty {
+//            return
+//        }
+//        NoteRepo.shared.deleteNotes(noteIds: noteIds)
+//            .subscribe(onNext: { isSuccess in
+//                if isSuccess {
+//                    self.trashedNotes.removeAll()
+//                    self.collectionNode.reloadData()
+//                }
+//            }, onError: {error in
+//                Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
     }
     
     
     private func setupData() {
-        BoardRepo.shared.getBoardsExistsTrashNote()
-            .subscribe(onNext: { [weak self] in
-                if let self = self {
-                    self.trashedNotes = $0
-                    self.collectionNode.reloadData()
-                }
-            }, onError: {
-                Logger.error($0)
-            })
-            .disposed(by: disposeBag)
+//        BoardRepo.shared.getBoardsExistsTrashNote()
+//            .subscribe(onNext: { [weak self] in
+//                if let self = self {
+//                    self.trashedNotes = $0
+//                    self.collectionNode.reloadData()
+//                }
+//            }, onError: {
+//                Logger.error($0)
+//            })
+//            .disposed(by: disposeBag)
     }
     
 }
@@ -169,42 +169,44 @@ class TrashView: UIView, UINavigationControllerDelegate {
 extension TrashView: ASCollectionDataSource {
     
     func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
-        let count = self.trashedNotes.count
-        if count == 0 {
-            collectionNode.setEmptyMessage("暂无便签")
-        }else {
-            collectionNode.clearEmptyMessage()
-        }
-        return count
+//        let count = self.trashedNotes.count
+//        if count == 0 {
+//            collectionNode.setEmptyMessage("暂无便签")
+//        }else {
+//            collectionNode.clearEmptyMessage()
+//        }
+//        return count
+        return 0
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-        return self.trashedNotes[section].1.count
+//        return self.trashedNotes[section].1.count
+        return 0
     }
     
-    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
-        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
-        let itemSize = self.collectionLayout.itemSize
-        return {
-            let node =  NoteCellNode(note: note,itemSize: itemSize)
-            node.delegate = self
-            return node
-        }
-    }
+//    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
+////        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
+////        let itemSize = self.collectionLayout.itemSize
+////        return {
+////            let node =  NoteCellNode(note: note,itemSize: itemSize)
+////            node.delegate = self
+////            return node
+////        }
+//    }
     
     
     
-    func collectionNode(_ collectionNode: ASCollectionNode,
-                        nodeForSupplementaryElementOfKind kind: String,
-                        at indexPath: IndexPath) -> ASCellNode {
-        if kind == UICollectionView.elementKindSectionHeader {
-            return TrashHeaderNode(board: self.trashedNotes[indexPath.section].0,topPadding: 22)
-        } else {
-            let emptyNode: ASCellNode = ASCellNode()
-            emptyNode.style.minSize = CGSize(width: 0.01, height: 0.01)
-            return emptyNode
-        }
-    }
+//    func collectionNode(_ collectionNode: ASCollectionNode,
+//                        nodeForSupplementaryElementOfKind kind: String,
+//                        at indexPath: IndexPath) -> ASCellNode {
+//        if kind == UICollectionView.elementKindSectionHeader {
+//            return TrashHeaderNode(board: self.trashedNotes[indexPath.section].0,topPadding: 22)
+//        } else {
+//            let emptyNode: ASCellNode = ASCellNode()
+//            emptyNode.style.minSize = CGSize(width: 0.01, height: 0.01)
+//            return emptyNode
+//        }
+//    }
     
     
 }
@@ -253,14 +255,14 @@ extension TrashView:NoteMenuViewControllerDelegate {
         let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
             
-            NoteRepo.shared.deleteNote(noteId: note.id)
-                .subscribe(onNext: { isSuccess in
-                    self.removeNodeFromCollectionView(note)
-                }, onError: { error in
-                    Logger.error(error)
-                },onCompleted: {
-                })
-                .disposed(by: self.disposeBag)
+//            NoteRepo.shared.deleteNote(noteId: note.id)
+//                .subscribe(onNext: { isSuccess in
+//                    self.removeNodeFromCollectionView(note)
+//                }, onError: { error in
+//                    Logger.error(error)
+//                },onCompleted: {
+//                })
+//                .disposed(by: self.disposeBag)
             
         }))
         alert.addAction(UIAlertAction(title: "取消", style: .cancel,handler: nil))
@@ -272,35 +274,35 @@ extension TrashView:NoteMenuViewControllerDelegate {
     }
     
     private func  removeNodeFromCollectionView( _ note:Note) {
-        guard let indexPath = findNoteIndex(note) else { return }
-        self.trashedNotes[indexPath.section].1.remove(at: indexPath.row)
-        
-        if self.trashedNotes[indexPath.section].1.isEmpty {
-            self.trashedNotes.remove(at: indexPath.section)
-            self.collectionNode.performBatchUpdates({
-                self.collectionNode.deleteSections(IndexSet([indexPath.section]))
-            }, completion: nil)
-            return
-        }
-        self.collectionNode.performBatchUpdates({
-            self.collectionNode.deleteItems(at: [indexPath])
-        }, completion: nil)
+//        guard let indexPath = findNoteIndex(note) else { return }
+//        self.trashedNotes[indexPath.section].1.remove(at: indexPath.row)
+//
+//        if self.trashedNotes[indexPath.section].1.isEmpty {
+//            self.trashedNotes.remove(at: indexPath.section)
+//            self.collectionNode.performBatchUpdates({
+//                self.collectionNode.deleteSections(IndexSet([indexPath.section]))
+//            }, completion: nil)
+//            return
+//        }
+//        self.collectionNode.performBatchUpdates({
+//            self.collectionNode.deleteItems(at: [indexPath])
+//        }, completion: nil)
     }
     
     private func findNoteIndex(_ note:Note) -> IndexPath? {
-        for (index,data) in self.trashedNotes.enumerated() {
-            if let row =  data.1.firstIndex(where: {$0.id == note.id}) {
-                return IndexPath(row: row, section: index)
-            }
-        }
+//        for (index,data) in self.trashedNotes.enumerated() {
+//            if let row =  data.1.firstIndex(where: {$0.id == note.id}) {
+//                return IndexPath(row: row, section: index)
+//            }
+//        }
         return nil
     }
 }
 
 extension TrashView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
-        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
-        self.openEditorVC(note: note)
+//        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
+//        self.openEditorVC(note: note)
     }
     
     func openEditorVC(note: Note,isNew:Bool = false) {
