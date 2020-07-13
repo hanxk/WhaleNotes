@@ -31,20 +31,17 @@ import Foundation
 //  }
 //}
 //
-//struct DBError:Error {
-//  let code:DBErrorCode
-//  let message:String
-//  
-//    init(code:DBErrorCode = .normal, message:String = "db error") {
-//    self.code = code
-//    self.message = message
-//  }
-//}
+struct DBError:Error {
+  let code:DBErrorCode
+  let message:String
+  
+    init(code:DBErrorCode = .normal, message:String = "db error") {
+    self.code = code
+    self.message = message
+  }
+}
 //
 //
-//enum DBErrorCode {
-//  case DataAlreadyExists
-//  case NoProAuth
-//  case None
-//  case normal
-//}
+enum DBErrorCode {
+  case normal
+}

@@ -37,7 +37,7 @@ extension SpaceDao {
     }
     
     func update(boardGroupIds: [String]) throws {
-        let updateSql = "UPDATE space SET user_board_ids = json_array(?)"
+        let updateSql = "UPDATE space SET board_group_ids = ?"
         try db.execute(updateSql,args: json(from: boardGroupIds)!)
     }
     

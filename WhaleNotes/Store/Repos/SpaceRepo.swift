@@ -34,7 +34,7 @@ class SpaceRepo {
                         return
                     }
                     var space = Space()
-                    let collectBoard = Block.newBoardBlock(parent: space.id,parentTable: .space, properties: BlockBoardProperty(type:.collect))
+                    let collectBoard = Block.newBoardBlock(parentId: space.id,parentTable: .space, properties: BlockBoardProperty(type:.collect))
                     try self.blockDao.insert(collectBoard)
                     
                     let toggle = Block.newToggleBlock(parent: space.id, parentTable: .space, properties: BlockToggleProperty())

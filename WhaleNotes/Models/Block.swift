@@ -49,10 +49,10 @@ struct Block {
         return block
     }
     
-    static func newBoardBlock(parent:String,parentTable:TableType,properties:BlockBoardProperty) -> Block {
+    static func newBoardBlock(parentId:String,parentTable:TableType,properties:BlockBoardProperty) -> Block {
         var block = Block()
         block.type = BlockType.board
-        block.parentId = parent
+        block.parentId = parentId
         block.parentTable = parentTable
         block.properties = properties
         return block
@@ -193,7 +193,6 @@ struct BlockBoardProperty: DBJSONable {
     var icon:String = ""
     var title:String = ""
     var type:BoardType = .user
-    var backgroundColor:String = "#FFFFFF"
 }
 
 struct BlockToggleProperty: DBJSONable {

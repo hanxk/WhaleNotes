@@ -9,10 +9,12 @@
 import UIKit
 class MenuBoardCell: UITableViewCell {
     
-    var board:Board! {
+    var board:Block! {
         didSet {
-            emojiLabel.text = board.icon
-            titleLabel.text = board.title
+            if let properties = board.blockBoardProperties {
+                emojiLabel.text = properties.icon
+                titleLabel.text = properties.title
+            }
         }
     }
     

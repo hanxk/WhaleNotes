@@ -20,6 +20,7 @@ class SQLStatement {
         defer {
             sqlite3_finalize(stmt)
         }
+        self.printSQL()
         guard sqlite3_step(stmt) == SQLITE_DONE else {
             let errorMessage = String(cString: sqlite3_errmsg(stmt))
             throw SQLiteError.Step(message: errorMessage)
@@ -31,6 +32,7 @@ class SQLStatement {
         defer {
             sqlite3_finalize(stmt)
         }
+        self.printSQL()
         var rows:[Row] = []
         while sqlite3_step(stmt) == SQLITE_ROW {
             let columnCount = sqlite3_column_count(stmt)
@@ -38,6 +40,11 @@ class SQLStatement {
             rows.append(row)
         }
         return rows
+    }
+    
+    private func printSQL() {
+        let sql = String(cString:sqlite3_expanded_sql(stmt))
+        print(sql)
     }
 }
 
