@@ -22,6 +22,46 @@ class BlockRepo {
     private var spaceDao:SpaceDao {
         return DBManager.shared.spaceDao
     }
+    
+    private var blockPositionDao:BlockPositionDao {
+        return DBManager.shared.blockPositionDao
+    }
+}
+
+//MARK: BlockInfo
+extension BlockRepo {
+    
+    func getBlockInfos(id:String) -> Observable<[BlockInfo]> {
+        return Observable<[BlockInfo]>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> [BlockInfo] in
+                let blocks:[BlockInfo] = try self.blockDao.queryChilds(id: id)
+                return blocks
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func createBlock(_ block:Block,blockPosition:BlockPosition? = nil) -> Observable<BlockInfo> {
+        return Observable<BlockInfo>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> BlockInfo in
+                
+                try self.blockDao.insert(block)
+                guard let blockPosition = blockPosition else { return BlockInfo(block: block, blockPosition: BlockPosition())}
+                
+                if  block.id != blockPosition.ownerId {
+                    throw DBError(message: "owner_id error")
+                }
+                try self.blockPositionDao.insert(blockPosition)
+                
+                return BlockInfo(block: block, blockPosition: blockPosition)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
 }
 
 //MARK: 通用方法
@@ -29,13 +69,27 @@ extension BlockRepo {
     func getBlocks(parentId:String) -> Observable<[Block]> {
         return Observable<[Block]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [Block] in
-                let blocks = try self.blockDao.query(parentId: parentId)
+                let blocks:[Block] = try self.blockDao.query(parentId: parentId)
                 return blocks
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
+    
+    
+    func createBlock(_ blockInfo:BlockInfo) -> Observable<Bool> {
+        return Observable<Bool>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try self.blockDao.insert(blockInfo.block)
+                try self.blockPositionDao.insert(blockInfo.blockPosition)
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
     
     func createBlock(_ block:Block,parent:Block) -> Observable<(Block,Block)> {
         return Observable<(Block,Block)>.create {  observer -> Disposable in
@@ -59,11 +113,11 @@ extension BlockRepo {
         return Observable<(Block,Space)>.create {  observer -> Disposable in
             
             self.transactionTask(observable: observer) { () -> (Block,Space) in
-                if block.parentId != parent.id || !parent.boardGroupIds.contains(block.id) {
-                    throw DBError(message: "parent error")
-                }
+//                if block.parentId != parent.id || !parent.boardGroupIds.contains(block.id) {
+//                    throw DBError(message: "parent error")
+//                }
                 try self.blockDao.insert(block)
-                try self.spaceDao.update(boardGroupIds: parent.boardGroupIds)
+//                try self.spaceDao.update(boardGroupIds: parent.boardGroupIds)
                 return (block,parent)
             }
         }
@@ -110,6 +164,41 @@ extension BlockRepo {
 
 extension BlockRepo {
     
+    func deleteBlockInfo(blockInfo:BlockInfo,childNewParent:BlockInfo) -> Observable<BlockInfo>  {
+        return Observable<BlockInfo>.create {  observer -> Disposable in
+            
+            self.transactionTask(observable: observer) { () -> BlockInfo in
+               
+                // 删除本身
+                try self.blockDao.delete(id: blockInfo.id, includeChild: false)
+                
+                // child 移动
+                try self.blockDao.updateBlockParentId(oldParentId: blockInfo.id, newParentId: childNewParent.id)
+                
+                // 删除 position
+                try self.blockPositionDao.deleteByParentId(blockInfo.id)
+                
+                // 更新 parent
+                var newParent = childNewParent
+                let position = childNewParent.contentBlocks.count == 0 ? 65536 : childNewParent.contentBlocks[0].blockPosition.position
+                for blockInfo in blockInfo.contentBlocks.reversed() {
+                    
+                    var block = blockInfo.block
+                    block.parentId = childNewParent.block.id
+                    
+                    let blockPosition = BlockPosition(blockId: block.id, ownerId: childNewParent.id, position: position/2)
+                    try self.blockPositionDao.insert(blockPosition)
+                    
+                    let newBlockInfo = BlockInfo(block: block, blockPosition: blockPosition)
+                    newParent.contentBlocks.insert(newBlockInfo, at: 0)
+                }
+                return newParent
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
     func deleteBlock(id:String,childNewParent:Block,newSpace:Space) -> Observable<Bool> {
         return Observable<Bool>.create {  observer -> Disposable in
             
@@ -122,7 +211,7 @@ extension BlockRepo {
                 // new parent 更新
                 try self.blockDao.updateContent(id: childNewParent.id, content: childNewParent.content)
                 
-                try self.spaceDao.update(boardGroupIds: newSpace.boardGroupIds)
+//                try self.spaceDao.update(boardGroupIds: newSpace.boardGroupIds)
                 
                 return true
             }

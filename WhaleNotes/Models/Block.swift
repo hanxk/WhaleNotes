@@ -58,6 +58,7 @@ struct Block {
         return block
     }
     
+    
     static func newToggleBlock(parent:String,parentTable:TableType,properties:BlockToggleProperty) -> Block {
         var block = Block()
         block.type = BlockType.toggle
@@ -223,7 +224,7 @@ extension Block:SQLTable {
     static var createStatement: String {
         return  """
                     CREATE TABLE IF NOT EXISTS "block" (
-                      "id" TEXT UNIQUE NOT NULL,
+                      "id" TEXT PRIMARY KEY NOT NULL,
                       "type" TEXT NOT NULL,
                       "properties" JSON NOT NULL,
                       "content" JSON NOT NULL,

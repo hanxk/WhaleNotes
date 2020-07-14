@@ -10,8 +10,10 @@ import Foundation
 
 struct Space {
     var id:String = UUID.init().uuidString
+    // 收集板
     var collectBoardId:String = ""
-    var boardGroupIds:[String] = []
+    var boardGroupId:String = ""
+    var categoryGroupId:String = ""
     var createdAt:Date = Date()
 }
 //TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -19,10 +21,14 @@ extension Space: SQLTable {
   static var createStatement: String {
     return """
         CREATE TABLE IF NOT EXISTS "space" (
-          "id" TEXT UNIQUE NOT NULL,
-          "collect_board_id" TEXT NOT NULL,
-          "board_group_ids" JSON NOT NULL,
-          "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          "id" TEXT PRIMARY KEY NOT NULL,
+          "collect_board_id" TEXT UNIQUE NOT NULL,
+          "board_group_id" TEXT UNIQUE NOT NULL,
+          "category_group_id" TEXT UNIQUE NOT NULL,
+          "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY("collect_board_id") REFERENCES block(id),
+          FOREIGN KEY("board_group_id") REFERENCES block(id),
+          FOREIGN KEY("category_group_id") REFERENCES block(id)
         )
     """
   }

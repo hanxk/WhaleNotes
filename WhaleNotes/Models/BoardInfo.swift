@@ -9,7 +9,12 @@
 import Foundation
 
 struct BoardInfo {
-    var systemBoards:[Board]
-    var boards:[Board]
-    var boardCategoryInfos:[BoardCategoryInfo]
+    
+    var block:Block
+    var contentIds:[String]
+
+    var sortId:String
+    var sort:Double
+    
+    
 }

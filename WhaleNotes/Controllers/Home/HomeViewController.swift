@@ -49,7 +49,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.view.backgroundColor = .bg
         self.extendedLayoutIncludesOpaqueBars = true
         
-        func openBoardSetting(board: Block) {
+        func openBoardSetting(board: BlockInfo) {
             let settingVC = BoardSettingViewController()
 //            settingVC.board = board
 //            settingVC.callbackBoardSettingEdited = { boardEditedType in
@@ -71,7 +71,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
                     break
                 case .system(let menuInfo):
                     if case .board(let board) = menuInfo {
-                        openBoardSetting(board: board)
+//                        openBoardSetting(board: board)
                     }
                     break
                case .none:
@@ -131,27 +131,35 @@ extension HomeViewController {
         }
     }
     
-    func setupBoardView(board:Block) {
-        if let oldView =  self.contentView {
-            oldView.removeFromSuperview()
-        }
+    func setupBoardView(board:BlockInfo) {
+//        if let oldView =  self.contentView {
+//            oldView.removeFromSuperview()
+//        }
 //        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
 //        self.contentView = notesView
 //        self.view.addSubview(notesView)
 //        notesView.snp.makeConstraints { make in
 //            make.edges.equalToSuperview()
 //        }
-//        if board.type == BoardType.user.rawValue {
-//            titleButton.setTitle(board.title,emoji: board.icon)
-//        }
+        if let blockBoardProperties = board.blockBoardProperties,
+           blockBoardProperties.type == BoardType.user
+           {
+            
+           titleButton.setTitle(blockBoardProperties.title,emoji: blockBoardProperties.icon)
+        }
         
     }
     
     func setupSystemMenu(systemMenu: MenuSystemItem) {
         switch systemMenu {
         case .board(let board):
-             self.setupBoardView(board:board)
-//             self.titleButton.setTitle(board.title, icon:systemMenu.iconImage)
+//             self.setupBoardView(board:board)
+            if let blockBoardProperties = board.blockBoardProperties
+               {
+                
+                self.titleButton.setTitle(blockBoardProperties.title, icon:systemMenu.iconImage)
+            }
+            break
         case .trash:
             self.titleButton.setTitle(systemMenu.title, icon:systemMenu.iconImage)
             self.setupTrashView()
@@ -160,15 +168,15 @@ extension HomeViewController {
     
     func setupTrashView() {
         
-        if let oldView =  self.contentView {
-            oldView.removeFromSuperview()
-        }
-        let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-        self.contentView = trashView
-        self.view.addSubview(trashView)
-        trashView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+//        if let oldView =  self.contentView {
+//            oldView.removeFromSuperview()
+//        }
+//        let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+//        self.contentView = trashView
+//        self.view.addSubview(trashView)
+//        trashView.snp.makeConstraints { make in
+//            make.edges.equalToSuperview()
+//        }
     }
 }
 
@@ -264,7 +272,7 @@ extension HomeViewController:SideMenuViewControllerDelegate {
     
     func sideMenuItemSelected(menuItemType: SideMenuItem) {
         self.sideMenuItemType = menuItemType
-//        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
+        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
     }
     //    func sideMenuSystemItemSelected(menuSystem: MenuSystemItem) {
     //        self.title = menuSystem.title

@@ -179,15 +179,6 @@ class BlockDao {
     //    }
     //
     
-    func getChildBlocksByBlock(blocks:[Block],childBlocks:inout [Block], parentBlock:Block) {
-        let tempChildBlocks = blocks.filter { $0.parentId == parentBlock.id }
-        if tempChildBlocks.isNotEmpty {
-            childBlocks.append(contentsOf: tempChildBlocks)
-            for block in tempChildBlocks {
-                getChildBlocksByBlock(blocks:blocks,childBlocks:&childBlocks,parentBlock:block)
-            }
-        }
-    }
     
     
     func querySectionNotes(boardId:String,noteBlockStatus: NoteBlockStatus) throws -> [String:[Note]] {
@@ -357,16 +348,89 @@ extension BlockDao {
     }
     
     
+    func queryChilds(id:String) throws ->[BlockInfo] {
+        let selectSQL = """
+                              with recursive
+                                b as (
+                                        select block.*,
+                                        '' as position_id,'' as owner_id,0 as position
+                                        from block where parent_id = ?
+                                        union all
+                                        select block.*,
+                                        block_position.id as position_id,block_position.owner_id,block_position.position as position
+                                        from b
+                                        join block_position on block_position.owner_id = b.id
+                                        join block on block.id =  block_position.block_id
+                                        
+                                )
+                              select * from b;
+                        """
+        let rows = try db.query(selectSQL, args: id)
+        let blockInfos:[BlockInfo] = extract(rows: rows)
+        
+        var topLevelBlockInfos:[BlockInfo] = blockInfos.filter {$0.block.parentId == id}
+        
+        for i in 0..<topLevelBlockInfos.count {
+            var childBlockInfos:[BlockInfo] = []
+            getChildBlocksByBlock(blocks: blockInfos, childBlocks: &childBlockInfos, parentBlock: topLevelBlockInfos[i])
+            topLevelBlockInfos[i].contentBlocks.append(contentsOf: childBlockInfos)
+        }
+        
+        return topLevelBlockInfos
+    }
+    
+    
+    func getChildBlocksByBlock(blocks:[BlockInfo],childBlocks:inout [BlockInfo], parentBlock:BlockInfo) {
+        var tempChildBlocks = blocks.filter { $0.ownerId == parentBlock.id }
+        if tempChildBlocks.isNotEmpty {
+            for i in 0..<tempChildBlocks.count {
+                var childBlockInfos:[BlockInfo] = []
+                getChildBlocksByBlock(blocks:blocks,childBlocks:&childBlockInfos,parentBlock:tempChildBlocks[i])
+                tempChildBlocks[i].contentBlocks.append(contentsOf: childBlockInfos)
+            }
+            tempChildBlocks.sort { $0.blockPosition.position <  $1.blockPosition.position}
+            childBlocks.append(contentsOf: tempChildBlocks)
+        }
+    }
+    
+    
+    func getChildBlocksByBlock(blocks:[Block],childBlocks:inout [Block], parentBlock:Block) {
+        let tempChildBlocks = blocks.filter { $0.parentId == parentBlock.id }
+        if tempChildBlocks.isNotEmpty {
+            childBlocks.append(contentsOf: tempChildBlocks)
+            for block in tempChildBlocks {
+                getChildBlocksByBlock(blocks:blocks,childBlocks:&childBlocks,parentBlock:block)
+            }
+        }
+    }
+    
+    
     func query(parentId:String) throws ->[Block] {
         let selectSQL = """
-                                with recursive
+                              with recursive
                                 b as (
-                                        select * from block where parent_id = ?
+                                        select block.*,
+                                        '' as position_id,'' as owner_id,0 as position
+                                        from block where id = ?
                                         union all
-                                        select block.* from b join block on b.id = block.parent_id
+                                        select block.*,
+                                        block_position.id as position_id,block_position.owner_id,block_position.position
+                                        from b
+                                        join block_position on block_position.parent_id = b.id
+                                        join block on block.id =  block_position.block_id
+                                        
                                 )
-                              select * from b
+                              select * from b;
                         """
+        //        let selectSQL = """
+        //                                with recursive
+        //                                b as (
+        //                                        select * from block where parent_id = ?
+        //                                        union all
+        //                                        select block.* from b join block on b.id = block.parent_id
+        //                                )
+        //                              select * from b
+        //                        """
         let rows = try db.query(selectSQL, args: parentId)
         return extract(rows: rows)
     }
@@ -423,6 +487,15 @@ extension BlockDao {
         return blocks
     }
     
+    fileprivate func extract(rows: [Row]) -> [BlockInfo] {
+        var blocks:[BlockInfo] = []
+        for row in rows {
+            blocks.append(extract(row: row))
+        }
+        return blocks
+    }
+    
+    
     fileprivate func extract(row: Row) -> Block {
         
         let id = row["id"] as! String
@@ -437,8 +510,30 @@ extension BlockDao {
         let createdAt = Date(timeIntervalSince1970: row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970: row["updated_at"] as! Double)
         
-        return Block(id: id, type: type, properties: properties, content: content, parentId: parentId, parentTable: parentTable, createdAt: createdAt, updatedAt: updatedAt)
+        
+        let block = Block(id: id, type: type, properties: properties, content: content, parentId: parentId, parentTable: parentTable, createdAt: createdAt, updatedAt: updatedAt)
+        
+        if let boardType =  block.blockBoardProperties?.type,boardType == .collect {
+            return Block.convert2LocalSystemBoard(board: block)
+        }
+        return block
     }
+    
+    
+    fileprivate func extract(row: Row) -> BlockInfo {
+        
+        let block:Block = self.extract(row: row)
+        
+        
+        let positionId = row["position_id"] as! String
+        let ownerId = row["owner_id"] as! String
+        let position = row["position"] as! Double
+        
+        let blockPosition = BlockPosition(id: positionId, blockId: block.id, ownerId: ownerId, position: position)
+        
+        return BlockInfo(block: block, blockPosition: blockPosition)
+    }
+    
     
     fileprivate func convertProperties(json:String,blockType:BlockType) -> Any {
         switch blockType {

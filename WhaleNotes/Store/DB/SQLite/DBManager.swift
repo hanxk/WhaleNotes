@@ -15,6 +15,7 @@ class DBManager: NSObject {
     
     private(set) var spaceDao:SpaceDao!
     private(set) var blockDao:BlockDao!
+    private(set) var blockPositionDao:BlockPositionDao!
     
     var db:SQLiteDatabase {
         return _db
@@ -36,9 +37,11 @@ class DBManager: NSObject {
     private func setupTable() throws {
         try db.createTable(table: Space.self)
         try db.createTable(table: Block.self)
+        try db.createTable(table: BlockPosition.self)
         
         self.spaceDao = SpaceDao(dbCon: db)
         self.blockDao = BlockDao(dbCon: db)
+        self.blockPositionDao = BlockPositionDao(dbCon: db)
     }
     
 }

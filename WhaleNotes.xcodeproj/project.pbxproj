@@ -14,6 +14,7 @@
 		181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E7248B98DC00B34E20 /* MenuSystemCell.swift */; };
 		181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */; };
 		181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */; };
+		181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181E395624BC0BFC00631EF0 /* BlockPosition.swift */; };
 		181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */; };
 		181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */; };
 		181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */; };
@@ -99,6 +100,9 @@
 		18A9C54324AF31CD0025E0EB /* ChooseBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54224AF31CD0025E0EB /* ChooseBoardViewController.swift */; };
 		18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
+		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
+		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
+		18C6379E24BD335D007E01B9 /* SpaceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379D24BD335D007E01B9 /* SpaceInfo.swift */; };
 		18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CED671249F9259009181E0 /* TrashHeaderNode.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
 		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
@@ -149,6 +153,7 @@
 		181D63E7248B98DC00B34E20 /* MenuSystemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSystemCell.swift; sourceTree = "<group>"; };
 		181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBoardCell.swift; sourceTree = "<group>"; };
 		181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCategoryCell.swift; sourceTree = "<group>"; };
+		181E395624BC0BFC00631EF0 /* BlockPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPosition.swift; sourceTree = "<group>"; };
 		181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardViewController.swift; sourceTree = "<group>"; };
 		181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardCell.swift; sourceTree = "<group>"; };
 		181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTitleView.swift; sourceTree = "<group>"; };
@@ -235,6 +240,9 @@
 		18A9C54224AF31CD0025E0EB /* ChooseBoardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseBoardViewController.swift; sourceTree = "<group>"; };
 		18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
+		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
+		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
+		18C6379D24BD335D007E01B9 /* SpaceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceInfo.swift; sourceTree = "<group>"; };
 		18CED671249F9259009181E0 /* TrashHeaderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashHeaderNode.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
 		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
@@ -541,6 +549,8 @@
 			isa = PBXGroup;
 			children = (
 				18E6E66F247BB9D700D598C5 /* Block.swift */,
+				181E395624BC0BFC00631EF0 /* BlockPosition.swift */,
+				18C6379B24BC5159007E01B9 /* BlockInfo.swift */,
 				1859303C24BAA00600D1352A /* BoardInfo.swift */,
 				1859303D24BAA00600D1352A /* ImageFetchInfo.swift */,
 				18E6E67A247BCCD700D598C5 /* Note.swift */,
@@ -553,6 +563,7 @@
 				1859303524BAA00500D1352A /* SectionNoteInfo.swift */,
 				18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */,
 				1859304724BAA1F200D1352A /* Space.swift */,
+				18C6379D24BD335D007E01B9 /* SpaceInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -692,6 +703,7 @@
 			children = (
 				18E6E676247BBDBF00D598C5 /* BlockDao.swift */,
 				1859304924BAA7E700D1352A /* SpaceDao.swift */,
+				18C6379724BC1091007E01B9 /* BlockPositionDao.swift */,
 			);
 			path = Dao;
 			sourceTree = "<group>";
@@ -991,6 +1003,7 @@
 				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
 				18251C16249AE9F000484D23 /* NoteDateView.swift in Sources */,
 				188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */,
+				18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
 				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
@@ -1005,6 +1018,7 @@
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
 				18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */,
 				18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */,
+				18C6379E24BD335D007E01B9 /* SpaceInfo.swift in Sources */,
 				182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */,
 				1859304A24BAA7E700D1352A /* SpaceDao.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
@@ -1021,6 +1035,7 @@
 				18A9C54324AF31CD0025E0EB /* ChooseBoardViewController.swift in Sources */,
 				1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */,
 				18E6E67B247BCCD700D598C5 /* Note.swift in Sources */,
+				18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */,
 				18E7BF83248C8B6400B8AEC1 /* MyTextField.swift in Sources */,
 				1890290A245E82720017814A /* UIImage+Ex.swift in Sources */,
 				1859302E24BA950400D1352A /* SQLiteDatabase.swift in Sources */,
@@ -1073,6 +1088,7 @@
 				1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */,
 				18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */,
 				1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */,
+				181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */,
 				1859303424BA9E3500D1352A /* Board.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,

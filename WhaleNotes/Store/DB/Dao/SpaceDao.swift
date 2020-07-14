@@ -16,22 +16,21 @@ class SpaceDao {
 
 extension SpaceDao {
     func insert(space:Space) throws {
-        let insertSql = "INSERT INTO space (id,collect_board_id,board_group_ids) VALUES(?,?,?)";
-        try db.execute(insertSql, args: space.id,space.collectBoardId,json(from: space.boardGroupIds)!)
+        let insertSql = "INSERT INTO space (id,collect_board_id,board_group_id,category_group_id) VALUES(?,?,?,?)";
+        try db.execute(insertSql, args: space.id,space.collectBoardId,space.boardGroupId,space.categoryGroupId)
     }
     
     func query() throws -> Space? {
-        let selectSql = "SELECT id,collect_board_id,board_group_ids,created_at FROM space"
+        let selectSql = "SELECT id,collect_board_id,board_group_id,category_group_id,created_at FROM space"
         let rows = try db.query(selectSql)
         for row in rows {
             let id = row["id"] as! String
             let collectBoardId = row["collect_board_id"] as! String
+            let boardGroupId = row["board_group_id"] as! String
+            let categoryGroupId = row["category_group_id"] as! String
+            let createdAt =  Date(timeIntervalSince1970: (row["created_at"] as! Double))
             
-            let json =  row["board_group_ids"] as! String
-            let boardGroupIds = json2Object(json, type: [String].self)!
-            
-            let createdAt = (row["created_at"] as! Double)
-            return Space(id: id, collectBoardId: collectBoardId, boardGroupIds: boardGroupIds, createdAt: Date(timeIntervalSince1970: createdAt))
+            return Space(id: id, collectBoardId: collectBoardId, boardGroupId: boardGroupId, categoryGroupId: categoryGroupId, createdAt: createdAt)
         }
         return nil
     }

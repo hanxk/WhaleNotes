@@ -89,12 +89,12 @@ class ChangeBoardViewController:UIViewController {
         let board = boardsResult.0
         self.choosedBoards = board == nil ? [] : [board!]
         
-        let systemBoards = boardInfo.systemBoards
-        self.boards = boardInfo.boards
+//        let systemBoards = boardInfo.systemBoards
+//        self.boards = boardInfo.boards
+//
+//        self.boardCategories = boardInfo.boardCategoryInfos
         
-        self.boardCategories = boardInfo.boardCategoryInfos
-        
-        self.menuSectionTypes.append(BoardSectionType.system(systemBoards: systemBoards))
+//        self.menuSectionTypes.append(BoardSectionType.system(systemBoards: systemBoards))
         if self.boards.isNotEmpty {
             self.menuSectionTypes.append(BoardSectionType.boards)
         }

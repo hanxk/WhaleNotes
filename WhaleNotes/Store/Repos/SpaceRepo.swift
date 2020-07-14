@@ -25,25 +25,53 @@ class SpaceRepo {
         return DBManager.shared.blockDao
     }
     
-    func getSpace() -> Observable<Space> {
-        return Observable<Space>.create {  observer -> Disposable in
+    private var blockPositionDao:BlockPositionDao {
+        return DBManager.shared.blockPositionDao
+    }
+    
+    func getSpace() -> Observable<SpaceInfo> {
+        return Observable<SpaceInfo>.create {  observer -> Disposable in
             do {
                 try self.db.transaction {
                     if let space = try self.spaceDao.query() {
-                        observer.onNext(space)
+                        // 获取 childinfo
+                        let blockInfos = try self.blockDao.queryChilds(id: space.id)
+                        
+                        let collectBoard =  blockInfos.first{ $0.id == space.collectBoardId}!
+                        let boardGroupBlock =  blockInfos.first{ $0.id == space.boardGroupId}!
+                        
+                        let categoryGroupBlock = blockInfos.first{ $0.id == space.categoryGroupId}!
+                        
+                        let spaceInfo = SpaceInfo(space: space, collectBoard: collectBoard, boardGroupBlock: boardGroupBlock, categoryGroupBlock: categoryGroupBlock)
+                        observer.onNext(spaceInfo)
                         return
                     }
                     var space = Space()
+                    
+                    // 收集板
                     let collectBoard = Block.newBoardBlock(parentId: space.id,parentTable: .space, properties: BlockBoardProperty(type:.collect))
                     try self.blockDao.insert(collectBoard)
                     
-                    let toggle = Block.newToggleBlock(parent: space.id, parentTable: .space, properties: BlockToggleProperty())
-                    try self.blockDao.insert(toggle)
+                    // 存放单独的 boards
+                    let boardGroupBlock = Block.newToggleBlock(parent: space.id, parentTable: .space, properties: BlockToggleProperty())
+                    try self.blockDao.insert(boardGroupBlock)
+                    
+                    // 存放 board 分类
+                    let categoryGroupBlock = Block.newToggleBlock(parent: space.id, parentTable: .space, properties: BlockToggleProperty())
+                    try self.blockDao.insert(categoryGroupBlock)
                     
                     space.collectBoardId = collectBoard.id
-                    space.boardGroupIds = [toggle.id]
+                    space.boardGroupId = boardGroupBlock.id
+                    space.categoryGroupId = categoryGroupBlock.id
+                    
                     try self.spaceDao.insert(space:space)
-                    observer.onNext(space)
+                    
+                    let spaceInfo = SpaceInfo(space: space,
+                                              collectBoard: BlockInfo(block: Block.convert2LocalSystemBoard(board: collectBoard)),
+                                boardGroupBlock: BlockInfo(block: boardGroupBlock),
+                                categoryGroupBlock: BlockInfo(block: categoryGroupBlock))
+                    
+                    observer.onNext(spaceInfo)
                 }
             }catch {
                 observer.onError(error)
