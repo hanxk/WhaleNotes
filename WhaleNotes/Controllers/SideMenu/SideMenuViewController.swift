@@ -71,7 +71,7 @@ class SideMenuViewController: UIViewController {
     
     var categoriesInfos:[BlockInfo] {
         get {
-           return spaceInfo.categoryGroupBlock.contentBlocks
+            return spaceInfo.categoryGroupBlock.contentBlocks
         }
         set {
             spaceInfo.categoryGroupBlock.contentBlocks = newValue
@@ -94,29 +94,29 @@ class SideMenuViewController: UIViewController {
     private var deletedBoard: Block?
     private var updatedBoard: Block?
     
-//    private var selectedMenuItem:SideMenuItem! {
-//
-//        didSet {
-//            if oldValue != selectedMenuItem {
-//                delegate?.sideMenuItemSelected(menuItemType: selectedMenuItem)
-//                self.dismiss(animated: true, completion: nil)
-//            }
-//        }
-//
-//    }
+    //    private var selectedMenuItem:SideMenuItem! {
+    //
+    //        didSet {
+    //            if oldValue != selectedMenuItem {
+    //                delegate?.sideMenuItemSelected(menuItemType: selectedMenuItem)
+    //                self.dismiss(animated: true, completion: nil)
+    //            }
+    //        }
+    //
+    //    }
     
     private var selectedId:String = ""
     private var selectedItem:SelectedMenuItem!
     
-//    var selectedMenuItem:SideMenuItem {
-//        return switch self.selectedItem {
-//        case .trash:
-//            return SideMenuItem.system(menuInfo: self.systemMenuItems[1])
-//        case .board(_,let boardId):
-//            if boardId == self.space.
-//            return boardId
-//        }
-//    }
+    //    var selectedMenuItem:SideMenuItem {
+    //        return switch self.selectedItem {
+    //        case .trash:
+    //            return SideMenuItem.system(menuInfo: self.systemMenuItems[1])
+    //        case .board(_,let boardId):
+    //            if boardId == self.space.
+    //            return boardId
+    //        }
+    //    }
     
     private lazy var bottomView:SideMenuBottomView = SideMenuBottomView().then {
         
@@ -147,29 +147,29 @@ class SideMenuViewController: UIViewController {
         self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
-        private func showCategoryInputAlert(toggleBlock:BlockInfo? = nil) {
-            let ac = UIAlertController(title: toggleBlock == nil ? "添加分类" : "编辑分类", message: nil, preferredStyle: .alert)
-            ac.addTextField()
-            ac.textFields![0].placeholder = "输入分类名称"
-            ac.textFields![0].text = toggleBlock == nil ? "" :  toggleBlock!.blockToggleProperties!.title
-    
-            let submitAction = UIAlertAction(title: "确定", style: .default) { [unowned ac] _ in
-                let title = ac.textFields![0].text!.trimmingCharacters(in: .whitespaces)
-                if title.isEmpty { return }
-                if let toggleBlock = toggleBlock {
-                    var newToggleBlock = toggleBlock
-                    newToggleBlock.block.updatedAt = Date()
-                    newToggleBlock.blockToggleProperties?.title = title
-                    self.updateToggleBlockProperties(toggleBlock: newToggleBlock)
-                }else {
-                  self.createToggleBlock(title: title)
-                }
+    private func showCategoryInputAlert(toggleBlock:BlockInfo? = nil) {
+        let ac = UIAlertController(title: toggleBlock == nil ? "添加分类" : "编辑分类", message: nil, preferredStyle: .alert)
+        ac.addTextField()
+        ac.textFields![0].placeholder = "输入分类名称"
+        ac.textFields![0].text = toggleBlock == nil ? "" :  toggleBlock!.blockToggleProperties!.title
+        
+        let submitAction = UIAlertAction(title: "确定", style: .default) { [unowned ac] _ in
+            let title = ac.textFields![0].text!.trimmingCharacters(in: .whitespaces)
+            if title.isEmpty { return }
+            if let toggleBlock = toggleBlock {
+                var newToggleBlock = toggleBlock
+                newToggleBlock.block.updatedAt = Date()
+                newToggleBlock.blockToggleProperties?.title = title
+                self.updateToggleBlockProperties(toggleBlock: newToggleBlock)
+            }else {
+                self.createToggleBlock(title: title)
             }
-            ac.addAction(submitAction)
-            let cancelAction = UIAlertAction(title: "取消", style: .cancel)
-            ac.addAction(cancelAction)
-            present(ac, animated: true)
         }
+        ac.addAction(submitAction)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
+        ac.addAction(cancelAction)
+        present(ac, animated: true)
+    }
     
     
     
@@ -303,12 +303,12 @@ extension SideMenuViewController {
         
         
         BlockRepo.shared.createBlock(blockInfo)
-                    .subscribe(onNext: { [weak self] _ in
-                        self?.handleBoardCategoryInsert(toggleBlock:blockInfo)
-                    }, onError: { error in
-                        Logger.error(error)
-                    })
-                    .disposed(by: disposeBag)
+            .subscribe(onNext: { [weak self] _ in
+                self?.handleBoardCategoryInsert(toggleBlock:blockInfo)
+            }, onError: { error in
+                Logger.error(error)
+            })
+            .disposed(by: disposeBag)
     }
     
     
@@ -328,7 +328,7 @@ extension SideMenuViewController {
         let TAG_DEL = 3
         
         guard let toggleBlock = self.categoriesInfos.first(where: {$0.id == toggleBlockId }) else { return }
-
+        
         let items = [
             ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: TAG_ADD),
             ContextMenuItem(label: "编辑分类", icon: "pencil",tag:TAG_EDIT),
@@ -351,7 +351,7 @@ extension SideMenuViewController {
                 break
             default:
                 break
-
+                
             }
         }
     }
@@ -365,49 +365,49 @@ extension SideMenuViewController {
                 Logger.error(error)
             })
             .disposed(by: disposeBag)
-            
-     }
+        
+    }
     
-        func updateToggleBlock(toggleBlock:Block) {
-            
-//            BlockRepo.shared.getBlocks(parentId: <#T##String#>)
-//            BoardRepo.shared.updateBoardCategory(boardCategory: newBoardCategory)
-//                .subscribe(onNext: { [weak self] isSuccess in
-//                    if isSuccess {
-//                        self?.handleBoardCategoryUpdate(newBoardCategory: newBoardCategory)
-//                    }
-//                    }, onError: { error in
-//                        Logger.error(error)
-//                })
-//                .disposed(by: disposeBag)
-        }
+    func updateToggleBlock(toggleBlock:Block) {
+        
+        //            BlockRepo.shared.getBlocks(parentId: <#T##String#>)
+        //            BoardRepo.shared.updateBoardCategory(boardCategory: newBoardCategory)
+        //                .subscribe(onNext: { [weak self] isSuccess in
+        //                    if isSuccess {
+        //                        self?.handleBoardCategoryUpdate(newBoardCategory: newBoardCategory)
+        //                    }
+        //                    }, onError: { error in
+        //                        Logger.error(error)
+        //                })
+        //                .disposed(by: disposeBag)
+    }
     
-        func handleBoardCategoryUpdate(toggleBlock: BlockInfo,isReloadSecction:Bool) {
-            guard let index = self.categoriesInfos.firstIndex(where: {$0.id == toggleBlock.id}) else { return }
-            let section = index + self.sectionCategoryBeginIndex
-            self.categoriesInfos[index] = toggleBlock
-            
-            self.tableView.performBatchUpdates({
-                if isReloadSecction {
-                    self.tableView.reloadSections(IndexSet([section]), with: .automatic)
-                }else {
-                    self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .automatic)
-                }
-            }, completion: nil)
-//            guard let categoryIndex = self.mapCategoryIdAnIndex[newBoardCategory.id] else { return }
-//            let section = getSectionIndex(categoryId: newBoardCategory.id)
-//            if self.boardCategories[categoryIndex].category.isExpand != newBoardCategory.isExpand { // 刷新 section
-//                self.boardCategories[categoryIndex].category = newBoardCategory
-//                self.tableView.performBatchUpdates({
-//                    self.tableView.reloadSections(IndexSet([section]), with: .none)
-//                }, completion: nil)
-//                return
-//            }
-//            self.boardCategories[categoryIndex].category = newBoardCategory
-//            self.tableView.performBatchUpdates({
-//                self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .none)
-//            }, completion: nil)
-        }
+    func handleBoardCategoryUpdate(toggleBlock: BlockInfo,isReloadSecction:Bool) {
+        guard let index = self.categoriesInfos.firstIndex(where: {$0.id == toggleBlock.id}) else { return }
+        let section = index + self.sectionCategoryBeginIndex
+        self.categoriesInfos[index] = toggleBlock
+        
+        self.tableView.performBatchUpdates({
+            if isReloadSecction {
+                self.tableView.reloadSections(IndexSet([section]), with: .automatic)
+            }else {
+                self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .automatic)
+            }
+        }, completion: nil)
+        //            guard let categoryIndex = self.mapCategoryIdAnIndex[newBoardCategory.id] else { return }
+        //            let section = getSectionIndex(categoryId: newBoardCategory.id)
+        //            if self.boardCategories[categoryIndex].category.isExpand != newBoardCategory.isExpand { // 刷新 section
+        //                self.boardCategories[categoryIndex].category = newBoardCategory
+        //                self.tableView.performBatchUpdates({
+        //                    self.tableView.reloadSections(IndexSet([section]), with: .none)
+        //                }, completion: nil)
+        //                return
+        //            }
+        //            self.boardCategories[categoryIndex].category = newBoardCategory
+        //            self.tableView.performBatchUpdates({
+        //                self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .none)
+        //            }, completion: nil)
+    }
     
     func getSectionIndex(categoryId: String) -> Int {
         //        return (self.mapCategoryIdAnIndex[categoryId] ?? 0 ) + self.sectionCategoryBeginIndex
@@ -415,15 +415,15 @@ extension SideMenuViewController {
     }
     
     
-        func deleteBoardCategory(toggleBlock:BlockInfo) {
-            BlockRepo.shared.deleteBlockInfo(blockInfo: toggleBlock, childNewParent: self.boardGroupBlock)
-                .subscribe(onNext: { [weak self] newParent in
-                    self?.handleBoardCategoryInfoDelete(deletedBlockIanfo:toggleBlock,newParent:newParent)
-                    }, onError: { error in
-                        Logger.error(error)
-                })
-                .disposed(by: disposeBag)
-        }
+    func deleteBoardCategory(toggleBlock:BlockInfo) {
+        BlockRepo.shared.deleteBlockInfo(blockInfo: toggleBlock, childNewParent: self.boardGroupBlock)
+            .subscribe(onNext: { [weak self] newParent in
+                self?.handleBoardCategoryInfoDelete(deletedBlockIanfo:toggleBlock,newParent:newParent)
+            }, onError: { error in
+                Logger.error(error)
+            })
+            .disposed(by: disposeBag)
+    }
     
     
     func handleBoardCategoryInfoDelete(deletedBlockIanfo:BlockInfo,newParent:BlockInfo) {
@@ -438,7 +438,7 @@ extension SideMenuViewController {
                 self.tableView.reloadSections(IndexSet([1]), with: .none)
             }
         }, completion: nil)
-
+        
     }
     //        //移除 category
     //        guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategoryInfo.category.id] else { return }
@@ -467,18 +467,18 @@ extension SideMenuViewController {
         var categoryBlockInfo = self.categoriesInfos[section-self.sectionCategoryBeginIndex]
         categoryBlockInfo.blockToggleProperties!.isFolded = !categoryBlockInfo.blockToggleProperties!.isFolded
         
-       self.updateToggleBlockProperties(toggleBlock: categoryBlockInfo,isReloadSecction: true)
+        self.updateToggleBlockProperties(toggleBlock: categoryBlockInfo,isReloadSecction: true)
         
         //        if var  category = self.boardCategories[section-2].category {
         //            category.isExpand = !category.isExpand
         //            self.updateBoardCayegory(newBoardCategory: category)
         //        }
-//        guard var newToggleTask = self.blocksMap[self.space.boardGroupIds[section-1]],
-//              var newToggleProperties = newToggleTask.blockToggleProperties else { return }
-//        
-//        newToggleProperties.isFolded = !newToggleProperties.isFolded
-//        newToggleTask.blockToggleProperties = newToggleProperties
-//
+        //        guard var newToggleTask = self.blocksMap[self.space.boardGroupIds[section-1]],
+        //              var newToggleProperties = newToggleTask.blockToggleProperties else { return }
+        //
+        //        newToggleProperties.isFolded = !newToggleProperties.isFolded
+        //        newToggleTask.blockToggleProperties = newToggleProperties
+        //
         
         
     }
@@ -493,17 +493,17 @@ extension SideMenuViewController {
     
     func boardIsDeleted(board:Block) {
         self.deletedBoard = board
-//        setSelected(indexPath: IndexPath(row: 0, section: 0))
+        //        setSelected(indexPath: IndexPath(row: 0, section: 0))
     }
     
     func setBoardSelected(board:Block) {
         if let indexPath = getBoardIndexPath(board: board) {
-//            setSelected(indexPath: indexPath)
+            //            setSelected(indexPath: indexPath)
         }
     }
     
     private func handleUpdateBoard(board:Block) {
-//        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
+        //        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
         //        if indexPath.section == 1{
         //            self.boards[indexPath.row] = board
         //        }else {
@@ -568,8 +568,8 @@ extension SideMenuViewController {
 extension SideMenuViewController {
     func createBoard(emoji: Emoji,title:String,parent:BlockInfo) {
         
-//        guard var parent = self.blocksMap[parentId] else { return }
-//        parent.updatedAt = Date()
+        //        guard var parent = self.blocksMap[parentId] else { return }
+        //        parent.updatedAt = Date()
         
         let board = Block.newBoardBlock(parentId: parent.id, parentTable: .block, properties: BlockBoardProperty(icon: emoji.value, title: title))
         
@@ -585,12 +585,12 @@ extension SideMenuViewController {
         
         
         BlockRepo.shared.createBlock(blockInfo)
-                    .subscribe(onNext: { [weak self] _ in
-                        self?.handleBoardInsert(parent:newParent)
-                    }, onError: { error in
-                        Logger.error(error)
-                    })
-                    .disposed(by: disposeBag)
+            .subscribe(onNext: { [weak self] _ in
+                self?.handleBoardInsert(parent:newParent)
+            }, onError: { error in
+                Logger.error(error)
+            })
+            .disposed(by: disposeBag)
         
     }
     
@@ -628,7 +628,7 @@ extension SideMenuViewController {
     
     func setSelected(indexPath: IndexPath,selectedItem:SelectedMenuItem) {
         
-//        if self.selectedId == selectedId { return }
+        //        if self.selectedId == selectedId { return }
         
         
         var updatedIndexPaths:[IndexPath]   = []
@@ -696,7 +696,7 @@ extension SideMenuViewController {
             }
             if let section = self.categoriesInfos.firstIndex(where: {$0.id == groupId}),
                let row =  self.categoriesInfos[section].contentBlocks.firstIndex(where: {$0.id == boardId})
-               {
+            {
                 return IndexPath(row:row+1, section: section+self.sectionCategoryBeginIndex)
             }
             return nil
@@ -717,15 +717,15 @@ extension SideMenuViewController {
     //        }
     //    }
     
-//    func findSideMenuItemIndex(sideMenuItem:SideMenuItem) -> IndexPath? {
-//        switch sideMenuItem {
-//        case .system(let sysMenuInfo):
-//            guard let index = self.systemMenuItems.firstIndex(where: {$0 == sysMenuInfo}) else { return nil }
-//            return IndexPath(row: index, section: 0)
-//        case .board(let board):
-//            return getBoardIndexPath(board: board)
-//        }
-//    }
+    //    func findSideMenuItemIndex(sideMenuItem:SideMenuItem) -> IndexPath? {
+    //        switch sideMenuItem {
+    //        case .system(let sysMenuInfo):
+    //            guard let index = self.systemMenuItems.firstIndex(where: {$0 == sysMenuInfo}) else { return nil }
+    //            return IndexPath(row: index, section: 0)
+    //        case .board(let board):
+    //            return getBoardIndexPath(board: board)
+    //        }
+    //    }
     
     func updateBoard(newBoard:Board,callback:(()->Void)? = nil) {
         //        BoardRepo.shared.updateBoard(board: newBoard)
@@ -796,86 +796,105 @@ extension SideMenuViewController {
         return (boards[toRow-1].sort + boards[toRow].sort)/2
     }
     
+    func calcSort(blocks: inout [BlockInfo],fromRow:Int,toRow:Int) -> Double {
+        if toRow == blocks.count - 1 {
+            return blocks[blocks.count-1].position + 65536
+        }
+        if toRow == 0 {
+            return blocks[0].position / 2
+        }
+        if fromRow < toRow {
+            return (blocks[toRow].position + blocks[toRow+1].position) / 2
+        }
+        return (blocks[toRow].position + blocks[toRow-1].position) / 2
+    }
+    
     
     // 排序处理
     func swapRowInSameSection(section: Int,fromRow: Int, toRow: Int) {
-        //        if case .boards = self.menuSectionTypes[section] {
-        //
-        //            var board = self.boards[fromRow]
-        //            self.boards.remove(at: fromRow)
-        //
-        //            board.sort = calcSort(toRow: toRow, boards: self.boards)
-        //            self.boards.insert(board, at: toRow)
-        //
-        //            self.updateBoard(newBoard: board) {
-        //                self.pringBoards(boards: self.boards)
-        //            }
-        //        }else {
-        //
-        //            let newBoard = self.boardCategories[section-2].swapBoard(from: fromRow-1, to: toRow-1)
-        //            self.updateBoard(newBoard: newBoard) {
-        //                self.pringBoards(boards: self.boardCategories[section-2].boards)
-        //            }
-        //
-        //
-        //        }
+        
+        let rightFromRow = fromRow - 1
+        let rightToRow = toRow - 1
+        
+        
+        func swapBlockInfo( boardGroupBlock:inout BlockInfo, fromRow: Int, toRow: Int) {
+            
+            var movedBlockInfo = boardGroupBlock.contentBlocks[rightFromRow]
+            movedBlockInfo.position = calcSort(blocks:&boardGroupBlock.contentBlocks, fromRow: fromRow, toRow: toRow)
+            
+            boardGroupBlock.contentBlocks.remove(at: rightFromRow)
+            boardGroupBlock.contentBlocks.insert(movedBlockInfo, at: rightToRow)
+        }
+        
+        
+        var boardGroupBlock = getBoardCategory(section: section)
+        swapBlockInfo(boardGroupBlock: &boardGroupBlock, fromRow: rightFromRow, toRow: rightToRow)
+        
+        
+        self.boardGroupBlock = boardGroupBlock
+        
+        // 更新 position
+        BlockRepo.shared.updatePosition(blockPosition: boardGroupBlock.contentBlocks[rightToRow].blockPosition)
+            .subscribe(onNext: { _ in
+            }, onError: { error in
+                Logger.error(error)
+            })
+            .disposed(by: disposeBag)
     }
-    
-    //    func getBoardCategoryInfo(section:Int) -> BoardCategoryInfo {
-    //        return self.boardCategories[section - self.sectionCategoryBeginIndex]
-    //    }
     
     
     func swapRowCrossSection(fromSection: Int,toSection: Int,fromRow: Int, toRow: Int) {
         
-        var board:Board?
-        // 移除 from 中的 board
-        //        if case .categories = self.menuSectionTypes[fromSection] {
-        //            board = self.boardCategories[fromSection - self.sectionCategoryBeginIndex].boards[fromRow-1]
-        //            self.boardCategories[fromSection - self.sectionCategoryBeginIndex].removeBoard(index:  fromRow - 1)
-        //        }else {
-        //            board = self.boards[fromRow]
-        //            self.boards.remove(at: fromRow)
-        //        }
+        let rightFromRow = fromRow - 1
+        let rightToRow = toRow - 1
         
-        //        guard var fromBoard = board else { return }
-        //
-        //        if case .categories = self.menuSectionTypes[toSection] {
+        func calcPosition(blockInfos: inout [BlockInfo],toRow: Int) -> Double{
+            if blockInfos.isEmpty { return 65536}
+            if toRow == 0 {
+                return blockInfos[0].position / 2
+            }
+            if toRow == blockInfos.count {
+                return blockInfos[blockInfos.count-1].position + 65536
+            }
+            
+            return (blockInfos[toRow].position + blockInfos[toRow-1].position) / 2
+        }
         
-        //            var boardCategoryInfo = getBoardCategoryInfo(section: toSection)
-        //            fromBoard.categoryId = boardCategoryInfo.categoryId
-        //            fromBoard.sort =  self.calcSort(toRow: toRow-1, boards: boardCategoryInfo.boards)
-        //            boardCategoryInfo.boards.insert(fromBoard, at: toRow-1)
-        //
-        //            self.boardCategories[toSection - self.sectionCategoryBeginIndex] = boardCategoryInfo
-        //
-        //            let isExpand = boardCategoryInfo.category.isExpand
-        //            if !isExpand {
-        //
-        //                // 先显示，然后再删除
-        //                sectionSpecial = toSection
-        //                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()+0.3) {
-        //                    self.tableView.performBatchUpdates({
-        //                        self.tableView.reloadSections(IndexSet([toSection]), with: .fade)
-        //                    }, completion: nil)
-        //                }
-        //            }
-        //
-        //            self.pringBoards(boards: boardCategoryInfo.boards)
+        func updateDataSource(fromBlockGroup:inout BlockInfo,toBlockGroup: inout BlockInfo) {
+            if fromBlockGroup.id == self.boardGroupBlock.id {
+                self.boardGroupBlock = fromBlockGroup
+            }else {
+                self.categoriesInfos[fromSection-self.sectionCategoryBeginIndex] = fromBlockGroup
+            }
+            if toBlockGroup.id == self.boardGroupBlock.id {
+                self.boardGroupBlock = toBlockGroup
+            }else {
+                self.categoriesInfos[toSection-self.sectionCategoryBeginIndex] = toBlockGroup
+            }
+        }
         
+        var fromBlockGroup:BlockInfo = getBoardCategory(section: fromSection)
+        var toBlockGroup:BlockInfo  = getBoardCategory(section: toSection)
         
-        //        }else {
-        //            fromBoard.sort =  self.calcSort(toRow: toRow, boards: self.boards)
-        //            fromBoard.categoryId = ""
-        //
-        //            self.boards.insert(fromBoard, at: toRow)
-        //
-        //            self.pringBoards(boards: self.boards)
-        //
-        //
-        //        }
-        //
-        //        self.updateBoard(newBoard: fromBoard)
+        var movedBlockInfo = fromBlockGroup.contentBlocks[rightFromRow]
+        movedBlockInfo.block.parentId = toBlockGroup.id
+        movedBlockInfo.blockPosition.ownerId = toBlockGroup.id
+        movedBlockInfo.blockPosition.position = calcPosition(blockInfos: &toBlockGroup.contentBlocks, toRow: rightToRow)
+        
+        fromBlockGroup.contentBlocks.remove(at: rightFromRow)
+        toBlockGroup.contentBlocks.insert(movedBlockInfo, at: rightToRow)
+        
+        updateDataSource(fromBlockGroup: &fromBlockGroup, toBlockGroup: &toBlockGroup)
+        
+        // 更新 position
+        BlockRepo.shared.updatePositionAndParent(blockPosition: toBlockGroup.contentBlocks[rightToRow].blockPosition)
+            .subscribe(onNext: { _ in
+            }, onError: { error in
+                Logger.error(error)
+            })
+            .disposed(by: disposeBag)
+        // 更新 数据源
+        
         
     }
     
@@ -945,9 +964,7 @@ extension SideMenuViewController:UITableViewDelegate {
         let sectionType = self.menuSectionTypes[indexPath.section]
         switch sectionType {
         case .boards:
-            return true
-        //        case .categories:
-        //            return indexPath.row > 0 //第一行是 group title
+            return indexPath.row > 0
         default:
             return false
         }
@@ -972,32 +989,20 @@ extension SideMenuViewController:UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
         
-        let sourceSection = sourceIndexPath.section
-        let destSection = proposedDestinationIndexPath.section
+        let boardCategory = getBoardCategory(section: proposedDestinationIndexPath.section)
+        if boardCategory.blockToggleProperties?.isFolded == true {
+            
+            var returnRow = 1
+            if sourceIndexPath.section < proposedDestinationIndexPath.section {
+                returnRow = getBoardCategory(section: sourceIndexPath.section).contentBlocks.count
+            }
+            return IndexPath(row: returnRow, section: sourceIndexPath.section)
+        }
         
-        let sourSectionType = self.menuSectionTypes[sourceSection]
-        let desSectionType = self.menuSectionTypes[destSection]
-        
-        
-        //        switch desSectionType {
-        //        case .boards:
-        //            return proposedDestinationIndexPath
-        //        case .categories:
-        //            if proposedDestinationIndexPath.row == 0 {
-        //                return IndexPath(row: 1, section: proposedDestinationIndexPath.section)
-        //            }
-        //            return proposedDestinationIndexPath
-        //        case .system:
-        //            if destSection > sourceSection {
-        //                return IndexPath(row: self.tableView(tableView, numberOfRowsInSection:sourceSection)-1, section: sourceSection)
-        //            }
-        //            if case .categories  = sourSectionType {
-        //                return IndexPath(row: 1, section: sourceSection)
-        //            }
-        //            return IndexPath(row: 0, section: sourceSection)
-        //
-        //        }
-        return IndexPath(row: 0, section: sourceSection)
+        if proposedDestinationIndexPath.row == 0 {
+            return IndexPath(row: 1, section: proposedDestinationIndexPath.section)
+        }
+        return proposedDestinationIndexPath
     }
     
     
@@ -1084,10 +1089,19 @@ extension SideMenuViewController: UITableViewDataSource {
     }
     
     private func getBoardInfo(indexPath:IndexPath) -> BlockInfo {
+        
+        return getBoardCategory(section: indexPath.section).contentBlocks[indexPath.row]
         if indexPath.section == 1 {
             return self.boardGroupBlock.contentBlocks[indexPath.row-1]
         }
         return self.categoriesInfos[indexPath.section-self.sectionCategoryBeginIndex].contentBlocks[indexPath.row-1]
+    }
+    
+    private func getBoardCategory(section:Int) -> BlockInfo {
+        if section == 1 {
+            return self.boardGroupBlock
+        }
+        return self.categoriesInfos[section-self.sectionCategoryBeginIndex]
     }
 }
 

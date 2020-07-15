@@ -327,6 +327,10 @@ extension BlockDao {
         try db.execute(updateSQL, args:newParentId,oldParentId)
     }
     
+    func updateBlockParentId(id:String,newParentId:String) throws {
+        let updateSQL = "update block set parent_id = ?,updated_at=CURRENT_TIMESTAMP where id = ?"
+        try db.execute(updateSQL,args:newParentId,id)
+    }
     
     func updateProperties(id:String,propertiesJSON:String) throws {
         let updateSQL = "update block set properties = ?,updated_at=CURRENT_TIMESTAMP where id = ?"

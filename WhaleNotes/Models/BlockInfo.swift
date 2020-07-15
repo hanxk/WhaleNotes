@@ -21,6 +21,12 @@ struct BlockInfo {
     var blockPosition:BlockPosition = BlockPosition()
     
     var contentBlocks:[BlockInfo] = []
+    
+    
+    var position:Double {
+        get { return blockPosition.position}
+        set  { blockPosition.position = newValue}
+    }
 }
 
 

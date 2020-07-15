@@ -219,6 +219,29 @@ extension BlockRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
+    
+    func updatePosition(blockPosition:BlockPosition) -> Observable<Bool> {
+        return Observable<Bool>.create { [self]  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try blockPositionDao.update(blockPosition)
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func updatePositionAndParent(blockPosition:BlockPosition) -> Observable<Bool> {
+        return Observable<Bool>.create { [self]  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try blockPositionDao.update(blockPosition)
+                try blockDao.updateBlockParentId(id: blockPosition.blockId, newParentId: blockPosition.ownerId)
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
 }
 
 
