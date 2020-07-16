@@ -63,10 +63,10 @@ extension SQLStatement {
     }
     
     func getColumnValue(index: Int32, type: String) -> Any? {
-        if type == "TIMESTAMP" {
-           print(type)
-        }
-        print(type)
+//        if type == "TIMESTAMP" {
+//           print(type)
+//        }
+//        print(type)
         switch type {
         case "INT", "INTEGER", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "UNSIGNED BIG INT", "INT2", "INT8":
             if sqlite3_column_type(stmt, index) == SQLITE_NULL {

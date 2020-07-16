@@ -40,6 +40,13 @@ struct NoteInfo {
             self.noteBlock = blockInfo
         case .text:
             self.textBlock = blockInfo
+        case .todo:
+            if let index = self.todoGroupBlock?.contentBlocks.firstIndex(of: blockInfo) {
+                self.todoGroupBlock?.contentBlocks[index] = blockInfo
+                return
+            }
+            // 未找到，新增吧
+            
         case .group:
             let tag = NoteInfoGroupTag.init(rawValue: blockInfo.groupProperties!.tag)!
             switch tag {
@@ -53,7 +60,59 @@ struct NoteInfo {
         default:
             break
         }
+    }
+    
+    
+    mutating func insert(blockInfo:BlockInfo,at i:Int) {
+        self.updatedAt = Date()
+        switch blockInfo.type {
+        case .todo:
+            self.todoGroupBlock?.contentBlocks.insert(blockInfo, at: i)
+        default:
+            break
+        }
+
+    }
+    
+    mutating func delete(blockInfo:BlockInfo) {
+        self.updatedAt = Date()
+        switch blockInfo.type {
+        case .text:
+            self.textBlock = nil
+        case .todo:
+            if let index = self.todoGroupBlock?.contentBlocks.firstIndex(of: blockInfo) {
+                self.todoGroupBlock?.contentBlocks.remove(at: index)
+            }
+        case .group:
+            let tag = NoteInfoGroupTag.init(rawValue: blockInfo.groupProperties!.tag)!
+            switch tag {
+            case .todo:
+                self.todoGroupBlock = nil
+                break
+            case .attachment:
+                self.attachmentGroupBlock = nil
+                break
+            }
+        default:
+            break
+        }
+    }
+}
+
+extension NoteInfo {
+    mutating func deleteTodo(index:Int) {
+        self.updatedAt = Date()
+        self.todoGroupBlock?.contentBlocks.remove(at: index)
+    }
+    
+    mutating func moveTodo(todoBlock:BlockInfo,from:Int,to:Int) {
+        self.updatedAt = Date()
+        self.todoGroupBlock?.contentBlocks.remove(at: from)
+        self.todoGroupBlock?.contentBlocks.insert(todoBlock, at: to)
         
+        self.todoGroupBlock!.contentBlocks.forEach {
+            print("\($0.position) ---------- >      \($0.blockTodoProperties!.title)" )
+        }
     }
 }
 

@@ -464,15 +464,20 @@ extension NotesView {
     
     private func createTextNote() {
         var noteBlockInfo = generateNoteBlock()
-        let textBlockInfo = Block.text(parentId: noteBlockInfo.id, position: 65536)
+        let textBlockInfo = Block.text(parentId: noteBlockInfo.id, position: BlockConstants.position/3)
         noteBlockInfo.contentBlocks.append(textBlockInfo)
         self.createNote(noteBlockInfo: noteBlockInfo)
     }
     
     private func createTodoNote() {
         var noteBlockInfo = generateNoteBlock()
-        let textBlockInfo = Block.text(parentId: noteBlockInfo.id, position: 65536)
-        noteBlockInfo.contentBlocks.append(textBlockInfo)
+        
+        var todoGroupBlock = Block.group(parent: noteBlockInfo.id, properties: BlockGroupProperty(tag: NoteInfoGroupTag.todo.rawValue), position: BlockConstants.position / 2)
+        
+        let todoBlockInfo = Block.todo(parentId: todoGroupBlock.id, position: BlockConstants.position)
+        todoGroupBlock.contentBlocks.append(todoBlockInfo)
+        
+        noteBlockInfo.contentBlocks.append(todoGroupBlock)
         self.createNote(noteBlockInfo: noteBlockInfo)
     }
     

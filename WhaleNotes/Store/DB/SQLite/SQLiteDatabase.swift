@@ -105,8 +105,10 @@ extension SQLiteDatabase {
     
     func execute(_ sql:String,args:Any...) throws  {
         let stmt = try self.prepare(sql: sql, args: args)
-//        return Int(try stmt.run())
-        _ = try stmt.run()
+        let rows = try stmt.run()
+        if isUserSQL(sql) {
+//            print("受影响的行数：\(rows)")
+        }
     }
     
     func query(_ sql:String,args:Any...) throws -> [Row]  {
@@ -116,13 +118,19 @@ extension SQLiteDatabase {
     
     func transaction(_ transFunc:() throws ->Void) throws {
         do {
-            _ = try self.execute("BEGIN EXCLUSIVE")
+            _ = try self.execute(DBConstants.SQL_TRANS_BEGIN)
             try transFunc()
-            _ = try self.execute("COMMIT")
+            _ = try self.execute(DBConstants.SQL_TRANS_COMMIT)
         }catch {
-            _ = try self.execute("ROLLBACK")
+            _ = try self.execute(DBConstants.SQL_TRANS_ROLLBACK)
             throw error
         }
+    }
+    
+    private func isUserSQL(_ sql:String) -> Bool {
+        return sql != DBConstants.SQL_TRANS_BEGIN  &&
+            sql != DBConstants.SQL_TRANS_COMMIT &&
+            sql != DBConstants.SQL_TRANS_ROLLBACK
     }
 }
 
@@ -155,4 +163,11 @@ extension String {
 //         let text = String(data: messageData!, encoding: .utf8)
 //         return text!
 //    }
+}
+
+
+enum DBConstants {
+    static let SQL_TRANS_BEGIN = "BEGIN EXCLUSIVE"
+    static let SQL_TRANS_COMMIT = "COMMIT"
+    static let SQL_TRANS_ROLLBACK = "ROLLBACK"
 }

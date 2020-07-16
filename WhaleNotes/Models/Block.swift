@@ -19,7 +19,7 @@ struct Block {
     
     static func note(title:String,parentId:String,position:Double) -> BlockInfo {
         var block = Block()
-        block.type = BlockType.note
+        block.type = .note
         block.parentId = parentId
         block.properties = BlockNoteProperty(title: title)
         
@@ -30,7 +30,7 @@ struct Block {
     
     static func newNoteBlock(properties:BlockNoteProperty=BlockNoteProperty()) -> Block {
         var block = Block()
-        block.type = BlockType.note
+        block.type = .note
         block.properties = properties
         return block
     }
@@ -39,14 +39,14 @@ struct Block {
     static func newTextBlock(parent:String,properties:BlockTextProperty=BlockTextProperty()) -> Block {
         var block = Block()
         block.parentId = parent
-        block.type = BlockType.text
+        block.type = .text
         block.properties = properties
         return block
     }
     
     static func text(parentId:String,position:Double) -> BlockInfo {
         var block = Block()
-        block.type = BlockType.text
+        block.type = .text
         block.parentId = parentId
         block.properties =  BlockTextProperty(title: "文本内容")
         
@@ -54,11 +54,19 @@ struct Block {
         return BlockInfo(block: block, blockPosition: position)
     }
     
-    
+    static func todo(parentId:String,properties:BlockTodoProperty = BlockTodoProperty(),position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = .todo
+        block.parentId = parentId
+        block.properties = properties
+        
+        let blockPosition = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
+        return BlockInfo(block: block, blockPosition: blockPosition)
+    }
     
     static func newTodoBlock(parent:String,sort:Double = 0,properties:BlockTodoProperty=BlockTodoProperty()) -> Block {
         var block = Block()
-        block.type = BlockType.todo
+        block.type = .todo
         block.parentId = parent
         block.properties = properties
         return block
@@ -66,7 +74,7 @@ struct Block {
     
     static func newImageBlock(parent:String,properties:BlockImageProperty) -> Block {
         var block = Block()
-        block.type = BlockType.image
+        block.type = .image
         block.parentId = parent
         block.properties = properties
         return block
@@ -74,7 +82,7 @@ struct Block {
     
     static func image(parent:String,properties:BlockImageProperty,position:Double) -> BlockInfo {
         var block = Block()
-        block.type = BlockType.image
+        block.type = .image
         block.parentId = parent
         block.properties = properties
         
@@ -85,7 +93,7 @@ struct Block {
     
     static func newBoardBlock(parentId:String,parentTable:TableType,properties:BlockBoardProperty) -> Block {
         var block = Block()
-        block.type = BlockType.board
+        block.type = .board
         block.parentId = parentId
         block.parentTable = parentTable
         block.properties = properties
@@ -95,7 +103,7 @@ struct Block {
     
     static func newToggleBlock(parent:String,parentTable:TableType,properties:BlockToggleProperty) -> Block {
         var block = Block()
-        block.type = BlockType.toggle
+        block.type = .toggle
         block.parentId = parent
         block.properties = properties
         return block
@@ -103,7 +111,7 @@ struct Block {
     
     static func newBookmarkBlock(parent:String,properties:BlockBookmarkProperty) -> Block {
         var block = Block()
-        block.type = BlockType.bookmark
+        block.type = .bookmark
         block.parentId = parent
         block.properties = properties
         return block
@@ -112,7 +120,7 @@ struct Block {
     
     static func group(parent:String,properties:BlockGroupProperty,position:Double) -> BlockInfo {
         var block = Block()
-        block.type = BlockType.group
+        block.type = .group
         block.parentId = parent
         block.properties = properties
         

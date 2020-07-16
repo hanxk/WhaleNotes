@@ -44,6 +44,26 @@ extension BlockPositionDao {
         try db.execute(insertSql, args:id)
     }
     
+    func delete(blockId:String,includeChild:Bool = false) throws {
+        var deleteSql:String
+        if includeChild {
+            deleteSql = """
+                delete from block_position where block_id in (
+                    with recursive
+                    b as (
+                            select id from block where id = ?
+                            union all
+                            select block.id from b join block on b.id = block.parent_id
+                    )
+                   select id from b
+                )
+            """
+        }else {
+            deleteSql = "DELETE FROM block_position WHERE block_id = ?"
+        }
+        try db.execute(deleteSql, args: blockId)
+    }
+    
     
     func deleteByParentId(_ parentId:String) throws{
         let insertSql = "DELETE FROM block_position WHERE owner_id = ?";

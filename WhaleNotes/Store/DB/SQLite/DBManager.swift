@@ -26,6 +26,7 @@ class DBManager: NSObject {
             let path = NSSearchPathForDirectoriesInDomains(
                 .documentDirectory, .userDomainMask, true
             ).first!
+            print("db path: \(path)")
             let db = try SQLiteDatabase.open(path: "\(path)/WhaleNotes.sqlite3")
             self._db = db
             try self.setupTable()

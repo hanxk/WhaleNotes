@@ -33,15 +33,10 @@ extension NoteRepo {
             .flatMap {
                 return Observable.of($0[0])
             }
-//        return Observable<BlockInfo>.create {  observer -> Disposable in
-//            self.transactionTask(observable: observer) { () -> BlockInfo in
-//                try self.insertBlockInfo(blockInfo: blockInfo)
-//                try self.blockDao.updateUpdatedAt(id: blockInfo.block.parentId, updatedAt: Date())
-//                return blockInfo
-//            }
-//        }
-//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//        .observeOn(MainScheduler.instance)
+    }
+    
+    func deleteBlockInfo(blockId:String) -> Observable<Bool>{
+        return BlockRepo.shared.deleteBlockInfo(blockId: blockId, includeChild: true)
     }
     
     
@@ -86,6 +81,19 @@ extension NoteRepo {
             try insertBlockInfo(blockInfo: contentBlockInfo)
         }
     }
+    
+    
+    func updatePosition(blockPosition:BlockPosition,noteId:String) -> Observable<Bool> {
+        return Observable<Bool>.create { [self]  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try blockPositionDao.update(blockPosition)
+                try blockDao.updateUpdatedAt(id: noteId, updatedAt: Date())
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
 }
 
 
@@ -103,10 +111,10 @@ extension NoteRepo {
         return self.updateNoteStatus(id: id, keyValue: ("backgroundColor", backgroundColor),updatedTimeBlockId:updatedTimeBlockId)
     }
     
-    func updateProperties(id:String ,propertiesJSON:String ,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
+    func updateProperties(id:String ,properties:Codable ,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
         return Observable<Bool>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Bool in
-                try self.blockDao.updateProperties(id: id,propertiesJSON: propertiesJSON)
+                try self.blockDao.updateProperties(id: id,propertiesJSON: json(from: properties)!)
                 if let updatedTimeBlockId = updatedTimeBlockId {
                     try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId, updatedAt: Date())
                 }

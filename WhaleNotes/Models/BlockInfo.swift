@@ -7,7 +7,11 @@
 //
 
 import Foundation
-struct BlockInfo {
+struct BlockInfo:Equatable {
+    static func == (lhs: BlockInfo, rhs: BlockInfo) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
     
     var id:String {
         return block.id

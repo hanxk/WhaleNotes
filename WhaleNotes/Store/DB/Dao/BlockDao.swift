@@ -313,7 +313,7 @@ extension BlockDao {
     
     func updateUpdatedAt(id:String,updatedAt:Date) throws {
         let updateSQL = " update block set updated_at = ? where id = ?"
-        try db.execute(updateSQL, args: updatedAt.toSQLDateString(),id)
+        try db.execute(updateSQL, args: updatedAt.timeIntervalSince1970,id)
     }
     
     
@@ -358,21 +358,24 @@ extension BlockDao {
     
     func queryChilds(id:String) throws ->[BlockInfo] {
         let selectSQL = """
-                              with recursive
-                                b as (
-                                        select block.*,
-                                        '' as position_id,'' as owner_id,0 as position
-                                        from block where parent_id = ?
-                                        union all
-                                        select block.*,
-                                        block_position.id as position_id,block_position.owner_id,block_position.position as position
-                                        from b
-                                        join block_position on block_position.owner_id = b.id
-                                        join block on block.id =  block_position.block_id
-                                        
-                                )
-                              select * from b;
-                        """
+                     with recursive
+                        b as (
+                                select block_t.*,
+                            IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                                from  (
+                                    select * from block where  block.parent_id = ?
+                                ) as block_t
+                                left join block_position on block_position.block_id = block_t.id
+                                union all
+                                select block.*,
+                                block_position.id as position_id,block_position.owner_id,block_position.position as position
+                                from b
+                                join block_position on block_position.owner_id = b.id
+                                join block on block.id =  block_position.block_id
+                                
+                        )
+                      select * from b;
+                    """
         let rows = try db.query(selectSQL, args: id)
         let blockInfos:[BlockInfo] = extract(rows: rows)
         

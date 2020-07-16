@@ -160,6 +160,21 @@ extension BlockRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    
+    func deleteBlockInfo(blockId:String,includeChild:Bool) -> Observable<Bool> {
+        return Observable<Bool>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                // 删除 position
+                try self.blockPositionDao.delete(blockId: blockId,includeChild: includeChild)
+                // 删除
+                try self.blockDao.delete(id: blockId, includeChild: includeChild)
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
 }
 
 

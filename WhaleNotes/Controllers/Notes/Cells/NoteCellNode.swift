@@ -240,9 +240,9 @@ class NoteCellNode: ASCellNode {
             }
             self.addSubnode(self.menuTodoImage!)
             
-//            self.menuTodoText = ASTextNode().then {
-//                $0.attributedText = getMenuLabelAttributes(text: "\(todoInfo.0)/\(todoInfo.1)")
-//            }
+            self.menuTodoText = ASTextNode().then {
+                $0.attributedText = getMenuLabelAttributes(text: "\(todoInfo.0)/\(todoInfo.1)")
+            }
             self.addSubnode(self.menuTodoText!)
         }
         
