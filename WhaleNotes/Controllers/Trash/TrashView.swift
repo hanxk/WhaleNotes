@@ -307,22 +307,22 @@ extension TrashView: ASCollectionDelegate {
     
     func openEditorVC(note: Note,isNew:Bool = false) {
         let noteVC  = EditorViewController()
-        noteVC.mode = EditorMode.browser(noteInfo: note)
+//        noteVC.mode = EditorMode.browser(noteInfo: note)
         noteVC.callbackNoteUpdate = {updateMode in
-            self.noteEditorUpdated(mode: updateMode)
+//            self.noteEditorUpdated(mode: updateMode)
         }
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
     }
     
     func noteEditorUpdated(mode:EditorUpdateMode) {
-        switch mode {
-        case .delete(let note):
-            self.removeNodeFromCollectionView(note)
-        case .trashedOut(let note):
-            self.removeNodeFromCollectionView(note)
-        default:
-            break
-        }
+//        switch mode {
+//        case .delete(let note):
+//            self.removeNodeFromCollectionView(note)
+//        case .trashedOut(let note):
+//            self.removeNodeFromCollectionView(note)
+//        default:
+//            break
+//        }
     }
     
 }

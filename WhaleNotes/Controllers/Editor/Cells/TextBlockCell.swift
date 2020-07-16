@@ -23,7 +23,8 @@ class TextBlockCell: UITableViewCell {
         $0.backgroundColor = .clear
     }
     var textChanged: ((String) -> Void)?
-    var blockUpdated:((Block) -> Void)?
+//    var blockUpdated:((Block) -> Void)?
+    var textEndEdit:((String) -> Void)?
     
     private lazy var disposebag = DisposeBag()
     
@@ -34,12 +35,18 @@ class TextBlockCell: UITableViewCell {
         }
     }
     
-    var note:Note! {
+//    var note:Note! {
+//        didSet {
+//            if let textBlock = note.textBlock {
+//                self.textBlock = textBlock
+//            }
+//            textView.isEditable = note.status != NoteBlockStatus.trash
+//        }
+//    }
+    
+    var title:String! {
         didSet {
-            if let textBlock = note.textBlock {
-                self.textBlock = textBlock
-            }
-            textView.isEditable = note.status != NoteBlockStatus.trash
+            textView.text = title
         }
     }
     
@@ -121,10 +128,7 @@ extension TextBlockCell: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         let text = textView.text ?? ""
-        if  text != textBlock.blockTextProperties!.title {
-            self.textBlock.blockTextProperties?.title = text
-            blockUpdated?(self.textBlock)
-        }
+        textEndEdit?(text)
         return true
     }
     

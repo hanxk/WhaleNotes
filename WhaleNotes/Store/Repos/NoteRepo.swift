@@ -10,10 +10,187 @@ import Foundation
 import RxSwift
 import TLPhotoPicker
 
+class NoteRepo:BaseRepo {
+    static let shared = NoteRepo()
+    private override init() { }
+}
 
-class NoteRepo {
+extension NoteRepo {
+    
+    func createNote(noteInfo:BlockInfo) -> Observable<NoteInfo> {
+        return Observable<NoteInfo>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> NoteInfo in
+                try self.insertBlockInfo(blockInfo: noteInfo)
+                return NoteInfo(noteBlock: noteInfo)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func createBlockInfo(blockInfo:BlockInfo,updatedAtId:String? = nil) -> Observable<BlockInfo> {
+        return self.createBlockInfo(blockInfos: [blockInfo],updatedAtId: updatedAtId)
+            .flatMap {
+                return Observable.of($0[0])
+            }
+//        return Observable<BlockInfo>.create {  observer -> Disposable in
+//            self.transactionTask(observable: observer) { () -> BlockInfo in
+//                try self.insertBlockInfo(blockInfo: blockInfo)
+//                try self.blockDao.updateUpdatedAt(id: blockInfo.block.parentId, updatedAt: Date())
+//                return blockInfo
+//            }
+//        }
+//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+//        .observeOn(MainScheduler.instance)
+    }
     
     
+    func createBlockInfo(blockInfos:[BlockInfo],updatedAtId:String? = nil) -> Observable<[BlockInfo]> {
+        return Observable<[BlockInfo]>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> [BlockInfo] in
+                for blockInfo in blockInfos {
+                    try self.insertBlockInfo(blockInfo: blockInfo)
+                }
+                if let updatedAtId = updatedAtId {
+                    try self.blockDao.updateUpdatedAt(id: updatedAtId, updatedAt: Date())
+                }else {
+                    try self.blockDao.updateUpdatedAt(id: blockInfos[0].block.parentId, updatedAt: Date())
+                }
+                return blockInfos
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func queryNotes(boardId:String) -> Observable<[NoteInfo]> {
+        return Observable<[NoteInfo]>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> [NoteInfo] in
+                let blockInfos:[NoteInfo] = try self.blockDao.queryChilds(id: boardId).map({
+                    if $0.blockNoteProperties == nil { throw DBError(message: "queryNotes error")}
+                    return NoteInfo(noteBlock: $0)
+                })
+                return blockInfos
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    private func insertBlockInfo(blockInfo:BlockInfo) throws {
+        try self.blockDao.insert(blockInfo.block)
+        try self.blockPositionDao.insert(blockInfo.blockPosition)
+        
+        for contentBlockInfo in blockInfo.contentBlocks {
+            try insertBlockInfo(blockInfo: contentBlockInfo)
+        }
+    }
+}
+
+
+extension NoteRepo {
+    
+    func updateTitle(id:String ,title:String,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
+        return self.updateNoteStatus(id: id, keyValue: ("title", title),updatedTimeBlockId:updatedTimeBlockId)
+    }
+    
+    func updateNoteStatus(id:String ,status:NoteBlockStatus,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
+        return self.updateNoteStatus(id: id, keyValue: ("status", status.rawValue),updatedTimeBlockId:updatedTimeBlockId)
+    }
+    
+    func updateNoteBackgroundColor(id:String ,backgroundColor:String,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
+        return self.updateNoteStatus(id: id, keyValue: ("backgroundColor", backgroundColor),updatedTimeBlockId:updatedTimeBlockId)
+    }
+    
+    func updateProperties(id:String ,propertiesJSON:String ,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
+        return Observable<Bool>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try self.blockDao.updateProperties(id: id,propertiesJSON: propertiesJSON)
+                if let updatedTimeBlockId = updatedTimeBlockId {
+                    try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId, updatedAt: Date())
+                }
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    private func updateNoteStatus(id:String ,keyValue:(String,Any) ,updatedTimeBlockId:String? = nil) -> Observable<Bool> {
+        return Observable<Bool>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try self.blockDao.updateProperties(id: id, keyValue:keyValue)
+                if let updatedTimeBlockId = updatedTimeBlockId {
+                    try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId, updatedAt: Date())
+                }
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+}
+
+extension NoteRepo {
+    
+    func createNote(images:[TLPHAsset],parentId:String,position:Double) ->  Observable<NoteInfo> {
+       return  self.saveImages(images: images)
+            .map { images ->  BlockInfo in
+                var noteInfo = Block.note(title: "", parentId: parentId, position: position)
+                var position:Double = 0
+                let imageBlocks:[BlockInfo] = images.map {
+                    position += 65536
+                    return Block.image(parent: noteInfo.id, properties: $0, position: position)
+                }
+                noteInfo.contentBlocks.append(contentsOf:imageBlocks)
+                return noteInfo
+            }
+            .flatMap(self.createNote)
+    
+    }
+    
+    func saveImages(images:[TLPHAsset]) ->  Observable<[BlockImageProperty]> {
+        Observable.from(images)
+            .map { return ($0.uuidName,$0.fullResolutionImage?.fixedOrientation())}
+            .filter { $0.1 != nil}
+            .map { nameAndImage -> BlockImageProperty? in
+                let imageName = nameAndImage.0
+                let image = nameAndImage.1!
+                let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
+                if !success {
+                    return nil
+                }
+                return BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
+            }
+            .filter { $0 != nil }
+            .map{ return $0! }
+            .toArray()
+            .asObservable()
+            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .observeOn(MainScheduler.instance)
+    }
+    
+    func saveImage(image: UIImage) -> Observable<BlockImageProperty> {
+        return Observable<UIImage>.just(image)
+            .map({(image)  -> BlockImageProperty in
+                let imageName = UUID().uuidString+".jpg"
+                if let rightImage = image.fixedOrientation() {
+                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+                    if success {
+                        let pro = BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
+                        return pro
+                    }
+                }
+                throw DBError(message: "createImageBlocks error")
+            })
+            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+            .observeOn(MainScheduler.instance)
+    }
+}
+
+
+
 //    static let shared = NoteRepo()
 //    private init() {}
 //    
@@ -179,24 +356,7 @@ class NoteRepo {
 //            .disposed(by: disposebag)
 //    }
 //    
-//    func saveImages(images:[TLPHAsset],noteId:String="") ->  Observable<[Block]> {
-//        return Observable<[TLPHAsset]>.just(images)
-//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//            .map({(images)  -> [Block] in
-//                var imageBlocks:[Block] = []
-//                images.forEach {
-//                    if let image =  $0.fullResolutionImage?.fixedOrientation() {
-//                        let imageName =  $0.uuidName
-//                        let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image: image)
-//                        if success {
-//                            let properties = BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
-//                            imageBlocks.append(Block.newImageBlock(parent: noteId,properties: properties))
-//                        }
-//                    }
-//                }
-//                return imageBlocks
-//            })
-//    }
+
 //    
 //    func saveImage(url:String)-> Observable<String> {
 //        return Observable<String>.just(url)
@@ -216,23 +376,7 @@ class NoteRepo {
 //            })
 //            .observeOn(MainScheduler.instance)
 //    }
-//    
-//    func saveImage(image: UIImage,noteId: String="") -> Observable<Block> {
-//        return Observable<UIImage>.just(image)
-//            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//            .map({(image)  -> Block in
-//                let imageName = UUID().uuidString+".png"
-//                if let rightImage = image.fixedOrientation() {
-//                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
-//                    if success {
-//                        let pro = BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
-//                        return Block.newImageBlock(parent: noteId, properties: pro)
-//                    }
-//                }
-//                throw DBError(code: .None, message: "createImageBlocks error")
-//            })
-//            .observeOn(MainScheduler.instance)
-//    }
+//
 //    
 //    
 //    
@@ -287,17 +431,17 @@ class NoteRepo {
 //        .observeOn(MainScheduler.instance)
 //    }
 //    
-}
+//}
 
 
 //MARK: 废纸篓
-extension NoteRepo {
-    
-}
+//extension NoteRepo {
+//
+//}
 
-extension NoteRepo {
-    
-    
+//extension NoteRepo {
+
+
 //    func searchNotes(keyword:String) -> Observable<[NoteAndBoard]> {
 //        return Observable<String>.just(keyword)
 //            .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
@@ -313,4 +457,4 @@ extension NoteRepo {
 //            .observeOn(MainScheduler.instance)
 //    }
 //    
-}
+//}

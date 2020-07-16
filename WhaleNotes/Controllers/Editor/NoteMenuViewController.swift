@@ -225,7 +225,7 @@ extension NoteMenuViewController {
     
     private func move2Trash() {
         guard var noteBlock = self.note.rootBlock else { return }
-        noteBlock.blockNoteProperties!.status = NoteBlockStatus.trash.rawValue
+        noteBlock.blockNoteProperties!.status = NoteBlockStatus.trash
         updateNoteBlock(noteBlock: noteBlock) {
             self.delegate?.noteMenuMoveToTrash(note: $0)
         }
@@ -234,7 +234,7 @@ extension NoteMenuViewController {
     
     private func archivenNote() {
         guard var noteBlock = self.note.rootBlock else { return }
-        noteBlock.blockNoteProperties!.status = self.note.status == NoteBlockStatus.normal  ? NoteBlockStatus.archive.rawValue : NoteBlockStatus.normal.rawValue
+        noteBlock.blockNoteProperties!.status = self.note.status == .normal  ? .archive : .normal
         updateNoteBlock(noteBlock: noteBlock) {
             self.delegate?.noteMenuArchive(note: $0)
         }
@@ -259,7 +259,7 @@ extension NoteMenuViewController {
 extension NoteMenuViewController {
     func restoreNote() {
         guard var noteBlock = self.note.rootBlock else { return }
-        noteBlock.blockNoteProperties!.status = NoteBlockStatus.normal.rawValue
+        noteBlock.blockNoteProperties!.status = .normal
 //        NoteRepo.shared.updateBlock(block: noteBlock)
 //            .subscribe(onNext: {
 //                var newNote = self.note!

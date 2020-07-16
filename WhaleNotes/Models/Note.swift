@@ -74,7 +74,7 @@ extension Note {
     }
     var status:NoteBlockStatus {
         get {
-            return NoteBlockStatus(rawValue: rootBlock.blockNoteProperties!.status)!
+            return rootBlock.blockNoteProperties!.status
         }
     }
     

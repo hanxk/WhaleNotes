@@ -337,6 +337,11 @@ extension BlockDao {
         try db.execute(updateSQL, args:propertiesJSON,id)
     }
     
+    func updateProperties(id:String,keyValue:(String,Any)) throws {
+        let updateSQL = "update block set properties = json_set(properties, '$.\(keyValue.0)', ?),updated_at=CURRENT_TIMESTAMP where id = ?"
+        try db.execute(updateSQL, args:keyValue.1,id)
+    }
+    
     func updateContent(id:String,content:[String]) throws {
         let updateSQL = "update block set content = ?,updated_at=CURRENT_TIMESTAMP where id = ?"
         try db.execute(updateSQL, args:json(from: content)!,id)
@@ -350,7 +355,6 @@ extension BlockDao {
         }
         return extract(row: rows[0])
     }
-    
     
     func queryChilds(id:String) throws ->[BlockInfo] {
         let selectSQL = """
@@ -372,7 +376,7 @@ extension BlockDao {
         let rows = try db.query(selectSQL, args: id)
         let blockInfos:[BlockInfo] = extract(rows: rows)
         
-        var topLevelBlockInfos:[BlockInfo] = blockInfos.filter {$0.block.parentId == id}
+        var topLevelBlockInfos:[BlockInfo] = blockInfos.filter {$0.block.parentId == id}.sorted { $0.blockPosition.position <  $1.blockPosition.position}
         
         for i in 0..<topLevelBlockInfos.count {
             var childBlockInfos:[BlockInfo] = []
@@ -555,6 +559,8 @@ extension BlockDao {
             return json2Object(json, type: BlockBoardProperty.self)!
         case .toggle:
             return json2Object(json, type: BlockToggleProperty.self)!
+        case .group:
+            return json2Object(json, type: BlockGroupProperty.self)!
         }
         
     }

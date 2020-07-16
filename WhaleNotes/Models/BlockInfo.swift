@@ -27,6 +27,14 @@ struct BlockInfo {
         get { return blockPosition.position}
         set  { blockPosition.position = newValue}
     }
+    
+    var type:BlockType {
+        return block.type
+    }
+    var updatedAt:Date {
+        get { return self.block.updatedAt }
+        set { self.block.updatedAt = newValue}
+    }
 }
 
 
@@ -62,6 +70,11 @@ extension BlockInfo {
     var blockToggleProperties:BlockToggleProperty? {
         get { self.block.properties as? BlockToggleProperty }
         set {  self.block.properties =  newValue }
+    }
+    
+    var groupProperties:BlockGroupProperty? {
+        get { self.block.blockGroupProperties }
+        set {  self.block.blockGroupProperties =  newValue }
     }
 
 }

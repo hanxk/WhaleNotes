@@ -28,7 +28,7 @@ class ImageCell: UICollectionViewCell {
         $0.layer.borderColor = UIColor.divider.cgColor
     }
     
-    var imageBlock:Block! {
+    var imageBlock:BlockInfo! {
         didSet {
             let fileURL = ImageUtil.sharedInstance.filePath(imageName: imageBlock.blockImageProperties!.url)
             imageView.setLocalImage(fileURL: fileURL)

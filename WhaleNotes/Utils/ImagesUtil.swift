@@ -21,9 +21,10 @@ class ImageUtil {
     }
     
     func saveImage(imageName: String,image: UIImage) -> Bool {
-        if let pngRepresentation = image.pngData() {
+        
+        if let jpegData = image.jpegData(compressionQuality: 0.8) {
             do  {
-                try pngRepresentation.write(to: filePath(imageName: imageName),
+                try jpegData.write(to: filePath(imageName: imageName),
                                             options: .atomic)
                 return true
             } catch let err {

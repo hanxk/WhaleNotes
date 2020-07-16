@@ -440,47 +440,11 @@ extension SideMenuViewController {
         }, completion: nil)
         
     }
-    //        //移除 category
-    //        guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategoryInfo.category.id] else { return }
-    //
-    //        let section = categoryIndex + self.sectionCategoryBeginIndex
-    //
-    //        self.boards.insert(contentsOf: boardCategoryInfo.boards, at: 0)
-    //        self.pringBoards(boards: self.boards)
-    //
-    //        self.menuSectionTypes.remove(at: section)
-    //        self.boardCategories.remove(at: categoryIndex)
-    //
-    //        var updatedRowsIndexPath:[IndexPath] = []
-    //        for (index,_) in  boardCategoryInfo.boards.enumerated() {
-    //            updatedRowsIndexPath.append(IndexPath(row: index, section: 1))
-    //        }
-    //
-    //        self.tableView.performBatchUpdates({
-    //            self.tableView.deleteSections(IndexSet([2+categoryIndex]), with: .none)
-    //            self.tableView.insertRows(at: updatedRowsIndexPath, with: .automatic)
-    //        }, completion: nil)
-    //    }
     
     func expandOrCollapse(section:Int) {
-        
         var categoryBlockInfo = self.categoriesInfos[section-self.sectionCategoryBeginIndex]
         categoryBlockInfo.blockToggleProperties!.isFolded = !categoryBlockInfo.blockToggleProperties!.isFolded
-        
         self.updateToggleBlockProperties(toggleBlock: categoryBlockInfo,isReloadSecction: true)
-        
-        //        if var  category = self.boardCategories[section-2].category {
-        //            category.isExpand = !category.isExpand
-        //            self.updateBoardCayegory(newBoardCategory: category)
-        //        }
-        //        guard var newToggleTask = self.blocksMap[self.space.boardGroupIds[section-1]],
-        //              var newToggleProperties = newToggleTask.blockToggleProperties else { return }
-        //
-        //        newToggleProperties.isFolded = !newToggleProperties.isFolded
-        //        newToggleTask.blockToggleProperties = newToggleProperties
-        //
-        
-        
     }
     
 }
@@ -1050,13 +1014,17 @@ extension SideMenuViewController: UITableViewDataSource {
         }
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        let sectionSpace:CGFloat  = 20
+        let sectionSpace:CGFloat  = 16
         let sectionType = self.menuSectionTypes[section]
         switch sectionType {
         case .system:
             return 44
         case .boards:
-            return section > 1 ? 0 : sectionSpace
+            if section == 1 { return 0}
+            if getBoardCategory(section: section-1).blockToggleProperties?.isFolded == true {
+                return 0
+            }
+            return sectionSpace
         }
     }
     
@@ -1089,12 +1057,7 @@ extension SideMenuViewController: UITableViewDataSource {
     }
     
     private func getBoardInfo(indexPath:IndexPath) -> BlockInfo {
-        
-        return getBoardCategory(section: indexPath.section).contentBlocks[indexPath.row]
-        if indexPath.section == 1 {
-            return self.boardGroupBlock.contentBlocks[indexPath.row-1]
-        }
-        return self.categoriesInfos[indexPath.section-self.sectionCategoryBeginIndex].contentBlocks[indexPath.row-1]
+        return getBoardCategory(section: indexPath.section).contentBlocks[indexPath.row-1]
     }
     
     private func getBoardCategory(section:Int) -> BlockInfo {

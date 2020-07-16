@@ -9,23 +9,24 @@
 import Foundation
 import RxSwift
 
-class BlockRepo {
+class BlockRepo:BaseRepo {
     static let shared = BlockRepo()
-    private init() {}
-    private var db:SQLiteDatabase {
-        return DBManager.shared.db
-    }
-    private var blockDao:BlockDao {
-        return DBManager.shared.blockDao
-    }
-    
-    private var spaceDao:SpaceDao {
-        return DBManager.shared.spaceDao
-    }
-    
-    private var blockPositionDao:BlockPositionDao {
-        return DBManager.shared.blockPositionDao
-    }
+    private override init() { }
+//    private init() {}
+//    private var db:SQLiteDatabase {
+//        return DBManager.shared.db
+//    }
+//    private var blockDao:BlockDao {
+//        return DBManager.shared.blockDao
+//    }
+//
+//    private var spaceDao:SpaceDao {
+//        return DBManager.shared.spaceDao
+//    }
+//
+//    private var blockPositionDao:BlockPositionDao {
+//        return DBManager.shared.blockPositionDao
+//    }
 }
 
 //MARK: BlockInfo
@@ -242,37 +243,4 @@ extension BlockRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
-}
-
-
-
-//MARK: 工具方法
-extension BlockRepo {
-    
-    private func executeTask<T>(observable:AnyObserver<T>,closure:()throws -> T) -> Disposable {
-        do {
-            let result:T = try closure()
-            observable.onNext(result)
-        }catch {
-            observable.onError(error)
-        }
-        observable.onCompleted()
-        return Disposables.create()
-    }
-    
-    
-    private func transactionTask<T>(observable:AnyObserver<T>,closure:()throws -> T) -> Disposable {
-        do {
-            var result:T!
-            try self.db.transaction {
-                result = try closure()
-            }
-            observable.onNext(result)
-        }catch {
-            observable.onError(error)
-        }
-        observable.onCompleted()
-        return Disposables.create()
-    }
-    
 }

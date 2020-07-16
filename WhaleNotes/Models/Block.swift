@@ -17,6 +17,17 @@ struct Block {
     var updatedAt:Date = Date()
     
     
+    static func note(title:String,parentId:String,position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = BlockType.note
+        block.parentId = parentId
+        block.properties = BlockNoteProperty(title: title)
+        
+        let position = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
+        return BlockInfo(block: block, blockPosition: position)
+    }
+    
+    
     static func newNoteBlock(properties:BlockNoteProperty=BlockNoteProperty()) -> Block {
         var block = Block()
         block.type = BlockType.note
@@ -33,6 +44,18 @@ struct Block {
         return block
     }
     
+    static func text(parentId:String,position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = BlockType.text
+        block.parentId = parentId
+        block.properties =  BlockTextProperty(title: "文本内容")
+        
+        let position = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
+        return BlockInfo(block: block, blockPosition: position)
+    }
+    
+    
+    
     static func newTodoBlock(parent:String,sort:Double = 0,properties:BlockTodoProperty=BlockTodoProperty()) -> Block {
         var block = Block()
         block.type = BlockType.todo
@@ -48,6 +71,17 @@ struct Block {
         block.properties = properties
         return block
     }
+    
+    static func image(parent:String,properties:BlockImageProperty,position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = BlockType.image
+        block.parentId = parent
+        block.properties = properties
+        
+        let blockPosition = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
+        return BlockInfo(block: block, blockPosition: blockPosition)
+    }
+    
     
     static func newBoardBlock(parentId:String,parentTable:TableType,properties:BlockBoardProperty) -> Block {
         var block = Block()
@@ -75,6 +109,16 @@ struct Block {
         return block
     }
     
+    
+    static func group(parent:String,properties:BlockGroupProperty,position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = BlockType.group
+        block.parentId = parent
+        block.properties = properties
+        
+        let position = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
+        return BlockInfo(block: block, blockPosition: position)
+    }
     
 }
 
@@ -111,6 +155,12 @@ extension Block {
         set {  self.properties =  newValue }
     }
     
+    var blockGroupProperties:BlockGroupProperty? {
+        get { self.properties as? BlockGroupProperty }
+        set {  self.properties =  newValue }
+    }
+    
+    
     static func convert2LocalSystemBoard(board:Block) -> Block {
         guard let blockBoardProperty = board.blockBoardProperties else { return board }
         if blockBoardProperty.type == .collect {
@@ -140,6 +190,7 @@ enum BlockType: String {
     case bookmark = "bookmark"
     case board = "board"
     case toggle = "toggle"
+    case group = "group"
 }
 
 enum TableType: String {
@@ -166,9 +217,11 @@ extension DBJSONable {
 struct BlockNoteProperty: Codable {
     var title:String = ""
     // note status:  -1: 删除  1: 正常  2: 归档
-    var status:Int = 1
+    var status:NoteBlockStatus = .normal
     var backgroundColor:String = "#FFFFFF"
 }
+
+
 
 
 
@@ -209,12 +262,17 @@ struct BlockBookmarkProperty: DBJSONable {
     var canonicalUrl:String = ""
 }
 
+
+struct BlockGroupProperty: DBJSONable {
+    var tag:Int = 0
+}
+
 enum BoardType:String,Codable {
     case user = "user"
     case collect = "collect"
 }
 
-enum NoteBlockStatus: Int {
+enum NoteBlockStatus: Int,Codable {
     case trash = -1
     case normal = 1
     case archive = 2
@@ -237,3 +295,6 @@ extension Block:SQLTable {
     }
 }
 
+struct BlockConstants {
+    static let position:Double = 65536
+}

@@ -18,20 +18,18 @@ import JXPhotoBrowser
 
 
 enum EditorUpdateMode {
-    case insert(noteInfo:Note)
-    case update(noteInfo:Note)
-    case delete(noteInfo:Note)
-    case moved(noteInfo:Note)
-    case archived(noteInfo:Note)
-    case trashed(noteInfo:Note)
-    case trashedOut(noteInfo:Note)
+    case updated(noteInfo:NoteInfo)
+    case deleted(noteInfo:NoteInfo)
+    case moved(noteInfo:NoteInfo)
+    case archived(noteInfo:NoteInfo)
+    case trashed(noteInfo:NoteInfo)
 }
 
-enum EditorMode {
-    case browser(noteInfo:Note)
-    case create(noteInfo:Note)
-    case delete(noteInfo:Note)
-}
+//enum EditorMode {
+//    case browser(noteInfo:Note)
+//    case create(noteInfo:Note)
+//    case delete(noteInfo:Note)
+//}
 
 class EditorViewController: UIViewController {
     
@@ -58,7 +56,7 @@ class EditorViewController: UIViewController {
     
     
     private var columnCount:Int {
-        return self.note.attachmentBlocks.count > 1 ? 2 : 1
+        return atachmentsBlocks.count > 1 ? 2 : 1
     }
     private var imageWidth:CGFloat {
         get {
@@ -71,12 +69,17 @@ class EditorViewController: UIViewController {
     private var imageTotalHeight:CGFloat = 0
     
     // 索引
-    private var note: Note!
+    var note: NoteInfo!
+    var isNew:Bool = false
+    
+    private var atachmentsBlocks:[BlockInfo] {
+        return note.attachmentGroupBlock?.contentBlocks ?? []
+    }
     
     
     private var bg:String! {
         didSet {
-            let bg =  UIColor(hexString: note.backgroundColor)
+            let bg =  UIColor(hexString: note.properties.backgroundColor)
             bottombar.backgroundColor = bg
             self.navigationItem.titleView = titleTextField
             navigationController?.navigationBar.barTintColor = bg
@@ -86,20 +89,19 @@ class EditorViewController: UIViewController {
     
     private var oldUpdatedAt:Date!
     
-    var mode: EditorMode! {
-        didSet {
-            switch mode {
-            case .browser(let noteInfo):
-                self.note = noteInfo
-                oldUpdatedAt = noteInfo.rootBlock.updatedAt
-            case .create(let noteInfo):
-                self.note = noteInfo
-            default:
-                break
-            }
-        }
-    }
-    var isNew = false
+//    var mode: EditorMode! {
+//        didSet {
+//            switch mode {
+//            case .browser(let noteInfo):
+//                self.note = noteInfo
+//                oldUpdatedAt = noteInfo.rootBlock.updatedAt
+//            case .create(let noteInfo):
+//                self.note = noteInfo
+//            default:
+//                break
+//            }
+//        }
+//    }
     
     var isNoteUpdated:Bool = false
     
@@ -205,7 +207,7 @@ class EditorViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
         
         
-        self.bg = note.backgroundColor
+        self.bg = note.properties.backgroundColor
         updateAt = self.note.updatedAt
     }
     @objc func rotated() {
@@ -224,28 +226,30 @@ class EditorViewController: UIViewController {
     
     
     private func tryNotifiNoteUpdated() {
-        
-        switch mode {
-        case .browser:
-            if self.oldUpdatedAt != note.updatedAt{
-                if note.isContentEmpty {
-                    self.deleteNote()
-                    return
-                }
-                self.callbackNoteUpdate?(EditorUpdateMode.update(noteInfo: self.note))
-            }
-            break
-        case .create:
-            if note.isContentEmpty {
-                self.deleteNote()
-                return
-            }
-            self.callbackNoteUpdate?(EditorUpdateMode.insert(noteInfo: self.note))
-        case .delete:
-            self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.note))
-        case .none:
-            break
+        if self.oldUpdatedAt != note.updatedAt{
+            self.callbackNoteUpdate?(EditorUpdateMode.updated(noteInfo: self.note))
         }
+//        switch mode {
+//        case .browser:
+//            if self.oldUpdatedAt != note.updatedAt{
+//                if note.isContentEmpty {
+//                    self.deleteNote()
+//                    return
+//                }
+//                self.callbackNoteUpdate?(EditorUpdateMode.update(noteInfo: self.note))
+//            }
+//            break
+//        case .create:
+//            if note.isContentEmpty {
+//                self.deleteNote()
+//                return
+//            }
+//            self.callbackNoteUpdate?(EditorUpdateMode.insert(noteInfo: self.note))
+//        case .delete:
+//            self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.note))
+//        case .none:
+//            break
+//        }
     }
     
     private func setupUI() {
@@ -275,16 +279,16 @@ class EditorViewController: UIViewController {
     }
     
     private func setFirstResponder() {
-        switch mode {
-        case .create(let noteInfo):
-            if noteInfo.textBlock != nil {
-                textCell?.textView.becomeFirstResponder()
-            }else if noteInfo.todoBlocks.isNotEmpty {
-                self.tryFocusTodoSection()
-            }
-        default:
-            break
-        }
+//        switch mode {
+//        case .create(let noteInfo):
+//            if noteInfo.textBlock != nil {
+//                textCell?.textView.becomeFirstResponder()
+//            }else if noteInfo.todoBlocks.isNotEmpty {
+//                self.tryFocusTodoSection()
+//            }
+//        default:
+//            break
+//        }
     }
     
     private func tryFocusTodoSection() {
@@ -298,12 +302,12 @@ class EditorViewController: UIViewController {
 extension EditorViewController:NoteMenuViewControllerDelegate {
     func noteMenuArchive(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
+//        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
     }
     
     func noteMenuMoveToTrash(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
+//        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
     }
     
     func noteMenuChooseBoards(note: Note) {
@@ -311,8 +315,8 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuBackgroundChanged(note: Note) {
-        self.note = note
-        self.bg = note.backgroundColor
+//        self.note = note
+//        self.bg = note.backgroundColor
     }
     
     func noteBlockDelete(blockType: BlockType) {
@@ -345,15 +349,15 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     
     func noteMenuDataMoved(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: note))
+//        self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: note))
     }
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
-        if note.status == NoteBlockStatus.trash {
-            NoteMenuViewController.show(mode: .trash, note: self.note, sourceView: sender,delegate: self)
-        }else {
-            NoteMenuViewController.show(mode: .detail, note: self.note, sourceView: sender,delegate: self)
-        }
+//        if note.status == NoteBlockStatus.trash {
+//            NoteMenuViewController.show(mode: .trash, note: self.note, sourceView: sender,delegate: self)
+//        }else {
+//            NoteMenuViewController.show(mode: .detail, note: self.note, sourceView: sender,delegate: self)
+//        }
     }
     
     
@@ -368,19 +372,17 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
 extension EditorViewController {
     
     @objc func handleAddButtonTapped(sender: UIButton) {
-        
         self.view.endEditing(true)
-        
-//        NotesView.showNotesMenu(sourceView: sender, sourceVC: self) { [weak self]  menuType in
-//            self?.handleCreateModeMenu(type:menuType)
-//        }
+        NotesView.showNotesMenu(sourceView: sender, sourceVC: self) { [weak self]  menuType in
+            self?.handleCreateModeMenu(type:menuType)
+        }
     }
     
     fileprivate func handleCreateModeMenu(type: MenuType) {
         self.tableView.resignFirstResponder()
         switch type {
         case .text:
-            self.handleText()
+            self.createTextBlock()
         case .todo:
             self.addTodoSection()
             break
@@ -406,36 +408,83 @@ extension EditorViewController {
         }
     }
     
-    fileprivate func handleText() {
+    fileprivate func createTextBlock() {
         if let textCell = textCell {
             textCell.textView.becomeFirstResponder()
             return
         }
-        let sectionIndex = 0
-        self.createBlock(block: Block.newTextBlock(parent: self.note.id)) { _ in
-            self.sections.insert(SectionType.text, at:sectionIndex)
-            self.tableView.performBatchUpdates({
-                self.tableView.insertSections(IndexSet([sectionIndex]), with: .bottom)
-            }) { _ in
-                
-                //获取焦点
-                if let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: sectionIndex)) as? TextBlockCell {
-                    cell.textView.becomeFirstResponder()
-                }
-                
+        let textBlockInfo = Block.text(parentId: self.note.id, position: BlockConstants.position/3)
+        self.insertBlockInfo(textBlockInfo)
+    }
+
+    private func insertBlockInfo(_ blockInfo:BlockInfo) {
+        NoteRepo.shared.createBlockInfo(blockInfo: blockInfo)
+            .subscribe {
+                self.handleBlockInfoInserted($0)
+            } onError: {
+                Logger.error($0)
             }
+            .disposed(by: disposebag)
+
+    }
+    
+    private func handleBlockInfoInserted(_ blockInfo:BlockInfo) {
+        self.note.update(blockInfo: blockInfo)
+        switch blockInfo.type {
+        case .text:
+            self.handleSectionInserted(sectionType: SectionType.text)
+            break
+        case .todo:
+            break
+        case .image:
+            break
+        case .group:
+            let tag = NoteInfoGroupTag.init(rawValue: blockInfo.groupProperties!.tag)!
+            switch tag {
+            case .todo:
+                self.handleSectionInserted(sectionType: SectionType.todo)
+            case .attachment:
+                self.handleSectionInserted(sectionType: SectionType.attachment)
+            }
+        default:
+            break
         }
+    }
+    
+    private func handleSectionInserted(sectionType:SectionType) {
+        switch sectionType {
+        case .text:
+            self.sections.insert(sectionType, at: 0)
+        case .todo:
+            let index = self.sections.contains(.text) ? 1 : 0
+            self.sections.insert(sectionType, at: index)
+        case .attachment:
+            self.sections.insert(sectionType, at: self.sections.count)
+        }
+        
+        guard let insertedSection = self.sections.firstIndex(of: sectionType) else { return }
+        self.tableView.performBatchUpdates({
+            self.tableView.insertSections(IndexSet([insertedSection]), with: .none)
+        }, completion: { _ in
+            // 获取焦点
+            if sectionType == .text,
+               let cell = self.tableView.cellForRow(at:IndexPath(row: 0, section: insertedSection)) as? TextBlockCell {
+                cell.textView.becomeFirstResponder()
+                return
+            }
+            
+        })
     }
     
     fileprivate func addTodoSection() {
         // 添加在第一行
-        if let _ = note.rootTodoBlock {
-            let nextIndexPath = IndexPath(row: note.todoBlocks.count, section: todoSectionIndex)
-            let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
-            self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
-        }else {
-            self.createRootTodoBlock()
-        }
+//        if let _ = note.rootTodoBlock {
+//            let nextIndexPath = IndexPath(row: note.todoBlocks.count, section: todoSectionIndex)
+//            let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
+//            self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
+//        }else {
+//            self.createRootTodoBlock()
+//        }
     }
 }
 
@@ -461,7 +510,7 @@ extension EditorViewController {
     
     func noteMenuDataRestored(note: Note) {
         self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.trashedOut(noteInfo: note))
+//        self.callbackNoteUpdate?(EditorUpdateMode.trashedOut(noteInfo: note))
     }
     
 }
@@ -475,10 +524,10 @@ extension EditorViewController {
         self.setupSectionsTypes()
         self.tableView.reloadData()
         
-        bottombar.updatedDateStr =  self.note.updatedDateStr
+        bottombar.updatedDateStr =  self.note.updatedAt.formattedYMDHM
         bottombar.addButton.isEnabled = self.note.status != NoteBlockStatus.trash
         
-        self.titleTextField.text = self.note.title
+        self.titleTextField.text = self.note.properties.title
         self.titleTextField.isEnabled = self.note.status != NoteBlockStatus.trash
         
     }
@@ -489,14 +538,19 @@ extension EditorViewController {
             self.sections.append(SectionType.text)
         }
         
-        if note.rootTodoBlock != nil {
-            self.sections.append(SectionType.todo)
-        }
-        
-        if note.attachmentBlocks.isNotEmpty {
-            self.sections.append(SectionType.images)
+        if let _ = note.attachmentGroupBlock {
+            self.sections.append(SectionType.attachment)
             self.imageTotalHeight = self.calculateTotalHeight()
         }
+        
+//        if note.rootTodoBlock != nil {
+//            self.sections.append(SectionType.todo)
+//        }
+        
+//        if note.attachmentBlocks.isNotEmpty {
+//            self.sections.append(SectionType.images)
+//            self.imageTotalHeight = self.calculateTotalHeight()
+//        }
     }
     
 }
@@ -573,7 +627,7 @@ extension EditorViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch sections[section] {
         case .todo:
-            return note.todoBlocks.count
+            return 0
         default:
             return 1
         }
@@ -588,7 +642,7 @@ extension EditorViewController: UITableViewDataSource {
         switch sectionType {
         case .text:
             return CellReuseIdentifier.text.rawValue
-        case .images:
+        case .attachment:
             return CellReuseIdentifier.images.rawValue
         case .todo:
             return CellReuseIdentifier.todo.rawValue
@@ -602,7 +656,7 @@ extension EditorViewController: UITableViewDataSource {
         switch sectionObj {
         case .text:
             let textCell = cell as! TextBlockCell
-            textCell.note = note
+            textCell.title = self.note.textBlock!.blockTextProperties?.title
             textCell.textChanged {[weak tableView] newText in
                 DispatchQueue.main.async {
                     UIView.performWithoutAnimation {
@@ -611,73 +665,102 @@ extension EditorViewController: UITableViewDataSource {
                     }
                 }
             }
-            textCell.blockUpdated = { [weak self] block in
-                guard let self = self else { return }
-                self.tryUpdateBlock(block: block)
+            textCell.textEndEdit = { [weak self] newText in
+                self?.updateText(newText: newText)
             }
             self.textCell = textCell
             break
-        case .todo:
-            let todoBlock = self.note.todoBlocks[indexPath.row]
-            let todoCell = cell as! TodoBlockCell
-            todoCell.todoBlock = todoBlock
-            todoCell.note = note
-            todoCell.backgroundColor = .clear
-            todoCell.delegate = self
-        case .images:
+//        case .todo:
+//            let todoBlock = self.note.todoBlocks[indexPath.row]
+//            let todoCell = cell as! TodoBlockCell
+//            todoCell.todoBlock = todoBlock
+//            todoCell.note = note
+//            todoCell.backgroundColor = .clear
+//            todoCell.delegate = self
+        case .attachment:
             let imagesCell = cell as! AttachmentsBlockCell
 //            imagesCell.columnCount = self.columnCount
             imagesCell.imageWidth = imageWidth
-//            imagesCell.heightChanged = { [weak tableView]  in
-//                DispatchQueue.main.async {
-//                    UIView.performWithoutAnimation {
-//                        tableView?.beginUpdates()
-//                        tableView?.endUpdates()
-//                    }
-//                }
-//            }
-            imagesCell.callbackCellTapped  = { indexPath in
-                let browser = PhotoViewerViewController(note: self.note, pageIndex: indexPath.row)
-                browser.isFromNoteDetail = true
-                browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
-                    let path = IndexPath(item: index, section: indexPath.section)
-                    let cell = imagesCell.collectionView.cellForItem(at: path) as? ImageCell
-                    return cell?.imageView
-                })
-                browser.callbackPhotoBlockDeleted = { newNote  in
-                    self.handleImageBlocksUpdated(newNote:newNote)
+            imagesCell.heightChanged = { [weak tableView]  in
+                DispatchQueue.main.async {
+                    UIView.performWithoutAnimation {
+                        tableView?.beginUpdates()
+                        tableView?.endUpdates()
+                    }
                 }
-                browser.show()
-                
             }
-            imagesCell.reloadData(imageBlocks: self.note.attachmentBlocks)
+            imagesCell.callbackCellTapped  = { indexPath in
+//                let browser = PhotoViewerViewController(note: self.note, pageIndex: indexPath.row)
+//                browser.isFromNoteDetail = true
+//                browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
+//                    let path = IndexPath(item: index, section: indexPath.section)
+//                    let cell = imagesCell.collectionView.cellForItem(at: path) as? ImageCell
+//                    return cell?.imageView
+//                })
+//                browser.callbackPhotoBlockDeleted = { newNote  in
+//                    self.handleImageBlocksUpdated(newNote:newNote)
+//                }
+//                browser.show()
+
+            }
+            imagesCell.reloadData(imageBlocks: self.atachmentsBlocks)
             self.attachmentsCell = imagesCell
             break
+            default:
+                break
         }
         return cell
     }
     
-    private func handleImageBlocksUpdated(newNote:Note) {
-        self.note = newNote
-        guard let index = self.sections.firstIndex(where: {$0 == SectionType.images}) else { return }
-        if newNote.attachmentBlocks.isEmpty {
-            self.sections.remove(at: index)
-            self.attachmentsCell = nil
-            self.tableView.performBatchUpdates({
-                self.tableView.deleteSections(IndexSet([index]), with: .automatic)
-            }, completion: nil)
-        }else {
-            
-            self.imageTotalHeight = self.calculateTotalHeight()
-            self.refreshTableViewHeight()
-            
-            if let cell = self.attachmentsCell {
-                cell.reloadData(imageBlocks: self.note.attachmentBlocks)
-            }
-            //            self.tableView.performBatchUpdates({
-            //                self.tableView.reloadSections(IndexSet([index]), with: .automatic)
-            //            }, completion: nil)
+    private func updateText(newText:String) {
+        guard var textBlock =  self.note.textBlock,let properties = textBlock.blockTextProperties else { return }
+        if properties.title == newText {
+            return
         }
+        textBlock.updatedAt = Date()
+        textBlock.blockTextProperties?.title = newText
+        NoteRepo.shared.updateTitle(id: textBlock.id, title: newText,updatedTimeBlockId: self.note.id)
+            .subscribe { _ in
+                self.note.update(blockInfo: textBlock)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposebag)
+    }
+    
+    private func updateTitle(newTitle:String) {
+        self.note.properties.title = newTitle
+        self.note.updatedAt = Date()
+        NoteRepo.shared.updateTitle(id: self.note.id, title: newTitle,updatedTimeBlockId: self.note.id)
+            .subscribe { _ in
+                self.note.update(blockInfo: self.note.noteBlock)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposebag)
+    }
+    
+    private func handleImageBlocksUpdated(newNote:Note) {
+//        self.note = newNote
+//        guard let index = self.sections.firstIndex(where: {$0 == SectionType.images}) else { return }
+//        if newNote.attachmentBlocks.isEmpty {
+//            self.sections.remove(at: index)
+//            self.attachmentsCell = nil
+//            self.tableView.performBatchUpdates({
+//                self.tableView.deleteSections(IndexSet([index]), with: .automatic)
+//            }, completion: nil)
+//        }else {
+//
+//            self.imageTotalHeight = self.calculateTotalHeight()
+//            self.refreshTableViewHeight()
+//
+//            if let cell = self.attachmentsCell {
+//                cell.reloadData(imageBlocks: self.note.attachmentBlocks)
+//            }
+//            //            self.tableView.performBatchUpdates({
+//            //                self.tableView.reloadSections(IndexSet([index]), with: .automatic)
+//            //            }, completion: nil)
+//        }
         
     }
     
@@ -691,32 +774,32 @@ extension EditorViewController: UITableViewDataSource {
         }
     }
     
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let contextItem = UIContextualAction(style: .destructive, title: "删除") {  (contextualAction, view, boolValue) in
-            self.tryDeleteTodoBlock(block: self.note.todoBlocks[indexPath.row])
-        }
-        let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
-        
-        return swipeActions
-    }
+//    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+//        let contextItem = UIContextualAction(style: .destructive, title: "删除") {  (contextualAction, view, boolValue) in
+//            self.tryDeleteTodoBlock(block: self.note.todoBlocks[indexPath.row])
+//        }
+//        let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
+//
+//        return swipeActions
+//    }
     
-    fileprivate func handleTodoEnterKeyTapped(block:Block) {
-        
-        
-        if block.blockTodoProperties!.title.isEmpty { // 删除
-            self.tryDeleteTodoBlock(block: block)
-        }else { // 新增
-            guard let row = self.note.todoBlocks.firstIndex(where: {$0.id == block.id}) else { return }
-            
-            // 先更新
-            self.tryUpdateBlock(block: block) {
-                //新增
-                let nextIndexPath = IndexPath(row: row+1, section: self.todoSectionIndex)
-                let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
-                self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
-            }
-        }
-    }
+//    fileprivate func handleTodoEnterKeyTapped(block:Block) {
+//
+//
+//        if block.blockTodoProperties!.title.isEmpty { // 删除
+//            self.tryDeleteTodoBlock(block: block)
+//        }else { // 新增
+//            guard let row = self.note.todoBlocks.firstIndex(where: {$0.id == block.id}) else { return }
+//
+//            // 先更新
+//            self.tryUpdateBlock(block: block) {
+//                //新增
+//                let nextIndexPath = IndexPath(row: row+1, section: self.todoSectionIndex)
+//                let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
+//                self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
+//            }
+//        }
+//    }
     
     
     fileprivate func handleTextViewEnterKey(textView: UITextView){
@@ -739,27 +822,27 @@ extension EditorViewController: UITableViewDataSource {
     }
     
     
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let sectionType = sections[section]
-        switch sectionType {
-        case .todo:
-            let todoFooterView = TodoFooterView()
-            if note.status != NoteBlockStatus.trash {
-                todoFooterView.addButtonTapped = { [weak self] in
-                    guard let self = self else { return }
-                    let nextIndexPath = IndexPath(row:self.note.todoBlocks.count, section: section)
-                    let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
-                    self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
-                }
-                todoFooterView.menuButtonTapped = {[weak self] menuButton in
-                    self?.handlerTodoMenuButtonTapped(menuButton:menuButton)
-                }
-            }
-            return todoFooterView
-        default:
-            return nil
-        }
-    }
+//    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+//        let sectionType = sections[section]
+//        switch sectionType {
+//        case .todo:
+//            let todoFooterView = TodoFooterView()
+//            if note.status != NoteBlockStatus.trash {
+//                todoFooterView.addButtonTapped = { [weak self] in
+//                    guard let self = self else { return }
+//                    let nextIndexPath = IndexPath(row:self.note.todoBlocks.count, section: section)
+//                    let sort = self.calcNextTodoBlockSort(newTodoIndex: nextIndexPath.row)
+//                    self.createNewTodoBlock(sort: sort, targetIndex: nextIndexPath)
+//                }
+//                todoFooterView.menuButtonTapped = {[weak self] menuButton in
+//                    self?.handlerTodoMenuButtonTapped(menuButton:menuButton)
+//                }
+//            }
+//            return todoFooterView
+//        default:
+//            return nil
+//        }
+//    }
     
     private func handlerTodoMenuButtonTapped(menuButton: UIButton) {
         
@@ -786,28 +869,28 @@ extension EditorViewController: UITableViewDataSource {
     }
     
     
-    private func createNewTodoBlock(sort:Double,targetIndex:IndexPath) {
-        
-        guard let rootTodoBlock = self.note.rootTodoBlock else { return }
-        // 新增
-        let todoBlock = Block.newTodoBlock(parent: rootTodoBlock.id,sort: sort)
-        self.createBlock(block: todoBlock) { _ in
-            self.tableView.performBatchUpdates({
-                self.tableView.insertRows(at: [targetIndex], with: .bottom)
-            }, completion: nil)
-            
-            //获取焦点
-            if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
-                cell.textView.becomeFirstResponder()
-            }else {
-                self.tableView.scrollToRow(at: targetIndex, at: .bottom, animated: false)
-                if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
-                    cell.textView.becomeFirstResponder()
-                }
-            }
-        }
-        
-    }
+//    private func createNewTodoBlock(sort:Double,targetIndex:IndexPath) {
+//
+//        guard let rootTodoBlock = self.note.rootTodoBlock else { return }
+//        // 新增
+//        let todoBlock = Block.newTodoBlock(parent: rootTodoBlock.id,sort: sort)
+//        self.createBlock(block: todoBlock) { _ in
+//            self.tableView.performBatchUpdates({
+//                self.tableView.insertRows(at: [targetIndex], with: .bottom)
+//            }, completion: nil)
+//
+//            //获取焦点
+//            if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
+//                cell.textView.becomeFirstResponder()
+//            }else {
+//                self.tableView.scrollToRow(at: targetIndex, at: .bottom, animated: false)
+//                if let cell = self.tableView.cellForRow(at:targetIndex) as? TodoBlockCell {
+//                    cell.textView.becomeFirstResponder()
+//                }
+//            }
+//        }
+//
+//    }
     
     
     private func createRootTodoBlock() {
@@ -846,10 +929,10 @@ extension EditorViewController: TodoBlockCellDelegate {
     }
     
     func handleTodoCellUpdated(newBlock: Block) {
-        guard let todoBlockIndex = self.note.getTodoBlockIndex(todoBlock: newBlock) else { return }
-        self.tableView.performBatchUpdates({
-            self.tableView.reloadRows(at: [IndexPath(row: todoBlockIndex, section: self.todoSectionIndex)], with: .automatic)
-        }, completion: nil)
+//        guard let todoBlockIndex = self.note.getTodoBlockIndex(todoBlock: newBlock) else { return }
+//        self.tableView.performBatchUpdates({
+//            self.tableView.reloadRows(at: [IndexPath(row: todoBlockIndex, section: self.todoSectionIndex)], with: .automatic)
+//        }, completion: nil)
     }
     
     func refreshTableViewHeight() {
@@ -862,7 +945,7 @@ extension EditorViewController: TodoBlockCellDelegate {
     }
     
     func todoBlockEnterKeyInput(newBlock: Block) {
-        self.handleTodoEnterKeyTapped(block:newBlock)
+//        self.handleTodoEnterKeyTapped(block:newBlock)
     }
     
     func todoBlockNeedDelete(newBlock: Block) {
@@ -881,8 +964,8 @@ extension EditorViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let sectionType = self.sections[indexPath.section]
         switch sectionType {
-        case .images:
-            if self.note.attachmentBlocks.isEmpty {
+        case .attachment:
+            if self.atachmentsBlocks.isEmpty {
                 return 0
             }
             return self.imageTotalHeight
@@ -914,7 +997,7 @@ extension EditorViewController: UITableViewDelegate {
                 
                 return CGFloat.leastNormalMagnitude
             }
-            if sections[section] == .images {
+            if sections[section] == .attachment {
                 
                 return  4
             }
@@ -965,7 +1048,7 @@ extension EditorViewController: UITableViewDelegate {
     }
     
     private func calcNextTodoBlockSort(newTodoIndex:Int) -> Double {
-        let todoBlocks = note.todoBlocks
+//        let todoBlocks = note.todoBlocks
 //        let sort = { () -> Double in
 //            if todoBlocks.isEmpty {
 //                return 65536
@@ -984,22 +1067,22 @@ extension EditorViewController: UITableViewDelegate {
     
     func swapRowInSameSection(section:Int,fromRow:Int,toRow:Int) {
         
-        var todoBlock = self.note.todoBlocks[fromRow]
-        self.note.todoBlocks.remove(at: fromRow)
-        
-        // 计算 sort
-//        let sort = self.calcNextTodoBlockSort(newTodoIndex: toRow)
-//        todoBlock.sort = sort
-        
-        self.tryUpdateBlock(block: todoBlock) {
-            self.note.todoBlocks.insert(todoBlock, at: toRow)
-            if let todoCell = self.tableView.cellForRow(at: IndexPath(row: fromRow, section: section)) as? TodoBlockCell {// 刷新旧的数据
-                todoCell.todoBlock = todoBlock
-            }
-        }
-//        self.note.todoBlocks.forEach {
-////            Logger.info("\($0.text)  \($0.sort)")
+//        var todoBlock = self.note.todoBlocks[fromRow]
+//        self.note.todoBlocks.remove(at: fromRow)
+//
+//        // 计算 sort
+////        let sort = self.calcNextTodoBlockSort(newTodoIndex: toRow)
+////        todoBlock.sort = sort
+//
+//        self.tryUpdateBlock(block: todoBlock) {
+//            self.note.todoBlocks.insert(todoBlock, at: toRow)
+//            if let todoCell = self.tableView.cellForRow(at: IndexPath(row: fromRow, section: section)) as? TodoBlockCell {// 刷新旧的数据
+//                todoCell.todoBlock = todoBlock
+//            }
 //        }
+////        self.note.todoBlocks.forEach {
+//////            Logger.info("\($0.text)  \($0.sort)")
+////        }
         
     }
     
@@ -1060,10 +1143,10 @@ extension EditorViewController {
             if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? TextBlockCell {
                 cell.textView.becomeFirstResponder()
             }
-        case .todo:
-            if let cell = tableView.cellForRow(at: IndexPath(row: self.note.todoBlocks.count-1, section: section)) as? TodoBlockCell {
-                cell.textView.becomeFirstResponder()
-            }
+//        case .todo:
+//            if let cell = tableView.cellForRow(at: IndexPath(row: self.note.todoBlocks.count-1, section: section)) as? TodoBlockCell {
+//                cell.textView.becomeFirstResponder()
+//            }
         default:
             break
         }
@@ -1173,10 +1256,10 @@ extension EditorViewController {
     }
     
     private func tryDeleteTodoBlock(block:Block) {
-        if self.note.todoBlocks.count == 1 {
-            self.deleteRootTodoBlock()
-            return
-        }
+//        if self.note.todoBlocks.count == 1 {
+//            self.deleteRootTodoBlock()
+//            return
+//        }
         
 //        noteRepo.deleteBlock(block: block)
 //            .subscribe(onNext: { [weak self] _ in
@@ -1276,50 +1359,110 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
     
     func handlePicker(images: [TLPHAsset]) {
         self.showHud()
-//        noteRepo.createImageBlocks(noteId: self.note.id, images: images, success: { [weak self] imageBlocks in
-//            if let self = self {
-//                self.hideHUD()
-//                self.handleSectionImage(imageBlocks: imageBlocks)
-//            }
-//        }) { [weak self]  in
-//            self?.hideHUD()
-//        }
+        NoteRepo.shared.saveImages(images: images)
+            .subscribe {
+                self.addImagesBlocks(imageProperties: $0)
+            } onError: {
+                Logger.error($0)
+            } onCompleted: {
+                self.hideHUD()
+            }
+            .disposed(by: disposebag)
     }
     
-    private func handleSectionImage(imageBlocks:[Block]) {
-        if  let imagesCell = self.attachmentsCell {
-            //附加
-            self.note.addImageBlocks(imageBlocks)
-            self.imageTotalHeight = self.calculateTotalHeight()
-            self.refreshTableViewHeight()
+    private func addImagesBlocks(imageProperties:[BlockImageProperty]) {
+        
+        if var imageGroupBlock = self.note.attachmentGroupBlock {
+            var position = imageGroupBlock.contentBlocks.isEmpty ?  BlockConstants.position :  imageGroupBlock.contentBlocks[0].position
+            let imageBlocks:[BlockInfo] = imageProperties.reversed().map {
+                position /=  2
+                let position = position
+                return Block.image(parent: imageGroupBlock.id, properties:$0,position: position)
+            }.reversed()
+            imageGroupBlock.contentBlocks.insert(contentsOf: imageBlocks, at: 0)
+            NoteRepo.shared.createBlockInfo(blockInfos: imageBlocks,updatedAtId: self.note.id)
+                .subscribe {_ in
+                    self.handleSectionImage(imageGroupBlock: imageGroupBlock)
+                } onError: {
+                    Logger.error($0)
+                }
+                .disposed(by: disposebag)
             
-            let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
-            
-
-            // 刷新 collection
-            imagesCell.handleDataChanged(insertionIndices: insertionIndices, insertedImages: imageBlocks)
-            self.sroll2ImageShow()
             return
         }
         
-        self.sections.append(SectionType.images)
-        self.note.addImageBlocks(imageBlocks)
+        var imageGroupBlock =  Block.group(parent: self.note.id, properties: BlockGroupProperty(tag: NoteInfoGroupTag.attachment.rawValue), position: BlockConstants.position)
+        let images:[BlockInfo] = imageProperties.enumerated().map {
+            let position = Double($0.offset+1) * BlockConstants.position
+            return Block.image(parent: imageGroupBlock.id, properties: $0.element, position: position)
+        }
+        imageGroupBlock.contentBlocks.append(contentsOf: images)
+        
+        NoteRepo.shared.createBlockInfo(blockInfo: imageGroupBlock)
+            .subscribe {
+                self.handleSectionImage(imageGroupBlock: $0)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposebag)
+
+        
+    }
+    
+    private func handleSectionImage(imageGroupBlock:BlockInfo) {
+        
+        if self.note.attachmentGroupBlock != nil {
+            
+            self.note.update(blockInfo: imageGroupBlock)
+            self.imageTotalHeight = self.calculateTotalHeight()
+            self.refreshTableViewHeight()
+            
+            if let imagesCell = self.attachmentsCell {
+                imagesCell.handleNewImageBlocksInstered(blockInfos: imageGroupBlock.contentBlocks)
+            }
+            self.sroll2ImageShow()
+            return
+        }
+        self.note.update(blockInfo: imageGroupBlock)
+        self.sections.append(SectionType.attachment)
         self.imageTotalHeight = self.calculateTotalHeight()
         self.refreshTableViewHeight()
-        
-        let sectionIndex = self.sections.count - 1
-        
-        
         self.tableView.performBatchUpdates({
-            self.tableView.insertSections(IndexSet([sectionIndex]), with: .none)
-        }, completion: { _ in
-            
-            self.sroll2ImageShow()
-        })
+            self.tableView.insertSections(IndexSet([self.sections.count-1]), with: .none)
+        }, completion: nil)
+//        if  let imagesCell = self.attachmentsCell {
+//            //附加
+//            self.note.addImageBlocks(imageBlocks)
+//            self.imageTotalHeight = self.calculateTotalHeight()
+//            self.refreshTableViewHeight()
+//
+//            let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
+//
+//
+//            // 刷新 collection
+//
+//            self.sroll2ImageShow()
+//            return
+//        }
+//
+//        self.sections.append(SectionType.images)
+//        self.note.addImageBlocks(imageBlocks)
+//        self.imageTotalHeight = self.calculateTotalHeight()
+//        self.refreshTableViewHeight()
+//
+//        let sectionIndex = self.sections.count - 1
+//
+//
+//        self.tableView.performBatchUpdates({
+//            self.tableView.insertSections(IndexSet([sectionIndex]), with: .none)
+//        }, completion: { _ in
+//
+//            self.sroll2ImageShow()
+//        })
     }
     
     private func sroll2ImageShow() {
-        guard  let sectionIndex = sections.firstIndex(where: {$0 == SectionType.images}) else { return }
+        guard  let sectionIndex = sections.firstIndex(where: {$0 == SectionType.attachment}) else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             // Code you want to be delayed
             self.tableView.scrollToRow(at: IndexPath(row: 0, section: sectionIndex), at: .top, animated: true)
@@ -1362,12 +1505,8 @@ extension EditorViewController: UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         let title = textField.text ?? ""
-        if  title != note.text {
-            
-            if  var titleBlock = note.rootBlock {
-                titleBlock.blockNoteProperties?.title = title
-                self.tryUpdateBlock(block: titleBlock)
-            }
+        if  title != note.properties.title {
+            self.updateTitle(newTitle: title)
         }
         return true
     }
@@ -1386,21 +1525,18 @@ extension EditorViewController {
             }
             return cellsHeight
         }()
-        for (_,block) in self.note.attachmentBlocks.enumerated() {
-            
-//            let width = block.properties["width"] as? CGFloat ?? 1000
-//            let height = block.properties["height"] as? CGFloat ?? 1000
-            if let properties = block.properties as? BlockImageProperty {
-                
+        for (_,block) in self.atachmentsBlocks.enumerated() {
+            if let properties = block.blockImageProperties {
+
                 let fitHeight = self.imageWidth * CGFloat(properties.height) / CGFloat(properties.width)
-                
+
                 let columnIndex = getCurrentMinValueIndex(cellsHeight: cellsHeight)
                 let oldHeight = cellsHeight[columnIndex] ?? 0
                 let bottomSpace = ((oldHeight == 0) ? CGFloat.zero : AttachmentsConstants.cellSpace)
                 cellsHeight[columnIndex] = oldHeight + fitHeight + bottomSpace
             }
-            
-            
+
+
         }
         return cellsHeight.values.max() ?? 0
     }
@@ -1423,10 +1559,10 @@ extension EditorViewController {
 }
 
 
-private enum SectionType {
+private enum SectionType:Equatable {
     case text
     case todo
-    case images
+    case attachment
 }
 
 fileprivate enum CellReuseIdentifier: String {

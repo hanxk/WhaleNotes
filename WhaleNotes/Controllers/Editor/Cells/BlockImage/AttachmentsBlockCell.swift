@@ -18,7 +18,7 @@ enum AttachmentsConstants {
 
 class AttachmentsBlockCell: UITableViewCell {
     
-    var blocks:[Block] = [] {
+    var blocks:[BlockInfo] = [] {
         didSet {
             self.columnCount = self.blocks.count > 1 ? 2 : 1
         }
@@ -71,7 +71,7 @@ class AttachmentsBlockCell: UITableViewCell {
         self.backgroundColor = .clear
     }
     
-    func handleDataChanged(insertionIndices: [Int],insertedImages:[Block]) {
+    func handleDataChanged(insertionIndices: [Int],insertedImages:[BlockInfo]) {
         self.blocks.insert(contentsOf: insertedImages, at: 0)
         collectionView.performBatchUpdates({
             //            collectionView.deleteItems(at: deletionIndices.map({ IndexPath(row: $0, section: 0)}))
@@ -79,18 +79,30 @@ class AttachmentsBlockCell: UITableViewCell {
             //            collectionView.reloadItems(at: modIndices.map({ IndexPath(row: $0, section: 0)}))
         }, completion: nil)
     }
+    
+    func handleNewImageBlocksInstered(blockInfos:[BlockInfo]) {
+        let insertedCount = abs(blockInfos.count - self.blocks.count)
+        var insertedItems:[IndexPath] = []
+        for i in 0..<insertedCount {
+            insertedItems.append(IndexPath(row: i, section: 0))
+        }
+        self.blocks = blockInfos
+        collectionView.performBatchUpdates({
+            collectionView.insertItems(at: insertedItems)
+        }, completion: nil)
+    }
 }
 
 extension AttachmentsBlockCell {
     
-    func reloadData(imageBlocks:[Block]) {
+    func reloadData(imageBlocks:[BlockInfo]) {
         self.blocks = imageBlocks
         self.collectionView.reloadData()
     }
     
-    private func getImageCGSize(block:Block) -> CGSize {
+    private func getImageCGSize(block:BlockInfo) -> CGSize {
         
-        guard let properties = block.properties as? BlockImageProperty else { return CGSize(width: 1000, height: 1000)}
+        guard let properties = block.blockImageProperties else { return CGSize(width: 1000, height: 1000)}
         
         let width = properties.width
         let height = properties.height

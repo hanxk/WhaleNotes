@@ -47,7 +47,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
        return ASCollectionNode(collectionViewLayout:collectionLayout).then { [weak self] in
              guard let self = self else {return}
              $0.alwaysBounceVertical = true
-             $0.dataSource = self
+//             $0.dataSource = self
              $0.delegate = self
              $0.view.keyboardDismissMode = .onDrag
         $0.contentInset = UIEdgeInsets(top: 8, left: NotesViewConstants.cellHorizontalSpace, bottom: NotesViewConstants.cellSpace, right: NotesViewConstants.cellHorizontalSpace)
@@ -101,23 +101,23 @@ extension SearchNotesView {
     }
     
     func noteEditorUpdated(mode:EditorUpdateMode) {
-        switch mode {
-        case .insert:
-            break
-        case .update(let note):
-            self.handleNoteUpdated(note)
-            break
-        case .delete(let note):
-            self.handleNoteDeleted(note)
-        case .moved(let note):
-            self.handleNoteUpdated(note)
-        case .trashed(let note):
-            self.handleNoteUpdated(note)
-        case .archived(let note):
-              self.handleNoteUpdated(note)
-        case .trashedOut(let note):
-            self.handleNoteUpdated(note)
-        }
+//        switch mode {
+//        case .insert:
+//            break
+//        case .update(let note):
+//            self.handleNoteUpdated(note)
+//            break
+//        case .delete(let note):
+//            self.handleNoteDeleted(note)
+//        case .moved(let note):
+//            self.handleNoteUpdated(note)
+//        case .trashed(let note):
+//            self.handleNoteUpdated(note)
+//        case .archived(let note):
+//              self.handleNoteUpdated(note)
+//        case .trashedOut(let note):
+//            self.handleNoteUpdated(note)
+//        }
     }
     
     
@@ -139,36 +139,36 @@ extension SearchNotesView {
 }
 
 
-extension SearchNotesView: ASCollectionDataSource {
-    
-    func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
-        return 1
-    }
-    
-    func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-        let count = self.notes.count
-        if count == 0 && self.keyword.isNotEmpty {
-            collectionNode.setEmptyMessage("没有找到相关的便签",y: 100)
-        }else {
-            collectionNode.clearEmptyMessage()
-        }
-        return count
-    }
-    
-    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
-        let note = self.notes[indexPath.row]
-        let itemSize = self.itemContentSize
-        return {
-            let node =  NoteCellNode(note: note.note,itemSize: itemSize,board: note.board)
-            node.delegate = self
-            node.callbackBoardButtonTapped = { note,board in
-                self.callbackCellBoardButtonTapped?(note,board)
-            }
-            return node
-        }
-    }
-    
-}
+//extension SearchNotesView: ASCollectionDataSource {
+//
+//    func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
+//        return 1
+//    }
+//
+//    func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
+//        let count = self.notes.count
+//        if count == 0 && self.keyword.isNotEmpty {
+//            collectionNode.setEmptyMessage("没有找到相关的便签",y: 100)
+//        }else {
+//            collectionNode.clearEmptyMessage()
+//        }
+//        return count
+//    }
+//
+//    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
+//        let note = self.notes[indexPath.row]
+//        let itemSize = self.itemContentSize
+//        return {
+//            let node =  NoteCellNode(note: note.note,itemSize: itemSize,board: note.board)
+//            node.delegate = self
+//            node.callbackBoardButtonTapped = { note,board in
+//                self.callbackCellBoardButtonTapped?(note,board)
+//            }
+//            return node
+//        }
+//    }
+//
+//}
 
 extension SearchNotesView:NoteCellNodeDelegate {
     func noteCellImageBlockTapped(imageView: ASImageNode, note: Note) {
@@ -219,12 +219,12 @@ extension SearchNotesView:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuBackgroundChanged(note: Note) {
-        guard let row = self.notes.firstIndex(where: {$0.note.id == note.id}) else { return }
-        self.notes[row] = NoteAndBoard(note: note, board: self.notes[row].board)
-        if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
-            noteCell.note = note
-            noteCell.setupBackBackground()
-        }
+//        guard let row = self.notes.firstIndex(where: {$0.note.id == note.id}) else { return }
+//        self.notes[row] = NoteAndBoard(note: note, board: self.notes[row].board)
+//        if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
+//            noteCell.note = note
+//            noteCell.setupBackBackground()
+//        }
     }
     
     func noteMenuDataMoved(note: Note) {
@@ -271,12 +271,12 @@ extension SearchNotesView: ASCollectionDelegate {
 extension SearchNotesView {
     
     func openEditorVC(note: Note,isNew:Bool = false) {
-        let noteVC  = EditorViewController()
-        noteVC.mode = isNew ? EditorMode.create(noteInfo: note) :  EditorMode.browser(noteInfo: note)
-        noteVC.callbackNoteUpdate = {updateMode in
-            self.noteEditorUpdated(mode: updateMode)
-        }
-        self.controller?.navigationController?.pushViewController(noteVC, animated: true)
+//        let noteVC  = EditorViewController()
+//        noteVC.mode = isNew ? EditorMode.create(noteInfo: note) :  EditorMode.browser(noteInfo: note)
+//        noteVC.callbackNoteUpdate = {updateMode in
+//            self.noteEditorUpdated(mode: updateMode)
+//        }
+//        self.controller?.navigationController?.pushViewController(noteVC, animated: true)
     }
     
 }

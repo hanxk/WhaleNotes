@@ -56,8 +56,13 @@ class NoteCellNode: ASCellNode {
     var menuTodoImage:ASImageNode?
     var menuTodoText:ASTextNode?
     
-    var note:Note!
-    var board:Board?
+    var note:NoteInfo!
+    var board:BlockInfo!
+    var noteProperties:BlockNoteProperty {
+        get {
+            return note.noteBlock.blockNoteProperties!
+        }
+    }
     
     var cardbackground:ASDisplayNode!
     
@@ -70,15 +75,15 @@ class NoteCellNode: ASCellNode {
     
     
     func setupBackBackground() {
-        self.cardbackground.backgroundColor = UIColor(hexString: note.backgroundColor)
-        if note.backgroundColor.isWhiteHex {
+        self.cardbackground.backgroundColor = UIColor(hexString: noteProperties.backgroundColor)
+        if noteProperties.backgroundColor.isWhiteHex {
             self.cardbackground.borderColor = UIColor.colorBoarder.cgColor
         }else {
             self.cardbackground.borderColor = UIColor.colorBoarder2.cgColor
         }
     }
     
-    required init(note:Note,itemSize: CGSize,board:Board? = nil) {
+    required init(note:NoteInfo,itemSize: CGSize,board:BlockInfo? = nil) {
         super.init()
         
         self.itemSize = itemSize
@@ -90,9 +95,9 @@ class NoteCellNode: ASCellNode {
         self.cornerRadius = cornerRadius
         
         cardbackground = ASDisplayNode().then {
-            $0.backgroundColor = UIColor(hexString: note.backgroundColor)
+            $0.backgroundColor = UIColor(hexString: noteProperties.backgroundColor)
             $0.borderWidth = 1
-            if note.backgroundColor.isWhiteHex {
+            if noteProperties.backgroundColor.isWhiteHex {
                 $0.borderColor = UIColor.colorBoarder.cgColor
             }else {
                 $0.borderColor = UIColor.colorBoarder2.cgColor
@@ -112,18 +117,22 @@ class NoteCellNode: ASCellNode {
         
         
         // 标题
-        let title = note.rootBlock.blockNoteProperties?.title ?? ""
+        let title = noteProperties.title
         if title.isNotEmpty {
             let titleNode = ASTextNode()
             titleNode.attributedText = getTitleLabelAttributes(text: title)
-            
+
             let titlePadding:CGFloat = 2
             titleNode.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: titlePadding, right: 0)
             self.addSubnode(titleNode)
             self.titleNode = titleNode
+
+
+            let isTodoExists =  note.todoGroupBlock?.contentBlocks.isNotEmpty ==  true
+            let isTextExists =  note.textBlock?.blockTextProperties?.title.isNotEmpty == true
             
             
-            if note.todoBlocks.isEmpty && (note.textBlock?.blockTextProperties?.title ?? "").isEmpty {
+            if !isTodoExists && !isTextExists {
                 titleHeight = contentHeight
             }else {
                 titleHeight = titleNode.attributedText!.height(containerWidth: contentWidth) + titlePadding
@@ -132,14 +141,14 @@ class NoteCellNode: ASCellNode {
                 titleHeight = CGFloat(lineCount) * lineHeight + titlePadding
             }
             titleNode.style.height = ASDimensionMake(titleHeight)
-            
+
             remainHeight = contentHeight - titleHeight
         }
         
         
         // 图片
-        if note.attachmentBlocks.isNotEmpty {
-            let imageBlock = note.attachmentBlocks[0]
+        if let attachmentGroupBlock = note.attachmentGroupBlock,attachmentGroupBlock.contentBlocks.isNotEmpty {
+            let imageBlock = attachmentGroupBlock.contentBlocks[0]
             let imageNode = ASImageNode().then {
                 $0.contentMode = .scaleAspectFill
                 let imageUrlPath = ImageUtil.sharedInstance.dirPath.appendingPathComponent(imageBlock.blockImageProperties!.url).absoluteString
@@ -152,7 +161,7 @@ class NoteCellNode: ASCellNode {
                 $0.cornerRadius = cornerRadius
                 $0.borderWidth = 1
                 $0.borderColor = cardbackground.borderColor
-                
+
             }
             remainHeight -= NoteCellConstants.imageHeight
             self.imageNodes.append(imageNode)
@@ -165,24 +174,25 @@ class NoteCellNode: ASCellNode {
         var textHeight:CGFloat = 0
         
         // 文本
-        if let text = note.text {
-            
+        if let textBlock = note.textBlock,let textProperties = textBlock.blockTextProperties {
+
             let textNode = ASTextNode()
-            textNode.attributedText = getTextLabelAttributes(text: text)
+            textNode.attributedText = getTextLabelAttributes(text: textProperties.title)
             textNode.truncationMode = .byTruncatingTail
-            
+
             textHeight = textNode.attributedText!.height(containerWidth: contentWidth)
             textNode.style.maxHeight = ASDimensionMake(remainHeight)
             //            textNode.backgroundColor = .red
-            
+
             self.textNode = textNode
             self.addSubnode(textNode)
         }
         
         // todo
         var todoInfo:(Int,Int) = (0,0)
-        let todoBlocks = note.todoBlocks
-        if todoBlocks.isNotEmpty {
+        if let todoGroupBlock = note.todoGroupBlock,todoGroupBlock.contentBlocks.isNotEmpty {
+            
+            let todoBlocks = todoGroupBlock.contentBlocks
             
             for todoBlock  in todoBlocks {
                 if todoBlock.blockTodoProperties!.isChecked {
@@ -191,11 +201,10 @@ class NoteCellNode: ASCellNode {
                 todoInfo.1 = todoInfo.1 + 1
             }
             
-            
             if textHeight == 0 {
                 let todoCount = Int(remainHeight / (NoteCellConstants.todoHeight))
                 addTodoNodes(with: todoBlocks,maxCount:todoCount)
-                
+
             }else {
                 let textAndTodosHeight =  calculateTextAndTodoMaxHeight(remainHeight: remainHeight, textHeight: textHeight, todos: todoBlocks)
                 textNode?.style.maxHeight = ASDimensionMake(textAndTodosHeight.0)
@@ -204,10 +213,7 @@ class NoteCellNode: ASCellNode {
                     addTodoNodes(with: todoBlocks,maxCount:todoCount)
                 }
             }
-            
         }
-        
-        
         if titleNode == nil && textNode == nil && elements.isEmpty &&  todosElements.isEmpty && imageNodes.count == 0 {
             let textNode = ASTextNode()
             textNode.attributedText = getEmptyTextLabelAttributes(text: "未填写任何内容")
@@ -234,13 +240,13 @@ class NoteCellNode: ASCellNode {
             }
             self.addSubnode(self.menuTodoImage!)
             
-            self.menuTodoText = ASTextNode().then {
-                $0.attributedText = getMenuLabelAttributes(text: "\(todoInfo.0)/\(todoInfo.1)")
-            }
+//            self.menuTodoText = ASTextNode().then {
+//                $0.attributedText = getMenuLabelAttributes(text: "\(todoInfo.0)/\(todoInfo.1)")
+//            }
             self.addSubnode(self.menuTodoText!)
         }
         
-        if let board = board {
+        if let board = board,let properties = board.blockBoardProperties  {
             let boardButton = ASButtonNode().then {
                 $0.style.height = ASDimensionMake(NoteCellConstants.boardHeight)
                 $0.style.width = ASDimensionMake(itemSize.width)
@@ -250,7 +256,7 @@ class NoteCellNode: ASCellNode {
                 let horizontalPadding:CGFloat = 2
                 $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: horizontalPadding, bottom:0, right: horizontalPadding)
                 
-                $0.setAttributedTitle(getBoardButtonAttributesText(text: board.title), for: .normal)
+                $0.setAttributedTitle(getBoardButtonAttributesText(text: properties.title), for: .normal)
                 $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
             }
             self.boardButton = boardButton
@@ -262,7 +268,7 @@ class NoteCellNode: ASCellNode {
         
     }
     
-    private func calculateTextAndTodoMaxHeight(remainHeight:CGFloat,textHeight:CGFloat,todos:[Block]) -> (CGFloat,CGFloat) {
+    private func calculateTextAndTodoMaxHeight(remainHeight:CGFloat,textHeight:CGFloat,todos:[BlockInfo]) -> (CGFloat,CGFloat) {
         let halfContentHeight = (remainHeight - NoteCellConstants.contentVerticalSpacing)/2
         let todosHeight = CGFloat(todos.count) * NoteCellConstants.todoHeight
         
@@ -284,7 +290,7 @@ class NoteCellNode: ASCellNode {
         return (halfContentHeight,newTodoHeight)
     }
     
-    private func addTodoNodes(with todoBlocks:[Block],maxCount:Int) {
+    private func addTodoNodes(with todoBlocks:[BlockInfo],maxCount:Int) {
         
         for (index,block) in todoBlocks.enumerated() {
             let imageNode = ASImageNode().then {
@@ -477,12 +483,12 @@ class NoteCellNode: ASCellNode {
     }
     
     @objc func menuButtonTapped(sender:ASImageNode) {
-        delegate?.noteCellMenuTapped(sender: sender.view, note: self.note)
+//        delegate?.noteCellMenuTapped(sender: sender.view, note: self.note)
     }
     
     @objc func boardButtonTapped() {
         if let board = self.board {
-            self.callbackBoardButtonTapped?(self.note,board)
+//            self.callbackBoardButtonTapped?(self.note,board)
         }
     }
     
@@ -577,6 +583,6 @@ class NoteCellNode: ASCellNode {
 
 extension NoteCellNode {
     @objc func noteCellImageBlockTapped(sender: ASImageNode) {
-        delegate?.noteCellImageBlockTapped(imageView:sender,note:self.note)
+//        delegate?.noteCellImageBlockTapped(imageView:sender,note:self.note)
     }
 }

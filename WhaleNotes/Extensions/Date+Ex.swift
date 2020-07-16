@@ -16,10 +16,16 @@ extension Date {
     formatter.dateFormat = "yyyy-MM-dd"
     return  formatter.string(from: self as Date)
   }
+    
+    var formattedYMDHM: String {
+      let formatter = DateFormatter()
+      formatter.dateFormat = "yyyy年MM月dd日 HH:mm"
+      return  formatter.string(from: self)
+    }
   
-  var formattedYYYYMMDDHHMM: String {
+  var formattedYYYYMMDDHHMMSS: String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    formatter.dateFormat = "yyyy年MM月dd HH:mm:ss"
     return  formatter.string(from: self)
   }
   var formattedYYYYMMDD: String {

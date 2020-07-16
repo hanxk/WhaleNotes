@@ -132,15 +132,16 @@ extension HomeViewController {
     }
     
     func setupBoardView(board:BlockInfo) {
-//        if let oldView =  self.contentView {
-//            oldView.removeFromSuperview()
-//        }
-//        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
-//        self.contentView = notesView
-//        self.view.addSubview(notesView)
-//        notesView.snp.makeConstraints { make in
-//            make.edges.equalToSuperview()
-//        }
+        if let oldView =  self.contentView {
+            oldView.removeFromSuperview()
+        }
+        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
+        self.contentView = notesView
+
+        self.view.addSubview(notesView)
+        notesView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         if let blockBoardProperties = board.blockBoardProperties,
            blockBoardProperties.type == BoardType.user
            {
@@ -153,10 +154,8 @@ extension HomeViewController {
     func setupSystemMenu(systemMenu: MenuSystemItem) {
         switch systemMenu {
         case .board(let board):
-//             self.setupBoardView(board:board)
-            if let blockBoardProperties = board.blockBoardProperties
-               {
-                
+             self.setupBoardView(board:board)
+            if let blockBoardProperties = board.blockBoardProperties {
                 self.titleButton.setTitle(blockBoardProperties.title, icon:systemMenu.iconImage)
             }
             break
