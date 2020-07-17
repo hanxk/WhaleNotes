@@ -27,12 +27,16 @@ open class ContextMenuViewController: UIViewController {
         menuVC.items = [(SectionMenuItem(id: 0),items)]
         menuVC.menuWidth = menuWidth
         menuVC.itemTappedCallback = callback
-        ContextMenu.shared.show(
-            sourceViewController: sourceVC,
-            viewController: menuVC,
-            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(shadowOpacity:0.06,overlayColor: UIColor.black.withAlphaComponent(0.2))),
-            sourceView: sourceView
-        )
+        
+        
+        menuVC.showContextMenu(sourceView: sourceView)
+//        ContextMenu.shared.show(
+//            sourceViewController: sourceVC,
+//            viewController: menuVC,
+//            options: ContextMenu.Options(containerStyle: ContextMenu.ContainerStyle(shadowOpacity:0.06,xPadding: -100, yPadding: 0, overlayColor: UIColor.black.withAlphaComponent(0.2))),
+//            sourceView: sourceView
+//        )
+//        self.showContextualMenu(menuVC)
     }
     
     

@@ -198,7 +198,7 @@ extension SearchNotesView:NoteCellNodeDelegate {
     
     func noteCellMenuTapped(sender: UIView,note:Note) {
         let menuStyle = note.status == NoteBlockStatus.trash ? NoteMenuDisplayMode.trash : NoteMenuDisplayMode.list
-        NoteMenuViewController.show(mode: menuStyle, note: note,sourceView: sender,delegate: self)
+//        NoteMenuViewController.show(mode: menuStyle, note: note,sourceView: sender,delegate: self)
     }
     
     
@@ -206,6 +206,18 @@ extension SearchNotesView:NoteCellNodeDelegate {
 
 //MARK: NoteMenuViewControllerDelegate
 extension SearchNotesView:NoteMenuViewControllerDelegate {
+    func noteMenuMoveTapped(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuDataRestored(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuDeleteTapped(note: NoteInfo) {
+        
+    }
+    
     func noteMenuArchive(note: Note) {
         self.handleNoteUpdated(note)
     }

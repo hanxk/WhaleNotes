@@ -30,7 +30,6 @@ enum EditorUpdateMode {
 //    case create(noteInfo:Note)
 //    case delete(noteInfo:Note)
 //}
-
 class EditorViewController: UIViewController {
     
     static let space: CGFloat = 16
@@ -290,16 +289,44 @@ class EditorViewController: UIViewController {
     }
     
     private func setFirstResponder() {
-        //        switch mode {
-        //        case .create(let noteInfo):
-        //            if noteInfo.textBlock != nil {
-        //                textCell?.textView.becomeFirstResponder()
-        //            }else if noteInfo.todoBlocks.isNotEmpty {
-        //                self.tryFocusTodoSection()
-        //            }
-        //        default:
-        //            break
-        //        }
+        if !self.isNew { return }
+        let section = self.sections.count-1
+        let sectionType = self.sections[section]
+        
+        switch sectionType {
+        case .todo:
+            if let cell = tableView.cellForRow(at:IndexPath(row: 0, section: section)) as? TodoBlockCell {
+                cell.textView.becomeFirstResponder()
+            }
+            break
+        case .text:
+            if let cell = tableView.cellForRow(at:IndexPath(row: 0, section: section)) as? TextBlockCell {
+                cell.textView.becomeFirstResponder()
+            }
+            break
+        default:
+            break
+        }
+        
+//        if  case .todo(let todoBlockInfo) = sectionType {
+//            if let rowIndex = todoBlocks.lastIndex(where: { $0.text.isEmpty }) {
+//                let indexPath =  IndexPath(row: rowIndex, section: sectionIndex)
+//                let cell = tableView.cellForRow(at:indexPath)
+//                if cell == nil {
+//                    tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+//                        guard let self = self else { return }
+//                        if  let newCell = self.tableView.cellForRow(at:indexPath) as? TodoBlockCell{
+//                            newCell.textView.becomeFirstResponder()
+//                        }
+//                    }
+//                    return
+//                }
+//                if let todoCell = cell as? TodoBlockCell {
+//                    todoCell.textView.becomeFirstResponder()
+//                }
+//            }
+//        }
     }
     
     private func tryFocusTodoSection() {
@@ -311,23 +338,43 @@ class EditorViewController: UIViewController {
 
 //MARK: NoteMenuViewControllerDelegate
 extension EditorViewController:NoteMenuViewControllerDelegate {
-    func noteMenuArchive(note: Note) {
+    func noteMenuMoveTapped(note: NoteInfo) {
+        let vc = ChangeBoardViewController()
+        vc.noteBlock = note.noteBlock
+        vc.callbackMoveToBoard = {
+            self.navigationController?.popViewController(animated: true)
+            var newNote = self.note!
+            newNote.noteBlock = $0
+            self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: newNote))
+        }
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    func noteMenuDataRestored(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuDeleteTapped(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuArchive(note: NoteInfo) {
         self.navigationController?.popViewController(animated: true)
         //        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
     }
     
-    func noteMenuMoveToTrash(note: Note) {
+    func noteMenuMoveToTrash(note: NoteInfo) {
         self.navigationController?.popViewController(animated: true)
         //        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
     }
     
-    func noteMenuChooseBoards(note: Note) {
+    func noteMenuChooseBoards(note: NoteInfo) {
         //        self.openChooseBoardsVC()
     }
     
-    func noteMenuBackgroundChanged(note: Note) {
-        //        self.note = note
-        //        self.bg = note.backgroundColor
+    func noteMenuBackgroundChanged(note: NoteInfo) {
+        self.note = note
+        self.bg = note.properties.backgroundColor
     }
     
     func noteBlockDelete(blockType: BlockType) {
@@ -358,17 +405,17 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     
-    func noteMenuDataMoved(note: Note) {
+    func noteMenuDataMoved(note: NoteInfo) {
         self.navigationController?.popViewController(animated: true)
         //        self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: note))
     }
     
     @objc func handleMoreButtonTapped(sender: UIButton) {
-        //        if note.status == NoteBlockStatus.trash {
-        //            NoteMenuViewController.show(mode: .trash, note: self.note, sourceView: sender,delegate: self)
-        //        }else {
-        //            NoteMenuViewController.show(mode: .detail, note: self.note, sourceView: sender,delegate: self)
-        //        }
+        if note.status == NoteBlockStatus.trash {
+            NoteMenuViewController.show(mode: .trash, note: self.note, sourceView: sender,delegate: self)
+        }else {
+            NoteMenuViewController.show(mode: .detail, note: self.note, sourceView: sender,delegate: self)
+        }
     }
     
     
@@ -724,9 +771,9 @@ extension EditorViewController: UITableViewDataSource {
         }
         textBlock.updatedAt = Date()
         textBlock.blockTextProperties?.title = newText
+        self.note.update(blockInfo: textBlock)
         NoteRepo.shared.updateTitle(id: textBlock.id, title: newText,updatedTimeBlockId: self.note.id)
             .subscribe { _ in
-                self.note.update(blockInfo: textBlock)
             } onError: {
                 Logger.error($0)
             }

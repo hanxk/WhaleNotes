@@ -8,15 +8,16 @@
 import UIKit
 class ChangeBoardCell: UITableViewCell {
     
-    var board:Board! {
+    var board:BlockInfo! {
         didSet {
-            let fontSize:CGFloat = 18
-//            if board.type == BoardType.user.rawValue {
-//                emojiLabel.image = board.icon.emojiToImage(fontSize: fontSize)
-//            }else {
-//                emojiLabel.image = UIImage(systemName: board.icon, pointSize: fontSize, weight: .light)
-//            }
-            titleLabel.text = board.title
+            let fontSize:CGFloat = 20
+            let boardProperties = board.blockBoardProperties!
+            if boardProperties.type == .user {
+                emojiLabel.image = boardProperties.icon.emojiToImage(fontSize: fontSize)
+            }else {
+                emojiLabel.image = UIImage(systemName: boardProperties.icon, pointSize: fontSize, weight: .light)
+            }
+            titleLabel.text = boardProperties.title
         }
     }
     
@@ -34,7 +35,7 @@ class ChangeBoardCell: UITableViewCell {
     
     
     private lazy var titleLabel: UILabel = UILabel().then {
-        $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         $0.textColor = .primaryText
         $0.textAlignment = .left
     }
@@ -60,13 +61,14 @@ class ChangeBoardCell: UITableViewCell {
         contentView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints {
             $0.width.height.equalTo(24)
-            $0.leading.equalToSuperview().offset(ContextMenuCell.padding)
+            
+            $0.leading.equalToSuperview().offset(NotesViewConstants.cellHorizontalSpace)
             $0.centerY.equalToSuperview()
         }
         
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(emojiLabel.snp.trailing).offset(ContextMenuCell.spacing)
+            $0.leading.equalTo(emojiLabel.snp.trailing).offset(NotesViewConstants.cellHorizontalSpace)
             $0.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
             $0.centerY.equalToSuperview()
         }

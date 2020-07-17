@@ -33,22 +33,23 @@ enum NoteMenuDisplayMode {
 }
 
 protocol NoteMenuViewControllerDelegate: AnyObject {
-    func noteMenuDataMoved(note: Note)
-    func noteMenuMoveToTrash(note: Note)
-    func noteMenuBackgroundChanged(note:Note)
-    func noteMenuArchive(note: Note)
+    func noteMenuDataMoved(note: NoteInfo)
+    func noteMenuMoveToTrash(note: NoteInfo)
+    func noteMenuBackgroundChanged(note:NoteInfo)
+    func noteMenuArchive(note: NoteInfo)
     
     func noteBlockDelete(blockType:BlockType)
     
-    func noteMenuDeleteTapped(note: Note)
-    func noteMenuDataRestored(note: Note)
+    func noteMenuMoveTapped(note: NoteInfo)
+    func noteMenuDeleteTapped(note: NoteInfo)
+    func noteMenuDataRestored(note: NoteInfo)
 }
 
 extension NoteMenuViewControllerDelegate {
-    func noteMenuDataMoved(note: Note){}
-    func noteMenuMoveToTrash(note: Note){}
-    func noteMenuBackgroundChanged(note:Note){}
-    func noteMenuArchive(note: Note){}
+    func noteMenuDataMoved(note: NoteInfo){}
+    func noteMenuMoveToTrash(note: NoteInfo){}
+    func noteMenuBackgroundChanged(note:NoteInfo){}
+    func noteMenuArchive(note: NoteInfo){}
     func noteBlockDelete(blockType:BlockType) {}
 }
 
@@ -60,7 +61,12 @@ extension NoteMenuViewControllerDelegate {
 
 class NoteMenuViewController: ContextMenuViewController {
     
-    var note:Note!
+    var note:NoteInfo!
+    var properties:BlockNoteProperty {
+        get { return note.properties }
+        set { note.properties = newValue}
+    }
+    
     var mode:NoteMenuDisplayMode!
     
     weak var delegate:NoteMenuViewControllerDelegate? {
@@ -77,7 +83,7 @@ class NoteMenuViewController: ContextMenuViewController {
     
     static let menuWidth:CGFloat = 200
     
-    static func show(mode:NoteMenuDisplayMode, note:Note,sourceView:UIView,delegate:NoteMenuViewControllerDelegate) {
+    static func show(mode:NoteMenuDisplayMode, note:NoteInfo,sourceView:UIView,delegate:NoteMenuViewControllerDelegate) {
         let menuVC =  NoteMenuViewController()
         menuVC.note = note
         menuVC.mode = mode
@@ -103,19 +109,20 @@ class NoteMenuViewController: ContextMenuViewController {
             case .pin:
                 break
             case .archive:
-                self.archivenNote()
+//                self.archivenNote()
                 break
             case .move:
-                let vc = ChangeBoardViewController()
-                vc.note = self.note
-                vc.callbackBoardChoosed = { board in
-                    self.handleMove2Board(board: board)
-                }
-                menuVC.navigationController?.pushViewController(vc, animated: true)
+                self.delegate?.noteMenuMoveTapped(note: self.note)
+//                let vc = ChangeBoardViewController()
+//                vc.noteBlock = self.note.noteBlock
+////                vc.callbackBoardChoosed = { board in
+////                    self.handleMove2Board(board: board)
+////                }
+//                menuVC.navigationController?.pushViewController(vc, animated: true)
                 break
             case .background:
                 let colorVC = NoteColorViewController()
-                colorVC.selectedColor = self.note.backgroundColor
+                colorVC.selectedColor = self.note.properties.backgroundColor
                 colorVC.callbackColorChoosed = { color in
                     self.handleUpdateBackground(color)
                 }
@@ -123,11 +130,11 @@ class NoteMenuViewController: ContextMenuViewController {
                 break
             case .info:
                 let dateVC = NoteDateViewController()
-                dateVC.note = self.note
+                dateVC.noteBlock = self.note.noteBlock
                 menuVC.navigationController?.pushViewController(dateVC, animated: true)
                 break
             case .trash:
-                self.move2Trash()
+//                self.move2Trash()
                 break
             case .deleteBlock(let blockType):
 //                self.deleteBlock(blockType)
@@ -153,10 +160,10 @@ class NoteMenuViewController: ContextMenuViewController {
             return
         }
         
-        let archiveTitle = note.status == NoteBlockStatus.archive ? "取消归档" : "归档"
+        let archiveTitle = self.note.status == NoteBlockStatus.archive ? "取消归档" : "归档"
         let menuItems = [
             ContextMenuItem(label: archiveTitle, icon: "archivebox", tag: NoteMenuType.archive),
-            ContextMenuItem(label: "移动至...", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move,isNeedJump: true),
+            ContextMenuItem(label: "移动至...", icon: "arrow.right.to.line.alt", tag: NoteMenuType.move),
             ContextMenuItem(label: "背景色", icon: "paintbrush", tag: NoteMenuType.background,isNeedJump: true),
             ContextMenuItem(label: "显示信息", icon: "info.circle", tag: NoteMenuType.info,isNeedJump: true),
             ContextMenuItem(label: "移到废纸篓", icon: "trash", tag: NoteMenuType.trash),
@@ -168,10 +175,10 @@ class NoteMenuViewController: ContextMenuViewController {
             if note.textBlock != nil {
                 secondItems.append(ContextMenuItem(label: "删除 \"文本\"", icon: "textbox", tag: NoteMenuType.deleteBlock(blockType: BlockType.text)))
             }
-            if note.rootTodoBlock != nil {
+            if note.todoGroupBlock != nil {
                 secondItems.append(ContextMenuItem(label: "删除 \"待办事项\"", icon: "checkmark.square", tag: NoteMenuType.deleteBlock(blockType: BlockType.todo)))
             }
-            if note.attachmentBlocks.isNotEmpty {
+            if note.attachmentGroupBlock != nil {
                 secondItems.append(ContextMenuItem(label: "删除 \"图片集\"", icon: "photo.on.rectangle", tag: NoteMenuType.deleteBlock(blockType: BlockType.image)))
             }
             
@@ -185,27 +192,23 @@ class NoteMenuViewController: ContextMenuViewController {
 }
 
 extension NoteMenuViewController {
+    
     func handleUpdateBackground(_ color:String) {
-        if note.backgroundColor == color {
+        if note.properties.backgroundColor == color {
             self.dismiss()
             return
         }
-        note.backgroundColor = color
-        guard var block = note.rootBlock else { return }
-        block.updatedAt = Date()
-//        NoteRepo.shared.updateBlock(block: block)
-//            .subscribe(onNext: { block in
-//                var newNote = self.note!
-//                newNote.rootBlock = block
-//                self.delegate?.noteMenuBackgroundChanged(note: newNote)
-//                self.dismiss()
-//                
-//            }, onError: { error in
-//                Logger.error(error)
-//            })
-//            .disposed(by: disposeBag)
-        
+        properties.backgroundColor = color
+        NoteRepo.shared.updateProperties(id: note.id, properties: properties)
+            .subscribe { _ in
+                self.delegate?.noteMenuBackgroundChanged(note: self.note)
+                self.dismiss()
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
     }
+    
     func handleMove2Board(board:Board?) {
         guard let board = board else {
             self.dismiss()
@@ -224,20 +227,20 @@ extension NoteMenuViewController {
     }
     
     private func move2Trash() {
-        guard var noteBlock = self.note.rootBlock else { return }
-        noteBlock.blockNoteProperties!.status = NoteBlockStatus.trash
-        updateNoteBlock(noteBlock: noteBlock) {
-            self.delegate?.noteMenuMoveToTrash(note: $0)
-        }
+//        guard var noteBlock = self.note.rootBlock else { return }
+//        noteBlock.blockNoteProperties!.status = NoteBlockStatus.trash
+//        updateNoteBlock(noteBlock: noteBlock) {
+//            self.delegate?.noteMenuMoveToTrash(note: $0)
+//        }
     }
     
     
     private func archivenNote() {
-        guard var noteBlock = self.note.rootBlock else { return }
-        noteBlock.blockNoteProperties!.status = self.note.status == .normal  ? .archive : .normal
-        updateNoteBlock(noteBlock: noteBlock) {
-            self.delegate?.noteMenuArchive(note: $0)
-        }
+//        guard var noteBlock = self.note.rootBlock else { return }
+//        noteBlock.blockNoteProperties!.status = self.note.status == .normal  ? .archive : .normal
+//        updateNoteBlock(noteBlock: noteBlock) {
+//            self.delegate?.noteMenuArchive(note: $0)
+//        }
     }
     
     
@@ -258,8 +261,8 @@ extension NoteMenuViewController {
 
 extension NoteMenuViewController {
     func restoreNote() {
-        guard var noteBlock = self.note.rootBlock else { return }
-        noteBlock.blockNoteProperties!.status = .normal
+//        guard var noteBlock = self.note.rootBlock else { return }
+//        noteBlock.blockNoteProperties!.status = .normal
 //        NoteRepo.shared.updateBlock(block: noteBlock)
 //            .subscribe(onNext: {
 //                var newNote = self.note!
@@ -274,6 +277,6 @@ extension NoteMenuViewController {
     }
     
     func deleteNote() {
-        self.delegate?.noteMenuDeleteTapped(note: self.note)
+//        self.delegate?.noteMenuDeleteTapped(note: self.note)
     }
 }

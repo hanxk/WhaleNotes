@@ -28,7 +28,8 @@ extension SpaceDao {
             let collectBoardId = row["collect_board_id"] as! String
             let boardGroupId = row["board_group_id"] as! String
             let categoryGroupId = row["category_group_id"] as! String
-            let createdAt =  Date(timeIntervalSince1970: (row["created_at"] as! Double))
+            
+            let createdAt = row["created_at"] as! Date
             
             return Space(id: id, collectBoardId: collectBoardId, boardGroupId: boardGroupId, categoryGroupId: categoryGroupId, createdAt: createdAt)
         }

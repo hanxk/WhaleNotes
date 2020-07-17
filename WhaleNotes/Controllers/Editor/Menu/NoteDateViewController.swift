@@ -20,10 +20,10 @@ class NoteDateViewController: UIViewController {
 //    ]
     
     var items:[(String,String)] = []
-    var note:Note!{
+    var noteBlock:BlockInfo!{
         didSet {
-            self.items.append(("更新时间",note.updatedDateStr))
-            self.items.append(("创建时间",note.createdDateStr))
+            self.items.append(("更新时间",noteBlock.updatedAt.formattedYMDHM))
+            self.items.append(("创建时间",noteBlock.block.createdAt.formattedYMDHM))
             self.tableView.reloadData()
         }
     }

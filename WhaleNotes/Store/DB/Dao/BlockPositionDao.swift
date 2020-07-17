@@ -21,15 +21,20 @@ extension BlockPositionDao {
         try db.execute(insertSql, args: blockPosition.id,blockPosition.blockId,blockPosition.ownerId,blockPosition.position)
     }
     
+    func queryMinPosition(id:String) throws -> BlockPosition? {
+        let selectSql = "SELECT id,block_id, owner_id,position FROM block_position WHERE owner_id = ? order by position limit 1"
+        let rows = try db.query(selectSql,args: id)
+        for row in rows {
+            return self.extract(row: row)
+        }
+        return nil
+    }
+    
     func query(id:String) throws -> BlockPosition? {
         let selectSql = "SELECT id,block_id, owner_id,position FROM block_position WHERE id = ?"
         let rows = try db.query(selectSql,args: id)
         for row in rows {
-            let id = row["id"] as! String
-            let blockId = row["block_id"] as! String
-            let parentId =  row["owner_id"] as! String
-            let position = (row["position"] as! Double)
-            return BlockPosition(id: id, blockId: blockId, ownerId: parentId, position: position)
+            return self.extract(row: row)
         }
         return nil
     }
@@ -68,6 +73,14 @@ extension BlockPositionDao {
     func deleteByParentId(_ parentId:String) throws{
         let insertSql = "DELETE FROM block_position WHERE owner_id = ?";
         try db.execute(insertSql, args:parentId)
+    }
+    
+    private func extract(row:Row) -> BlockPosition {
+        let id = row["id"] as! String
+        let blockId = row["block_id"] as! String
+        let parentId =  row["owner_id"] as! String
+        let position = (row["position"] as! Double)
+        return BlockPosition(id: id, blockId: blockId, ownerId: parentId, position: position)
     }
     
 }

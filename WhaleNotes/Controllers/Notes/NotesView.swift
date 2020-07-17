@@ -285,26 +285,39 @@ extension NotesView:NoteCellNodeDelegate {
     }
 
     func noteCellMenuTapped(sender: UIView,note:Note) {
-        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
+//        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
     }
 }
 //
 ////MARK: NoteMenuViewControllerDelegate
 extension NotesView:NoteMenuViewControllerDelegate {
-    func noteMenuArchive(note: Note) {
+    func noteMenuMoveTapped(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuDataRestored(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuDeleteTapped(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuArchive(note: NoteInfo) {
 //        self.handleDeleteNote(note)
     }
 
-    func noteMenuMoveToTrash(note: Note) {
+    func noteMenuMoveToTrash(note: NoteInfo) {
 //        self.handleDeleteNote(note)
 //        self.showToast("便签已移动至废纸篓")
     }
 
-    func noteMenuChooseBoards(note: Note) {
+    func noteMenuChooseBoards(note: NoteInfo) {
 
+        
     }
 
-    func noteMenuBackgroundChanged(note: Note) {
+    func noteMenuBackgroundChanged(note: NoteInfo) {
 //        guard let row = self.noteInfos.firstIndex(where: {$0.id == note.id}) else { return }
 //        self.sectionNoteInfo.notes[row] = note
 //        if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
@@ -313,7 +326,11 @@ extension NotesView:NoteMenuViewControllerDelegate {
 //        }
     }
 
-    func noteMenuDataMoved(note: Note) {
+    func noteMenuDataMoved(note: NoteInfo) {
+        
+        // 移动
+        self.handleDeleteNote(note)
+        
 //        self.handleDeleteNote(note)
 
 //        guard let board = note.board else { return }
@@ -363,7 +380,7 @@ extension NotesView {
     }
 
     @objc func btnNewNoteTapped (sender:UIButton) {
-        
+        self.createTextNote()
     }
     
     
@@ -372,7 +389,7 @@ extension NotesView {
         self.collectionNode.performBatchUpdates({
             self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
         }, completion: { _ in
-            self.openEditorVC(note: noteInfo)
+            self.openEditorVC(note: noteInfo,isNew: true)
         })
     }
     func openEditorVC(note: NoteInfo,isNew:Bool = false) {

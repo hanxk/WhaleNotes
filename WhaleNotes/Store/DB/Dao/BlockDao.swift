@@ -302,48 +302,49 @@ extension BlockDao {
 extension BlockDao {
     
     func insert( _ block:Block) throws {
-        let insertSQL = "insert into block(id,type,properties,content,parent_id,parent_table,created_at,updated_at) values(?,?,?,?,?,?,?,?)"
-        
-        
-        try db.execute(insertSQL, args: block.id,block.type.rawValue,block.propertiesJSON,block.contentJSON,block.parentId,block.parentTable.rawValue,
-                       block.createdAt.timeIntervalSince1970,
-                       block.updatedAt.timeIntervalSince1970)
+        let insertSQL = "insert into block(id,type,properties,content,parent_id,parent_table) values(?,?,?,?,?,?)"
+        try db.execute(insertSQL, args: block.id,block.type.rawValue,block.propertiesJSON,block.contentJSON,block.parentId,block.parentTable.rawValue)
     }
     
     
-    func updateUpdatedAt(id:String,updatedAt:Date) throws {
-        let updateSQL = " update block set updated_at = ? where id = ?"
-        try db.execute(updateSQL, args: updatedAt.timeIntervalSince1970,id)
+    func updateUpdatedAt(id:String) throws {
+        let updateSQL = " update block set updated_at = datetime('now') where id = ?"
+        try db.execute(updateSQL, args:id)
     }
     
     
     func updateBlock(block:Block) throws {
-        let updateSQL = "update block set type = ?,properties = ?,content = ?,parent_id = ?,parent_table = ?,updated_at=? where id = ?"
-        try db.execute(updateSQL, args:block.type.rawValue,block.propertiesJSON,block.contentJSON,block.parentId,block.parentTable.rawValue,block.updatedAt.timeIntervalSince1970,block.id)
+        let updateSQL = "update block set type = ?,properties = ?,content = ?,parent_id = ?,parent_table = ?,updated_at=datetime('now') where id = ?"
+        try db.execute(updateSQL, args:block.type.rawValue,block.propertiesJSON,block.contentJSON,block.parentId,block.parentTable.rawValue,block.id)
+    }
+    
+    func updateParentId(id:String,newParentId:String) throws {
+        let updateSQL = "update block set parent_id = ?,updated_at=datetime('now') where id = ?"
+        try db.execute(updateSQL, args:newParentId,id)
     }
     
     func updateBlockParentId(oldParentId:String,newParentId:String) throws {
-        let updateSQL = "update block set parent_id = ?,updated_at=CURRENT_TIMESTAMP where parent_id = ?"
+        let updateSQL = "update block set parent_id = ?,updated_at=datetime('now') where parent_id = ?"
         try db.execute(updateSQL, args:newParentId,oldParentId)
     }
     
     func updateBlockParentId(id:String,newParentId:String) throws {
-        let updateSQL = "update block set parent_id = ?,updated_at=CURRENT_TIMESTAMP where id = ?"
+        let updateSQL = "update block set parent_id = ?,updated_at=datetime('now') where id = ?"
         try db.execute(updateSQL,args:newParentId,id)
     }
     
     func updateProperties(id:String,propertiesJSON:String) throws {
-        let updateSQL = "update block set properties = ?,updated_at=CURRENT_TIMESTAMP where id = ?"
+        let updateSQL = "update block set properties = ?,updated_at=datetime('now') where id = ?"
         try db.execute(updateSQL, args:propertiesJSON,id)
     }
     
     func updateProperties(id:String,keyValue:(String,Any)) throws {
-        let updateSQL = "update block set properties = json_set(properties, '$.\(keyValue.0)', ?),updated_at=CURRENT_TIMESTAMP where id = ?"
+        let updateSQL = "update block set properties = json_set(properties, '$.\(keyValue.0)', ?),updated_at=datetime('now') where id = ?"
         try db.execute(updateSQL, args:keyValue.1,id)
     }
     
     func updateContent(id:String,content:[String]) throws {
-        let updateSQL = "update block set content = ?,updated_at=CURRENT_TIMESTAMP where id = ?"
+        let updateSQL = "update block set content = ?,updated_at=datetime('now') where id = ?"
         try db.execute(updateSQL, args:json(from: content)!,id)
     }
     
@@ -354,6 +355,41 @@ extension BlockDao {
             return nil
         }
         return extract(row: rows[0])
+    }
+    
+    
+    func queryChilds2(id:String) throws ->[BlockInfo] {
+        let selectSQL = """
+                     with recursive
+                        b as (
+                                select block_t.*,
+                            IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                                from  (
+                                    select * from block where  block.parent_id = ?
+                                ) as block_t
+                                left join block_position on block_position.block_id = block_t.id
+                                union all
+                                select block.*,
+                                block_position.id as position_id,block_position.owner_id,block_position.position as position
+                                from b
+                                join block_position on block_position.owner_id = b.id
+                                join block on block.id =  block_position.block_id and block.type != 'note'
+                                
+                        )
+                      select * from b;
+                    """
+        let rows = try db.query(selectSQL, args: id)
+        let blockInfos:[BlockInfo] = extract(rows: rows)
+        
+        var topLevelBlockInfos:[BlockInfo] = blockInfos.filter {$0.block.parentId == id}.sorted { $0.blockPosition.position <  $1.blockPosition.position}
+        
+        for i in 0..<topLevelBlockInfos.count {
+            var childBlockInfos:[BlockInfo] = []
+            getChildBlocksByBlock(blocks: blockInfos, childBlocks: &childBlockInfos, parentBlock: topLevelBlockInfos[i])
+            topLevelBlockInfos[i].contentBlocks.append(contentsOf: childBlockInfos)
+        }
+        
+        return topLevelBlockInfos
     }
     
     func queryChilds(id:String) throws ->[BlockInfo] {
@@ -518,8 +554,8 @@ extension BlockDao {
         let content = json2Object(row["content"] as! String, type: [String].self)!
         let parentId = row["parent_id"] as! String
         let parentTable = TableType.init(rawValue: row["parent_table"] as! String)!
-        let createdAt = Date(timeIntervalSince1970: row["created_at"] as! Double)
-        let updatedAt = Date(timeIntervalSince1970: row["updated_at"] as! Double)
+        let createdAt = row["created_at"] as! Date
+        let updatedAt = row["updated_at"] as! Date
         
         
         let block = Block(id: id, type: type, properties: properties, content: content, parentId: parentId, parentTable: parentTable, createdAt: createdAt, updatedAt: updatedAt)

@@ -35,7 +35,7 @@ class SpaceRepo {
                 try self.db.transaction {
                     if let space = try self.spaceDao.query() {
                         // 获取 childinfo
-                        let blockInfos = try self.blockDao.queryChilds(id: space.id)
+                        let blockInfos = try self.blockDao.queryChilds2(id: space.id)
                         
                         let collectBoard =  blockInfos.first{ $0.id == space.collectBoardId}!
                         let boardGroupBlock =  blockInfos.first{ $0.id == space.boardGroupId}!
@@ -53,12 +53,12 @@ class SpaceRepo {
                     try self.blockDao.insert(collectBoard)
                     
                     // 存放单独的 boards
-                    let boardGroupBlock = Block.newToggleBlock(parent: space.id, parentTable: .space, properties: BlockToggleProperty())
-                    try self.blockDao.insert(boardGroupBlock)
+                    let boardGroupBlock = Block.toggle(parent: space.id, parentTable: .space)
+                    try self.blockDao.insert(boardGroupBlock.block)
                     
                     // 存放 board 分类
-                    let categoryGroupBlock = Block.newToggleBlock(parent: space.id, parentTable: .space, properties: BlockToggleProperty())
-                    try self.blockDao.insert(categoryGroupBlock)
+                    let categoryGroupBlock = Block.group(parent: space.id,parentTable: .space)
+                    try self.blockDao.insert(categoryGroupBlock.block)
                     
                     space.collectBoardId = collectBoard.id
                     space.boardGroupId = boardGroupBlock.id
@@ -68,8 +68,8 @@ class SpaceRepo {
                     
                     let spaceInfo = SpaceInfo(space: space,
                                               collectBoard: BlockInfo(block: Block.convert2LocalSystemBoard(board: collectBoard)),
-                                boardGroupBlock: BlockInfo(block: boardGroupBlock),
-                                categoryGroupBlock: BlockInfo(block: categoryGroupBlock))
+                                boardGroupBlock: boardGroupBlock,
+                                categoryGroupBlock: categoryGroupBlock)
                     
                     observer.onNext(spaceInfo)
                 }

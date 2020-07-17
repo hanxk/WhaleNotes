@@ -94,10 +94,13 @@ extension SQLStatement {
             }
             return sqlite3_column_int(stmt, index) != 0
         case "DATE", "DATETIME":
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             let text = String(cString: sqlite3_column_text(stmt, index))
-            return dateFormatter.date(from: text)
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            
+            let utcDate = dateFormatter.date(from: text)!
+            return utcDate.toLocalTime()
         default:
             print("SwiftData Warning -> Column: \(index) is of an unrecognized type, returning nil")
             return nil

@@ -241,7 +241,7 @@ extension TrashView:NoteCellNodeDelegate {
     }
     
     func noteCellMenuTapped(sender: UIView,note:Note) {
-        NoteMenuViewController.show(mode:.trash,note: note, sourceView: sender, delegate: self)
+//        NoteMenuViewController.show(mode:.trash,note: note, sourceView: sender, delegate: self)
     }
     
     
@@ -251,7 +251,11 @@ extension TrashView:NoteCellNodeDelegate {
 
 //MARK: NoteMenuViewControllerDelegate
 extension TrashView:NoteMenuViewControllerDelegate {
-    func noteMenuDeleteTapped(note: Note) {
+    func noteMenuMoveTapped(note: NoteInfo) {
+        
+    }
+    
+    func noteMenuDeleteTapped(note: NoteInfo) {
         let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
             
@@ -269,8 +273,8 @@ extension TrashView:NoteMenuViewControllerDelegate {
         self.controller?.present(alert, animated: true)
     }
     
-    func noteMenuDataRestored(note: Note) {
-        self.removeNodeFromCollectionView(note)
+    func noteMenuDataRestored(note: NoteInfo) {
+//        self.removeNodeFromCollectionView(note)
     }
     
     private func  removeNodeFromCollectionView( _ note:Note) {
@@ -289,7 +293,7 @@ extension TrashView:NoteMenuViewControllerDelegate {
 //        }, completion: nil)
     }
     
-    private func findNoteIndex(_ note:Note) -> IndexPath? {
+    private func findNoteIndex(_ note:NoteInfo) -> IndexPath? {
 //        for (index,data) in self.trashedNotes.enumerated() {
 //            if let row =  data.1.firstIndex(where: {$0.id == note.id}) {
 //                return IndexPath(row: row, section: index)

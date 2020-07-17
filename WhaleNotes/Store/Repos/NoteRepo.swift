@@ -47,9 +47,9 @@ extension NoteRepo {
                     try self.insertBlockInfo(blockInfo: blockInfo)
                 }
                 if let updatedAtId = updatedAtId {
-                    try self.blockDao.updateUpdatedAt(id: updatedAtId, updatedAt: Date())
+                    try self.blockDao.updateUpdatedAt(id: updatedAtId)
                 }else {
-                    try self.blockDao.updateUpdatedAt(id: blockInfos[0].block.parentId, updatedAt: Date())
+                    try self.blockDao.updateUpdatedAt(id: blockInfos[0].block.parentId)
                 }
                 return blockInfos
             }
@@ -87,8 +87,40 @@ extension NoteRepo {
         return Observable<Bool>.create { [self]  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Bool in
                 try blockPositionDao.update(blockPosition)
-                try blockDao.updateUpdatedAt(id: noteId, updatedAt: Date())
+                try blockDao.updateUpdatedAt(id: noteId)
                 return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func moveToBoard(note:BlockInfo,boardId:String) -> Observable<BlockInfo> {
+        return Observable<BlockInfo>.create { [self]  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> BlockInfo in
+                // 获取 boardId 中最小的 position
+                var position:Double
+                if let minPosition =  try blockPositionDao.queryMinPosition(id: boardId)?.position {
+                    position = minPosition / 2
+                }else {
+                    position = BlockConstants.position
+                }
+                
+                var newNote = note
+                newNote.block.parentId = boardId
+                
+                // 更新 parent id
+                try blockDao.updateParentId(id: note.id, newParentId: boardId)
+                
+                
+                // 更新 position
+                var newPos = note.blockPosition
+                newPos.ownerId = boardId
+                newPos.position = position
+                try blockPositionDao.update(newPos)
+                
+                return note
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
@@ -116,7 +148,7 @@ extension NoteRepo {
             self.transactionTask(observable: observer) { () -> Bool in
                 try self.blockDao.updateProperties(id: id,propertiesJSON: json(from: properties)!)
                 if let updatedTimeBlockId = updatedTimeBlockId {
-                    try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId, updatedAt: Date())
+                    try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId)
                 }
                 return true
             }
@@ -130,7 +162,7 @@ extension NoteRepo {
             self.transactionTask(observable: observer) { () -> Bool in
                 try self.blockDao.updateProperties(id: id, keyValue:keyValue)
                 if let updatedTimeBlockId = updatedTimeBlockId {
-                    try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId, updatedAt: Date())
+                    try self.blockDao.updateUpdatedAt(id: updatedTimeBlockId)
                 }
                 return true
             }

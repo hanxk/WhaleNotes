@@ -48,7 +48,7 @@ struct Block {
         var block = Block()
         block.type = .text
         block.parentId = parentId
-        block.properties =  BlockTextProperty(title: "文本内容")
+        block.properties =  BlockTextProperty(title: "")
         
         let position = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
         return BlockInfo(block: block, blockPosition: position)
@@ -105,8 +105,20 @@ struct Block {
         var block = Block()
         block.type = .toggle
         block.parentId = parent
+        block.parentTable = parentTable
         block.properties = properties
         return block
+    }
+    
+    static func toggle(parent:String,parentTable:TableType,properties:BlockToggleProperty=BlockToggleProperty(),position:Double = 0) -> BlockInfo {
+        var block = Block()
+        block.type = .toggle
+        block.parentId = parent
+        block.parentTable = parentTable
+        block.properties = properties
+        
+        let position = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
+        return BlockInfo(block: block, blockPosition: position)
     }
     
     static func newBookmarkBlock(parent:String,properties:BlockBookmarkProperty) -> Block {
@@ -118,10 +130,11 @@ struct Block {
     }
     
     
-    static func group(parent:String,properties:BlockGroupProperty,position:Double) -> BlockInfo {
+    static func group(parent:String,parentTable:TableType = .block,properties:BlockGroupProperty = BlockGroupProperty(),position:Double = 0) -> BlockInfo {
         var block = Block()
         block.type = .group
         block.parentId = parent
+        block.parentTable = parentTable
         block.properties = properties
         
         let position = BlockPosition(blockId: block.id, ownerId: block.parentId, position: position)
@@ -296,8 +309,8 @@ extension Block:SQLTable {
                       "content" JSON NOT NULL,
                       "parent_id" TEXT NOT NULL,
                       "parent_table" TEXT NOT NULL,
-                      "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                      "created_at" DATE DEFAULT (datetime('now')),
+                      "updated_at" DATE DEFAULT (datetime('now'))
                     );
         """
     }

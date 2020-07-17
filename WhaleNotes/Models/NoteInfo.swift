@@ -125,6 +125,10 @@ extension NoteInfo {
         get { return noteBlock.updatedAt }
         set { noteBlock.updatedAt = newValue}
     }
+    var status:NoteBlockStatus {
+        get { return noteBlock.blockNoteProperties!.status }
+        set { noteBlock.blockNoteProperties?.status = newValue}
+    }
     
     var position:Double {
         return noteBlock.position
@@ -133,9 +137,6 @@ extension NoteInfo {
     var properties:BlockNoteProperty {
         get { return noteBlock.blockNoteProperties!}
         set { noteBlock.blockNoteProperties = newValue}
-    }
-    var status:NoteBlockStatus {
-        return properties.status
     }
 }
 

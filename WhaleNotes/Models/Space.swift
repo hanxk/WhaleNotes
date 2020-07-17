@@ -25,7 +25,7 @@ extension Space: SQLTable {
           "collect_board_id" TEXT UNIQUE NOT NULL,
           "board_group_id" TEXT UNIQUE NOT NULL,
           "category_group_id" TEXT UNIQUE NOT NULL,
-          "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          "created_at" DATE DEFAULT (datetime('now')),
           FOREIGN KEY("collect_board_id") REFERENCES block(id),
           FOREIGN KEY("board_group_id") REFERENCES block(id),
           FOREIGN KEY("category_group_id") REFERENCES block(id)
