@@ -134,7 +134,7 @@ class NoteMenuViewController: ContextMenuViewController {
                 menuVC.navigationController?.pushViewController(dateVC, animated: true)
                 break
             case .trash:
-//                self.move2Trash()
+                self.move2Trash()
                 break
             case .deleteBlock(let blockType):
 //                self.deleteBlock(blockType)
@@ -209,29 +209,17 @@ extension NoteMenuViewController {
             .disposed(by: disposeBag)
     }
     
-    func handleMove2Board(board:Board?) {
-        guard let board = board else {
-            self.dismiss()
-            return
-        }
-//        NoteRepo.shared.moveNote2Board(note: self.note, board: board)
-//            .subscribe(onNext: { [weak self] in
-//                if let self = self {
-//                    self.dismiss()
-//                    self.delegate?.noteMenuDataMoved(note: $0)
-//                }
-//            }, onError:{ error in
-//                Logger.error(error)
-//            })
-//            .disposed(by: disposeBag)
-    }
-    
     private func move2Trash() {
-//        guard var noteBlock = self.note.rootBlock else { return }
-//        noteBlock.blockNoteProperties!.status = NoteBlockStatus.trash
-//        updateNoteBlock(noteBlock: noteBlock) {
-//            self.delegate?.noteMenuMoveToTrash(note: $0)
-//        }
+        guard var newNote = self.note
+              else { return }
+        newNote.noteBlock.blockNoteProperties?.status = .trash
+        NoteRepo.shared.updateProperties(id: newNote.id, properties: newNote.noteBlock.blockNoteProperties!)
+            .subscribe { _ in
+                self.delegate?.noteMenuMoveToTrash(note: newNote)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
     }
     
     
@@ -261,22 +249,29 @@ extension NoteMenuViewController {
 
 extension NoteMenuViewController {
     func restoreNote() {
-//        guard var noteBlock = self.note.rootBlock else { return }
-//        noteBlock.blockNoteProperties!.status = .normal
-//        NoteRepo.shared.updateBlock(block: noteBlock)
-//            .subscribe(onNext: {
-//                var newNote = self.note!
-//                newNote.rootBlock = $0
-//                self.delegate?.noteMenuDataRestored(note: newNote)
-//            }, onError: { error in
-//                Logger.error(error)
-//            },onCompleted: {
-//                self.dismiss()
-//            })
-//        .disposed(by: disposeBag)
+        guard var newNote = self.note
+              else { return }
+        newNote.noteBlock.blockNoteProperties?.status = .normal
+        NoteRepo.shared.updateProperties(id: newNote.id, properties: newNote.noteBlock.blockNoteProperties!)
+            .subscribe { _ in
+                self.delegate?.noteMenuDataRestored(note: newNote)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
+        
     }
     
     func deleteNote() {
-//        self.delegate?.noteMenuDeleteTapped(note: self.note)
+        guard let note = self.note  else { return }
+        self.delegate?.noteMenuDeleteTapped(note: note)
+//        guard let note = self.note  else { return }
+//        NoteRepo.shared.deleteBlockInfo(blockId: note.id)
+//            .subscribe { _ in
+//                self.delegate?.noteD
+//            } onError: {
+//                Logger.error($0)
+//            }
+//            .disposed(by: disposeBag)
     }
 }

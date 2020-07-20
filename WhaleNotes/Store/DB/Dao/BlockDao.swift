@@ -16,11 +16,6 @@ class BlockDao {
         db = dbCon
     }
     
-    
-    
-    
-    
-    
     func deleteMultiple(noteBlockIds: [String]) throws -> Int {
         let ids = noteBlockIds.map{return "'\($0)'"}.joined(separator: ",")
         let deleteSQL = """
@@ -124,60 +119,6 @@ class BlockDao {
         //        return db.changes
         return 1
     }
-    
-    //    func searchNoteBlocks(keyword: String) throws -> [NoteAndBoard] {
-    //        let selectSQL = """
-    //              with recursive
-    //                note_ids as (
-    //                                select block.* from block where json_extract(block.properties, '$.title') like ?
-    //                                union all
-    //                                select block.* from note_ids join block on note_ids.parent_id = block.id
-    //                ), b as (
-    //                                select block.*,
-    //                                board.id as board_id,board.icon as board_icon,board.title as board_title,board.sort as board_sort,board.category_id as board_category_id,board.type as board_type,board.created_at as board_created_at
-    //                                from block
-    //                                inner join section_note on section_note.note_id = block.id and block.id  in (select id from note_ids)
-    //                                inner join section on section.id = section_note.section_id
-    //                                inner join board on  board.id = section.board_id
-    //                                union all
-    //                                select block.*,
-    //                                0 as board_id, '' as board_icon,'' as board_title,0 as board_sort,'' as board_category_id, 0 as board_type,'' as board_created_at
-    //                                from b
-    //                                join block on b.id = block.parent_id
-    //                )
-    //              select * from b order by sort asc
-    //        """
-    //        let stmt = try db.prepare(selectSQL)
-    //        let rows = try stmt.run("%\(keyword)%").typedRows()
-    //        var blockIdAndBoard:[String:Board] = [:]
-    //
-    //        var noteBlocks:[Block] = []
-    //        var allChildBlocks:[Block] = []
-    //        for row in rows {
-    //            let block = generateBlock(row: row)
-    //            if block.type == BlockType.note.rawValue {
-    //                noteBlocks.append(block)
-    //                let board = BoardDao.generateBoardByTypeRow(row: row)
-    //                blockIdAndBoard[block.id] = board
-    //            }else {
-    //                allChildBlocks.append(block)
-    //            }
-    //        }
-    //
-    //        var noteAndBoards:[NoteAndBoard] = []
-    //
-    //        for noteBlock in noteBlocks {
-    //            var childBlocks:[Block] = []
-    //            getChildBlocksByBlock(blocks: allChildBlocks, childBlocks: &childBlocks, parentBlock: noteBlock)
-    //
-    //            let note  = Note(rootBlock: noteBlock, childBlocks: childBlocks)
-    //            guard let board = blockIdAndBoard[noteBlock.id] else { continue }
-    //            noteAndBoards.append(NoteAndBoard(note: note, board: board))
-    //        }
-    //
-    //        return []
-    //    }
-    //
     
     
     
@@ -392,14 +333,28 @@ extension BlockDao {
         return topLevelBlockInfos
     }
     
+    
+    func queryBlockInfos(ids:[String]) throws ->[BlockInfo] {
+        let idsStr = ids.map { "'\($0)'"}.joined(separator: ",")
+        let selectSQL = """
+                        select block.*,
+                        block_position.id as position_id,block_position.owner_id,block_position.position as position
+                        from block
+                        join block_position on block_position.owner_id = block.id and block.id in (\(idsStr))
+                    """
+        let rows = try db.query(selectSQL)
+        
+        return extract(rows: rows)
+    }
+    
     func queryChilds(id:String) throws ->[BlockInfo] {
         let selectSQL = """
                      with recursive
                         b as (
                                 select block_t.*,
-                            IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                                 IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
                                 from  (
-                                    select * from block where  block.parent_id = ?
+                                    select * from block where  block.parent_id = ? and type = ''
                                 ) as block_t
                                 left join block_position on block_position.block_id = block_t.id
                                 union all
@@ -425,6 +380,8 @@ extension BlockDao {
         
         return topLevelBlockInfos
     }
+    
+    
     
     
     func getChildBlocksByBlock(blocks:[BlockInfo],childBlocks:inout [BlockInfo], parentBlock:BlockInfo) {
@@ -522,6 +479,173 @@ extension BlockDao {
     
 }
 
+//MARK: notes 相关
+extension BlockDao {
+    
+    func queryNotes(boardId:String,status:Int) throws ->[NoteInfo] {
+        let selectSQL = """
+                     with recursive
+                        b as (
+                                select block_t.*,
+                                 IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                                from  (
+                                    select * from block
+                                    where  block.parent_id = ? and type = 'note' and json_extract(block.properties,'$.status') = ?
+                                ) as block_t
+                                left join block_position on block_position.block_id = block_t.id
+                                union all
+                                select block.*,
+                                block_position.id as position_id,block_position.owner_id,block_position.position as position
+                                from b
+                                join block_position on block_position.owner_id = b.id
+                                join block on block.id =  block_position.block_id
+                                
+                        )
+                      select * from b;
+                    """
+        let rows = try db.query(selectSQL, args: boardId,status)
+        return extractNotes(from: rows)
+    }
+    
+    
+    
+    func queryNotes(status:Int) throws ->[NoteInfo] {
+        let selectSQL = """
+                     with recursive
+                        b as (
+                                select block_t.*,
+                                 IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                                from  (
+                                    select * from block
+                                    where type = 'note' and json_extract(block.properties,'$.status') = ?
+                                ) as block_t
+                                left join block_position on block_position.block_id = block_t.id
+                                union all
+                                select block.*,
+                                block_position.id as position_id,block_position.owner_id,block_position.position as position
+                                from b
+                                join block_position on block_position.owner_id = b.id
+                                join block on block.id =  block_position.block_id
+                                
+                        )
+                      select * from b;
+                    """
+        let rows = try db.query(selectSQL, args: status)
+        return extractNotes(from: rows)
+    }
+    
+    func queryImages(parentId:String) throws -> [String] {
+        let selectSql = """
+                      select json_extract(properties,'$.url') as url from block where type = 'image' and parent_id = ?
+                    """
+        let rows = try db.query(selectSql, args: parentId)
+        var urls:[String] = []
+        for row in rows {
+            let url = row["url"] as! String
+            urls.append(url)
+        }
+        return urls
+    }
+    
+    func deleteNotes(status:NoteBlockStatus) throws {
+        let deleteSQL = """
+                        with recursive
+                        b as (
+                            select block.id from block
+                            where type = 'note' and json_extract(block.properties,'$.status') = ?
+                            union all
+                            select block_position.block_id as id from b
+                            join block_position on block_position.owner_id = b.id
+                        )
+                      delete from block where id in (select id from b);
+                    """
+        try db.execute(deleteSQL,args: status.rawValue)
+    }
+    
+    
+    func queryNotesImages(noteId:String)  throws -> [String]  {
+        let selectSql = """
+                        with recursive
+                        b as (
+                            select id, '' as url from block
+                            where type = 'note'  and json_extract(block.properties,'$.status') = ?
+                            union all
+                            select  block.id, json_extract(block.properties,'$.url')  as url  from b
+                            join block_position on block_position.owner_id = b.id
+                             join block on block.id =  block_position.block_id
+                        )
+                        select url from b where url != ''
+                        """
+        let rows = try db.query(selectSql, args: noteId)
+        var urls:[String] = []
+        for row in rows {
+            let url = row["url"] as! String
+            urls.append(url)
+        }
+        return urls
+    }
+    
+    func queryNotesImages(status:NoteBlockStatus)  throws -> [String]  {
+        let selectSql = """
+                        with recursive
+                        b as (
+                            select id, '' as url from block
+                            where type = 'note'  and json_extract(block.properties,'$.status') = ?
+                            union all
+                            select  block.id, json_extract(block.properties,'$.url')  as url  from b
+                            join block_position on block_position.owner_id = b.id
+                             join block on block.id =  block_position.block_id
+                        )
+                        select url from b where url != ''
+                        """
+        let rows = try db.query(selectSql, args: status.rawValue)
+        var urls:[String] = []
+        for row in rows {
+            let url = row["url"] as! String
+            urls.append(url)
+        }
+        return urls
+    }
+    
+    func queryNotes(keyword: String) throws ->[NoteInfo] {
+        let selectSQL = """
+                     with recursive
+                        b as (
+                                select block_t.*,
+                                 IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                                from  (
+                                    select * from block
+                                    where  type = 'note' and json_extract(block.properties,'$.title') like '%?%'
+                                ) as block_t
+                                left join block_position on block_position.block_id = block_t.id
+                                union all
+                                select block.*,
+                                block_position.id as position_id,block_position.owner_id,block_position.position as position
+                                from b
+                                join block_position on block_position.owner_id = b.id
+                                join block on block.id =  block_position.block_id
+                                
+                        )
+                      select * from b;
+                    """
+        let rows = try db.query(selectSQL, args: keyword)
+        return extractNotes(from: rows)
+    }
+    
+    private func extractNotes(from rows:[Row]) -> [NoteInfo] {
+        
+        let blockInfos:[BlockInfo] = extract(rows: rows)
+        
+        var topLevelBlockInfos:[BlockInfo] = blockInfos.filter {$0.block.blockNoteProperties != nil}.sorted { $0.blockPosition.position <  $1.blockPosition.position}
+        
+        for i in 0..<topLevelBlockInfos.count {
+            var childBlockInfos:[BlockInfo] = []
+            getChildBlocksByBlock(blocks: blockInfos, childBlocks: &childBlockInfos, parentBlock: topLevelBlockInfos[i])
+            topLevelBlockInfos[i].contentBlocks.append(contentsOf: childBlockInfos)
+        }
+        return topLevelBlockInfos.map({ NoteInfo(noteBlock: $0) })
+    }
+}
 
 
 extension BlockDao {
@@ -579,6 +703,20 @@ extension BlockDao {
         let blockPosition = BlockPosition(id: positionId, blockId: block.id, ownerId: ownerId, position: position)
         
         return BlockInfo(block: block, blockPosition: blockPosition)
+    }
+    
+    fileprivate func extract(row: Row) -> BlockBoard {
+        
+        let block:Block = self.extract(row: row)
+        
+        
+        let positionId = row["board_id"] as! String
+        let boardPropertiesJSON = row["board_properties"] as! String
+        var properties:BlockBoardProperty?
+        if boardPropertiesJSON.isNotEmpty {
+            properties = json2Object(boardPropertiesJSON, type: BlockBoardProperty.self)!
+        }
+        return BlockBoard(block: block,boardId: positionId,boardProperties: properties)
     }
     
     

@@ -20,17 +20,19 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-//    private let editorUseCase = NoteRepo.shared
+    private var boardsMap:[String:BlockInfo] = [:]
+    private var notes:[NoteInfo] = [] {
+            didSet {
+                btnNewNote.isHidden = notes.isEmpty
+            }
+    }
     
     private var selectedIndexPath:IndexPath?
-//    private var trashedNotes:[(Board,[Note])] = [] {
-//        didSet {
-//            btnNewNote.isHidden = trashedNotes.isEmpty
-//        }
-//    }
+
     
     var delegate:NotesViewDelegate?
     
+    private lazy var itemContentSize =  NotesView.getItemSize(numberOfColumns: self.numberOfColumns)
     
     
     let btnNewNote = NotesView.makeFloatButton().then {
@@ -52,7 +54,8 @@ class TrashView: UIView, UINavigationControllerDelegate {
     
     private lazy var collectionLayout =  UICollectionViewFlowLayout().then {
         
-        $0.itemSize = NotesView.getItemSize(numberOfColumns: self.numberOfColumns)
+            var itemSize = itemContentSize
+            itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
         $0.minimumLineSpacing = NotesViewConstants.cellSpace
     }
@@ -82,7 +85,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
                 $0.alwaysBounceVertical = true
                 $0.dataSource = self
                 $0.delegate = self
-                $0.contentInset = UIEdgeInsets(top: -6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                $0.contentInset = UIEdgeInsets(top: 12, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
                 $0.showsVerticalScrollIndicator = false
                 
                 $0.registerSupplementaryNode(ofKind: UICollectionView.elementKindSectionHeader)
@@ -115,8 +118,8 @@ class TrashView: UIView, UINavigationControllerDelegate {
         self.addSubview(btnNewNote)
         btnNewNote.snp.makeConstraints { (make) -> Void in
             make.width.height.equalTo(btnSize)
-            make.bottom.equalTo(self).offset(-FloatButtonConstants.bottom)
             make.trailing.equalTo(self).offset(-FloatButtonConstants.trailing)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
         }
     }
     
@@ -130,37 +133,27 @@ class TrashView: UIView, UINavigationControllerDelegate {
     }
     
     private func clearTrash() {
-//        var noteIds:[String] = []
-//        for data in self.trashedNotes {
-//            noteIds.append(contentsOf:data.1.map { return $0.id} )
-//        }
-//        if noteIds.isEmpty {
-//            return
-//        }
-//        NoteRepo.shared.deleteNotes(noteIds: noteIds)
-//            .subscribe(onNext: { isSuccess in
-//                if isSuccess {
-//                    self.trashedNotes.removeAll()
-//                    self.collectionNode.reloadData()
-//                }
-//            }, onError: {error in
-//                Logger.error(error)
-//            })
-//            .disposed(by: disposeBag)
+        
+        NoteRepo.shared.deleteTrashNotes()
+            .subscribe {
+                self.notes.removeAll()
+                self.collectionNode.reloadData()
+            } onError: {
+                Logger.error($0)
+            }.disposed(by: disposeBag)
     }
     
     
     private func setupData() {
-//        BoardRepo.shared.getBoardsExistsTrashNote()
-//            .subscribe(onNext: { [weak self] in
-//                if let self = self {
-//                    self.trashedNotes = $0
-//                    self.collectionNode.reloadData()
-//                }
-//            }, onError: {
-//                Logger.error($0)
-//            })
-//            .disposed(by: disposeBag)
+        NoteRepo.shared.queryTrashNotes()
+            .subscribe {
+                self.boardsMap = $0
+                self.notes = $1
+                self.collectionNode.reloadData()
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
     }
     
 }
@@ -169,32 +162,29 @@ class TrashView: UIView, UINavigationControllerDelegate {
 extension TrashView: ASCollectionDataSource {
     
     func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
-//        let count = self.trashedNotes.count
-//        if count == 0 {
-//            collectionNode.setEmptyMessage("暂无便签")
-//        }else {
-//            collectionNode.clearEmptyMessage()
-//        }
-//        return count
-        return 0
+        return 1
     }
     
     func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-//        return self.trashedNotes[section].1.count
-        return 0
+        let count = self.notes.count
+        if count == 0 {
+            collectionNode.setEmptyMessage("暂无便签")
+        }else {
+            collectionNode.clearEmptyMessage()
+        }
+        return count
     }
     
-//    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
-////        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
-////        let itemSize = self.collectionLayout.itemSize
-////        return {
-////            let node =  NoteCellNode(note: note,itemSize: itemSize)
-////            node.delegate = self
-////            return node
-////        }
-//    }
-    
-    
+    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
+        let note = self.notes[indexPath.row]
+        let boardBlock = self.boardsMap[note.noteBlock.blockPosition.ownerId]!
+        let itemSize = self.itemContentSize
+        return {
+            let node =  NoteCellNode(note: note,itemSize: itemSize,board: boardBlock)
+            node.delegate = self
+            return node
+        }
+    }
     
 //    func collectionNode(_ collectionNode: ASCollectionNode,
 //                        nodeForSupplementaryElementOfKind kind: String,
@@ -222,17 +212,17 @@ extension TrashView: ASCollectionDelegateFlowLayout {
 extension TrashView:NoteCellNodeDelegate {
     func noteCellImageBlockTapped(imageView: ASImageNode, note: Note) {
         let defaultImage: UIImage = imageView.image!
-        let browser = PhotoViewerViewController(note: note)
-        browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
-            imageView.image = defaultImage
-            return imageView.view
-        })
-        browser.callBackShowNoteButtonTapped = {
-            //            if let indexPath = self.findNoteIndex(note)
-            //            self.openEditorVC(note: self.noteInfos[])
-            self.openEditorVC(note: note)
-        }
-        browser.show()
+//        let browser = PhotoViewerViewController(note: note)
+//        browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
+//            imageView.image = defaultImage
+//            return imageView.view
+//        })
+//        browser.callBackShowNoteButtonTapped = {
+//            //            if let indexPath = self.findNoteIndex(note)
+//            //            self.openEditorVC(note: self.noteInfos[])
+//            self.openEditorVC(note: note)
+//        }
+//        browser.show()
     }
     
     
@@ -277,20 +267,12 @@ extension TrashView:NoteMenuViewControllerDelegate {
 //        self.removeNodeFromCollectionView(note)
     }
     
-    private func  removeNodeFromCollectionView( _ note:Note) {
-//        guard let indexPath = findNoteIndex(note) else { return }
-//        self.trashedNotes[indexPath.section].1.remove(at: indexPath.row)
-//
-//        if self.trashedNotes[indexPath.section].1.isEmpty {
-//            self.trashedNotes.remove(at: indexPath.section)
-//            self.collectionNode.performBatchUpdates({
-//                self.collectionNode.deleteSections(IndexSet([indexPath.section]))
-//            }, completion: nil)
-//            return
-//        }
-//        self.collectionNode.performBatchUpdates({
-//            self.collectionNode.deleteItems(at: [indexPath])
-//        }, completion: nil)
+    private func  removeNodeFromCollectionView( _ note:NoteInfo) {
+        guard let index = self.notes.firstIndex(where: {$0.id == note.id}) else { return }
+        self.notes.remove(at: index)
+        self.collectionNode.performBatchUpdates({
+            self.collectionNode.deleteItems(at: [IndexPath(row: index, section: 0)])
+        }, completion: nil)
     }
     
     private func findNoteIndex(_ note:NoteInfo) -> IndexPath? {
@@ -306,27 +288,28 @@ extension TrashView:NoteMenuViewControllerDelegate {
 extension TrashView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
 //        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
-//        self.openEditorVC(note: note)
+        let note = self.notes[indexPath.row]
+        self.openEditorVC(note: note)
     }
     
-    func openEditorVC(note: Note,isNew:Bool = false) {
+    func openEditorVC(note: NoteInfo,isNew:Bool = false) {
         let noteVC  = EditorViewController()
-//        noteVC.mode = EditorMode.browser(noteInfo: note)
+        noteVC.note = note
         noteVC.callbackNoteUpdate = {updateMode in
-//            self.noteEditorUpdated(mode: updateMode)
+            self.noteEditorUpdated(mode: updateMode)
         }
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
     }
     
     func noteEditorUpdated(mode:EditorUpdateMode) {
-//        switch mode {
-//        case .delete(let note):
-//            self.removeNodeFromCollectionView(note)
-//        case .trashedOut(let note):
-//            self.removeNodeFromCollectionView(note)
-//        default:
-//            break
-//        }
+        switch mode {
+        case .deleted(let note):
+            self.removeNodeFromCollectionView(note)
+        case .trashed(let noteInfo):
+            self.removeNodeFromCollectionView(noteInfo)
+        default:
+            break
+        }
     }
     
 }

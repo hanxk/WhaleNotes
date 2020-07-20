@@ -351,11 +351,14 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuDataRestored(note: NoteInfo) {
-        
+        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
+        self.navigationController?.popViewController(animated: true)
     }
     
     func noteMenuDeleteTapped(note: NoteInfo) {
-        
+        self.showDeleteBlockTip(tip: "便签") {
+            self.deleteNote()
+        }
     }
     
     func noteMenuArchive(note: NoteInfo) {
@@ -365,11 +368,12 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     
     func noteMenuMoveToTrash(note: NoteInfo) {
         self.navigationController?.popViewController(animated: true)
-        //        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
+        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
     }
     
     func noteMenuChooseBoards(note: NoteInfo) {
         //        self.openChooseBoardsVC()
+        
     }
     
     func noteMenuBackgroundChanged(note: NoteInfo) {
@@ -1347,15 +1351,19 @@ extension EditorViewController {
 // MARK: Repo handler
 extension EditorViewController {
     private func deleteNote() {
-        //        noteRepo.deleteNote(noteId: note.id)
-        //            .subscribe(onNext: { [weak self] _  in
-        //                if let self = self {
-        //                    self.callbackNoteUpdate?(EditorUpdateMode.delete(noteInfo: self.note))
-        //                }
-        //            },onError: {
-        //                Logger.error($0)
-        //            })
-        //            .disposed(by: disposeBag)
+        NoteRepo.shared.deleteNote(noteId: note.id,noteFiles: self.extractNoteFiles())
+            .subscribe(onNext: { _  in
+                self.navigationController?.popViewController(animated: true)
+                self.callbackNoteUpdate?(EditorUpdateMode.deleted(noteInfo: self.note))
+            },onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func extractNoteFiles() -> [String] {
+       guard let blocks = note.attachmentGroupBlock?.contentBlocks else { return [] }
+       return blocks.map { $0.blockImageProperties!.url }
     }
     
     private func tryUpdateBlock(block:Block,completion: (()->Void)? = nil) {

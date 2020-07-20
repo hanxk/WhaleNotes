@@ -70,6 +70,22 @@ extension BlockPositionDao {
     }
     
     
+    func delete(noteStatus:NoteBlockStatus) throws {
+        let deleteSQL = """
+                        with recursive
+                        b as (
+                            select block.id from block
+                            where type = 'note' and json_extract(block.properties,'$.status') = ?
+                            union all
+                            select block_position.block_id as id from b
+                            join block_position on block_position.owner_id = b.id
+                        )
+                      delete from block_position where block_id in (select id from b);
+                    """
+        try db.execute(deleteSQL,args: noteStatus.rawValue)
+    }
+    
+    
     func deleteByParentId(_ parentId:String) throws{
         let insertSql = "DELETE FROM block_position WHERE owner_id = ?";
         try db.execute(insertSql, args:parentId)

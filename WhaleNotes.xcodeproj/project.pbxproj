@@ -99,6 +99,8 @@
 		18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */; };
 		18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
+		18C1470424C1E04E008EE166 /* NoteBoardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1470324C1E04E008EE166 /* NoteBoardInfo.swift */; };
+		18C1470624C41E0F008EE166 /* BlockBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1470524C41E0F008EE166 /* BlockBoard.swift */; };
 		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
 		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
 		18C6379E24BD335D007E01B9 /* SpaceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379D24BD335D007E01B9 /* SpaceInfo.swift */; };
@@ -240,6 +242,8 @@
 		18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+Ex.swift"; sourceTree = "<group>"; };
 		18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
+		18C1470324C1E04E008EE166 /* NoteBoardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteBoardInfo.swift; sourceTree = "<group>"; };
+		18C1470524C41E0F008EE166 /* BlockBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBoard.swift; sourceTree = "<group>"; };
 		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
 		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
 		18C6379D24BD335D007E01B9 /* SpaceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceInfo.swift; sourceTree = "<group>"; };
@@ -534,6 +538,7 @@
 			isa = PBXGroup;
 			children = (
 				18E6E66F247BB9D700D598C5 /* Block.swift */,
+				18C1470524C41E0F008EE166 /* BlockBoard.swift */,
 				181E395624BC0BFC00631EF0 /* BlockPosition.swift */,
 				18C6379B24BC5159007E01B9 /* BlockInfo.swift */,
 				1859303C24BAA00600D1352A /* BoardInfo.swift */,
@@ -550,6 +555,7 @@
 				1859304724BAA1F200D1352A /* Space.swift */,
 				18C6379D24BD335D007E01B9 /* SpaceInfo.swift */,
 				18D1BEA524BEC95F00817D02 /* NoteInfo.swift */,
+				18C1470324C1E04E008EE166 /* NoteBoardInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -993,6 +999,7 @@
 				18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
+				18C1470624C41E0F008EE166 /* BlockBoard.swift in Sources */,
 				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
@@ -1082,6 +1089,7 @@
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
+				18C1470424C1E04E008EE166 /* NoteBoardInfo.swift in Sources */,
 				1859304324BAA00600D1352A /* SectionAndNote.swift in Sources */,
 				1859303E24BAA00600D1352A /* SectionNoteInfo.swift in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,

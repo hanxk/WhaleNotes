@@ -166,16 +166,15 @@ extension HomeViewController {
     }
     
     func setupTrashView() {
-        
-//        if let oldView =  self.contentView {
-//            oldView.removeFromSuperview()
-//        }
-//        let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-//        self.contentView = trashView
-//        self.view.addSubview(trashView)
-//        trashView.snp.makeConstraints { make in
-//            make.edges.equalToSuperview()
-//        }
+        if let oldView =  self.contentView {
+            oldView.removeFromSuperview()
+        }
+        let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        self.contentView = trashView
+        self.view.addSubview(trashView)
+        trashView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
 }
 

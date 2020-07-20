@@ -54,7 +54,12 @@ extension SQLStatement {
         for i in 0..<columnCount {
             let index = Int32(i)
             let columnName = String(cString:sqlite3_column_name(stmt, index))
-            let columnType = String(cString:sqlite3_column_decltype(stmt, index)).uppercased()
+            var columnType = ""
+            if let type = sqlite3_column_decltype(stmt, index) {
+                columnType = String(cString:type).uppercased()
+            }else {
+                columnType = "TEXT"
+            }
             
             let value = getColumnValue(index: index, type: columnType)
             row[columnName] = value
@@ -63,10 +68,10 @@ extension SQLStatement {
     }
     
     func getColumnValue(index: Int32, type: String) -> Any? {
-//        if type == "TIMESTAMP" {
-//           print(type)
-//        }
-//        print(type)
+        //        if type == "TIMESTAMP" {
+        //           print(type)
+        //        }
+        //        print(type)
         switch type {
         case "INT", "INTEGER", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "UNSIGNED BIG INT", "INT2", "INT8":
             if sqlite3_column_type(stmt, index) == SQLITE_NULL {

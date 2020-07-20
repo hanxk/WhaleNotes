@@ -39,6 +39,22 @@ extension NoteRepo {
         return BlockRepo.shared.deleteBlockInfo(blockId: blockId, includeChild: true)
     }
     
+    func deleteNote(noteId:String,noteFiles:[String] = []) -> Observable<Void>{
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                if noteFiles.isNotEmpty { //删除附件
+                    try ImageUtil.sharedInstance.deleteImages(imageNames: noteFiles)
+                }
+                // 删除 position
+                try self.blockPositionDao.delete(blockId: noteId,includeChild: true)
+                // 删除
+                try self.blockDao.delete(id: noteId, includeChild: true)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
     
     func createBlockInfo(blockInfos:[BlockInfo],updatedAtId:String? = nil) -> Observable<[BlockInfo]> {
         return Observable<[BlockInfo]>.create {  observer -> Disposable in
@@ -58,14 +74,67 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func queryNotes(boardId:String) -> Observable<[NoteInfo]> {
+    func queryNotes(boardId:String,noteStatus:NoteBlockStatus) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> [NoteInfo] in
-                let blockInfos:[NoteInfo] = try self.blockDao.queryChilds(id: boardId).map({
-                    if $0.blockNoteProperties == nil { throw DBError(message: "queryNotes error")}
-                    return NoteInfo(noteBlock: $0)
-                })
+                let blockInfos:[NoteInfo] = try self.blockDao.queryNotes(boardId: boardId,status: noteStatus.rawValue)
                 return blockInfos
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func queryTrashNotes() -> Observable<([String:BlockInfo],[NoteInfo])> {
+        return Observable<([String:BlockInfo],[NoteInfo])>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> ([String:BlockInfo],[NoteInfo]) in
+                let blockInfos:[NoteInfo] = try self.blockDao.queryNotes(status: NoteBlockStatus.trash.rawValue)
+                
+                let boardIds = blockInfos.map { $0.noteBlock.blockPosition.ownerId }
+                // 查询 baord block
+                let boardsMap = try self.blockDao.queryBlockInfos(ids: boardIds).reduce(into: [String: BlockInfo]()) {
+                    $0[$1.id] = $1
+                }
+                return (boardsMap,blockInfos)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func deleteTrashNotes() -> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                
+                let images = try self.blockDao.queryNotesImages(status: .trash)
+                if images.isNotEmpty { //删除图片
+                    try ImageUtil.sharedInstance.deleteImages(imageNames: images)
+                }
+                
+                
+                // 删除 position
+                try self.blockPositionDao.delete(noteStatus: .trash)
+                
+                try self.blockDao.deleteNotes(status: .trash)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func searchNotes(keyword:String) -> Observable<([String:BlockInfo],[NoteInfo])> {
+        return Observable<([String:BlockInfo],[NoteInfo])>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> ([String:BlockInfo],[NoteInfo]) in
+                let blockInfos:[NoteInfo] = try self.blockDao.queryNotes(keyword: keyword)
+                
+                let boardIds = blockInfos.map { $0.noteBlock.blockPosition.ownerId }
+                // 查询 baord block
+                let boardsMap = try self.blockDao.queryBlockInfos(ids: boardIds).reduce(into: [String: BlockInfo]()) {
+                    $0[$1.id] = $1
+                }
+                return (boardsMap,blockInfos)
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))

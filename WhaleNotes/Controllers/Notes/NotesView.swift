@@ -149,7 +149,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
 
     private func setupData() {
-        NoteRepo.shared.queryNotes(boardId: self.board.id)
+        NoteRepo.shared.queryNotes(boardId: self.board.id,noteStatus: .normal)
                 .subscribe(onNext: { [weak self] in
                     if let self = self {
                         self.noteInfos = $0
@@ -396,7 +396,6 @@ extension NotesView {
         let noteVC  = EditorViewController()
         noteVC.note = note
         noteVC.isNew = isNew
-//        noteVC.mode = isNew ? EditorMode.create(noteInfo: note) :  EditorMode.browser(noteInfo: note)
         noteVC.callbackNoteUpdate = {updateMode in
             self.noteEditorUpdated(mode: updateMode)
         }
