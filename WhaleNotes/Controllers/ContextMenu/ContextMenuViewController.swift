@@ -28,7 +28,6 @@ open class ContextMenuViewController: UIViewController {
         menuVC.menuWidth = menuWidth
         menuVC.itemTappedCallback = callback
         
-        
         menuVC.showContextMenu(sourceView: sourceView)
 //        ContextMenu.shared.show(
 //            sourceViewController: sourceVC,

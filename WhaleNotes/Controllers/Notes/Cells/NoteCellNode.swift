@@ -66,7 +66,7 @@ class NoteCellNode: ASCellNode {
     
     var cardbackground:ASDisplayNode!
     
-    var callbackBoardButtonTapped:((Note,Board)->Void)?
+    var callbackBoardButtonTapped:((NoteInfo,BlockInfo)->Void)?
     
     
     var boardButton:ASButtonNode?
@@ -258,6 +258,7 @@ class NoteCellNode: ASCellNode {
                 
                 $0.setAttributedTitle(getBoardButtonAttributesText(text: properties.title), for: .normal)
                 $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
+                Logger.info("title:\(properties.title)   id:\(note.noteBlock.id)")
             }
             self.boardButton = boardButton
             self.addSubnode(boardButton)
@@ -488,7 +489,7 @@ class NoteCellNode: ASCellNode {
     
     @objc func boardButtonTapped() {
         if let board = self.board {
-//            self.callbackBoardButtonTapped?(self.note,board)
+            self.callbackBoardButtonTapped?(self.note,board)
         }
     }
     

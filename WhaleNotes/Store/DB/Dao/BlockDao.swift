@@ -615,7 +615,20 @@ extension BlockDao {
                                  IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
                                 from  (
                                     select * from block
-                                    where  type = 'note' and json_extract(block.properties,'$.title') like '%?%'
+                                    where  id in (
+                                                select
+                                                    DISTINCT note_id  from (
+                                                           SELECT id,type,properties,
+                                                                   CASE type
+                                                                       WHEN 'note'  THEN id
+                                                                       WHEN 'text'  THEN parent_id
+                                                                       WHEN 'todo' THEN (SELECT parent_id FROM block as b WHERE b.id = block.parent_id)
+                                                                       ELSE ''
+                                                                   END note_id
+                                                            FROM
+                                                            block  where  type in ('note','text','todo') AND json_extract(block.properties,'$.title') like '%\(keyword)%'
+                                                )
+                                    )
                                 ) as block_t
                                 left join block_position on block_position.block_id = block_t.id
                                 union all
@@ -628,7 +641,7 @@ extension BlockDao {
                         )
                       select * from b;
                     """
-        let rows = try db.query(selectSQL, args: keyword)
+        let rows = try db.query(selectSQL)
         return extractNotes(from: rows)
     }
     

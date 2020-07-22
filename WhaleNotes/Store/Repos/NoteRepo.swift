@@ -189,7 +189,9 @@ extension NoteRepo {
                 newPos.position = position
                 try blockPositionDao.update(newPos)
                 
-                return note
+                newNote.blockPosition = newPos
+                
+                return newNote
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))

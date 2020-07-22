@@ -33,7 +33,7 @@ enum NoteMenuDisplayMode {
 }
 
 protocol NoteMenuViewControllerDelegate: AnyObject {
-    func noteMenuDataMoved(note: NoteInfo)
+    
     func noteMenuMoveToTrash(note: NoteInfo)
     func noteMenuBackgroundChanged(note:NoteInfo)
     func noteMenuArchive(note: NoteInfo)
@@ -46,18 +46,19 @@ protocol NoteMenuViewControllerDelegate: AnyObject {
 }
 
 extension NoteMenuViewControllerDelegate {
-    func noteMenuDataMoved(note: NoteInfo){}
+    
     func noteMenuMoveToTrash(note: NoteInfo){}
     func noteMenuBackgroundChanged(note:NoteInfo){}
     func noteMenuArchive(note: NoteInfo){}
     func noteBlockDelete(blockType:BlockType) {}
+    
+    
+    func noteMenuMoveTapped(note: NoteInfo){}
+    func noteMenuDeleteTapped(note: NoteInfo){}
+    func noteMenuDataRestored(note: NoteInfo){}
 }
 
-// 废纸篓
-extension NoteMenuViewControllerDelegate {
-    func noteMenuDeleteTapped(note: Note) {}
-    func noteMenuDataRestored(note: Note) { }
-}
+
 
 class NoteMenuViewController: ContextMenuViewController {
     
@@ -198,6 +199,7 @@ extension NoteMenuViewController {
             self.dismiss()
             return
         }
+        self.note.updatedAt = Date()
         properties.backgroundColor = color
         NoteRepo.shared.updateProperties(id: note.id, properties: properties)
             .subscribe { _ in
@@ -212,6 +214,7 @@ extension NoteMenuViewController {
     private func move2Trash() {
         guard var newNote = self.note
               else { return }
+        newNote.updatedAt = Date()
         newNote.noteBlock.blockNoteProperties?.status = .trash
         NoteRepo.shared.updateProperties(id: newNote.id, properties: newNote.noteBlock.blockNoteProperties!)
             .subscribe { _ in

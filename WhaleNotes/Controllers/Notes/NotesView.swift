@@ -188,7 +188,7 @@ extension NotesView {
         case .deleted(noteInfo: let noteInfo):
             self.handleDeleteNote(noteInfo)
             break
-        case .moved(noteInfo: let noteInfo):
+        case .moved(let noteInfo, _):
             self.handleDeleteNote(noteInfo)
             break
         case .archived(noteInfo: let noteInfo):

@@ -79,8 +79,8 @@ class SideMenuViewController: UIViewController {
     }
     
     
-    var blocksMap:[String:Block] = [:]
-    var blockInfos:[BlockInfo] = []
+//    var blocksMap:[String:Block] = [:]
+//    var blockInfos:[BlockInfo] = []
     
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
@@ -460,9 +460,9 @@ extension SideMenuViewController {
         //        setSelected(indexPath: IndexPath(row: 0, section: 0))
     }
     
-    func setBoardSelected(board:Block) {
-        if let indexPath = getBoardIndexPath(board: board) {
-            //            setSelected(indexPath: indexPath)
+    func setBoardSelected(boardBlock:BlockInfo) {
+        if let indexPath = getBoardIndexPath(boardBlock:boardBlock) {
+            self.setRowSelected(indexPath: indexPath)
         }
     }
     
@@ -509,19 +509,22 @@ extension SideMenuViewController {
         //        }
     }
     
-    private func getBoardIndexPath(board:Block) -> IndexPath?{
-        //        var indexPath:IndexPath?
-        //        if let index = self.boards.firstIndex(where: {$0.id == board.id}) {
-        //            indexPath = IndexPath(row: index, section: 1)
-        //        }else {
-        ////            for (_,category) in self.boardCategories.enumerated() {
-        ////                if let row = category.boards.firstIndex(where: {$0.id == board.id}) {
-        ////                    indexPath = IndexPath(row: row+1, section: getSectionIndex(categoryId: category.category.id))
-        ////                    break
-        ////                }
-        ////            }
-        //        }
-        //        return indexPath
+    private func getBoardIndexPath(boardBlock:BlockInfo) -> IndexPath?{
+        
+        if spaceInfo.collectBoard.id == boardBlock.id {
+            return IndexPath(row: 0, section: 0)
+        }
+        
+        if let index = self.boardGroupBlock.contentBlocks.firstIndex(of: boardBlock) {
+            return IndexPath(row: index+1, section: 1)
+        }
+        
+        
+        if let categoryIndex = self.categoriesInfos.firstIndex(where: {$0.id == boardBlock.parentId}),
+            let index =  self.categoriesInfos[categoryIndex].contentBlocks.firstIndex(of: boardBlock)
+           {
+            return IndexPath(row: index+1, section: categoryIndex+sectionCategoryBeginIndex)
+        }
         return nil
     }
 }
@@ -1037,6 +1040,10 @@ extension SideMenuViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.setRowSelected(indexPath: indexPath)
+    }
+    
+    private func setRowSelected(indexPath:IndexPath) {
         let sectionType = self.menuSectionTypes[indexPath.section]
         switch sectionType {
         case .system:

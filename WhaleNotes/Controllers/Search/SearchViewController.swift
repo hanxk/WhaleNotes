@@ -15,9 +15,13 @@ class SearchViewController: UIViewController {
             self.callbackOpenBoard?(board)
             self.dismiss(animated: true, completion: nil)
         }
+        $0.callbackNoteEdited = { editorMode in
+            self.callbackNoteEdited(editorMode)
+        }
     }
     
-    var callbackOpenBoard:((Board) -> Void )?
+    var callbackOpenBoard:((_ boardBlock:BlockInfo) -> Void )?
+    var callbackNoteEdited:((_ editorUpdateMode:EditorUpdateMode) -> Void )!
     
     private lazy var searchBar = UISearchBar().then {
         $0.showsCancelButton = true

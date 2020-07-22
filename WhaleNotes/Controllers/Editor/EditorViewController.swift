@@ -20,9 +20,24 @@ import JXPhotoBrowser
 enum EditorUpdateMode {
     case updated(noteInfo:NoteInfo)
     case deleted(noteInfo:NoteInfo)
-    case moved(noteInfo:NoteInfo)
+    case moved(noteInfo:NoteInfo,boardBlock:BlockInfo)
     case archived(noteInfo:NoteInfo)
     case trashed(noteInfo:NoteInfo)
+    
+//    var noteId:String {
+//        switch self {
+//        case .updated(noteInfo: let noteInfo):
+//            return noteInfo.id
+//        case .deleted(noteInfo: let noteInfo):
+//            return noteInfo.id
+//        case .moved(noteInfo: let noteInfo, _):
+//            return noteInfo.id
+//        case .archived(noteInfo: let noteInfo):
+//            return noteInfo.id
+//        case .trashed(noteInfo: let noteInfo):
+//            return noteInfo.id
+//        }
+//    }
 }
 
 //enum EditorMode {
@@ -98,6 +113,7 @@ class EditorViewController: UIViewController {
     }
     
     private var oldUpdatedAt:Date!
+    private var isCancelNotify:Bool = false
     
     //    var mode: EditorMode! {
     //        didSet {
@@ -113,7 +129,7 @@ class EditorViewController: UIViewController {
     //        }
     //    }
     
-    var isNoteUpdated:Bool = false
+//    var isNoteUpdated:Bool = false
     
     
     var todoRowIndexMap:[Int:(Int,Int)] = [:]
@@ -229,13 +245,12 @@ class EditorViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
         
         self.hideKeyboard()
-        
-        
         tryNotifiNoteUpdated()
     }
     
     
     private func tryNotifiNoteUpdated() {
+        if isCancelNotify { return }
         if self.oldUpdatedAt != note.updatedAt{
             self.callbackNoteUpdate?(EditorUpdateMode.updated(noteInfo: self.note))
         }
@@ -341,16 +356,18 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     func noteMenuMoveTapped(note: NoteInfo) {
         let vc = ChangeBoardViewController()
         vc.noteBlock = note.noteBlock
-        vc.callbackMoveToBoard = {
+        vc.callbackMoveToBoard = {  noteBlock,boardBlock -> Void in
+            self.isCancelNotify = true
             self.navigationController?.popViewController(animated: true)
             var newNote = self.note!
-            newNote.noteBlock = $0
-            self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: newNote))
+            newNote.noteBlock = noteBlock
+            self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: newNote,boardBlock: boardBlock))
         }
         self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
     func noteMenuDataRestored(note: NoteInfo) {
+        self.isCancelNotify = true
         self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
         self.navigationController?.popViewController(animated: true)
     }
@@ -588,6 +605,8 @@ extension EditorViewController {
         
         bottombar.updatedDateStr =  self.note.updatedAt.formattedYMDHM
         bottombar.addButton.isEnabled = self.note.status != NoteBlockStatus.trash
+        
+        self.oldUpdatedAt = self.note.updatedAt
         
         self.titleTextField.text = self.note.properties.title
         self.titleTextField.isEnabled = self.note.status != NoteBlockStatus.trash
@@ -1353,6 +1372,7 @@ extension EditorViewController {
     private func deleteNote() {
         NoteRepo.shared.deleteNote(noteId: note.id,noteFiles: self.extractNoteFiles())
             .subscribe(onNext: { _  in
+                self.isCancelNotify = true
                 self.navigationController?.popViewController(animated: true)
                 self.callbackNoteUpdate?(EditorUpdateMode.deleted(noteInfo: self.note))
             },onError: {

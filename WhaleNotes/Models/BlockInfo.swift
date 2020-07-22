@@ -21,6 +21,10 @@ struct BlockInfo:Equatable {
         return blockPosition.ownerId
     }
     
+    var parentId:String {
+        return block.parentId
+    }
+    
     var block:Block
     var blockPosition:BlockPosition = BlockPosition()
     

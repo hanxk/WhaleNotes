@@ -31,7 +31,8 @@ class ChangeBoardViewController:UIViewController {
 //        }
 //    }
     
-    var callbackMoveToBoard:((BlockInfo)->Void)?
+    // 返回noteblock 和
+    var callbackMoveToBoard:((_ noteBlock:BlockInfo,_ boardBlock:BlockInfo)->Void)?
     
     
     var noteBlock:BlockInfo! {
@@ -204,9 +205,9 @@ extension ChangeBoardViewController:UITableViewDelegate {
     
     func moveToBoard(_ boardBlock:BlockInfo) {
         NoteRepo.shared.moveToBoard(note: noteBlock, boardId: boardBlock.id)
-            .subscribe {
+            .subscribe {newNoteBlock in
                 self.dismiss(animated: true, completion: nil)
-                self.callbackMoveToBoard?($0)
+                self.callbackMoveToBoard?(newNoteBlock, boardBlock)
             } onError: {
                 Logger.error($0)
             }

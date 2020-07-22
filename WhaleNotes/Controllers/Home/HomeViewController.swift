@@ -184,7 +184,6 @@ extension HomeViewController {
     private func setupNavgationBar() {
         let button =  UIButton()
         button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-//        button.backgroundColor = .red
         button.contentHorizontalAlignment = .leading
         button.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
@@ -214,13 +213,27 @@ extension HomeViewController {
     
     @objc func handleShowSearchbar() {
         let vc = SearchViewController()
-        vc.callbackOpenBoard = { [weak self] board in
-//            self?.sideMenuViewController.setBoardSelected(board: board)
+        vc.callbackOpenBoard = { [weak self] boardBlock in
+            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
+        }
+        vc.callbackNoteEdited = { [weak self] editorMode in
+            self?.handleEditorMode(editorMode)
         }
         let navVC = MyNavigationController(rootViewController: vc)
         navVC.modalPresentationStyle = .overFullScreen
         navVC.modalTransitionStyle = .crossDissolve
         self.navigationController?.present(navVC, animated: true, completion: nil)
+    }
+    
+    private func handleEditorMode(_ editorMode:EditorUpdateMode) {
+        if let notesView =  self.contentView as? NotesView {
+            notesView.noteEditorUpdated(mode: editorMode)
+            return
+        }
+        if let trashView =  self.contentView as? TrashView {
+            trashView.noteEditorUpdated(mode: editorMode)
+            return
+        }
     }
     
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {
