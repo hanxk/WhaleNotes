@@ -416,7 +416,7 @@ extension SideMenuViewController {
     
     
     func deleteBoardCategory(toggleBlock:BlockInfo) {
-        BlockRepo.shared.deleteBlockInfo(blockInfo: toggleBlock, childNewParent: self.boardGroupBlock)
+        BoardRepo.shared.deleteBoardCategory(toggleBlock, childNewCategory: self.boardGroupBlock)
             .subscribe(onNext: { [weak self] newParent in
                 self?.handleBoardCategoryInfoDelete(deletedBlockIanfo:toggleBlock,newParent:newParent)
             }, onError: { error in
@@ -815,7 +815,7 @@ extension SideMenuViewController {
         self.boardGroupBlock = boardGroupBlock
         
         // 更新 position
-        BlockRepo.shared.updatePosition(blockPosition: boardGroupBlock.contentBlocks[rightToRow].blockPosition)
+        BoardRepo.shared.updatePosition(blockPosition: boardGroupBlock.contentBlocks[rightToRow].blockPosition)
             .subscribe(onNext: { _ in
             }, onError: { error in
                 Logger.error(error)
@@ -868,7 +868,7 @@ extension SideMenuViewController {
         updateDataSource(fromBlockGroup: &fromBlockGroup, toBlockGroup: &toBlockGroup)
         
         // 更新 position
-        BlockRepo.shared.updatePositionAndParent(blockPosition: toBlockGroup.contentBlocks[rightToRow].blockPosition)
+        BoardRepo.shared.updatePositionAndParent(blockPosition: toBlockGroup.contentBlocks[rightToRow].blockPosition)
             .subscribe(onNext: { _ in
             }, onError: { error in
                 Logger.error(error)

@@ -253,13 +253,5 @@ extension NoteMenuViewController {
     func deleteNote() {
         guard let note = self.note  else { return }
         self.delegate?.noteMenuDeleteTapped(note: note)
-//        guard let note = self.note  else { return }
-//        NoteRepo.shared.deleteBlockInfo(blockId: note.id)
-//            .subscribe { _ in
-//                self.delegate?.noteD
-//            } onError: {
-//                Logger.error($0)
-//            }
-//            .disposed(by: disposeBag)
     }
 }

@@ -51,228 +51,66 @@ extension BoardRepo {
         .observeOn(MainScheduler.instance)
     }
     
-//    static let shared = BoardRepo()
-//    private init() {}
-//    
-//    func getBoardInfos() {
-//        
-//    }
-//    
-//    func createBoard(board: Board) ->  Observable<Board> {
-//        return Observable<Board>.just(board)
-//                 .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                 .map({(board)  -> Board in
-//                     let result =  DBStore.shared.createBoard(board: board)
-//                     switch result {
-//                     case .success(let insertedBoard):
-//                         return insertedBoard
-//                     case .failure(let err):
-//                         throw err
-//                     }
-//                 })
-//                 .observeOn(MainScheduler.instance)
-//    }
-//    
-//    
-//    func createBoardCategory(boardCategory: BoardCategory) ->  Observable<BoardCategory> {
-//        return Observable<BoardCategory>.just(boardCategory)
-//                 .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                 .map({(boardCategory)  -> BoardCategory in
-//                     let result =  DBStore.shared.createBoardCategory(boardCategory: boardCategory)
-//                     switch result {
-//                     case .success(let insertedBoardCategory):
-//                         return insertedBoardCategory
-//                     case .failure(let err):
-//                         throw err
-//                     }
-//                 })
-//                 .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func deleteBoard(boardId: String) ->  Observable<Bool>  {
-//       return Observable<String>.just(boardId)
-//                  .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                  .map({(boardId)  -> Bool in
-//                      let result =  DBStore.shared.deleteBoard(boardId: boardId)
-//                      switch result {
-//                      case .success(let isSuccess):
-//                          return isSuccess
-//                      case .failure(let err):
-//                          throw err
-//                      }
-//                  })
-//                  .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func deleteBoardCategory(boardCategoryInfo: BoardCategoryInfo) ->  Observable<Bool>  {
-//           return Observable<BoardCategoryInfo>.just(boardCategoryInfo)
-//                      .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                      .map({(boardCategoryInfo)  -> Bool in
-//                          let result =  DBStore.shared.deleteBoardCategory(boardCategoryInfo: boardCategoryInfo)
-//                          switch result {
-//                          case .success(let isSuccess):
-//                              return isSuccess
-//                          case .failure(let err):
-//                              throw err
-//                          }
-//                      })
-//                      .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func updateBoardCategory(boardCategory: BoardCategory) ->  Observable<Bool>  {
-//           return Observable<BoardCategory>.just(boardCategory)
-//                      .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                      .map({(boardCategory)  -> Bool in
-//                          let result =  DBStore.shared.updateBoardCategory(boardCategory: boardCategory)
-//                          switch result {
-//                          case .success(let isSuccess):
-//                              return isSuccess
-//                          case .failure(let err):
-//                              throw err
-//                          }
-//                      })
-//                      .observeOn(MainScheduler.instance)
-//    }
-//    
-//    
-//    func updateBoard(board: Board) ->  Observable<Bool>  {
-//           return Observable<Board>.just(board)
-//                      .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                      .map({(board)  -> Bool in
-//                          let result =  DBStore.shared.updateBoard(board)
-//                          switch result {
-//                          case .success(let isSuccess):
-//                              return isSuccess
-//                          case .failure(let err):
-//                              throw err
-//                          }
-//                      })
-//                      .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func getBoardNotes() {
-//        
-//    }
-//    
-//    func getBoardsExistsTrashNote() -> Observable<[(Board,[Note])]> {
-//        return Observable<[(Board,[Note])]>.create {  observer -> Disposable in
-//            let results = DBStore.shared.queryExistsTrashNoteBoards()
-//            switch results {
-//               case .success(let s):
-//                    observer.onNext(s)
-//               case .failure(let err):
-//                   observer.onError(err)
-//               }
-//            observer.onCompleted()
-//            
-//            return Disposables.create()
-//        }
-//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//        .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func getSectionNoteInfos(boardId:String,noteBlockStatus: NoteBlockStatus = NoteBlockStatus.normal) -> Observable<[SectionNoteInfo]>  {
-//
-//        return Observable<[SectionNoteInfo]>.create {  observer -> Disposable in
-//            let sectionsResult = DBStore.shared.getSectionsByBoardId(boardId)
-//            let sectionNotesResult = DBStore.shared.getSectionNotesByBoardId(boardId,noteBlockStatus:noteBlockStatus)
-//            
-//            var result:[SectionNoteInfo] = []
-//            var sections:[Section] = []
-//            var sectionNotes:[String:[Note]] = [:]
-//            
-//            switch sectionsResult {
-//               case .success(let s):
-//                   sections = s
-//               case .failure(let err):
-//                   observer.onError(err)
-//               }
-//            
-//            switch sectionNotesResult {
-//               case .success(let n):
-//                   sectionNotes = n
-//               case .failure(let err):
-//                   observer.onError(err)
-//               }
-//            
-//            
-//            for section in sections {
-//                let notes = sectionNotes[section.id]  ?? []
-//                result.append(SectionNoteInfo(section: section, notes: notes))
-//            }
-//            
-//            
-//            observer.onNext(result)
-//            observer.onCompleted()
-//            
-//            return Disposables.create()
-//        }
-//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//        .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func getBoardCategoryInfos() -> Observable<BoardInfo> {
-//        return Observable<BoardInfo>.create { observer -> Disposable in
-//            let systemBoardsResult = DBStore.shared.getSystemBoards()
-//            let boardsResult = DBStore.shared.getNoCategoryBoards()
-//            let boardCategoryInfoResult = DBStore.shared.getBoardCategoryInfos()
-//            
-//            var systemBoards:[Board] = []
-//            var boards:[Board] = []
-//            var boardCategoryInfos:[BoardCategoryInfo] = []
-//            
-//            
-//            switch systemBoardsResult {
-//            case .success(let boards):
-//                systemBoards = boards
-//            case .failure(let err):
-//                observer.onError(err)
-//            }
-//            
-//            switch boardsResult {
-//            case .success(let newBoards):
-//                boards = newBoards
-//            case .failure(let err):
-//                observer.onError(err)
-//            }
-//            
-//            switch boardCategoryInfoResult {
-//            case .success(let result):
-//                boardCategoryInfos = result
-//            case .failure(let err):
-//                observer.onError(err)
-//            }
-//            
-//            let result = BoardInfo(systemBoards: systemBoards, boards: boards, boardCategoryInfos: boardCategoryInfos)
-//
-//            observer.onNext(result)
-//            observer.onCompleted()
-//            
-//            return Disposables.create()
-//        }
-//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//        .observeOn(MainScheduler.instance)
-//    }
-//    
-//    func getBoardCategoryInfos(noteId:String) -> Observable<(Board?,BoardInfo)>{
-//        return getBoardCategoryInfos()
-//            .map { boardInfo -> (Board?,BoardInfo) in
-//                let boardResult = DBStore.shared.getBoardsByNoteId(noteId: noteId)
-//                var board:Board? = nil
-//                switch boardResult {
-//                case .success(let b):
-//                    board = b
-//                case .failure(let err):
-//                    throw err
-//                }
-//                return (board,boardInfo)
-//            }
-//    }
-//    
-//    
+}
 
+//MARK: 侧边栏
+extension BoardRepo {
     
+    func updatePositionAndParent(blockPosition:BlockPosition) -> Observable<Bool> {
+        return Observable<Bool>.create { [self]  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Bool in
+                try blockPositionDao.update(blockPosition)
+                try blockDao.updateBlockParentId(id: blockPosition.blockId, newParentId: blockPosition.ownerId)
+                return true
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
+    func updatePosition(blockPosition:BlockPosition) -> Observable<Void> {
+        return Observable<Void>.create { [self]  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                try blockPositionDao.update(blockPosition)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
-    
+    /// 返回新的 category
+    func deleteBoardCategory(_ boardCategory:BlockInfo,childNewCategory:BlockInfo) -> Observable<BlockInfo>  {
+        return Observable<BlockInfo>.create {  observer -> Disposable in
+            
+            self.transactionTask(observable: observer) { () -> BlockInfo in
+               
+                // 删除本身
+                try self.blockDao.delete(id: boardCategory.id, includeChild: false)
+                
+                // child 移动到新的 category
+                try self.blockDao.updateBlockParentId(oldParentId: boardCategory.id, newParentId: childNewCategory.id)
+                
+                // 删除 position
+                try self.blockPositionDao.delete(ownerId: boardCategory.id)
+                
+                // 更新 parent
+                var newParent = childNewCategory
+                let position = childNewCategory.contentBlocks.count == 0 ? 65536 : childNewCategory.contentBlocks[0].blockPosition.position
+                for blockInfo in boardCategory.contentBlocks.reversed() {
+                    
+                    var block = blockInfo.block
+                    block.parentId = childNewCategory.block.id
+                    
+                    let blockPosition = BlockPosition(blockId: block.id, ownerId: childNewCategory.id, position: position/2)
+                    try self.blockPositionDao.insert(blockPosition)
+                    
+                    let newBlockInfo = BlockInfo(block: block, blockPosition: blockPosition)
+                    newParent.contentBlocks.insert(newBlockInfo, at: 0)
+                }
+                return newParent
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
 }
