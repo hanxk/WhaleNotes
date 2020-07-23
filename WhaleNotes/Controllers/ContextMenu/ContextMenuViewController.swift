@@ -19,7 +19,7 @@ open class ContextMenuViewController: UIViewController {
     let sectionHeight:CGFloat = 8
 
     private lazy var  cellBackgroundView = UIView().then {
-        $0.backgroundColor = UIColor.tappedColor
+        $0.backgroundColor = UIColor.popMenuHighlight
     }
     
     static func show(sourceView:UIView,sourceVC: UIViewController,menuWidth:CGFloat = 0,items:[ContextMenuItem],callback:@escaping (ContextMenuItem,UIViewController)->Void) {
@@ -40,11 +40,11 @@ open class ContextMenuViewController: UIViewController {
     
     
     private lazy var tableView = UITableView().then { [weak self] in
-         $0.separatorColor = .divider
         $0.delegate = self
         $0.dataSource = self
         $0.register(ContextMenuCell.self, forCellReuseIdentifier: "ContextMenuCell")
-        $0.separatorStyle = .singleLine
+        $0.backgroundColor = .popMenuBg
+        
         
         $0.layoutMargins = UIEdgeInsets.zero
         $0.separatorInset = UIEdgeInsets.zero
@@ -69,8 +69,6 @@ open class ContextMenuViewController: UIViewController {
         let height = itemsCount * ContextMenuCell.cellHeight - 44
         
         preferredContentSize = CGSize(width: caculateTextWidth(), height: min(height, maxHeight))
-        self.view.backgroundColor = .blue
-        
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview()
@@ -132,7 +130,7 @@ extension ContextMenuViewController: UITableViewDataSource{
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ContextMenuCell", for: indexPath) as! ContextMenuCell
         cell.menuItem = items[indexPath.section].1[indexPath.row]
-//        cell.selectedBackgroundView = cellBackgroundView
+        cell.selectedBackgroundView = cellBackgroundView
         return cell
     }
     

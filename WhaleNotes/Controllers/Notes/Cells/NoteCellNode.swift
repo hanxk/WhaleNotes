@@ -28,7 +28,7 @@ enum NoteCellConstants {
     static let todoImageSize: CGFloat = 15
     static let todoTextSize: CGFloat = 14
     
-    static let bottomHeight: CGFloat = 30
+    static let bottomHeight: CGFloat = 24
     
     static let boardHeight: CGFloat = 32
     
@@ -52,7 +52,7 @@ class NoteCellNode: ASCellNode {
     
     var emptyTextNode:ASTextNode?
     
-    var menuButton:ASButtonNode!
+//    var menuButton:ASButtonNode!
     var menuTodoImage:ASImageNode?
     var menuTodoText:ASTextNode?
     
@@ -221,16 +221,16 @@ class NoteCellNode: ASCellNode {
             self.emptyTextNode = textNode
         }
         
-        menuButton = ASButtonNode().then {
-            $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
-            $0.style.width = ASDimensionMake(NoteCellConstants.bottomHeight)
-            
-//            $0.setImage(UIImage(systemName: "ellipsis", pointSize: 15)!.withTintColor(UIColor(hexString: "#999999")), for: .normal)
-//            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: NoteCellConstants.horizontalPadding, bottom:0, right: NoteCellConstants.horizontalPadding)
-            $0.contentMode = .center
-            $0.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
-            $0.cornerRadius = 4
-        }
+//        menuButton = ASButtonNode().then {
+//            $0.style.height = ASDimensionMake(NoteCellConstants.bottomHeight)
+//            $0.style.width = ASDimensionMake(NoteCellConstants.bottomHeight)
+//
+////            $0.setImage(UIImage(systemName: "ellipsis", pointSize: 15)!.withTintColor(UIColor(hexString: "#999999")), for: .normal)
+////            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: NoteCellConstants.horizontalPadding, bottom:0, right: NoteCellConstants.horizontalPadding)
+//            $0.contentMode = .center
+//            $0.addTarget(self, action: #selector(menuButtonTapped), forControlEvents: .touchUpInside)
+//            $0.cornerRadius = 4
+//        }
         
         if self.todosElements.isNotEmpty {
             
@@ -265,7 +265,7 @@ class NoteCellNode: ASCellNode {
         }
         
         
-        self.addSubnode(menuButton)
+//        self.addSubnode(menuButton)
         
     }
     
@@ -470,15 +470,15 @@ class NoteCellNode: ASCellNode {
             let centerTodoText = ASCenterLayoutSpec(centeringOptions: .XY, sizingOptions: [], child: menuTodoText)
             todoStack.children = [menuTodoImage,centerTodoText]
         }
-        if isImageCard {
-            self.menuButton.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-            self.menuButton.setImage(UIImage(systemName: "ellipsis", pointSize: 16)!.withTintColor(UIColor.white.withAlphaComponent(0.7)), for: .normal)
-        }else {
-            self.menuButton.backgroundColor = .clear
-            self.menuButton.setImage(UIImage(systemName: "ellipsis", pointSize: 16)!.withTintColor(UIColor(hexString: "#999999")), for: .normal)
-        }
+//        if isImageCard {
+//            self.menuButton.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+//            self.menuButton.setImage(UIImage(systemName: "ellipsis", pointSize: 16)!.withTintColor(UIColor.white.withAlphaComponent(0.7)), for: .normal)
+//        }else {
+//            self.menuButton.backgroundColor = .clear
+//            self.menuButton.setImage(UIImage(systemName: "ellipsis", pointSize: 16)!.withTintColor(UIColor(hexString: "#999999")), for: .normal)
+//        }
         bottomLayout.children?.append(todoStack)
-        bottomLayout.children?.append(self.menuButton)
+//        bottomLayout.children?.append(self.menuButton)
         let rootStackLayout =  ASInsetLayoutSpec(insets: UIEdgeInsets.init(top: 0, left: NoteCellConstants.horizontalPadding, bottom: 0, right: 4), child: bottomLayout)
         return rootStackLayout
     }

@@ -34,13 +34,13 @@ class ContextMenuCell: UITableViewCell {
     private static let labelTextFont = UIFont.systemFont(ofSize: 15)
     
     private lazy var labelView: UILabel = UILabel().then {
-        $0.textColor = .primaryText
+        $0.textColor = .popMenuText
         $0.font = ContextMenuCell.labelTextFont
     }
     
     private lazy var iconView: UIImageView = UIImageView().then {
         $0.contentMode = .center
-        $0.tintColor = UIColor.init(hexString: "#444444")
+        $0.tintColor = .popMenuIconTint
 //        $0.backgroundColor = .red
     }
     
@@ -62,12 +62,12 @@ class ContextMenuCell: UITableViewCell {
     
     
     private func setup() {
-        
+        self.backgroundColor = .clear
         
         contentView.addSubview(iconView)
         iconView.snp.makeConstraints { (make) in
             
-            make.width.equalTo(24)
+            make.width.equalTo(32)
             make.height.equalToSuperview()
             make.leading.equalToSuperview().offset(NoteDetailMenuCell.padding)
         }
@@ -82,25 +82,10 @@ class ContextMenuCell: UITableViewCell {
             make.trailing.equalTo(arrowView.snp.leading).offset(-spacing)
         }
         
-        
         arrowView.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
-//            make.leading.equalTo(labelView.snp.trailing).offset(8)
             make.trailing.equalToSuperview().offset(-NoteDetailMenuCell.padding)
         }
-//        contentView.addSubview(labelView)
-//        labelView.snp.makeConstraints { (make) in
-//            make.leading.equalToSuperview().offset(ContextMenuCell.padding)
-//            make.top.bottom.equalToSuperview()
-//            make.top.bottom.equalToSuperview()
-//        }
-//
-//        contentView.addSubview(iconView)
-//        iconView.snp.makeConstraints { (make) in
-//            make.width.equalTo(26)
-//            make.height.equalToSuperview()
-//            make.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
-//        }
         
     }
     

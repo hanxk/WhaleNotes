@@ -94,50 +94,31 @@ class SideMenuViewController: UIViewController {
     private var deletedBoard: BlockInfo?
     private var updatedBoard: BlockInfo?
     
-    //    private var selectedMenuItem:SideMenuItem! {
-    //
-    //        didSet {
-    //            if oldValue != selectedMenuItem {
-    //                delegate?.sideMenuItemSelected(menuItemType: selectedMenuItem)
-    //                self.dismiss(animated: true, completion: nil)
-    //            }
-    //        }
-    //
-    //    }
     
     private var selectedId:String = ""
     private var selectedItem:SelectedMenuItem!
     
-    //    var selectedMenuItem:SideMenuItem {
-    //        return switch self.selectedItem {
-    //        case .trash:
-    //            return SideMenuItem.system(menuInfo: self.systemMenuItems[1])
-    //        case .board(_,let boardId):
-    //            if boardId == self.space.
-    //            return boardId
-    //        }
-    //    }
+//    private lazy var bottomView:SideMenuBottomView = SideMenuBottomView().then {
+//
+//        $0.callbackNewBlock = { sender in
+//            let items = [
+//                ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
+//                ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
+//            ]
+//            ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
+//                vc.dismiss(animated: true, completion: nil)
+//                guard let self = self,let flag = menuItem.tag as? Int else { return}
+//                if flag == 1 {
+//                    self.openCreateBoardVC(parent: self.boardGroupBlock)
+//                }else {
+//                    self.showCategoryInputAlert()
+//                }
+//            }
+//
+//        }
+//
+//    }
     
-    private lazy var bottomView:SideMenuBottomView = SideMenuBottomView().then {
-        
-        $0.callbackNewBlock = { sender in
-            let items = [
-                ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
-                ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
-            ]
-            ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
-                vc.dismiss(animated: true, completion: nil)
-                guard let self = self,let flag = menuItem.tag as? Int else { return}
-                if flag == 1 {
-                    self.openCreateBoardVC(parent: self.boardGroupBlock)
-                }else {
-                    self.showCategoryInputAlert()
-                }
-            }
-            
-        }
-        
-    }
     
     private func openCreateBoardVC(parent:BlockInfo) {
         let vc = CreateBoardViewController()
@@ -241,15 +222,10 @@ class SideMenuViewController: UIViewController {
             make.leading.trailing.equalToSuperview()
         }
         
-        self.view.addSubview(bottomView)
-        bottomView.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.height.equalTo(44)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
-        }
-        
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.tableView.backgroundColor = .sidemenuBg
+        
+        self.setupToolbar()
         
     }
     
@@ -284,6 +260,49 @@ class SideMenuViewController: UIViewController {
         }
         self.selectedItem = .board(groupId: "", boardId: spaceInfo.collectBoard.id)
         self.notifyMenuSelected(selectedIndex: IndexPath(row: 0, section: 0))
+    }
+    
+}
+
+extension SideMenuViewController {
+    
+    private func setupToolbar() {
+        let imageSize:CGFloat = 18
+        let addBoard = self.generateUIBarButtonItem(imageName: "plus.circle",imageSize: imageSize, action:  #selector(addBoardTapped))
+        let setting = self.generateUIBarButtonItem(imageName: "slider.horizontal.3",imageSize: imageSize, action:  #selector(settingTapped))
+        
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
+        toolbarItems = [addBoard,spacer,setting]
+        
+        if let toolbar = self.navigationController?.toolbar {
+            toolbar.tintColor = .iconColor
+            toolbar.barTintColor = .white
+            toolbar.layer.borderWidth = 1
+            toolbar.layer.borderColor = UIColor.init(hexString: "#f1f1f1").cgColor
+            toolbar.clipsToBounds = true
+        }
+        navigationController?.setToolbarHidden(false, animated: false)
+    }
+    
+    @objc func addBoardTapped (sender:UIBarButtonItem) {
+        let items = [
+            ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
+            ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
+        ]
+        ContextMenuViewController.show(sourceView:sender.view!, sourceVC: self, items: items) { [weak self] menuItem, vc  in
+            vc.dismiss(animated: true, completion: nil)
+            guard let self = self,let flag = menuItem.tag as? Int else { return}
+            if flag == 1 {
+                self.openCreateBoardVC(parent: self.boardGroupBlock)
+            }else {
+                self.showCategoryInputAlert()
+            }
+        }
+    }
+    
+    
+    @objc func settingTapped () {
+        
     }
     
 }

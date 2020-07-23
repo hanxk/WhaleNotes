@@ -84,9 +84,9 @@ extension UIViewController {
     func showContextMenu(sourceView:UIView) {
         guard let sourceVC = sourceView.controller else { return }
         
-        let containerStyle = ContextMenu.ContainerStyle(shadowOpacity:0.06,
+        let containerStyle = ContextMenu.ContainerStyle(shadowOpacity:0.1,
                                                         xPadding: -sourceView.frame.width,
-                                                        overlayColor: UIColor.black.withAlphaComponent(0.3))
+                                                        overlayColor: UIColor.black.withAlphaComponent(0.0))
         
         ContextMenu.shared.show(
                 sourceViewController: sourceVC,
@@ -94,5 +94,12 @@ extension UIViewController {
                 options: ContextMenu.Options(containerStyle: containerStyle),
                 sourceView: sourceView
             )
+    }
+    
+    
+    func generateUIBarButtonItem(imageName:String,imageSize:CGFloat = 19,action: Selector?) -> UIBarButtonItem {
+        let weight:UIImage.SymbolWeight = .regular
+        let image = UIImage(systemName: imageName, pointSize: imageSize, weight: weight)?.withRenderingMode(.alwaysTemplate)
+        return UIBarButtonItem(image: image, style: .plain, target: self, action: action)
     }
 }

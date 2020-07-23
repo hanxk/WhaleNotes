@@ -47,7 +47,7 @@ extension UIColor {
             //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
 //            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.06)
 //                        return UIColor(hexString: "#EFF0F1")
-            return  UIColor(red: 0.913, green: 0.913, blue: 0.92, alpha: 0.9)
+            return  UIColor(red: 0.913, green: 0.913, blue: 0.92, alpha: 0.6)
 
 
         }
@@ -151,6 +151,8 @@ extension UIColor {
             return UIColor.init(hexString: "#202020")
         }
     }
+    
+    
 }
 
 
@@ -161,4 +163,30 @@ extension UIColor {
         }
     }
     
+}
+
+extension UIColor {
+    
+    open class var popMenuBg: UIColor {
+        get {
+            return UIColor.init(hexString: "#E3E3E5")
+        }
+    }
+    open class var popMenuHighlight: UIColor {
+        get {
+            return UIColor.init(hexString: "#D3D3D6")
+        }
+    }
+    
+    
+    open class var popMenuIconTint: UIColor {
+        get {
+            return UIColor.init(hexString: "#202020")
+        }
+    }
+    open class var popMenuText: UIColor {
+        get {
+            return UIColor.init(hexString: "#202020")
+        }
+    }
 }
