@@ -379,8 +379,9 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
     }
     
     func noteMenuArchive(note: NoteInfo) {
+        self.isCancelNotify = true
+        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
         self.navigationController?.popViewController(animated: true)
-        //        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
     }
     
     func noteMenuMoveToTrash(note: NoteInfo) {

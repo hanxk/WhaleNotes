@@ -201,21 +201,13 @@ class BlockDao {
     }
     
     
-    func queryNotesCountByBoardId(_ boardId:String ,noteBlockStatus: NoteBlockStatus) throws -> Int64 {
-        let status = noteBlockStatus.rawValue
+    func queryNotesCountByBoardId(_ boardId:String ,noteBlockStatus: NoteBlockStatus) throws -> Int {
         let selectSQL = """
-        select count(*)
-        from block as b
-        inner join (
-        select section_note.note_id, section_note.sort,section_note.section_id from section_note
-        inner join section on (section.id = section_note.section_id and section.board_id = ?)
-        ) as section
-        on (b.id = section.note_id  and json_extract(b.properties, '$.status') = ?) order by b.sort asc
+            select count(id) from block
+            where  block.parent_id = ? and type = 'note' and json_extract(block.properties,'$.status') = ?
         """
-        //        let stmt = try db.prepare(selectSQL)
-        //        let count = try stmt.run(boardId,status).scalar() as! Int64
-        //        return count
-        return 1
+        let count = try db.scalar(selectSQL, args: boardId,noteBlockStatus.rawValue)
+        return count
     }
 }
 
@@ -464,9 +456,9 @@ extension BlockDao {
                 delete from block where id in (
                     with recursive
                     b as (
-                            select * from block where id = ?
+                            select id from block where id = ?
                             union all
-                            select block.* from b join block on b.id = block.parent_id
+                            select block.id from b join block on b.id = block.parent_id
                     )
                   select id from b
                 )
@@ -549,15 +541,15 @@ extension BlockDao {
     
     func deleteNotes(status:NoteBlockStatus) throws {
         let deleteSQL = """
-                        with recursive
-                        b as (
-                            select block.id from block
-                            where type = 'note' and json_extract(block.properties,'$.status') = ?
-                            union all
-                            select block_position.block_id as id from b
-                            join block_position on block_position.owner_id = b.id
-                        )
-                      delete from block where id in (select id from b);
+                           with recursive
+                           b as (
+                               select block.id from block
+                               where type = 'note' and json_extract(block.properties,'$.status') = ?
+                               union all
+                               select block.id  from b
+                               join block on block.parent_id = b.id
+                           )
+                          delete from block where id in (select id from b)
                     """
         try db.execute(deleteSQL,args: status.rawValue)
     }

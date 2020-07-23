@@ -82,8 +82,7 @@ class BoardIconView: UITableViewHeaderFooterView {
         
     }
     
-    static func getCellHeight(board:Board) -> CGFloat {
-//        return board.type == BoardType.user.rawValue ? 154 : 122
-        return 122
+    static func getCellHeight(boardType:BoardType) -> CGFloat {
+        return boardType == .user ? 154 : 122
     }
 }

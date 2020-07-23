@@ -110,17 +110,9 @@ class NoteMenuViewController: ContextMenuViewController {
             case .pin:
                 break
             case .archive:
-//                self.archivenNote()
-                break
+                self.archivenNote()
             case .move:
                 self.delegate?.noteMenuMoveTapped(note: self.note)
-//                let vc = ChangeBoardViewController()
-//                vc.noteBlock = self.note.noteBlock
-////                vc.callbackBoardChoosed = { board in
-////                    self.handleMove2Board(board: board)
-////                }
-//                menuVC.navigationController?.pushViewController(vc, animated: true)
-                break
             case .background:
                 let colorVC = NoteColorViewController()
                 colorVC.selectedColor = self.note.properties.backgroundColor
@@ -138,7 +130,6 @@ class NoteMenuViewController: ContextMenuViewController {
                 self.move2Trash()
                 break
             case .deleteBlock(let blockType):
-//                self.deleteBlock(blockType)
                 self.delegate?.noteBlockDelete(blockType: blockType)
                 break
             case .restore:
@@ -212,39 +203,33 @@ extension NoteMenuViewController {
     }
     
     private func move2Trash() {
-        guard var newNote = self.note
-              else { return }
-        newNote.updatedAt = Date()
-        newNote.noteBlock.blockNoteProperties?.status = .trash
-        NoteRepo.shared.updateProperties(id: newNote.id, properties: newNote.noteBlock.blockNoteProperties!)
-            .subscribe { _ in
-                self.delegate?.noteMenuMoveToTrash(note: newNote)
-            } onError: {
-                Logger.error($0)
-            }
-            .disposed(by: disposeBag)
+        self.updateNoteStates(status: .trash) {
+            self.delegate?.noteMenuMoveToTrash(note: $0)
+        }
     }
     
     
     private func archivenNote() {
-//        guard var noteBlock = self.note.rootBlock else { return }
-//        noteBlock.blockNoteProperties!.status = self.note.status == .normal  ? .archive : .normal
-//        updateNoteBlock(noteBlock: noteBlock) {
-//            self.delegate?.noteMenuArchive(note: $0)
-//        }
+        var status = self.note.noteBlock.blockNoteProperties!.status
+        status = (status == .archive) ? .normal : .archive
+        self.updateNoteStates(status: status) {
+            self.delegate?.noteMenuArchive(note: $0)
+        }
     }
     
     
-    private func updateNoteBlock(noteBlock:Block,callback:@escaping (Note)->Void) {
-//        NoteRepo.shared.updateBlock(block: noteBlock)
-//            .subscribe(onNext: {
-//                var newNote = self.note!
-//                 newNote.rootBlock = $0
-//                callback(newNote)
-//            }, onError: { error in
-//                Logger.error(error)
-//            })
-//        .disposed(by: disposeBag)
+    private func updateNoteStates(status:NoteBlockStatus,callback:@escaping (NoteInfo) -> Void) {
+        guard var newNote = self.note
+              else { return }
+        newNote.updatedAt = Date()
+        newNote.noteBlock.blockNoteProperties?.status =  status
+        NoteRepo.shared.updateProperties(id: newNote.id, properties: newNote.noteBlock.blockNoteProperties!)
+            .subscribe { _ in
+                callback(newNote)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
     }
 }
 

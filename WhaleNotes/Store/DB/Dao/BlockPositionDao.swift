@@ -86,9 +86,14 @@ extension BlockPositionDao {
     }
     
     
-    func deleteByParentId(_ parentId:String) throws{
-        let insertSql = "DELETE FROM block_position WHERE owner_id = ?";
-        try db.execute(insertSql, args:parentId)
+    func delete(ownerId:String) throws{
+        let deleteSql = "DELETE FROM block_position WHERE owner_id = ?";
+        try db.execute(deleteSql, args:ownerId)
+    }
+    
+    func delete(blockId:String) throws{
+        let deleteSql = "DELETE FROM block_position WHERE block_id = ?";
+        try db.execute(deleteSql, args:blockId)
     }
     
     private func extract(row:Row) -> BlockPosition {

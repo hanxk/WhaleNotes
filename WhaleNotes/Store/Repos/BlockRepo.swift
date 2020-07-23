@@ -192,7 +192,7 @@ extension BlockRepo {
                 try self.blockDao.updateBlockParentId(oldParentId: blockInfo.id, newParentId: childNewParent.id)
                 
                 // 删除 position
-                try self.blockPositionDao.deleteByParentId(blockInfo.id)
+                try self.blockPositionDao.delete(ownerId: blockInfo.id)
                 
                 // 更新 parent
                 var newParent = childNewParent

@@ -27,14 +27,7 @@ struct Board: Equatable,Hashable {
         self.createdAt = createdAt
     }
     
-    func getBoardIcon(fontSize:CGFloat) -> UIImage {
-//        if self.type  == BoardType.user.rawValue {
-//            return self.icon.emojiToImage(fontSize: fontSize)!
-//        }else {
-//            return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
-//        }
-        return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
-    }
+
     
     static func == (lhs: Board, rhs: Board) -> Bool {
         return lhs.id == rhs.id

@@ -9,8 +9,47 @@
 import Foundation
 import RxSwift
 
+class BoardRepo:BaseRepo {
+    static let shared = BoardRepo()
+    private override init() { }
+}
 
-class BoardRepo {
+extension BoardRepo {
+    
+    func getNotesCount(boardId:String,noteBlockStatus:NoteBlockStatus) -> Observable<Int> {
+        return Observable<Int>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> Int in
+                return try self.blockDao.queryNotesCountByBoardId(boardId, noteBlockStatus: .archive)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func updateBoardProperties(boardId:String,blockBoardProperties:BlockBoardProperty) -> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> Void in
+                try self.blockDao.updateProperties(id: boardId, propertiesJSON: blockBoardProperties.toJSON())
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func delete(boardId:String) -> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> Void in
+                
+                try self.blockPositionDao.delete(ownerId: boardId)
+                try self.blockPositionDao.delete(blockId: boardId)
+                
+                try self.blockDao.delete(id: boardId, includeChild: true)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
 //    static let shared = BoardRepo()
 //    private init() {}
@@ -231,20 +270,7 @@ class BoardRepo {
 //    }
 //    
 //    
-//    func getNotesCount(boardId:String,noteBlockStatus:NoteBlockStatus) -> Observable<Int64> {
-//        return Observable<String>.just(boardId)
-//                   .observeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//                   .map({(noteId)  -> Int64 in
-//                    let result =  DBStore.shared.queryNotesCountByBoardId(boardId, noteBlockStatus: noteBlockStatus)
-//                       switch result {
-//                       case .success(let count):
-//                           return count
-//                       case .failure(let err):
-//                           throw err
-//                       }
-//                   })
-//                   .observeOn(MainScheduler.instance)
-//    }
+
     
     
     

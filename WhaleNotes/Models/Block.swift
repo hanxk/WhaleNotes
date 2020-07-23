@@ -5,7 +5,7 @@
 //  Created by hanxk on 2020/5/25.
 //  Copyright © 2020 hanxk. All rights reserved.
 //
-import Foundation
+import UIKit
 struct Block {
     var id:String = UUID.init().uuidString
     var type:BlockType!
@@ -225,11 +225,9 @@ protocol DBJSONable: Codable {
 }
 
 extension DBJSONable {
-//    func toJSON() -> String {
-//        let jsonData = try! JSONEncoder().encode(self)
-//        let jsonString = String(data: jsonData, encoding: .utf8)!
-//        return jsonString
-//    }
+    func toJSON() -> String {
+        return json(from: self)!
+    }
 }
 
 
@@ -268,6 +266,14 @@ struct BlockBoardProperty: DBJSONable {
     var icon:String = ""
     var title:String = ""
     var type:BoardType = .user
+    
+    func getBoardIcon(fontSize:CGFloat) -> UIImage {
+        if self.type  == .user {
+            return self.icon.emojiToImage(fontSize: fontSize)!
+        }else {
+            return UIImage(systemName: self.icon, pointSize: fontSize, weight: .light)!
+        }
+    }
 }
 
 struct BlockToggleProperty: DBJSONable {
@@ -312,6 +318,7 @@ extension Block:SQLTable {
                       "created_at" DATE DEFAULT (datetime('now')),
                       "updated_at" DATE DEFAULT (datetime('now'))
                     );
+                
         """
     }
 }

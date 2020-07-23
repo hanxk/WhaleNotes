@@ -13,8 +13,8 @@ import JXPhotoBrowser
 
 class ArchiveNotesViewController: UIViewController, UINavigationControllerDelegate {
     
-    var board:Board!
-    var callbackNotesCountChanged:((Int64) -> Void)?
+    var board:BlockInfo!
+    var callbackNotesCountChanged:((Int) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,15 +22,20 @@ class ArchiveNotesViewController: UIViewController, UINavigationControllerDelega
         self.setupBoardView(board: board)
     }
     
-    func setupBoardView(board:Board) {
-//        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board,noteStatus: NoteBlockStatus.archive)
-//        notesView.callbackNotesCountChanged = {
-//            self.callbackNotesCountChanged?($0)
-//        }
-//        self.view.addSubview(notesView)
-//        notesView.snp.makeConstraints { make in
-//            make.edges.equalToSuperview()
-//        }
-//        self.title = "已归档的便签"
+    func setupBoardView(board:BlockInfo) {
+        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board,noteStatus: NoteBlockStatus.archive)
+        notesView.callbackNotesCountChanged = {
+            self.callbackNotesCountChanged?($0)
+        }
+        self.view.addSubview(notesView)
+        notesView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        self.title = "已归档的便签"
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.barTintColor = .bg
     }
 }

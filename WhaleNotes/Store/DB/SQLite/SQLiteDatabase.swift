@@ -117,6 +117,11 @@ extension SQLiteDatabase {
         return try stmt.query()
     }
     
+    func scalar(_ sql:String,args:Any...) throws -> Int  {
+        let stmt = try self.prepare(sql: sql, args: args)
+        return try stmt.scalar()
+    }
+    
     func transaction(_ transFunc:() throws ->Void) throws {
         do {
             _ = try self.execute(DBConstants.SQL_TRANS_BEGIN)

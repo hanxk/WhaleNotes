@@ -91,8 +91,8 @@ class SideMenuViewController: UIViewController {
     
     var sectionSpecial = -1
     
-    private var deletedBoard: Block?
-    private var updatedBoard: Block?
+    private var deletedBoard: BlockInfo?
+    private var updatedBoard: BlockInfo?
     
     //    private var selectedMenuItem:SideMenuItem! {
     //
@@ -451,13 +451,13 @@ extension SideMenuViewController {
 
 extension SideMenuViewController {
     
-    func boardIsUpdated(board:Block) {
+    func boardIsUpdated(board:BlockInfo) {
         self.updatedBoard = board
     }
     
-    func boardIsDeleted(board:Block) {
+    func boardIsDeleted(board:BlockInfo) {
         self.deletedBoard = board
-        //        setSelected(indexPath: IndexPath(row: 0, section: 0))
+        self.setRowSelected(indexPath: IndexPath(row: 0, section: 0))
     }
     
     func setBoardSelected(boardBlock:BlockInfo) {
@@ -466,29 +466,47 @@ extension SideMenuViewController {
         }
     }
     
-    private func handleUpdateBoard(board:Block) {
-        //        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
-        //        if indexPath.section == 1{
-        //            self.boards[indexPath.row] = board
-        //        }else {
-        //            let index = indexPath.section - self.sectionCategoryBeginIndex
-        //            self.boardCategories[index].boards[indexPath.row-1] = board
-        //            let isExpand = self.boardCategories[index].category.isExpand
-        //            if !isExpand { // 被折叠
-        //                return
-        //            }
-        //        }
-        //
-        //
-        //        UIView.performWithoutAnimation {
-        //            self.tableView.performBatchUpdates({
-        //                self.tableView.reloadRows(at: [indexPath], with: .none)
-        //            }, completion: nil)
-        //        }
+    private func handleUpdateBoard(board:BlockInfo) {
+        
+        guard let indexPath =  getBoardIndexPath(boardBlock: board) else { return }
+        if indexPath.section == 1 {
+            self.boardGroupBlock.contentBlocks[indexPath.row-1] = board
+        }else {
+            let index = indexPath.section - self.sectionCategoryBeginIndex
+            self.categoriesInfos[index].contentBlocks[indexPath.row-1] = board
+            let isFolded = self.categoriesInfos[index].blockToggleProperties!.isFolded
+            if isFolded { // 被折叠
+                return
+            }
+        }
+        
+        UIView.performWithoutAnimation {
+            self.tableView.performBatchUpdates({
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            }, completion: nil)
+        }
         
     }
     
-    private func handleDeleteBoard(board:Block) {
+    private func handleDeleteBoard(board:BlockInfo) {
+        
+        guard let indexPath =  getBoardIndexPath(boardBlock: board) else { return }
+        if indexPath.section == 1 {
+            self.boardGroupBlock.contentBlocks.remove(at: indexPath.row-1)
+        }else {
+            let index = indexPath.section - self.sectionCategoryBeginIndex
+            self.categoriesInfos[index].contentBlocks.remove(at: indexPath.row-1)
+            let isFolded = self.categoriesInfos[index].blockToggleProperties!.isFolded
+            if isFolded { // 被折叠
+                return
+            }
+        }
+        
+        UIView.performWithoutAnimation {
+            self.tableView.performBatchUpdates({
+                self.tableView.deleteRows(at: [indexPath], with: .none)
+            }, completion: nil)
+        }
         //        setSelected(indexPath: IndexPath(row: 0, section: 0))
         //        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
         //        if indexPath.section == 1{
@@ -594,10 +612,6 @@ extension SideMenuViewController {
     
     
     func setSelected(indexPath: IndexPath,selectedItem:SelectedMenuItem) {
-        
-        //        if self.selectedId == selectedId { return }
-        
-        
         var updatedIndexPaths:[IndexPath]   = []
         
         if let oldSelectedIndexPath = findSelectedIndexPath(selectedItem: self.selectedItem) {
@@ -645,7 +659,7 @@ extension SideMenuViewController {
             return selectedBoardId == self.boardGroupBlock.contentBlocks[indexPath.row-1].id
         }
         
-        return selectedBoardId == self.categoriesInfos[indexPath.section-self.sectionCategoryBeginIndex].id
+        return selectedBoardId == self.categoriesInfos[indexPath.section-self.sectionCategoryBeginIndex].contentBlocks[indexPath.row-1].id
     }
     
     private func findSelectedIndexPath(selectedItem:SelectedMenuItem) -> IndexPath? {

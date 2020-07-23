@@ -73,7 +73,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
 //
 //    var delegate:NotesViewDelegate?
-//    var callbackNotesCountChanged:((Int64)->Void)?
+    var callbackNotesCountChanged:((Int)->Void)?
 //
     private var board:BlockInfo!
     private var noteStatus:NoteBlockStatus = NoteBlockStatus.normal
@@ -149,7 +149,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
     }
 
     private func setupData() {
-        NoteRepo.shared.queryNotes(boardId: self.board.id,noteStatus: .normal)
+        NoteRepo.shared.queryNotes(boardId: self.board.id,noteStatus:  self.noteStatus)
                 .subscribe(onNext: { [weak self] in
                     if let self = self {
                         self.noteInfos = $0

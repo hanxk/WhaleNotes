@@ -51,15 +51,15 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         
         func openBoardSetting(board: BlockInfo) {
             let settingVC = BoardSettingViewController()
-//            settingVC.board = board
-//            settingVC.callbackBoardSettingEdited = { boardEditedType in
-//                switch boardEditedType {
-//                case .update(let board):
-//                    self.handleBoardUpdated(board: board)
-//                case .delete(let board):
-//                    self.handleBoardDeleted(board: board)
-//                }
-//            }
+            settingVC.board = board
+            settingVC.callbackBoardSettingEdited = { boardEditedType in
+                switch boardEditedType {
+                case .update(let board):
+                    self.handleBoardUpdated(board: board)
+                case .delete(let board):
+                    self.handleBoardDeleted(board: board)
+                }
+            }
             let vc = MyNavigationController(rootViewController: settingVC)
             self.present(vc, animated: true, completion: nil)
         }
@@ -71,7 +71,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
                     break
                 case .system(let menuInfo):
                     if case .board(let board) = menuInfo {
-//                        openBoardSetting(board: board)
+                        openBoardSetting(board: board)
                     }
                     break
                case .none:
@@ -95,16 +95,17 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
 
 //MARK: board edited
 extension HomeViewController {
-    private func handleBoardUpdated(board:Block) {
-//        self.sideMenuItemType = SideMenuItem.board(board: board)
-//        titleButton.setTitle(board.title,emoji: board.icon)
-//
-//        self.sideMenuViewController.boardIsUpdated(board:board)
+    private func handleBoardUpdated(board:BlockInfo) {
+        self.sideMenuItemType = SideMenuItem.board(board: board)
+        let properties = board.blockBoardProperties!
+        titleButton.setTitle(properties.title,emoji: properties.icon)
+
+        self.sideMenuViewController.boardIsUpdated(board:board)
         
     }
     
-    private func handleBoardDeleted(board:Block) {
-//        self.sideMenuViewController.boardIsDeleted(board: board)
+    private func handleBoardDeleted(board:BlockInfo) {
+        self.sideMenuViewController.boardIsDeleted(board: board)
     }
 }
 

@@ -42,6 +42,18 @@ class SQLStatement {
         return rows
     }
     
+    func scalar() throws -> Int {
+        
+        defer {
+            sqlite3_finalize(stmt)
+        }
+        self.printSQL()
+        if sqlite3_step(stmt) == SQLITE_ROW {
+            return self.extractScalarValue()
+        }
+        return 0
+    }
+    
     private func printSQL() {
         let sql = String(cString:sqlite3_expanded_sql(stmt))
         print(sql)
@@ -49,6 +61,10 @@ class SQLStatement {
 }
 
 extension SQLStatement {
+    
+    private func extractScalarValue() -> Int {
+        return Int(sqlite3_column_int(stmt, 0))
+    }
     private func generateRow(columnCount:Int32) -> Row {
         var row = Row()
         for i in 0..<columnCount {
@@ -68,10 +84,6 @@ extension SQLStatement {
     }
     
     func getColumnValue(index: Int32, type: String) -> Any? {
-        //        if type == "TIMESTAMP" {
-        //           print(type)
-        //        }
-        //        print(type)
         switch type {
         case "INT", "INTEGER", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "UNSIGNED BIG INT", "INT2", "INT8":
             if sqlite3_column_type(stmt, index) == SQLITE_NULL {

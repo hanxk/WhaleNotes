@@ -157,7 +157,7 @@ class NoteCellNode: ASCellNode {
                 $0.backgroundColor = UIColor.placeHolderColor.withAlphaComponent(0.6)
                 $0.style.width = ASDimensionMake(contentWidth)
                 $0.style.height = ASDimensionMake(NoteCellConstants.imageHeight)
-                $0.addTarget(self, action: #selector(self.noteCellImageBlockTapped), forControlEvents: .touchUpInside)
+//                $0.addTarget(self, action: #selector(self.noteCellImageBlockTapped), forControlEvents: .touchUpInside)
                 $0.cornerRadius = cornerRadius
                 $0.borderWidth = 1
                 $0.borderColor = cardbackground.borderColor
