@@ -10,7 +10,7 @@ import UIKit
 class NoteColorViewController: UIViewController {
     
     var colors:[(String,String)] = [
-                           ("#FFFFFF","白"),
+                           ("#EEEEEE","默认"),
                            ("#FBCFCE","红"),
                            ("#FDDFCC","橙"),
                            ("#FCE9AD","黄"),

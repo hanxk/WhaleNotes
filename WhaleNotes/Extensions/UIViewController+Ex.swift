@@ -99,7 +99,7 @@ extension UIViewController {
     
     func generateUIBarButtonItem(imageName:String,imageSize:CGFloat = 19,action: Selector?) -> UIBarButtonItem {
         let weight:UIImage.SymbolWeight = .regular
-        let image = UIImage(systemName: imageName, pointSize: imageSize, weight: weight)?.withRenderingMode(.alwaysTemplate)
+        let image = UIImage(systemName: imageName, pointSize: imageSize, weight: weight)!
         return UIBarButtonItem(image: image, style: .plain, target: self, action: action)
     }
 }

@@ -46,7 +46,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private func setup() {
         self.setupNavgationBar()
         self.setupSideMenu()
-        self.view.backgroundColor = .bg
+        self.view.backgroundColor = .toolbarBg
         self.extendedLayoutIncludesOpaqueBars = true
         
         func openBoardSetting(board: BlockInfo) {
@@ -136,7 +136,12 @@ extension HomeViewController {
         if let oldView =  self.contentView {
             oldView.removeFromSuperview()
         }
-        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board)
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
+        let height = self.view.frame.height - (window?.safeAreaInsets.bottom ?? 0)
+        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: height),board: board)
+        notesView.callbackSearchButtonTapped = { _ in
+            self.handleShowSearchbar()
+        }
         self.contentView = notesView
 
         self.view.addSubview(notesView)
@@ -200,8 +205,8 @@ extension HomeViewController {
             }
         }
         
-        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
-        let search =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
+        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        let search =  UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
 //        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItems = [search]
     }

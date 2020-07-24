@@ -129,7 +129,8 @@ extension UIColor {
     // OLD: #EFEFEF
     open class var bg: UIColor {
         get {
-            return UIColor.init(hexString: "#F5F5F7")
+//            return UIColor.init(hexString: "#F5F5F7")
+            return UIColor.init(hexString: "#FFFFFF")
 //            return UIColor.init(hexString: "#f2f2f2")
         }
     }
@@ -163,13 +164,20 @@ extension UIColor {
         }
     }
     
+    
+    open class var toolbarBg: UIColor {
+        get {
+           return  UIColor(hexString: "#FAFAFB")
+        }
+    }
 }
 
 extension UIColor {
     
     open class var popMenuBg: UIColor {
         get {
-            return UIColor.init(hexString: "#E3E3E5")
+//            return UIColor.init(hexString: "#E3E3E5")
+            return UIColor.init(hexString: "#FFFFFF")
         }
     }
     open class var popMenuHighlight: UIColor {

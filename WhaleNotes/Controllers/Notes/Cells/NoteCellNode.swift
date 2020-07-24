@@ -74,15 +74,6 @@ class NoteCellNode: ASCellNode {
     var itemSize:CGSize!
     
     
-    func setupBackBackground() {
-        self.cardbackground.backgroundColor = UIColor(hexString: noteProperties.backgroundColor)
-        if noteProperties.backgroundColor.isWhiteHex {
-            self.cardbackground.borderColor = UIColor.colorBoarder.cgColor
-        }else {
-            self.cardbackground.borderColor = UIColor.colorBoarder2.cgColor
-        }
-    }
-    
     required init(note:NoteInfo,itemSize: CGSize,board:BlockInfo? = nil) {
         super.init()
         

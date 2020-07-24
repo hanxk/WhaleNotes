@@ -237,7 +237,7 @@ struct BlockNoteProperty: Codable {
     var title:String = ""
     // note status:  -1: 删除  1: 正常  2: 归档
     var status:NoteBlockStatus = .normal
-    var backgroundColor:String = "#FFFFFF"
+    var backgroundColor:String = "#EEEEEE"
 }
 
 

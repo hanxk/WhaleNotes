@@ -86,6 +86,8 @@
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
 		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
 		186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */; };
+		1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1870041A24C99F2F00AE784C /* HomeToolbar.swift */; };
+		1870041D24C9A09A00AE784C /* BaseToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1870041C24C9A09A00AE784C /* BaseToolbar.swift */; };
 		1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */; };
 		1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */; };
 		1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */; };
@@ -229,6 +231,8 @@
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
 		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
+		1870041A24C99F2F00AE784C /* HomeToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeToolbar.swift; sourceTree = "<group>"; };
+		1870041C24C9A09A00AE784C /* BaseToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseToolbar.swift; sourceTree = "<group>"; };
 		1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldAlertViewController.swift; sourceTree = "<group>"; };
@@ -599,6 +603,15 @@
 			path = PhotoViewer;
 			sourceTree = "<group>";
 		};
+		1870041924C99F1D00AE784C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1870041A24C99F2F00AE784C /* HomeToolbar.swift */,
+				1870041C24C9A09A00AE784C /* BaseToolbar.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		1879E6F1248F81270014F3A7 /* AlertVC */ = {
 			isa = PBXGroup;
 			children = (
@@ -621,6 +634,7 @@
 		188942A9246FDBAB006173F8 /* Notes */ = {
 			isa = PBXGroup;
 			children = (
+				1870041924C99F1D00AE784C /* Views */,
 				186DDE7F249323AE00A4C63C /* Layout */,
 				188942AC24702A2B006173F8 /* Cells */,
 				188942AA246FDC1F006173F8 /* NotesView.swift */,
@@ -1043,11 +1057,13 @@
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
+				1870041D24C9A09A00AE784C /* BaseToolbar.swift in Sources */,
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				1859303224BA97C300D1352A /* DBManager.swift in Sources */,
 				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
+				1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */,
 				1859303F24BAA00600D1352A /* BoardCategoryInfo.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,

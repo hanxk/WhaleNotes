@@ -267,7 +267,7 @@ class SideMenuViewController: UIViewController {
 extension SideMenuViewController {
     
     private func setupToolbar() {
-        let imageSize:CGFloat = 18
+        let imageSize:CGFloat = 17  
         let addBoard = self.generateUIBarButtonItem(imageName: "plus.circle",imageSize: imageSize, action:  #selector(addBoardTapped))
         let setting = self.generateUIBarButtonItem(imageName: "slider.horizontal.3",imageSize: imageSize, action:  #selector(settingTapped))
         
@@ -276,8 +276,7 @@ extension SideMenuViewController {
         
         if let toolbar = self.navigationController?.toolbar {
             toolbar.tintColor = .iconColor
-            toolbar.barTintColor = .white
-            toolbar.layer.borderWidth = 1
+            toolbar.barTintColor =  .sidemenuBg
             toolbar.layer.borderColor = UIColor.init(hexString: "#f1f1f1").cgColor
             toolbar.clipsToBounds = true
         }

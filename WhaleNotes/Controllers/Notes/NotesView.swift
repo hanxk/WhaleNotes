@@ -29,7 +29,7 @@ enum DisplayMode {
 }
 
 enum NotesViewConstants {
-    static let cellSpace: CGFloat = 12
+    static let cellSpace: CGFloat = 13
     static let cellHorizontalSpace: CGFloat = 14
     
     static let waterfall_cellSpace: CGFloat = 12
@@ -63,12 +63,13 @@ class NotesView: UIView, UINavigationControllerDelegate {
 //    }
 //
     private var noteInfos:[NoteInfo] = []
+     var callbackSearchButtonTapped:((UIButton)->Void)!
     
     
     static func getItemSize(numberOfColumns:Int) -> CGSize {
         let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace * CGFloat(numberOfColumns) - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
         let itemWidth = validWidth / CGFloat(numberOfColumns)
-        let itemHeight = itemWidth * 200 / 160
+        let itemHeight = itemWidth * 194 / 160
         return CGSize(width: itemWidth, height: itemHeight)
     }
 //
@@ -94,6 +95,24 @@ class NotesView: UIView, UINavigationControllerDelegate {
         $0.minimumLineSpacing = NotesViewConstants.cellSpace
     }
 //
+    
+    private lazy var toolbar = HomeToolbar().then {
+        
+        $0.callbackSearchButtonTapped = { sender in
+            self.callbackSearchButtonTapped(sender)
+        }
+        
+        $0.callbackAddButtonTapped = { _ in
+            self.createTextNote()
+        }
+        
+        $0.callbackMoreButtonTapped = { sender in
+            NotesView.showNotesMenu(sourceView: sender, sourceVC: self.controller!,isIncludeText: false) { [weak self]  menuType in
+                  self?.openNoteEditor(type:menuType)
+            }
+        }
+    }
+    
     private var mode:DisplayMode = .grid
     private(set) lazy var collectionNode = self.generateCollectionView(mode: mode)
 //
@@ -141,7 +160,7 @@ class NotesView: UIView, UINavigationControllerDelegate {
 
     private func setupUI() {
         collectionNode.frame = self.frame
-        collectionNode.backgroundColor = .clear
+        collectionNode.backgroundColor = .bg
         self.addSubnode(collectionNode)
         if noteStatus == NoteBlockStatus.normal {
             self.setupFloatButtons()
@@ -351,32 +370,41 @@ extension NotesView: ASCollectionDelegate {
 ////MARK: 添加 block
 extension NotesView {
     func setupFloatButtons() {
-        let btnNewNote = NotesView.makeFloatButton().then {
-            $0.backgroundColor = .brand
-            $0.tintColor = .white
-            $0.setImage( UIImage(systemName: "square.and.pencil", pointSize: FloatButtonConstants.iconSize, weight: .light), for: .normal)
-            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
+//        let btnNewNote = NotesView.makeFloatButton().then {
+//            $0.backgroundColor = .brand
+//            $0.tintColor = .white
+//            $0.setImage( UIImage(systemName: "square.and.pencil", pointSize: FloatButtonConstants.iconSize, weight: .light), for: .normal)
+//            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
+//        }
+//        self.addSubview(btnNewNote)
+//        btnNewNote.snp.makeConstraints { (make) -> Void in
+//            make.width.height.equalTo(FloatButtonConstants.btnSize)
+//            make.trailing.equalTo(self).offset(-FloatButtonConstants.trailing)
+//            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
+//        }
+//
+//
+//        let btnMore =  NotesView.makeFloatButton().then {
+//            $0.tintColor = .brand
+//            $0.backgroundColor = .white
+//            $0.setImage(UIImage(systemName: "ellipsis", pointSize: FloatButtonConstants.iconSize, weight: .light)?.withTintColor(.white), for: .normal)
+//            $0.addTarget(self, action: #selector(btnMoreTapped), for: .touchUpInside)
+//        }
+//        self.addSubview(btnMore)
+//        btnMore.snp.makeConstraints { (make) -> Void in
+//            make.width.height.equalTo(FloatButtonConstants.btnSize)
+//            make.bottom.equalTo(btnNewNote.snp.top).offset(-16)
+//            make.trailing.equalTo(btnNewNote.snp.trailing)
+//        }
+        
+        self.addSubview(toolbar)
+        toolbar.snp.makeConstraints { (make) -> Void in
+            make.width.equalToSuperview()
+            make.height.equalTo(ToolbarConstants.height)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin)
         }
-        self.addSubview(btnNewNote)
-        btnNewNote.snp.makeConstraints { (make) -> Void in
-            make.width.height.equalTo(FloatButtonConstants.btnSize)
-            make.trailing.equalTo(self).offset(-FloatButtonConstants.trailing)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
-        }
-
-
-        let btnMore =  NotesView.makeFloatButton().then {
-            $0.tintColor = .brand
-            $0.backgroundColor = .white
-            $0.setImage(UIImage(systemName: "ellipsis", pointSize: FloatButtonConstants.iconSize, weight: .light)?.withTintColor(.white), for: .normal)
-            $0.addTarget(self, action: #selector(btnMoreTapped), for: .touchUpInside)
-        }
-        self.addSubview(btnMore)
-        btnMore.snp.makeConstraints { (make) -> Void in
-            make.width.height.equalTo(FloatButtonConstants.btnSize)
-            make.bottom.equalTo(btnNewNote.snp.top).offset(-16)
-            make.trailing.equalTo(btnNewNote.snp.trailing)
-        }
+        
+        
     }
 
     @objc func btnNewNoteTapped (sender:UIButton) {
