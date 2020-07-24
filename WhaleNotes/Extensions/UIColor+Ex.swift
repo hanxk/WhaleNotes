@@ -154,20 +154,26 @@ extension UIColor {
     }
     
     
-}
-
-
-extension UIColor {
     open class var chkCheckedTextColor: UIColor {
         get {
             UIColor(red: 0.216, green: 0.208, blue: 0.184, alpha: 0.38)
         }
     }
     
+}
+
+//MARK: Toolbar
+extension UIColor {
     
     open class var toolbarBg: UIColor {
         get {
            return  UIColor(hexString: "#FAFAFB")
+        }
+    }
+    
+    open class var toolbarIcon: UIColor {
+        get {
+            return  UIColor.black.withAlphaComponent(0.8)
         }
     }
 }
