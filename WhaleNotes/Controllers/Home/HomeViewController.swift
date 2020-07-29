@@ -179,14 +179,10 @@ extension HomeViewController {
         }
         let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         self.contentView = trashView
-        self.view.backgroundColor = .
-            
-            
-            
-            
-            
-            
-            bg
+        self.view.backgroundColor = .bg
+        trashView.callbackOpenBoard = { [weak self] boardBlock in
+            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
+        }
         self.view.addSubview(trashView)
         trashView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

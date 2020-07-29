@@ -42,6 +42,8 @@
 		182BE8FE249A151000C85F8F /* ChooseBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8FD249A151000C85F8F /* ChooseBoardCell.swift */; };
 		182BE900249A557C00C85F8F /* NoteDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8FF249A557C00C85F8F /* NoteDateViewController.swift */; };
 		182BE903249A55C000C85F8F /* NoteDetailMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */; };
+		182F359024D10F5200E88657 /* NoteCellProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182F358F24D10F5200E88657 /* NoteCellProvider.swift */; };
+		182F359224D10F8A00E88657 /* ImageCellProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182F359124D10F8A00E88657 /* ImageCellProvider.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
 		1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */; };
@@ -190,6 +192,8 @@
 		182BE8FD249A151000C85F8F /* ChooseBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseBoardCell.swift; sourceTree = "<group>"; };
 		182BE8FF249A557C00C85F8F /* NoteDateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDateViewController.swift; sourceTree = "<group>"; };
 		182BE902249A55C000C85F8F /* NoteDetailMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailMenuCell.swift; sourceTree = "<group>"; };
+		182F358F24D10F5200E88657 /* NoteCellProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteCellProvider.swift; sourceTree = "<group>"; };
+		182F359124D10F8A00E88657 /* ImageCellProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageCellProvider.swift; path = "../../../../../../../蒲公英项目/code/DandelionSchool/ImageCellProvider.swift"; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
 		1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPageIndicatorView.swift; sourceTree = "<group>"; };
@@ -646,6 +650,7 @@
 		188942A9246FDBAB006173F8 /* Notes */ = {
 			isa = PBXGroup;
 			children = (
+				18EF597F24D0F52000E20BCE /* Prodivder */,
 				1870041924C99F1D00AE784C /* Views */,
 				186DDE7F249323AE00A4C63C /* Layout */,
 				188942AC24702A2B006173F8 /* Cells */,
@@ -869,6 +874,15 @@
 			name = SupportFiles;
 			sourceTree = "<group>";
 		};
+		18EF597F24D0F52000E20BCE /* Prodivder */ = {
+			isa = PBXGroup;
+			children = (
+				182F358F24D10F5200E88657 /* NoteCellProvider.swift */,
+				182F359124D10F8A00E88657 /* ImageCellProvider.swift */,
+			);
+			path = Prodivder;
+			sourceTree = "<group>";
+		};
 		4354D1850ECD26DA681F44C3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1075,6 +1089,7 @@
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				1859303224BA97C300D1352A /* DBManager.swift in Sources */,
+				182F359224D10F8A00E88657 /* ImageCellProvider.swift in Sources */,
 				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
 				1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */,
@@ -1138,6 +1153,7 @@
 				1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */,
+				182F359024D10F5200E88657 /* NoteCellProvider.swift in Sources */,
 				1859304224BAA00600D1352A /* NoteAndBoard.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
 				186DDE7C249261D600A4C63C /* TrashView.swift in Sources */,

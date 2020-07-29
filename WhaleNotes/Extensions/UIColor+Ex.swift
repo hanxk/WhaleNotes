@@ -16,14 +16,6 @@ extension UIColor {
     }
     
     
-    open class var cardText: UIColor {
-        get {
-            //            return UIColor(named: "PrimaryText")!
-            //                 UIColor.init(hexString: "#333333")
-            UIColor.init(hexString: "#2b292e")
-        }
-    }
-    
     open class var primaryText: UIColor {
         get {
             //            return UIColor(named: "PrimaryText")!
@@ -50,14 +42,6 @@ extension UIColor {
             return  UIColor(red: 0.913, green: 0.913, blue: 0.92, alpha: 0.6)
 
 
-        }
-    }
-    open class var colorBoarder2: UIColor {
-        get {
-            //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
-//            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.04)
-            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
-            //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.06)
         }
     }
     
@@ -201,6 +185,29 @@ extension UIColor {
     open class var popMenuText: UIColor {
         get {
             return UIColor.init(hexString: "#000000")
+        }
+    }
+}
+
+
+extension UIColor {
+    
+    
+    open class var cardText: UIColor {
+        get {
+            //            return UIColor(named: "PrimaryText")!
+            //                 UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#2b292e")
+        }
+    }
+    
+    
+    open class var cardBorder: UIColor {
+        get {
+            //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
+//            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.04)
+            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
+            //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.06)
         }
     }
 }

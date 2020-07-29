@@ -28,7 +28,8 @@ class TrashView: UIView, UINavigationControllerDelegate {
     }
     
     private var selectedIndexPath:IndexPath?
-
+    
+    var callbackOpenBoard:((_ boardBlock:BlockInfo) -> Void )?
     
     var delegate:NotesViewDelegate?
     
@@ -53,9 +54,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
     }
     
     private lazy var collectionLayout =  UICollectionViewFlowLayout().then {
-        
-            var itemSize = itemContentSize
-            itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
+        $0.itemSize = CGSize(width: itemContentSize.width, height: itemContentSize.height + NoteCellConstants.boardHeight )
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
         $0.minimumLineSpacing = NotesViewConstants.cellVerticalSpace
     }
@@ -182,6 +181,9 @@ extension TrashView: ASCollectionDataSource {
         return {
             let node =  NoteCellNode(note: note,itemSize: itemSize,board: boardBlock)
             node.delegate = self
+            node.callbackBoardButtonTapped = { [weak self] _,boardBlock in
+                self?.callbackOpenBoard?(boardBlock)
+            }
             return node
         }
     }
