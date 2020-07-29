@@ -36,7 +36,7 @@ class EditorViewController: UIViewController {
     var disposebag = DisposeBag()
     
     private var attachmentsCell: AttachmentsBlockCell?
-    var callbackNoteUpdate : ((EditorUpdateMode) -> Void)?
+    var callbackNoteUpdate : ((EditorUpdateEvent) -> Void)?
     
     
     private var columnCount:Int {
@@ -72,13 +72,22 @@ class EditorViewController: UIViewController {
         return note.todoGroupBlock?.contentBlocks ?? []
     }
     
-    private var bg:String! {
+    
+    private lazy  var noteInfoModel:NoteEidtorMenuModel = {
+        let noteInfoModel = NoteEidtorMenuModel(model: note)
+        noteInfoModel.noteInfoPub.subscribe(onNext: { event in
+            self.handleNoteInfoEvent(event: event)
+        }).disposed(by: disposeBag)
+        return noteInfoModel
+    }()
+    
+    private var bg:NoteBackground! {
         didSet {
-            let bg =  UIColor(hexString: note.properties.backgroundColor)
-            bottombar.backgroundColor = bg
+            let bgColor = bg.uicolor
+            bottombar.backgroundColor = bgColor
             self.navigationItem.titleView = titleTextField
-            navigationController?.navigationBar.barTintColor = bg
-            self.view.backgroundColor =  bg
+            navigationController?.navigationBar.barTintColor = bgColor
+            self.view.backgroundColor =  bgColor
         }
     }
     
@@ -198,7 +207,7 @@ class EditorViewController: UIViewController {
     private func tryNotifiNoteUpdated() {
         if isCancelNotify { return }
         if self.oldUpdatedAt != note.updatedAt{
-            self.callbackNoteUpdate?(EditorUpdateMode.updated(noteInfo: self.note))
+            self.callbackNoteUpdate?(EditorUpdateEvent.updated(noteInfo: self.note))
         }
     }
     
@@ -256,53 +265,58 @@ class EditorViewController: UIViewController {
     }
 }
 
-//MARK: NoteMenuViewControllerDelegate
-extension EditorViewController:NoteMenuViewControllerDelegate {
-    func noteMenuMoveTapped(note: NoteInfo) {
-        let vc = ChangeBoardViewController()
-        vc.noteBlock = note.noteBlock
-        vc.callbackMoveToBoard = {  noteBlock,boardBlock -> Void in
-            self.isCancelNotify = true
-            self.navigationController?.popViewController(animated: true)
-            var newNote = self.note!
-            newNote.noteBlock = noteBlock
-            self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: newNote,boardBlock: boardBlock))
-        }
-        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-    }
+extension EditorViewController {
     
-    func noteMenuDataRestored(note: NoteInfo) {
-        self.isCancelNotify = true
-        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
+    
+    func noteMenuDataMoved(note: NoteInfo) {
         self.navigationController?.popViewController(animated: true)
+        //        self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: note))
     }
     
-    func noteMenuDeleteTapped(note: NoteInfo) {
-        self.showDeleteBlockTip(tip: "便签") {
-            self.deleteNote()
-        }
+    @objc func handleMoreButtonTapped(sender: UIButton) {
+        let noteMenuVC = NoteMenuViewController()
+        noteMenuVC.note = note
+        noteMenuVC.mode = note.status == .trash ? .trash : .detail
+        noteMenuVC.callback = self.handleMenuTapped
+        noteMenuVC.showContextMenu(sourceView: sender)
     }
     
-    func noteMenuArchive(note: NoteInfo) {
-        self.isCancelNotify = true
-        self.callbackNoteUpdate?(EditorUpdateMode.archived(noteInfo: note))
-        self.navigationController?.popViewController(animated: true)
-    }
     
-    func noteMenuMoveToTrash(note: NoteInfo) {
-        self.navigationController?.popViewController(animated: true)
-        self.callbackNoteUpdate?(EditorUpdateMode.trashed(noteInfo: note))
-    }
-    
-    func noteMenuChooseBoards(note: NoteInfo) {
-        //        self.openChooseBoardsVC()
+    private func handleMenuTapped(menuType:NoteEditorAction) {
         
+        switch menuType {
+        case .pin:
+            break
+        case .archive:
+            noteInfoModel.update(status: .archive)
+            break
+        case .move:
+            self.openChooseBoardVC()
+            break
+        case .background:
+            self.openChooseBackgroundVC()
+            break
+        case .trash:
+            noteInfoModel.update(status: .trash)
+            break
+        case .deleteBlock:
+            break
+        case .restore:
+            noteInfoModel.update(status: .normal)
+            break
+        case .delete:
+            self.showDeleteBlockTip(tip: "便签") {
+                self.noteInfoModel.delete()
+            }
+            break
+        }
     }
     
-    func noteMenuBackgroundChanged(note: NoteInfo) {
-        self.note = note
-        self.bg = note.properties.backgroundColor
+    
+    @objc func handleKeyboardButtonTapped(sender: UIButton) {
+        self.hideKeyboard()
     }
+    
     
     func noteBlockDelete(blockType: BlockType) {
         switch blockType {
@@ -329,25 +343,6 @@ extension EditorViewController:NoteMenuViewControllerDelegate {
         }))
         alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
         self.present(alert, animated: true)
-    }
-    
-    
-    func noteMenuDataMoved(note: NoteInfo) {
-        self.navigationController?.popViewController(animated: true)
-        //        self.callbackNoteUpdate?(EditorUpdateMode.moved(noteInfo: note))
-    }
-    
-    @objc func handleMoreButtonTapped(sender: UIButton) {
-        if note.status == NoteBlockStatus.trash {
-            NoteMenuViewController.show(mode: .trash, note: self.note, sourceView: sender,delegate: self)
-        }else {
-            NoteMenuViewController.show(mode: .detail, note: self.note, sourceView: sender,delegate: self)
-        }
-    }
-    
-    
-    @objc func handleKeyboardButtonTapped(sender: UIButton) {
-        self.hideKeyboard()
     }
     
     
@@ -1178,23 +1173,6 @@ extension EditorViewController {
 
 // MARK: Repo handler
 extension EditorViewController {
-    private func deleteNote() {
-        NoteRepo.shared.deleteNote(noteId: note.id,noteFiles: self.extractNoteFiles())
-            .subscribe(onNext: { _  in
-                self.isCancelNotify = true
-                self.navigationController?.popViewController(animated: true)
-                self.callbackNoteUpdate?(EditorUpdateMode.deleted(noteInfo: self.note))
-            },onError: {
-                Logger.error($0)
-            })
-            .disposed(by: disposeBag)
-    }
-    
-    private func extractNoteFiles() -> [String] {
-       guard let blocks = note.attachmentGroupBlock?.contentBlocks else { return [] }
-       return blocks.map { $0.blockImageProperties!.url }
-    }
-    
     
     private func deleteNoteBlock(sectionType:SectionType) {
         guard let sectionIndex = self.sections.firstIndex(of: sectionType) else { return }
@@ -1323,35 +1301,6 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
         self.tableView.performBatchUpdates({
             self.tableView.insertSections(IndexSet([self.sections.count-1]), with: .none)
         }, completion: nil)
-        //        if  let imagesCell = self.attachmentsCell {
-        //            //附加
-        //            self.note.addImageBlocks(imageBlocks)
-        //            self.imageTotalHeight = self.calculateTotalHeight()
-        //            self.refreshTableViewHeight()
-        //
-        //            let insertionIndices = imageBlocks.enumerated().map { (index,_) in return index }
-        //
-        //
-        //            // 刷新 collection
-        //
-        //            self.sroll2ImageShow()
-        //            return
-        //        }
-        //
-        //        self.sections.append(SectionType.images)
-        //        self.note.addImageBlocks(imageBlocks)
-        //        self.imageTotalHeight = self.calculateTotalHeight()
-        //        self.refreshTableViewHeight()
-        //
-        //        let sectionIndex = self.sections.count - 1
-        //
-        //
-        //        self.tableView.performBatchUpdates({
-        //            self.tableView.insertSections(IndexSet([sectionIndex]), with: .none)
-        //        }, completion: { _ in
-        //
-        //            self.sroll2ImageShow()
-        //        })
     }
     
     private func sroll2ImageShow() {
@@ -1361,6 +1310,87 @@ extension EditorViewController: TLPhotosPickerViewControllerDelegate {
             self.tableView.scrollToRow(at: IndexPath(row: 0, section: sectionIndex), at: .top, animated: true)
         }
     }
+}
+
+extension EditorViewController {
+    
+    private func handleNoteInfoEvent(event:EditorUpdateEvent) {
+        self.callbackNoteUpdate?(event)
+        switch event {
+            case .statusChanged(noteInfo: let noteInfo):
+                self.handleNoteStatusChanged(noteInfo)
+            case .backgroundChanged(noteInfo: let noteInfo):
+                self.handleBackgroundChanged(noteInfo)
+            case .moved(let noteInfo,_):
+                self.handleNoteMoved(noteInfo)
+            case .delete(noteInfo: let noteInfo):
+                self.handleNoteDeleted(noteInfo)
+            case .updated:
+                break
+        }
+    }
+    
+    func handleNoteStatusChanged(_ note: NoteInfo) {
+        self.note = note
+        self.isCancelNotify = true
+        self.navigationController?.popViewController(animated: true)
+        self.imemPop(note)
+    }
+    
+    func handleNoteMoved(_ note: NoteInfo) {
+        self.imemPop(note)
+    }
+    
+    func handleNoteDeleted(_ note: NoteInfo) {
+        self.imemPop(note)
+    }
+    
+    private func imemPop(_ note: NoteInfo) {
+        self.note = note
+        self.isCancelNotify = true
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    
+    func handleBackgroundChanged(_ note: NoteInfo) {
+        self.note = note
+        self.bg = note.properties.backgroundColor
+    }
+    
+    
+    private func handleNoteUpdated(newNote:NoteInfo) {
+        if newNote.status == .trash ||
+            newNote.status == .archive ||
+            self.note.parentId != newNote.parentId {
+            self.note = newNote
+            self.navigationController?.popViewController(animated: true)
+            return
+        }
+        let isChangeBackground = newNote.properties.backgroundColor  != note.properties.backgroundColor
+        self.note = newNote
+        
+        if isChangeBackground {
+            
+        }
+        
+    }
+    
+    private func openChooseBoardVC() {
+        let vc = ChangeBoardViewController()
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    private func openChooseBackgroundVC() {
+        let colorVC = NoteColorViewController()
+        colorVC.callbackColorChoosed = { [weak self] background in
+            self?.noteInfoModel.update(background: background)
+        }
+        let nav = MyNavigationController(rootViewController: colorVC)
+        nav.modalPresentationStyle = .custom
+        nav.transitioningDelegate = colorVC.self
+        self.present(nav, animated: true, completion: nil)
+    }
+    
 }
 
 // camera 选择

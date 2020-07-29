@@ -113,7 +113,7 @@ extension Note {
         return  dateFormatter.string(from: self.rootBlock.updatedAt)
     }
     
-    var backgroundColor:String {
+    var backgroundColor:NoteBackground {
         get {
             return rootBlock.blockNoteProperties!.backgroundColor
         }

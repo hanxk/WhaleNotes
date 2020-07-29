@@ -36,7 +36,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
         itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
         $0.itemSize = itemSize
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
-        $0.minimumLineSpacing = NotesViewConstants.cellSpace
+        $0.minimumLineSpacing = NotesViewConstants.cellVerticalSpace
     }
     
     private var mode:DisplayMode = .grid
@@ -209,7 +209,7 @@ extension SearchNotesView {
         let noteVC  = EditorViewController()
         noteVC.note = note
         noteVC.callbackNoteUpdate = {updateMode in
-            self.noteEditorUpdated(mode: updateMode)
+//            self.noteEditorUpdated(mode: updateMode)
         }
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
     }

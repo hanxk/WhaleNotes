@@ -58,3 +58,16 @@ extension UIView {
     }
     
 }
+
+extension CALayer {
+    
+    var smoothCornerRadius:CGFloat {
+        set {
+            self.cornerCurve = .continuous
+            self.cornerRadius = newValue
+        }
+        get {
+            return self.cornerRadius
+        }
+    }
+}

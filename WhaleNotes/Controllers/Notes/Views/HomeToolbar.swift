@@ -29,7 +29,7 @@ class HomeToolbar: BaseToolbar {
     lazy var addButton: UIButton = UIButton().then {
         $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: ToolbarConstants.buttonPadding, bottom: 0, right:  ToolbarConstants.buttonPadding)
         $0.tintColor = .toolbarIcon
-        $0.setImage(generateUIBarButtonImage(imageName: "plus.circle.fill",imageSize: 26,weight: .medium), for: .normal)
+        $0.setImage(generateUIBarButtonImage(imageName: "plus.circle.fill",imageSize: 24,weight: .medium), for: .normal)
         $0.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
     }
     

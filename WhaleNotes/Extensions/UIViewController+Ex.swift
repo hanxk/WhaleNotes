@@ -19,6 +19,7 @@ extension UITableViewController {
         hud.layer.zPosition = 2
         self.tableView.layer.zPosition = 1
     }
+    
 }
 
 extension UIViewController {
@@ -31,6 +32,11 @@ extension UIViewController {
     func hideHUD() {
         MBProgressHUD.hide(for: self.view, animated: true)
     }
+    
+    var topbarHeight: CGFloat {
+         return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
+             (self.navigationController?.navigationBar.frame.height ?? 0.0)
+     }
 }
 
 extension UIViewController {

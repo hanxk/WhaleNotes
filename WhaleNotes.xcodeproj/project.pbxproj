@@ -72,6 +72,7 @@
 		1859304E24BAD18400D1352A /* SpaceRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304D24BAD18400D1352A /* SpaceRepo.swift */; };
 		1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304F24BAD35C00D1352A /* BlockRepo.swift */; };
 		1859A0FA24868416008D51B4 /* BoardRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A0F924868416008D51B4 /* BoardRepo.swift */; };
+		18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18621F6624CC179F00BCC27D /* NoteInfoModel.swift */; };
 		1865AEF4244C5EF50006B48D /* ColorTheme.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */; };
 		1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AEF5244C61F80006B48D /* UIColor+Ex.swift */; };
 		1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AEF8244C79870006B48D /* EditorViewController.swift */; };
@@ -148,6 +149,9 @@
 		18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A1245D4A9900E8CE14 /* TLPHAsset+Ex.swift */; };
 		18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */; };
 		18EEF674247D2FD100E2E3BA /* NoteRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF673247D2FD100E2E3BA /* NoteRepo.swift */; };
+		18F3A07224CD5D9900C023EA /* NoteColorCircleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07124CD5D9900C023EA /* NoteColorCircleCell.swift */; };
+		18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */; };
+		18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07524CD8F9000C023EA /* EditorViewModel.swift */; };
 		18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -217,6 +221,7 @@
 		1859304D24BAD18400D1352A /* SpaceRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceRepo.swift; sourceTree = "<group>"; };
 		1859304F24BAD35C00D1352A /* BlockRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockRepo.swift; sourceTree = "<group>"; };
 		1859A0F924868416008D51B4 /* BoardRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardRepo.swift; sourceTree = "<group>"; };
+		18621F6624CC179F00BCC27D /* NoteInfoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInfoModel.swift; sourceTree = "<group>"; };
 		1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ColorTheme.xcassets; sourceTree = "<group>"; };
 		1865AEF5244C61F80006B48D /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
 		1865AEF8244C79870006B48D /* EditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewController.swift; sourceTree = "<group>"; };
@@ -295,6 +300,9 @@
 		18ECA6A1245D4A9900E8CE14 /* TLPHAsset+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TLPHAsset+Ex.swift"; sourceTree = "<group>"; };
 		18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Ex.swift"; sourceTree = "<group>"; };
 		18EEF673247D2FD100E2E3BA /* NoteRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepo.swift; sourceTree = "<group>"; };
+		18F3A07124CD5D9900C023EA /* NoteColorCircleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteColorCircleCell.swift; sourceTree = "<group>"; };
+		18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomPresentationController.swift; sourceTree = "<group>"; };
+		18F3A07524CD8F9000C023EA /* EditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewModel.swift; sourceTree = "<group>"; };
 		18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -371,6 +379,7 @@
 			children = (
 				18251C1E249B304600484D23 /* Cells */,
 				18251C1B249B2F8D00484D23 /* NoteColorViewController.swift */,
+				18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */,
 			);
 			path = NoteColor;
 			sourceTree = "<group>";
@@ -379,6 +388,7 @@
 			isa = PBXGroup;
 			children = (
 				18251C1F249B305300484D23 /* NoteColorCell.swift */,
+				18F3A07124CD5D9900C023EA /* NoteColorCircleCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -510,8 +520,10 @@
 				182BE8F9249A13CA00C85F8F /* ChangeBoard */,
 				1865AEFA244C7CFC0006B48D /* Cells */,
 				1865AEF8244C79870006B48D /* EditorViewController.swift */,
+				18F3A07524CD8F9000C023EA /* EditorViewModel.swift */,
 				1865AF17244ED46D0006B48D /* BottomBarView.swift */,
 				18251C19249B29C700484D23 /* NoteMenuViewController.swift */,
+				18621F6624CC179F00BCC27D /* NoteInfoModel.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -1050,6 +1062,7 @@
 				1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */,
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
+				18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */,
 				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
@@ -1057,6 +1070,7 @@
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
+				18F3A07224CD5D9900C023EA /* NoteColorCircleCell.swift in Sources */,
 				1870041D24C9A09A00AE784C /* BaseToolbar.swift in Sources */,
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
@@ -1096,6 +1110,7 @@
 				1859304824BAA1F200D1352A /* Space.swift in Sources */,
 				181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */,
 				1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */,
+				18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */,
 				18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */,
 				1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */,
 				181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */,
@@ -1122,6 +1137,7 @@
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
 				1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
+				18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */,
 				1859304224BAA00600D1352A /* NoteAndBoard.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
 				186DDE7C249261D600A4C63C /* TrashView.swift in Sources */,

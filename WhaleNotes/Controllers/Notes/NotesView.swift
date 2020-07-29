@@ -17,6 +17,7 @@ import ContextMenu
 import JXPhotoBrowser
 
 import SwiftLinkPreview
+import FloatingPanel
 
 //protocol NotesViewDelegate: AnyObject {
 //    func didSelectItemAt(note:Note,indexPath: IndexPath)
@@ -25,12 +26,13 @@ import SwiftLinkPreview
 enum DisplayMode {
     case waterfall
     case grid
-//    case list
+    //    case list
 }
 
 enum NotesViewConstants {
-    static let cellSpace: CGFloat = 13
-    static let cellHorizontalSpace: CGFloat = 14
+    static let cellSpace: CGFloat = 12
+    static let cellVerticalSpace: CGFloat = 14
+    static let cellHorizontalSpace: CGFloat = 12
     
     static let waterfall_cellSpace: CGFloat = 12
     static let waterfall_cellHorizontalSpace: CGFloat = 14
@@ -52,49 +54,49 @@ protocol NotesViewDelegate:AnyObject {
 class NotesView: UIView, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
-//
-//    private var selectedIndexPath:IndexPath?
-//    private var sectionNoteInfo:SectionNoteInfo! {
-//        didSet {
-//            if oldValue != nil &&  oldValue.notes.count != sectionNoteInfo.notes.count {
-//                self.callbackNotesCountChanged?(Int64(sectionNoteInfo.notes.count))
-//            }
-//        }
-//    }
-//
+    //
+    //    private var selectedIndexPath:IndexPath?
+    //    private var sectionNoteInfo:SectionNoteInfo! {
+    //        didSet {
+    //            if oldValue != nil &&  oldValue.notes.count != sectionNoteInfo.notes.count {
+    //                self.callbackNotesCountChanged?(Int64(sectionNoteInfo.notes.count))
+    //            }
+    //        }
+    //    }
+    //
     private var noteInfos:[NoteInfo] = []
-     var callbackSearchButtonTapped:((UIButton)->Void)!
+    var callbackSearchButtonTapped:((UIButton)->Void)!
     
     
     static func getItemSize(numberOfColumns:Int) -> CGSize {
         let validWidth = UIScreen.main.bounds.width - NotesViewConstants.cellHorizontalSpace * CGFloat(numberOfColumns) - NotesViewConstants.cellSpace*CGFloat(numberOfColumns-1)
         let itemWidth = validWidth / CGFloat(numberOfColumns)
-        let itemHeight = itemWidth * 194 / 160
+        let itemHeight = itemWidth * 194 / 168
         return CGSize(width: itemWidth, height: itemHeight)
     }
-//
-//    var delegate:NotesViewDelegate?
+    //
+    //    var delegate:NotesViewDelegate?
     var callbackNotesCountChanged:((Int)->Void)?
-//
+    //
     private var board:BlockInfo!
     private var noteStatus:NoteBlockStatus = NoteBlockStatus.normal
-//
+    //
     private var numberOfColumns = 2
     private lazy var itemContentSize =  NotesView.getItemSize(numberOfColumns: self.numberOfColumns)
-//
+    //
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
         $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: Int(numberOfColumns), columnSpacing:  NotesViewConstants.waterfall_cellSpace, interItemSpacing: NotesViewConstants.waterfall_cellSpace, sectionInsets: UIEdgeInsets(top: 12, left: NotesViewConstants.waterfall_cellHorizontalSpace, bottom: 12, right:  NotesViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
     }
-//
-//
+    //
+    //
     private lazy var collectionLayout =  UICollectionViewFlowLayout().then {
-//        var itemSize = itemContentSize
-//        itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
+        //        var itemSize = itemContentSize
+        //        itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
         $0.itemSize = itemContentSize
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
-        $0.minimumLineSpacing = NotesViewConstants.cellSpace
+        $0.minimumLineSpacing = NotesViewConstants.cellVerticalSpace
     }
-//
+    //
     
     private lazy var toolbar = HomeToolbar().then {
         
@@ -108,41 +110,41 @@ class NotesView: UIView, UINavigationControllerDelegate {
         
         $0.callbackMoreButtonTapped = { sender in
             NotesView.showNotesMenu(sourceView: sender, sourceVC: self.controller!,isIncludeText: false) { [weak self]  menuType in
-                  self?.openNoteEditor(type:menuType)
+                self?.openNoteEditor(type:menuType)
             }
         }
     }
     
     private var mode:DisplayMode = .grid
     private(set) lazy var collectionNode = self.generateCollectionView(mode: mode)
-//
-//
+    //
+    //
     func generateCollectionView(mode:DisplayMode) -> ASCollectionNode {
         switch mode {
         case .waterfall:
             return ASCollectionNode(layoutDelegate: layoutDelegate, layoutFacilitator: nil).then { [weak self] in
-                    guard let self = self else {return}
-                    $0.alwaysBounceVertical = true
-                    let _layoutInspector = layoutDelegate
-                    $0.dataSource = self
-                    $0.delegate = self
-                    $0.layoutInspector = _layoutInspector
-                    $0.contentInset = UIEdgeInsets(top: 6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
-                    $0.showsVerticalScrollIndicator = false
-
-                }
+                guard let self = self else {return}
+                $0.alwaysBounceVertical = true
+                let _layoutInspector = layoutDelegate
+                $0.dataSource = self
+                $0.delegate = self
+                $0.layoutInspector = _layoutInspector
+                $0.contentInset = UIEdgeInsets(top: 6, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                $0.showsVerticalScrollIndicator = false
+                
+            }
         case .grid:
             return ASCollectionNode(collectionViewLayout:collectionLayout).then { [weak self] in
-                    guard let self = self else {return}
-                    $0.alwaysBounceVertical = true
-                    $0.dataSource = self
-                    $0.delegate = self
-                    $0.contentInset = UIEdgeInsets(top: 12, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
-                    $0.showsVerticalScrollIndicator = false
-                }
+                guard let self = self else {return}
+                $0.alwaysBounceVertical = true
+                $0.dataSource = self
+                $0.delegate = self
+                $0.contentInset = UIEdgeInsets(top: 12, left: NotesViewConstants.cellHorizontalSpace, bottom: 160, right: NotesViewConstants.cellHorizontalSpace)
+                $0.showsVerticalScrollIndicator = false
+            }
         }
     }
-
+    
     convenience init(frame: CGRect,board:BlockInfo,noteStatus:NoteBlockStatus = NoteBlockStatus.normal) {
         self.init(frame:frame)
         self.board = board
@@ -150,14 +152,14 @@ class NotesView: UIView, UINavigationControllerDelegate {
         self.setupUI()
         self.setupData()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
-
+    
     private func setupUI() {
         collectionNode.frame = self.frame
         collectionNode.backgroundColor = .bg
@@ -166,120 +168,49 @@ class NotesView: UIView, UINavigationControllerDelegate {
             self.setupFloatButtons()
         }
     }
-
+    
     private func setupData() {
         NoteRepo.shared.queryNotes(boardId: self.board.id,noteStatus:  self.noteStatus)
-                .subscribe(onNext: { [weak self] in
-                    if let self = self {
-                        self.noteInfos = $0
-                        self.collectionNode.reloadData()
-                    }
-                }, onError: {
-                    Logger.error($0)
-                })
+            .subscribe(onNext: { [weak self] in
+                if let self = self {
+                    self.noteInfos = $0
+                    self.collectionNode.reloadData()
+                }
+            }, onError: {
+                Logger.error($0)
+            })
             .disposed(by: disposeBag)
-
+        
     }
     
-}
-
-extension NotesView {
-    
-//    func viewWillAppear(_ animated: Bool) {
-//
-//    }
-//
-//
-//    func viewWillDisappear(_ animated: Bool) {
-//        //        notesToken?.invalidate()
-//    }
-//
-    func noteEditorUpdated(mode:EditorUpdateMode) {
-        switch mode {
-        case .updated(noteInfo: let noteInfo):
-            if let row = noteInfos.firstIndex(where: { $0.id == noteInfo.id }) {
-                self.noteInfos[row] = noteInfo
-                self.collectionNode.performBatchUpdates({
-                    self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
-                }, completion: nil)
-            }
-            break
-        case .deleted(noteInfo: let noteInfo):
-            self.handleDeleteNote(noteInfo)
-            break
-        case .moved(let noteInfo, _):
-            self.handleDeleteNote(noteInfo)
-            break
-        case .archived(noteInfo: let noteInfo):
-            self.handleDeleteNote(noteInfo)
-            break
-        case .trashed(noteInfo: let noteInfo):
-            self.handleDeleteNote(noteInfo)
-            break
-        }
-    }
-    func handleDeleteNote(_ note:NoteInfo) {
-        if let row = noteInfos.firstIndex(where: { $0.id == note.id }) {
-            noteInfos.remove(at: row)
-            self.collectionNode.performBatchUpdates({
-                self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
-            }, completion:nil)
-        }
-    }
 }
 
 extension NotesView {
     
     private func createNewNote(noteBlock:Block,childBlock:Block,callback:((Note) -> Void)? = nil) {
-//        self.createNewNote(noteBlock:noteBlock,childBlocks:[childBlock],callback:callback)
+        //        self.createNewNote(noteBlock:noteBlock,childBlocks:[childBlock],callback:callback)
     }
     private func createNewNote(noteBlock:Block,childBlocks:[Block],callback:((Note) -> Void)? = nil) {
-//        NoteRepo.shared.createNewNote(sectionId: self.sectionNoteInfo.section.id,noteBlock:noteBlock, childBlocks: childBlocks)
-//            .subscribe { [weak self] note in
-//                if let callback = callback {
-//                    callback(note)
-//                    return
-//                }
-//                self?.openEditorVC(note:note, isNew: true)
-//            } onError: {
-//                Logger.error($0)
-//            }
-//            .disposed(by: disposeBag)
+        //        NoteRepo.shared.createNewNote(sectionId: self.sectionNoteInfo.section.id,noteBlock:noteBlock, childBlocks: childBlocks)
+        //            .subscribe { [weak self] note in
+        //                if let callback = callback {
+        //                    callback(note)
+        //                    return
+        //                }
+        //                self?.openEditorVC(note:note, isNew: true)
+        //            } onError: {
+        //                Logger.error($0)
+        //            }
+        //            .disposed(by: disposeBag)
     }
     
 }
 
 
-extension NotesView: ASCollectionDataSource {
-
-    func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
-        return 1
-    }
-
-    func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
-        let count = self.noteInfos.count
-        if count == 0 {
-            collectionNode.setEmptyMessage("暂无便签")
-        }else {
-            collectionNode.clearEmptyMessage()
-        }
-        return count
-    }
-
-    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
-        let note = self.noteInfos[indexPath.row]
-        return {
-            let node =  NoteCellNode(note: note,itemSize: self.itemContentSize)
-            node.delegate = self
-            return node
-        }
-    }
-
-}
 
 extension NotesView:NoteCellNodeDelegate {
     func noteCellImageBlockTapped(imageView: ASImageNode, note: Note) {
-
+        
         let defaultImage: UIImage = imageView.image!
         let browser = PhotoViewerViewController(note: note)
         browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
@@ -293,71 +224,47 @@ extension NotesView:NoteCellNodeDelegate {
         }
         browser.show()
     }
-
+    
     func noteCellImageBlockTapped(imageView: ASImageNode, blocks: [Block], index: Int) {
-
+        
     }
-
-
+    
+    
     func noteCellBlockTapped(block: Block) {
-
+        
     }
-
+    
     func noteCellMenuTapped(sender: UIView,note:Note) {
-//        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
+        //        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
     }
 }
-//
-////MARK: NoteMenuViewControllerDelegate
-extension NotesView:NoteMenuViewControllerDelegate {
-    func noteMenuMoveTapped(note: NoteInfo) {
-        
+
+
+extension NotesView: ASCollectionDataSource {
+    
+    func numberOfSections(in collectionNode: ASCollectionNode) -> Int {
+        return 1
     }
     
-    func noteMenuDataRestored(note: NoteInfo) {
-        
+    func collectionNode(_ collectionNode: ASCollectionNode, numberOfItemsInSection section: Int) -> Int {
+        let count = self.noteInfos.count
+        if count == 0 {
+            collectionNode.setEmptyMessage("暂无便签")
+        }else {
+            collectionNode.clearEmptyMessage()
+        }
+        return count
     }
     
-    func noteMenuDeleteTapped(note: NoteInfo) {
-        
+    func collectionNode(_ collectionNode: ASCollectionNode, nodeBlockForItemAt indexPath: IndexPath) -> ASCellNodeBlock {
+        let note = self.noteInfos[indexPath.row]
+        return {
+            let node =  NoteCellNode(note: note,itemSize: self.itemContentSize)
+            node.delegate = self
+            return node
+        }
     }
     
-    func noteMenuArchive(note: NoteInfo) {
-//        self.handleDeleteNote(note)
-    }
-
-    func noteMenuMoveToTrash(note: NoteInfo) {
-//        self.handleDeleteNote(note)
-//        self.showToast("便签已移动至废纸篓")
-    }
-
-    func noteMenuChooseBoards(note: NoteInfo) {
-
-        
-    }
-
-    func noteMenuBackgroundChanged(note: NoteInfo) {
-//        guard let row = self.noteInfos.firstIndex(where: {$0.id == note.id}) else { return }
-//        self.sectionNoteInfo.notes[row] = note
-//        if let noteCell = collectionNode.nodeForItem(at: IndexPath(row: row, section: 0)) as? NoteCellNode {
-//            noteCell.note = note
-//            noteCell.setupBackBackground()
-//        }
-    }
-
-    func noteMenuDataMoved(note: NoteInfo) {
-        
-        // 移动
-        self.handleDeleteNote(note)
-        
-//        self.handleDeleteNote(note)
-
-//        guard let board = note.board else { return }
-//
-//        let message = board.type == BoardType.user.rawValue ? (board.icon+board.title) : board.title
-//        self.showToast("便签已移动至：\"\(message)\"")
-    }
-
 }
 
 extension NotesView: ASCollectionDelegate {
@@ -367,36 +274,123 @@ extension NotesView: ASCollectionDelegate {
     }
 }
 
+//MARK: CONTEXT MENU
+extension NotesView: UICollectionViewDelegate{
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
+            return self.makeContextMenu(noteInfo: self.noteInfos[indexPath.row] )
+        })
+    }
+    
+    func makeContextMenu(noteInfo:NoteInfo) -> UIMenu {
+        let menus =   NoteMenuViewController.generateNoteMenuItems(noteInfo: noteInfo).map { menuItem in
+            UIAction(title: menuItem.label, image: UIImage(systemName: menuItem.icon)) { action in
+                self.handleNoteInfoUpdate(noteInfo: noteInfo,menuType: menuItem.menuType)
+            }
+        }
+        return UIMenu(title: "", children: menus)
+    }
+    
+    private func newNoteInfoModel(noteInfo:NoteInfo) -> NoteEidtorMenuModel {
+        let model = NoteEidtorMenuModel(model: noteInfo)
+        model.noteInfoPub.subscribe(onNext: { event in
+            self.handleNoteInfoEvent(event: event)
+        }).disposed(by: disposeBag)
+        return model
+    }
+    
+    
+    private func handleNoteInfoUpdate(noteInfo:NoteInfo,menuType:NoteEditorAction) {
+        
+        let model = newNoteInfoModel(noteInfo: noteInfo)
+        
+        switch menuType {
+        case .pin:
+            break
+        case .archive:
+            model.update(status: .archive)
+            break
+        case .move:
+            self.openChooseBoardVC(noteInfo: noteInfo, model: model)
+            break
+        case .background:
+            self.openChooseBackgroundVC(model: model)
+            break
+        case .trash:
+            model.update(status: .trash)
+            break
+        case .deleteBlock:
+            break
+        case .restore:
+            model.update(status: .normal)
+            break
+        case .delete:
+            break
+        }
+    }
+    
+    private func handleNoteInfoEvent(event:EditorUpdateEvent) {
+        switch event {
+        case .statusChanged(noteInfo: let noteInfo):
+            self.handleDeleteNote(noteInfo)
+        case .backgroundChanged(noteInfo: let noteInfo):
+            self.handleUpdateNote(noteInfo)
+        case .delete(noteInfo: let noteInfo):
+            self.handleDeleteNote(noteInfo)
+        case .updated(noteInfo: let noteInfo):
+            self.handleUpdateNote(noteInfo)
+        case .moved(noteInfo: let noteInfo, _):
+            self.handleDeleteNote(noteInfo)
+        }
+    }
+    
+    
+    func handleUpdateNote(_ noteInfo:NoteInfo) {
+        if let row = noteInfos.firstIndex(where: { $0.id == noteInfo.id }) {
+            self.noteInfos[row] = noteInfo
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
+            }, completion: nil)
+        }
+    }
+    
+    func handleDeleteNote(_ note:NoteInfo) {
+        if let row = noteInfos.firstIndex(where: { $0.id == note.id }) {
+            noteInfos.remove(at: row)
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
+            }, completion:nil)
+        }
+    }
+    
+    private func openChooseBoardVC(noteInfo:NoteInfo,model:NoteEidtorMenuModel) {
+        let vc = ChangeBoardViewController()
+        vc.noteInfo = noteInfo
+        vc.callbackChooseBoard = { boardBlock in
+            model.moveBoard(boardBlock: boardBlock)
+        }
+        self.controller?.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    private func openChooseBackgroundVC(model:NoteEidtorMenuModel) {
+        
+        let colorVC = NoteColorViewController()
+        colorVC.callbackColorChoosed = { background in
+            model.update(background: background)
+        }
+        
+        let nav = MyNavigationController(rootViewController: colorVC)
+        nav.modalPresentationStyle = .custom
+        nav.transitioningDelegate = colorVC.self
+        self.controller?.present(nav, animated: true, completion: nil)
+    }
+}
+
+
 ////MARK: 添加 block
 extension NotesView {
     func setupFloatButtons() {
-//        let btnNewNote = NotesView.makeFloatButton().then {
-//            $0.backgroundColor = .brand
-//            $0.tintColor = .white
-//            $0.setImage( UIImage(systemName: "square.and.pencil", pointSize: FloatButtonConstants.iconSize, weight: .light), for: .normal)
-//            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
-//        }
-//        self.addSubview(btnNewNote)
-//        btnNewNote.snp.makeConstraints { (make) -> Void in
-//            make.width.height.equalTo(FloatButtonConstants.btnSize)
-//            make.trailing.equalTo(self).offset(-FloatButtonConstants.trailing)
-//            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
-//        }
-//
-//
-//        let btnMore =  NotesView.makeFloatButton().then {
-//            $0.tintColor = .brand
-//            $0.backgroundColor = .white
-//            $0.setImage(UIImage(systemName: "ellipsis", pointSize: FloatButtonConstants.iconSize, weight: .light)?.withTintColor(.white), for: .normal)
-//            $0.addTarget(self, action: #selector(btnMoreTapped), for: .touchUpInside)
-//        }
-//        self.addSubview(btnMore)
-//        btnMore.snp.makeConstraints { (make) -> Void in
-//            make.width.height.equalTo(FloatButtonConstants.btnSize)
-//            make.bottom.equalTo(btnNewNote.snp.top).offset(-16)
-//            make.trailing.equalTo(btnNewNote.snp.trailing)
-//        }
-        
         self.addSubview(toolbar)
         toolbar.snp.makeConstraints { (make) -> Void in
             make.width.equalToSuperview()
@@ -406,14 +400,14 @@ extension NotesView {
         
         
     }
-
+    
     @objc func btnNewNoteTapped (sender:UIButton) {
         self.createTextNote()
     }
     
     
     private func handleNoteInserted(_ noteInfo:NoteInfo) {
-       self.noteInfos.insert(noteInfo, at: 0)
+        self.noteInfos.insert(noteInfo, at: 0)
         self.collectionNode.performBatchUpdates({
             self.collectionNode.insertItems(at: [IndexPath(row: 0, section: 0)])
         }, completion: { _ in
@@ -424,15 +418,15 @@ extension NotesView {
         let noteVC  = EditorViewController()
         noteVC.note = note
         noteVC.isNew = isNew
-        noteVC.callbackNoteUpdate = {updateMode in
-            self.noteEditorUpdated(mode: updateMode)
+        noteVC.callbackNoteUpdate = {event in
+            self.handleNoteInfoEvent(event: event)
         }
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
     }
-//
+    //
     @objc func btnMoreTapped (sender:UIButton) {
         NotesView.showNotesMenu(sourceView: sender, sourceVC: self.controller!,isIncludeText: false) { [weak self]  menuType in
-              self?.openNoteEditor(type:menuType)
+            self?.openNoteEditor(type:menuType)
         }
     }
     
@@ -462,12 +456,12 @@ extension NotesView {
             break
         case .bookmark:
             self.controller?.showAlertTextField(title: "添加链接",placeholder: "example.com", positiveBtnText: "添加", callbackPositive: { _ in
-//                self.fetchBookmarkFromUrl(url: $0)
+                //                self.fetchBookmarkFromUrl(url: $0)
             })
             break
         }
     }
-
+    
     
     static func showNotesMenu(sourceView: UIView,sourceVC:UIViewController,isIncludeText:Bool = true,callback: @escaping (MenuType)->Void) {
         var items = [
@@ -499,7 +493,7 @@ extension NotesView {
         layer0.backgroundColor = UIColor(red: 0.278, green: 0.627, blue: 0.957, alpha: 1).cgColor
         return btn
     }
-
+    
 }
 
 //MARK: 创建 note
@@ -556,10 +550,10 @@ extension NotesView {
             }, onError: {
                 Logger.error($0)
             })
-        .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
     }
-
-
+    
+    
     
 }
 //
@@ -615,7 +609,7 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
         self.handlePicker(images: withTLPHAssets)
         return true
     }
-
+    
     func handlePicker(images: [TLPHAsset]) {
         self.controller?.showHud()
         NoteRepo.shared.saveImages(images: images)
@@ -631,13 +625,13 @@ extension NotesView: TLPhotosPickerViewControllerDelegate {
 }
 
 extension NotesView: UIImagePickerControllerDelegate {
-
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let image = info[.originalImage] as? UIImage else {  return}
         self.handlePicker(image: image)
     }
-
+    
     func handlePicker(image: UIImage) {
         self.controller?.showHud()
         NoteRepo.shared.saveImage(image: image)

@@ -195,12 +195,12 @@ extension UIColor {
     
     open class var popMenuIconTint: UIColor {
         get {
-            return UIColor.init(hexString: "#202020")
+            return UIColor.init(hexString: "#000000")
         }
     }
     open class var popMenuText: UIColor {
         get {
-            return UIColor.init(hexString: "#202020")
+            return UIColor.init(hexString: "#000000")
         }
     }
 }

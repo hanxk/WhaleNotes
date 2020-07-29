@@ -178,6 +178,7 @@ extension NoteRepo {
                 
                 var newNote = note
                 newNote.block.parentId = boardId
+                newNote.updatedAt = Date()
                 
                 // 更新 parent id
                 try blockDao.updateParentId(id: note.id, newParentId: boardId)

@@ -11,7 +11,7 @@ import UIKit
 class BaseToolbar: UIView {
     
     
-    func generateUIBarButtonImage(imageName:String,imageSize:CGFloat = 24,weight:UIImage.SymbolWeight = .regular) -> UIImage {
+    func generateUIBarButtonImage(imageName:String,imageSize:CGFloat = 22,weight:UIImage.SymbolWeight = .regular) -> UIImage {
         let image = UIImage(systemName: imageName, pointSize: imageSize, weight: weight)!.withRenderingMode(.alwaysTemplate)
         return image
     }

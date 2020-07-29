@@ -86,13 +86,13 @@ class NoteCellNode: ASCellNode {
         self.cornerRadius = cornerRadius
         
         cardbackground = ASDisplayNode().then {
-            $0.backgroundColor = UIColor(hexString: noteProperties.backgroundColor)
+            $0.backgroundColor = noteProperties.backgroundColor.uicolor
             $0.borderWidth = 1
-            if noteProperties.backgroundColor.isWhiteHex {
-                $0.borderColor = UIColor.colorBoarder.cgColor
-            }else {
-                $0.borderColor = UIColor.colorBoarder2.cgColor
-            }
+//            if noteProperties.backgroundColor.isWhiteHex {
+//                $0.borderColor = UIColor.colorBoarder.cgColor
+//            }else {
+//            }
+            $0.borderColor = UIColor.colorBoarder2.cgColor
             $0.cornerRadius = cornerRadius
         }
         self.addSubnode(cardbackground)

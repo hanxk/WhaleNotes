@@ -15,6 +15,7 @@ import PopMenu
 import TLPhotoPicker
 import RxSwift
 import Photos
+import FloatingPanel
 
 class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
@@ -43,10 +44,10 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setup()
     }
     
+    
     private func setup() {
         self.setupNavgationBar()
         self.setupSideMenu()
-        self.view.backgroundColor = .toolbarBg
         self.extendedLayoutIncludesOpaqueBars = true
         
         func openBoardSetting(board: BlockInfo) {
@@ -143,6 +144,7 @@ extension HomeViewController {
             self.handleShowSearchbar()
         }
         self.contentView = notesView
+        self.view.backgroundColor = .toolbarBg
 
         self.view.addSubview(notesView)
         notesView.snp.makeConstraints { make in
@@ -177,6 +179,14 @@ extension HomeViewController {
         }
         let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         self.contentView = trashView
+        self.view.backgroundColor = .
+            
+            
+            
+            
+            
+            
+            bg
         self.view.addSubview(trashView)
         trashView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -232,14 +242,14 @@ extension HomeViewController {
     }
     
     private func handleEditorMode(_ editorMode:EditorUpdateMode) {
-        if let notesView =  self.contentView as? NotesView {
-            notesView.noteEditorUpdated(mode: editorMode)
-            return
-        }
-        if let trashView =  self.contentView as? TrashView {
-            trashView.noteEditorUpdated(mode: editorMode)
-            return
-        }
+//        if let notesView =  self.contentView as? NotesView {
+//            notesView.noteEditorUpdated(mode: editorMode)
+//            return
+//        }
+//        if let trashView =  self.contentView as? TrashView {
+//            trashView.noteEditorUpdated(mode: editorMode)
+//            return
+//        }
     }
     
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {

@@ -24,5 +24,6 @@ target 'WhaleNotes' do
   pod 'JXPhotoBrowser', '~> 3.0'
   pod 'Toast-Swift', '~> 5.0.1'
   pod 'SwiftLinkPreview', '~> 3.1.0'
+  pod 'FloatingPanel'
   # Pods for WhaleNotes
 end

@@ -12,9 +12,9 @@ class NoteColorCell: UICollectionViewCell {
     static let cellHeight:CGFloat = 44
     static private let colorWidth:CGFloat = 28
     
-    var colorInfo:(String,String) = ("","") {
+    var colorInfo:(NoteBackground,String)! {
         didSet {
-            self.colorView.backgroundColor = UIColor(hexString: colorInfo.0)
+            self.colorView.backgroundColor = colorInfo.0.uicolor
             self.label.text = colorInfo.1
         }
     }
@@ -35,7 +35,7 @@ class NoteColorCell: UICollectionViewCell {
     }
     
     private let colorView  = UIView().then {
-        $0.layer.cornerRadius = 4
+        $0.layer.smoothCornerRadius = 4
         $0.layer.borderWidth  = 1
         $0.layer.borderColor  =  UIColor.colorBoarder.cgColor
     }

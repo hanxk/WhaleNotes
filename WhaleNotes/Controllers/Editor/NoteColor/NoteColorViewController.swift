@@ -6,55 +6,69 @@
 //  Copyright © 2020 hanxk. All rights reserved.
 //
 import UIKit
+import FloatingPanel
 
 class NoteColorViewController: UIViewController {
     
-    var colors:[(String,String)] = [
-                           ("#EEEEEE","默认"),
-                           ("#FBCFCE","红"),
-                           ("#FDDFCC","橙"),
-                           ("#FCE9AD","黄"),
-                           ("#F0FDB7","绿"),
-                           ("#CAFCEE","青"),
-                           ("#C5EBFD","蓝"),
-                           ("#CADDFD","紫"),
-                           ("#FFC9E7","粉")
+    private let noOfCellsInRow = 5
+    
+    static func openModel(sourceVC:UIViewController) {
+        
+        let contentVC = NoteColorViewController()
+        let fpc = FloatingPanelController()
+        fpc.delegate = contentVC
+        fpc.isRemovalInteractionEnabled = true
+        fpc.backdropView.dismissalTapGestureRecognizer.isEnabled = true
+        fpc.surfaceView.cornerRadius = 8
+        fpc.surfaceView.shadowHidden = false
+        fpc.track(scrollView: contentVC.collectionView)
+        
+        fpc.set(contentViewController: contentVC)
+        sourceVC.present(fpc, animated: true, completion: nil)
+    }
+    
+    var colors:[(NoteBackground,String)] = [
+        (.gray,"默认"),
+        (.red,"红"),
+        (.orange,"橙"),
+        (.yellow,"黄"),
+        (.green,"绿"),
+        (.cyan,"青"),
+        (.blue,"蓝"),
+        (.purple,"紫"),
+        (.pink,"粉")
                         ]
     
-    private let cellReuseIndetifier = "NoteColorCell"
+    private let cellReuseIndetifier = "NoteColorCircleCell"
     private var cachedWidth:[String:CGFloat] = [:]
     
-    var selectedColor:String = ""
-    
-    var callbackColorChoosed:((String)->Void)?
+    var selectedColor:NoteBackground = .gray
+    var callbackColorChoosed:((NoteBackground)->Void)?
     
     let flowLayout = UICollectionViewFlowLayout().then {
-        $0.minimumLineSpacing = 0
-        $0.minimumInteritemSpacing = 0
+        let space:CGFloat = 18
+        let topPadding:CGFloat = 16
+        $0.minimumLineSpacing = space
+        $0.minimumInteritemSpacing = space
         $0.scrollDirection = .vertical
-        $0.itemSize = CGSize(width: NoteMenuViewController.menuWidth, height: NoteColorCell.cellHeight)
         
-//        let horizontalPadding = (NoteMenuViewController.menuWidth - $0.minimumLineSpacing - NoteColorCell.cellHeight * 3) / 2
-//        let topPadding:CGFloat = 10
-        
-//        $0.sectionInset = UIEdgeInsets(top: topPadding, left: horizontalPadding, bottom: topPadding, right: horizontalPadding)
+        $0.sectionInset = UIEdgeInsets(top: topPadding, left:  space, bottom: topPadding, right:  space)
     }
     
     lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
         guard let self = self else {return}
         $0.delegate = self
         $0.dataSource = self
-        $0.allowsSelection = true
-        $0.register(NoteColorCell.self, forCellWithReuseIdentifier: self.cellReuseIndetifier)
+        $0.register(NoteColorCircleCell.self, forCellWithReuseIdentifier: self.cellReuseIndetifier)
         $0.backgroundColor = .white
         $0.alwaysBounceVertical = true
     }
     
     private func setupCollectionView() {
+        self.view.backgroundColor = .white
         self.view.addSubview(collectionView)
         collectionView.snp.makeConstraints { (make) in
-            make.height.equalToSuperview()
-            make.width.equalToSuperview()
+            make.width.height.equalToSuperview()
         }
     }
     
@@ -74,11 +88,22 @@ class NoteColorViewController: UIViewController {
 
 extension NoteColorViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier:cellReuseIndetifier, for: indexPath) as! NoteColorCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier:cellReuseIndetifier, for: indexPath) as! NoteColorCircleCell
         cell.colorInfo = self.colors[indexPath.row]
-        cell.isChecked = self.selectedColor.lowercased() == self.colors[indexPath.row].0.lowercased()
+        cell.isChecked = self.selectedColor == self.colors[indexPath.row].0
+        cell.colorView.tag = indexPath.row
+        cell.colorView.addTarget(self, action: #selector(handleButtonTapped), for: .touchUpInside)
         return cell
     }
+    
+    
+    @objc func handleButtonTapped(sender: UIButton) {
+        let row = sender.tag as Int
+        let colorInfo = self.colors[row]
+        self.callbackColorChoosed?(colorInfo.0)
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.colors.count
@@ -95,6 +120,75 @@ extension NoteColorViewController: UICollectionViewDataSource {
 extension NoteColorViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        callbackColorChoosed?(self.colors[indexPath.row].0)
+//        callbackColorChoosed?(self.colors[indexPath.row].0)
+        print("哈哈哈2")
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+
+      return generateItemSize()
+    }
+    
+    func generateItemSize() -> CGSize {
+
+        let flowLayout = self.flowLayout
+
+        let totalSpace = flowLayout.sectionInset.left
+            + flowLayout.sectionInset.right
+            + (flowLayout.minimumInteritemSpacing * CGFloat(noOfCellsInRow - 1))
+
+        let size = Int((self.view.frame.width - totalSpace) / CGFloat(noOfCellsInRow))
+
+        return CGSize(width: size, height: size)
+        
+    }
+    
+}
+
+extension NoteColorViewController: FloatingPanelControllerDelegate {
+    func floatingPanel(_ vc: FloatingPanelController, layoutFor newCollection: UITraitCollection) -> FloatingPanelLayout? {
+           return MyFloatingPanelLayout()
+    }
+}
+
+fileprivate class MyFloatingPanelLayout: FloatingPanelLayout {
+    public var initialPosition: FloatingPanelPosition {
+        return .tip
+    }
+
+    public var supportedPositions: Set<FloatingPanelPosition> {
+        return [.tip]
+    }
+    public func insetFor(position: FloatingPanelPosition) -> CGFloat? {
+        switch position {
+            case .full: return 16.0 // A top inset from safe area
+            case .half: return 216.0 // A bottom inset from the safe area
+            case .tip: return 144.0 // A bottom inset from the safe area
+            default: return nil // Or `case .hidden: return nil`
+        }
+    }
+    
+    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
+        return 0.1
+    }
+}
+
+
+
+extension NoteColorViewController: UIViewControllerTransitioningDelegate {
+    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+        let height = generatePopHeight()
+        let config =  BottomPresentationConfig(height: height)
+        return BottomPresentationController(presentedViewController: presented, presenting: presenting,config:config)
+    }
+    
+    func generatePopHeight() -> CGFloat {
+        let noOfRows = 2
+        let flowLayout = self.flowLayout
+        let totalSpace = flowLayout.sectionInset.top + flowLayout.sectionInset.bottom
+                        + (flowLayout.minimumLineSpacing * CGFloat(noOfRows - 1))
+        
+        let itemSize = self.generateItemSize()
+        return  itemSize.height * 2 + totalSpace + self.topbarHeight
     }
 }

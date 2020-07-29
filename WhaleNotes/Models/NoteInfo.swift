@@ -121,6 +121,10 @@ extension NoteInfo {
         return noteBlock.id
     }
     
+    var parentId:String {
+        return noteBlock.parentId
+    }
+    
     var updatedAt:Date {
         get { return noteBlock.updatedAt }
         set { noteBlock.updatedAt = newValue}

@@ -57,7 +57,7 @@ class TrashView: UIView, UINavigationControllerDelegate {
             var itemSize = itemContentSize
             itemSize.height = itemContentSize.height + NoteCellConstants.boardHeight
         $0.minimumInteritemSpacing = NotesViewConstants.cellSpace
-        $0.minimumLineSpacing = NotesViewConstants.cellSpace
+        $0.minimumLineSpacing = NotesViewConstants.cellVerticalSpace
     }
     
     private var mode:DisplayMode = .grid
@@ -186,19 +186,6 @@ extension TrashView: ASCollectionDataSource {
         }
     }
     
-//    func collectionNode(_ collectionNode: ASCollectionNode,
-//                        nodeForSupplementaryElementOfKind kind: String,
-//                        at indexPath: IndexPath) -> ASCellNode {
-//        if kind == UICollectionView.elementKindSectionHeader {
-//            return TrashHeaderNode(board: self.trashedNotes[indexPath.section].0,topPadding: 22)
-//        } else {
-//            let emptyNode: ASCellNode = ASCellNode()
-//            emptyNode.style.minSize = CGSize(width: 0.01, height: 0.01)
-//            return emptyNode
-//        }
-//    }
-    
-    
 }
 
 
@@ -239,77 +226,135 @@ extension TrashView:NoteCellNodeDelegate {
 
 
 
-//MARK: NoteMenuViewControllerDelegate
-extension TrashView:NoteMenuViewControllerDelegate {
-    func noteMenuMoveTapped(note: NoteInfo) {
-        
-    }
-    
-    func noteMenuDeleteTapped(note: NoteInfo) {
-        let alert = UIAlertController(title: "删除便签", message: "你确定要彻底删除该便签吗？", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "彻底删除", style: .destructive, handler: { _ in
-            
-//            NoteRepo.shared.deleteNote(noteId: note.id)
-//                .subscribe(onNext: { isSuccess in
-//                    self.removeNodeFromCollectionView(note)
-//                }, onError: { error in
-//                    Logger.error(error)
-//                },onCompleted: {
-//                })
-//                .disposed(by: self.disposeBag)
-            
-        }))
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel,handler: nil))
-        self.controller?.present(alert, animated: true)
-    }
-    
-    func noteMenuDataRestored(note: NoteInfo) {
-//        self.removeNodeFromCollectionView(note)
-    }
-    
-    private func  removeNodeFromCollectionView( _ note:NoteInfo) {
-        guard let index = self.notes.firstIndex(where: {$0.id == note.id}) else { return }
-        self.notes.remove(at: index)
-        self.collectionNode.performBatchUpdates({
-            self.collectionNode.deleteItems(at: [IndexPath(row: index, section: 0)])
-        }, completion: nil)
-    }
-    
-    private func findNoteIndex(_ note:NoteInfo) -> IndexPath? {
-//        for (index,data) in self.trashedNotes.enumerated() {
-//            if let row =  data.1.firstIndex(where: {$0.id == note.id}) {
-//                return IndexPath(row: row, section: index)
-//            }
-//        }
-        return nil
-    }
-}
+
 
 extension TrashView: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
-//        let note = self.trashedNotes[indexPath.section].1[indexPath.row]
         let note = self.notes[indexPath.row]
         self.openEditorVC(note: note)
     }
     
-    func openEditorVC(note: NoteInfo,isNew:Bool = false) {
+    
+    func openEditorVC(note: NoteInfo) {
         let noteVC  = EditorViewController()
         noteVC.note = note
-        noteVC.callbackNoteUpdate = {updateMode in
-            self.noteEditorUpdated(mode: updateMode)
+        noteVC.callbackNoteUpdate = {event in
+            self.handleNoteInfoEvent(event: event)
         }
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
     }
+}
+
+
+//MARK: CONTEXT MENU
+extension TrashView: UICollectionViewDelegate{
     
-    func noteEditorUpdated(mode:EditorUpdateMode) {
-        switch mode {
-        case .deleted(let note):
-            self.removeNodeFromCollectionView(note)
-        case .trashed(let noteInfo):
-            self.removeNodeFromCollectionView(noteInfo)
-        default:
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
+            return self.makeContextMenu(noteInfo: self.notes[indexPath.row] )
+        })
+    }
+    
+    func makeContextMenu(noteInfo:NoteInfo) -> UIMenu {
+        let menus =   NoteMenuViewController.generateNoteMenuItems(noteInfo: noteInfo).map { menuItem in
+            UIAction(title: menuItem.label, image: UIImage(systemName: menuItem.icon)) { action in
+                self.handleNoteInfoUpdate(noteInfo: noteInfo,menuType: menuItem.menuType)
+            }
+        }
+        return UIMenu(title: "", children: menus)
+    }
+    
+    private func newNoteInfoModel(noteInfo:NoteInfo) -> NoteEidtorMenuModel {
+        let model = NoteEidtorMenuModel(model: noteInfo)
+        model.noteInfoPub.subscribe(onNext: { event in
+            self.handleNoteInfoEvent(event: event)
+        }).disposed(by: disposeBag)
+        return model
+    }
+    
+    
+    private func handleNoteInfoUpdate(noteInfo:NoteInfo,menuType:NoteEditorAction) {
+        
+        let model = newNoteInfoModel(noteInfo: noteInfo)
+        
+        switch menuType {
+        case .pin:
+            break
+        case .archive:
+            model.update(status: .archive)
+            break
+        case .move:
+            self.openChooseBoardVC(noteInfo: noteInfo, model: model)
+            break
+        case .background:
+            self.openChooseBackgroundVC(model: model)
+            break
+        case .trash:
+            model.update(status: .trash)
+            break
+        case .deleteBlock:
+            break
+        case .restore:
+            model.update(status: .normal)
+            break
+        case .delete:
             break
         }
     }
     
+    private func handleNoteInfoEvent(event:EditorUpdateEvent) {
+        switch event {
+        case .statusChanged(noteInfo: let noteInfo):
+            self.handleDeleteNote(noteInfo)
+        case .backgroundChanged(noteInfo: let noteInfo):
+            self.handleUpdateNote(noteInfo)
+        case .delete(noteInfo: let noteInfo):
+            self.handleDeleteNote(noteInfo)
+        case .updated(noteInfo: let noteInfo):
+            self.handleUpdateNote(noteInfo)
+        case .moved(noteInfo: let noteInfo, _):
+            self.handleDeleteNote(noteInfo)
+        }
+    }
+    
+    
+    func handleUpdateNote(_ noteInfo:NoteInfo) {
+        if let row = notes.firstIndex(where: { $0.id == noteInfo.id }) {
+            self.notes[row] = noteInfo
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
+            }, completion: nil)
+        }
+    }
+    
+    func handleDeleteNote(_ note:NoteInfo) {
+        if let row = notes.firstIndex(where: { $0.id == note.id }) {
+            notes.remove(at: row)
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
+            }, completion:nil)
+        }
+    }
+    
+    private func openChooseBoardVC(noteInfo:NoteInfo,model:NoteEidtorMenuModel) {
+        let vc = ChangeBoardViewController()
+        vc.noteInfo = noteInfo
+        vc.callbackChooseBoard = { boardBlock in
+            model.moveBoard(boardBlock: boardBlock)
+        }
+        self.controller?.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    private func openChooseBackgroundVC(model:NoteEidtorMenuModel) {
+        
+        let colorVC = NoteColorViewController()
+        colorVC.callbackColorChoosed = { background in
+            model.update(background: background)
+        }
+        
+        let nav = MyNavigationController(rootViewController: colorVC)
+        nav.modalPresentationStyle = .custom
+        nav.transitioningDelegate = colorVC.self
+        self.controller?.present(nav, animated: true, completion: nil)
+    }
 }

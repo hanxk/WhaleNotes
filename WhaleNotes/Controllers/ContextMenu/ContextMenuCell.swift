@@ -15,7 +15,7 @@ class ContextMenuCell: UITableViewCell {
     var menuItem: ContextMenuItem! {
         didSet {
             labelView.text = menuItem.label
-            iconView.image = UIImage(systemName: menuItem.icon)
+            iconView.image = UIImage(systemName: menuItem.icon, pointSize: 16, weight: .regular)
 //            if menuItem.isDestructive {
 //                iconView.tintColor = .red
 //                labelView.textColor = .red
@@ -31,7 +31,7 @@ class ContextMenuCell: UITableViewCell {
     static let spacing:CGFloat = 10
     static let cellHeight: CGFloat = 46
     
-    private static let labelTextFont = UIFont.systemFont(ofSize: 15)
+    private static let labelTextFont = UIFont.systemFont(ofSize: 16)
     
     private lazy var labelView: UILabel = UILabel().then {
         $0.textColor = .popMenuText
@@ -41,13 +41,12 @@ class ContextMenuCell: UITableViewCell {
     private lazy var iconView: UIImageView = UIImageView().then {
         $0.contentMode = .center
         $0.tintColor = .popMenuIconTint
-//        $0.backgroundColor = .red
     }
     
     private lazy var arrowView: UIImageView = UIImageView().then {
         $0.contentMode = .center
         $0.image = UIImage(systemName: "chevron.right", pointSize: 12, weight: .regular)
-        $0.tintColor = UIColor.init(hexString: "#666666")
+        $0.tintColor = .popMenuText
         $0.isHidden = true
     }
     
@@ -66,10 +65,9 @@ class ContextMenuCell: UITableViewCell {
         
         contentView.addSubview(iconView)
         iconView.snp.makeConstraints { (make) in
-            
+            make.centerY.equalToSuperview()
             make.width.equalTo(32)
-            make.height.equalToSuperview()
-            make.leading.equalToSuperview().offset(NoteDetailMenuCell.padding)
+            make.leading.equalToSuperview().offset(ContextMenuCell.padding)
         }
         
         let spacing:CGFloat = 10
@@ -84,7 +82,7 @@ class ContextMenuCell: UITableViewCell {
         
         arrowView.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-NoteDetailMenuCell.padding)
+            make.trailing.equalToSuperview().offset(-ContextMenuCell.padding)
         }
         
     }

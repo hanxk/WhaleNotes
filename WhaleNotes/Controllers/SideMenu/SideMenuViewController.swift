@@ -1009,7 +1009,7 @@ extension SideMenuViewController:UITableViewDelegate {
         return UIView().then {
             $0.backgroundColor = .sidemenuSelectedBg
             let cornerRadius:CGFloat = 8
-            $0.layer.cornerRadius = CGFloat(cornerRadius)
+            $0.layer.smoothCornerRadius = CGFloat(cornerRadius)
             $0.clipsToBounds = true
             $0.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
             $0.isHidden = true

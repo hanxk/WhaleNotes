@@ -18,30 +18,9 @@ class ChangeBoardViewController:UIViewController {
     
     private var sections:[BlockBoardSectionType] = []
     
-//    private var menuSectionTypes:[BoardSectionType] = []
-//    private var systemMenuItems:[MenuSystemItem]  =  []
-//    private var boards:[Board] = []
-//    private var mapCategoryIdAnIndex:[String:Int]  = [:]
-//    private var boardCategories:[BoardCategoryInfo] = [] {
-//        didSet {
-//            self.mapCategoryIdAnIndex.removeAll()
-//            for (index,boardCategoryInfo) in boardCategories.enumerated() {
-//                mapCategoryIdAnIndex[boardCategoryInfo.category.id] = index
-//            }
-//        }
-//    }
+    var noteInfo:NoteInfo!
+    var callbackChooseBoard:((BlockInfo)->Void)!
     
-    // 返回noteblock 和
-    var callbackMoveToBoard:((_ noteBlock:BlockInfo,_ boardBlock:BlockInfo)->Void)?
-    
-    
-    var noteBlock:BlockInfo! {
-        didSet {
-            if oldValue == nil {
-                self.loadBoards()
-            }
-        }
-    }
     
     private let cellReuseIndentifier = "ChangeBoardCell"
     
@@ -64,6 +43,7 @@ class ChangeBoardViewController:UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
+        self.loadBoards()
     }
     
     private func setupUI() {
@@ -152,7 +132,7 @@ extension ChangeBoardViewController:UITableViewDataSource {
             boardBlock = boardGroup.contentBlocks[indexPath.row]
         }
         cell.board = boardBlock
-        cell.isChoosed = boardBlock.id  == self.noteBlock.blockPosition.ownerId
+        cell.isChoosed = boardBlock.id  == self.noteInfo.noteBlock.blockPosition.ownerId
         return cell
     }
     
@@ -204,14 +184,9 @@ extension ChangeBoardViewController:UITableViewDelegate {
     }
     
     func moveToBoard(_ boardBlock:BlockInfo) {
-        NoteRepo.shared.moveToBoard(note: noteBlock, boardId: boardBlock.id)
-            .subscribe {newNoteBlock in
-                self.dismiss(animated: true, completion: nil)
-                self.callbackMoveToBoard?(newNoteBlock, boardBlock)
-            } onError: {
-                Logger.error($0)
-            }
-            .disposed(by: disposeBag)
+//        self.noteInfoModel.moveBoard(boardId: boardBlock.id)
+        callbackChooseBoard(boardBlock)
+        self.dismiss(animated: true, completion: nil)
     }
     
     func toggleBoard(_ board:Board,indexPath:IndexPath) {
