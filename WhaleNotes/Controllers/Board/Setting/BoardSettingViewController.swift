@@ -17,14 +17,14 @@ class BoardSettingViewController:UIViewController {
         case archived = "archived"
         case trash = "trash"
     }
-
+    
     enum BoardSettingEditedType {
         case update(board:BlockInfo)
         case delete(board:BlockInfo)
     }
-//
+    
     static let horizontalPadding:CGFloat = 16
-//
+    
     private var settingItems:[BoardSettingItem] = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.archived,BoardSettingItem.trash]
     var boardProperties:BlockBoardProperty {
         get {self.board.blockBoardProperties!}
@@ -42,17 +42,16 @@ class BoardSettingViewController:UIViewController {
             }
         }
     }
-//
+    
     var callbackBoardSettingEdited:((BoardSettingEditedType)->Void)?
-//
+    
     private var isBoardEdited:Bool = false
-//
     private let cellReuseIndentifier = "ChangeBoardCell"
-
+    
     private let disposeBag = DisposeBag()
-
+    
     private var isPreventChild = false
-
+    
     private var archiveCount:Int = 0 {
         didSet {
             if oldValue == archiveCount { return }
@@ -62,7 +61,7 @@ class BoardSettingViewController:UIViewController {
             }, completion: nil)
         }
     }
-//
+    
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
         $0.separatorColor = .dividerGray
         $0.delegate = self
@@ -70,39 +69,39 @@ class BoardSettingViewController:UIViewController {
         $0.showsVerticalScrollIndicator = false
         $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
         $0.sectionFooterHeight = CGFloat.leastNormalMagnitude
-
+        
         $0.register(BoardIconView.self, forHeaderFooterViewReuseIdentifier: BoardSettingItem.icon.rawValue)
         $0.register(BoardIconCell.self, forCellReuseIdentifier: BoardSettingItem.icon.rawValue)
         $0.register(BoardSettingTitleCell.self, forCellReuseIdentifier: BoardSettingItem.title.rawValue)
         $0.register(BoardSettingItemCell.self, forCellReuseIdentifier: BoardSettingItem.archived.rawValue)
         $0.register(BoardSettingButtonCell.self, forCellReuseIdentifier: BoardSettingItem.trash.rawValue)
-        $0.backgroundColor = .bg
-
+        
+        $0.backgroundColor = .settingbg
     }
-
+    
     private lazy var  cellBackgroundView = UIView().then {
         $0.backgroundColor = UIColor.sidemenuSelectedBg
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-
+        
         let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
         self.navigationItem.leftBarButtonItem = cancelButtonItem
-
+        
         let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
-                barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
+        barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
         self.navigationItem.rightBarButtonItem = barButtonItem
         self.navigationController?.navigationBar.barTintColor = .bg
-
-
-        self.title =  boardProperties.title
+        
+        
+        self.title = boardProperties.title
         self.navigationController?.presentationController?.delegate = self
-
+        
         self.setupData()
     }
-
+    
     private func setupUI() {
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
@@ -111,9 +110,9 @@ class BoardSettingViewController:UIViewController {
             make.leading.trailing.equalToSuperview()
         }
     }
-
+    
     private func setupData() {
-
+        
         BoardRepo.shared.getNotesCount(boardId: self.board.id, noteBlockStatus: .archive)
             .subscribe(onNext: {
                 self.archiveCount = $0
@@ -121,36 +120,36 @@ class BoardSettingViewController:UIViewController {
             }, onError: { error in
                 Logger.error(error)
             })
-        .disposed(by: disposeBag)
-
+            .disposed(by: disposeBag)
+        
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
         self.isPreventChild = false
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.isPreventChild = true
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
-
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         if isBeingDismissed {
             self.navigationController?.presentationController?.delegate = nil
         }
     }
-
+    
     @objc func cancelButtonTapped() {
         self.dismiss(animated: true, completion: nil)
     }
-
+    
     @objc func doneButtonTapped() {
         if isBoardEdited {
             self.board.updatedAt = Date()
@@ -180,26 +179,26 @@ extension BoardSettingViewController:UIAdaptivePresentationControllerDelegate,UI
         }
         return true
     }
-
+    
     func showDismissSheet() {
         let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-          let deleteAction = UIAlertAction(title: "放弃更改", style: .destructive, handler:
-          {
-              (alert: UIAlertAction!) -> Void in
-                self.dismiss(animated: true, completion: nil)
-          })
-
-          let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler:
-          {
-              (alert: UIAlertAction!) -> Void in
-            optionMenu.dismiss(animated: true, completion: nil)
-          })
-          optionMenu.addAction(deleteAction)
-          optionMenu.addAction(cancelAction)
+        let deleteAction = UIAlertAction(title: "放弃更改", style: .destructive, handler:
+                                            {
+                                                (alert: UIAlertAction!) -> Void in
+                                                self.dismiss(animated: true, completion: nil)
+                                            })
+        
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler:
+                                            {
+                                                (alert: UIAlertAction!) -> Void in
+                                                optionMenu.dismiss(animated: true, completion: nil)
+                                            })
+        optionMenu.addAction(deleteAction)
+        optionMenu.addAction(cancelAction)
         self.present(optionMenu, animated: true, completion: nil)
     }
     
-
+    
 }
 
 extension BoardSettingViewController:UITableViewDataSource {
@@ -212,7 +211,7 @@ extension BoardSettingViewController:UITableViewDataSource {
         }
         return 1
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let sectionType = self.settingItems[indexPath.section]
         let cell = tableView.dequeueReusableCell(withIdentifier: sectionType.rawValue)!
@@ -239,8 +238,8 @@ extension BoardSettingViewController:UITableViewDataSource {
         }
         return cell
     }
-
-
+    
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = self.settingItems[section]
         switch sectionType {
@@ -264,7 +263,7 @@ extension BoardSettingViewController:UITableViewDataSource {
             return nil
         }
     }
-
+    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let sectionType = self.settingItems[section]
         switch sectionType {
@@ -274,7 +273,7 @@ extension BoardSettingViewController:UITableViewDataSource {
             return ""
         }
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         let sectionType = self.settingItems[section]
         switch sectionType {
@@ -302,7 +301,7 @@ extension BoardSettingViewController:UITableViewDelegate {
             return cellHeight
         }
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.tableView.cellForRow(at: indexPath)?.setSelected(false, animated: true)
         let sectionType = self.settingItems[indexPath.section]
@@ -331,7 +330,7 @@ extension BoardSettingViewController {
         alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
         self.present(alert, animated: true)
     }
-
+    
     private func handleDeleteBoard() {
         BoardRepo.shared.delete(boardId: self.board.id)
             .subscribe {

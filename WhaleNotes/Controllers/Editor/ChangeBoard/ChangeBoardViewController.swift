@@ -27,7 +27,6 @@ class ChangeBoardViewController:UIViewController {
     private let disposeBag = DisposeBag()
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
-//        $0.separatorColor = UIColor.clear
         $0.delegate = self
         $0.dataSource = self
         $0.showsVerticalScrollIndicator = false
@@ -51,21 +50,13 @@ class ChangeBoardViewController:UIViewController {
         self.navigationItem.leftBarButtonItem = cancelButtonItem
         
         self.title = "移动至..."
-
-//        let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
-//                barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
-//        self.navigationItem.rightBarButtonItem = barButtonItem
-//        self.navigationController?.navigationBar.barTintColor = .bg
-        
-        
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
             make.leading.trailing.equalToSuperview()
         }
-        self.tableView.backgroundColor = .bg
-        
+        self.tableView.backgroundColor = .settingbg
         
         self.title = "移动至..."
          

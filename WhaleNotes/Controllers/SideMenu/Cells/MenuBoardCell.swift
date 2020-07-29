@@ -55,7 +55,9 @@ class MenuBoardCell: UITableViewCell {
         
         contentView.addSubview(cellBgView)
         cellBgView.snp.makeConstraints {
-            $0.width.height.equalToSuperview()
+            $0.height.equalToSuperview()
+            $0.leading.equalToSuperview().offset(SideMenuCellContants.selectedPadding)
+            $0.trailing.equalToSuperview().offset(-SideMenuCellContants.selectedPadding)
         }
         
         contentView.addSubview(emojiLabel)

@@ -13,6 +13,8 @@ enum SideMenuCellContants {
     static let iconWidth:CGFloat = 34
     static let cellPadding = 20
     static let highlightColor =  UIColor(hexString: "#EFEFEF")
+    
+    static let selectedPadding = 14
 }
 
 protocol SideMenuViewControllerDelegate: AnyObject {
@@ -77,11 +79,6 @@ class SideMenuViewController: UIViewController {
             spaceInfo.categoryGroupBlock.contentBlocks = newValue
         }
     }
-    
-    
-//    var blocksMap:[String:Block] = [:]
-//    var blockInfos:[BlockInfo] = []
-    
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
         didSet {
@@ -97,28 +94,6 @@ class SideMenuViewController: UIViewController {
     
     private var selectedId:String = ""
     private var selectedItem:SelectedMenuItem!
-    
-//    private lazy var bottomView:SideMenuBottomView = SideMenuBottomView().then {
-//
-//        $0.callbackNewBlock = { sender in
-//            let items = [
-//                ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
-//                ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
-//            ]
-//            ContextMenuViewController.show(sourceView:sender, sourceVC: self, items: items) { [weak self] menuItem, vc  in
-//                vc.dismiss(animated: true, completion: nil)
-//                guard let self = self,let flag = menuItem.tag as? Int else { return}
-//                if flag == 1 {
-//                    self.openCreateBoardVC(parent: self.boardGroupBlock)
-//                }else {
-//                    self.showCategoryInputAlert()
-//                }
-//            }
-//
-//        }
-//
-//    }
-    
     
     private func openCreateBoardVC(parent:BlockInfo) {
         let vc = CreateBoardViewController()
@@ -179,16 +154,6 @@ class SideMenuViewController: UIViewController {
         $0.dragInteractionEnabled = true
     }
     private var systemMenuItems:[MenuSystemItem]  =  []
-    //    private var boards:[Board] = []
-    //    private var mapCategoryIdAnIndex:[String:Int]  = [:]
-    //    private var boardCategories:[BoardCategoryInfo] = [] {
-    //        didSet {
-    //            self.mapCategoryIdAnIndex.removeAll()
-    //            for (index,boardCategoryInfo) in boardCategories.enumerated() {
-    //                mapCategoryIdAnIndex[boardCategoryInfo.category.id] = index
-    //            }
-    //        }
-    //    }
     private let sectionCategoryBeginIndex = 2
     
     private lazy var cellSelectedBackgroundView = SideMenuViewController.generateCellSelectedView()
@@ -386,19 +351,6 @@ extension SideMenuViewController {
         
     }
     
-    func updateToggleBlock(toggleBlock:Block) {
-        
-        //            BlockRepo.shared.getBlocks(parentId: <#T##String#>)
-        //            BoardRepo.shared.updateBoardCategory(boardCategory: newBoardCategory)
-        //                .subscribe(onNext: { [weak self] isSuccess in
-        //                    if isSuccess {
-        //                        self?.handleBoardCategoryUpdate(newBoardCategory: newBoardCategory)
-        //                    }
-        //                    }, onError: { error in
-        //                        Logger.error(error)
-        //                })
-        //                .disposed(by: disposeBag)
-    }
     
     func handleBoardCategoryUpdate(toggleBlock: BlockInfo,isReloadSecction:Bool) {
         guard let index = self.categoriesInfos.firstIndex(where: {$0.id == toggleBlock.id}) else { return }
@@ -412,23 +364,9 @@ extension SideMenuViewController {
                 self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .automatic)
             }
         }, completion: nil)
-        //            guard let categoryIndex = self.mapCategoryIdAnIndex[newBoardCategory.id] else { return }
-        //            let section = getSectionIndex(categoryId: newBoardCategory.id)
-        //            if self.boardCategories[categoryIndex].category.isExpand != newBoardCategory.isExpand { // 刷新 section
-        //                self.boardCategories[categoryIndex].category = newBoardCategory
-        //                self.tableView.performBatchUpdates({
-        //                    self.tableView.reloadSections(IndexSet([section]), with: .none)
-        //                }, completion: nil)
-        //                return
-        //            }
-        //            self.boardCategories[categoryIndex].category = newBoardCategory
-        //            self.tableView.performBatchUpdates({
-        //                self.tableView.reloadRows(at: [IndexPath(row: 0, section: section)], with: .none)
-        //            }, completion: nil)
     }
     
     func getSectionIndex(categoryId: String) -> Int {
-        //        return (self.mapCategoryIdAnIndex[categoryId] ?? 0 ) + self.sectionCategoryBeginIndex
         return 1
     }
     
@@ -525,24 +463,6 @@ extension SideMenuViewController {
                 self.tableView.deleteRows(at: [indexPath], with: .none)
             }, completion: nil)
         }
-        //        setSelected(indexPath: IndexPath(row: 0, section: 0))
-        //        guard let indexPath:IndexPath = getBoardIndexPath(board: board) else { return }
-        //        if indexPath.section == 1{
-        //            self.boards.remove(at: indexPath.row)
-        //        }else {
-        //            let index = indexPath.section - self.sectionCategoryBeginIndex
-        //            self.boardCategories[index].removeBoard(index: indexPath.row-1)
-        //            let isExpand = self.boardCategories[index].category.isExpand
-        //            if !isExpand { // 被折叠
-        //                return
-        //            }
-        //        }
-        //
-        //        UIView.performWithoutAnimation {
-        //            self.tableView.performBatchUpdates({
-        //                self.tableView.deleteRows(at: [indexPath], with: .none)
-        //            }, completion: nil)
-        //        }
     }
     
     private func getBoardIndexPath(boardBlock:BlockInfo) -> IndexPath?{
@@ -557,8 +477,8 @@ extension SideMenuViewController {
         
         
         if let categoryIndex = self.categoriesInfos.firstIndex(where: {$0.id == boardBlock.parentId}),
-            let index =  self.categoriesInfos[categoryIndex].contentBlocks.firstIndex(of: boardBlock)
-           {
+           let index =  self.categoriesInfos[categoryIndex].contentBlocks.firstIndex(of: boardBlock)
+        {
             return IndexPath(row: index+1, section: categoryIndex+sectionCategoryBeginIndex)
         }
         return nil
@@ -703,85 +623,6 @@ extension SideMenuViewController {
         }
     }
     
-    //    func findSideMenuItem(indexPath: IndexPath) -> SideMenuItem {
-    //        let sectionType = self.menuSectionTypes[indexPath.section]
-    //        switch sectionType {
-    //        case .system(let items):
-    //            return SideMenuItem.system(menuInfo: items[indexPath.row])
-    //        case .boards:
-    //            return SideMenuItem.board(board: self.boards[indexPath.row])
-    //        case .categories:
-    //            let board = getBoardCategoryInfo(section:indexPath.section).boards[indexPath.row-1]
-    //            return SideMenuItem.board(board: board)
-    //        }
-    //    }
-    
-    //    func findSideMenuItemIndex(sideMenuItem:SideMenuItem) -> IndexPath? {
-    //        switch sideMenuItem {
-    //        case .system(let sysMenuInfo):
-    //            guard let index = self.systemMenuItems.firstIndex(where: {$0 == sysMenuInfo}) else { return nil }
-    //            return IndexPath(row: index, section: 0)
-    //        case .board(let board):
-    //            return getBoardIndexPath(board: board)
-    //        }
-    //    }
-    
-    func updateBoard(newBoard:Board,callback:(()->Void)? = nil) {
-        //        BoardRepo.shared.updateBoard(board: newBoard)
-        //            .subscribe(onNext: { isSuccess in
-        //                if isSuccess  {
-        //                    if let callback = callback {
-        //                        callback()
-        //                    }
-        //                }
-        //            }, onError: { error in
-        //                Logger.error(error)
-        //            })
-        //            .disposed(by: disposeBag)
-    }
-    
-    private func updateBoardDataSource(board: Board) {
-        //        if board.categoryId.isNotEmpty {
-        //            if let boardIndex = self.boards.firstIndex(where: {$0.id == board.id}) {
-        //                let isSortUpdate =  self.boards[boardIndex].sort != board.sort
-        //                self.boards[boardIndex] = board
-        //                if isSortUpdate {
-        //                    self.boards =  self.boards.sorted(by: {$0.sort < $1.sort})
-        //                }
-        //            }
-        //        }else {
-        //            if let categoryIndex = self.mapCategoryIdAnIndex[board.categoryId],
-        //                let boardIndex =  self.boardCategories[categoryIndex].boards.firstIndex(where: { $0.id == board.id})
-        //            {
-        //
-        //                guard var boards =  self.boardCategories[categoryIndex].boards else { return }
-        //
-        //                let isSortUpdate = boards[boardIndex].sort != board.sort
-        //                boards[boardIndex] = board
-        //                if isSortUpdate {
-        //                    boards =  boards.sorted(by: {$0.sort < $1.sort})
-        //                }
-        //                self.boardCategories[categoryIndex].boards = boards
-        //
-        //
-        //            }
-        //        }
-    }
-    
-    //    func getBoardSort(boardCategory: BoardCategory?) -> Double {
-    //
-    //        var boards = self.boards
-    //        if let boardCategory = boardCategory {
-    //            guard let categoryIndex = self.mapCategoryIdAnIndex[boardCategory.id] else { return 65536}
-    //            boards = self.boardCategories[categoryIndex].boards
-    //        }
-    //
-    //        if boards.count == 0 {
-    //            return 65536
-    //        }
-    //        return boards[0].sort / 2
-    //    }
-    
     func calcSort(toRow:Int,boards:[Board])->Double {
         if boards.count == 0 {
             return 65536
@@ -825,14 +666,12 @@ extension SideMenuViewController {
             boardGroupBlock.contentBlocks.insert(movedBlockInfo, at: rightToRow)
         }
         
-        
         var boardGroupBlock = getBoardCategory(section: section)
         swapBlockInfo(boardGroupBlock: &boardGroupBlock, fromRow: rightFromRow, toRow: rightToRow)
         
+        // 更新数据源
+        self.updateBoardCategoryDataSource(section: section, boardGroupBlock: boardGroupBlock)
         
-        self.boardGroupBlock = boardGroupBlock
-        
-        // 更新 position
         BoardRepo.shared.updatePosition(blockPosition: boardGroupBlock.contentBlocks[rightToRow].blockPosition)
             .subscribe(onNext: { _ in
             }, onError: { error in
@@ -1011,7 +850,7 @@ extension SideMenuViewController:UITableViewDelegate {
             let cornerRadius:CGFloat = 8
             $0.layer.smoothCornerRadius = CGFloat(cornerRadius)
             $0.clipsToBounds = true
-            $0.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+            //            $0.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
             $0.isHidden = true
         }
     }
@@ -1104,6 +943,14 @@ extension SideMenuViewController: UITableViewDataSource {
             return self.boardGroupBlock
         }
         return self.categoriesInfos[section-self.sectionCategoryBeginIndex]
+    }
+    
+    private func updateBoardCategoryDataSource(section:Int,boardGroupBlock:BlockInfo) {
+        if section == 1 {
+            self.boardGroupBlock = boardGroupBlock
+            return
+        }
+        self.categoriesInfos[section-self.sectionCategoryBeginIndex] = boardGroupBlock
     }
 }
 

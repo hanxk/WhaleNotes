@@ -81,11 +81,8 @@ extension UIColor {
         }
     }
     
-    open class var placeHolderColor: UIColor {
-        get {
-            return UIColor(named: "PlaceHolder")!
-        }
-    }
+    open class var placeHolderColor: UIColor { return UIColor(named: "PlaceHolder")! }
+    open class var settingbg: UIColor { return UIColor(hexString: "#F4F4F4") }
     
     convenience init(hexString: String) {
         let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
