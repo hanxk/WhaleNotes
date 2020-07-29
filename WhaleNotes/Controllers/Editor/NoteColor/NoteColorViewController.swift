@@ -27,23 +27,23 @@ class NoteColorViewController: UIViewController {
         sourceVC.present(fpc, animated: true, completion: nil)
     }
     
-    var colors:[(NoteBackground,String)] = [
-        (.gray,"默认"),
-        (.red,"红"),
-        (.orange,"橙"),
-        (.yellow,"黄"),
-        (.green,"绿"),
-        (.cyan,"青"),
-        (.blue,"蓝"),
-        (.purple,"紫"),
-        (.pink,"粉")
+    var colors:[(String,String)] = [
+        (NoteBackground.gray,"默认"),
+        (NoteBackground.red,"红"),
+        (NoteBackground.orange,"橙"),
+        (NoteBackground.yellow,"黄"),
+        (NoteBackground.green,"绿"),
+        (NoteBackground.cyan,"青"),
+        (NoteBackground.blue,"蓝"),
+        (NoteBackground.purple,"紫"),
+        (NoteBackground.pink,"粉")
                         ]
     
     private let cellReuseIndetifier = "NoteColorCircleCell"
     private var cachedWidth:[String:CGFloat] = [:]
     
-    var selectedColor:NoteBackground = .gray
-    var callbackColorChoosed:((NoteBackground)->Void)?
+    var selectedColor:String = NoteBackground.gray
+    var callbackColorChoosed:((String)->Void)?
     
     let flowLayout = UICollectionViewFlowLayout().then {
         let space:CGFloat = 18

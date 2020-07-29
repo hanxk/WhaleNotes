@@ -90,7 +90,7 @@ extension UIViewController {
     func showContextMenu(sourceView:UIView) {
         guard let sourceVC = sourceView.controller else { return }
         
-        let containerStyle = ContextMenu.ContainerStyle(shadowOpacity:0.1,
+        let containerStyle = ContextMenu.ContainerStyle(shadowOpacity:0.2,
                                                         xPadding: -sourceView.frame.width,
                                                         overlayColor: UIColor.black.withAlphaComponent(0.0))
         

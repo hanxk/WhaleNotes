@@ -38,7 +38,7 @@ class NoteEidtorMenuModel {
         }
     }
     
-    func update(background:NoteBackground) {
+    func update(background:String) {
         var properties = model.properties
         properties.backgroundColor = background
         self.updateProperties(properties) {

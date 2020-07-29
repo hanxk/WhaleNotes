@@ -237,7 +237,11 @@ struct BlockNoteProperty: Codable {
     var title:String = ""
     // note status:  -1: 删除  1: 正常  2: 归档
     var status:NoteBlockStatus = .normal
-    var backgroundColor:NoteBackground = .gray
+    var backgroundColor:String = NoteBackground.gray
+    
+    var background:UIColor {
+        return UIColor(hexString: self.backgroundColor)
+    }
 }
 
 
@@ -306,23 +310,23 @@ enum NoteBlockStatus: Int,Codable {
 }
 
 
-enum NoteBackground: String,Codable {
-    case gray = "#EEEEEE"
-    case red = "#FBCFCE"
-    case orange = "#FDDFCC"
-    case yellow = "#FCE9AD"
-    case green = "#F0FDB7"
-    case cyan = "#CAFCEE"
-    case blue = "#C5EBFD"
-    case purple = "#CADDFD"
-    case pink = "#FFC9E7"
+enum NoteBackground {
+    static let gray = "#EEEEEE"
+    static let red = "#FBCFCE"
+    static let orange = "#FDDFCC"
+    static let yellow = "#FEF49C"//#FCE9AD
+    static let green = "#F0FDB7"
+    static let cyan = "#CAFCEE"
+    static let blue = "#C5EBFD"
+    static let purple = "#CADDFD"
+    static let pink = "#FFC7C7"//#FFC9E7
     
-    var uicolor:UIColor {
-        return UIColor(hexString: self.rawValue)
-    }
-    var defaultColor:NoteBackground {
-        return .gray
-    }
+//    var uicolor:UIColor {
+//        return UIColor(hexString: self.rawValue)
+//    }
+//    var defaultColor:NoteBackground {
+//        return .gray
+//    }
 }
 
 extension Block:SQLTable {

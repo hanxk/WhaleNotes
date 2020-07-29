@@ -81,13 +81,13 @@ class EditorViewController: UIViewController {
         return noteInfoModel
     }()
     
-    private var bg:NoteBackground! {
+    private var bg:UIColor! {
         didSet {
-            let bgColor = bg.uicolor
-            bottombar.backgroundColor = bgColor
+//            let bgColor = UIColor(hexString: bg)
+            bottombar.backgroundColor = bg
             self.navigationItem.titleView = titleTextField
-            navigationController?.navigationBar.barTintColor = bgColor
-            self.view.backgroundColor =  bgColor
+            navigationController?.navigationBar.barTintColor = bg
+            self.view.backgroundColor =  bg
         }
     }
     
@@ -188,7 +188,7 @@ class EditorViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
         
         
-        self.bg = note.properties.backgroundColor
+        self.bg = note.properties.background
         updateAt = self.note.updatedAt
     }
     @objc func rotated() {
@@ -1354,7 +1354,7 @@ extension EditorViewController {
     
     func handleBackgroundChanged(_ note: NoteInfo) {
         self.note = note
-        self.bg = note.properties.backgroundColor
+        self.bg = note.properties.background
     }
     
     

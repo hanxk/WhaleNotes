@@ -14,7 +14,7 @@ class NoteColorCell: UICollectionViewCell {
     
     var colorInfo:(NoteBackground,String)! {
         didSet {
-            self.colorView.backgroundColor = colorInfo.0.uicolor
+//            self.colorView.backgroundColor = colorInfo.0.uicolor
             self.label.text = colorInfo.1
         }
     }

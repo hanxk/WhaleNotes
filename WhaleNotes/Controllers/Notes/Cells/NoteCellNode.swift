@@ -50,7 +50,7 @@ class NoteCellNode: ASCellNode {
         
         if self.cellProvider is NoteCellProvider {
             let cardbackground = ASDisplayNode().then {
-                $0.backgroundColor = noteProperties.backgroundColor.uicolor
+                $0.backgroundColor = noteProperties.background
                 $0.borderWidth = 1
                 $0.borderColor = UIColor.cardBorder.cgColor
                 $0.cornerRadius = NoteCellConstants.cornerRadius

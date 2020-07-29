@@ -9,9 +9,9 @@ import UIKit
 
 class NoteColorCircleCell: UICollectionViewCell {
     
-    var colorInfo:(NoteBackground,String)! {
+    var colorInfo:(String,String)! {
         didSet {
-            self.colorView.backgroundColor = colorInfo.0.uicolor
+            self.colorView.backgroundColor = UIColor(hexString: colorInfo.0)
             self.label.text = colorInfo.1
         }
     }

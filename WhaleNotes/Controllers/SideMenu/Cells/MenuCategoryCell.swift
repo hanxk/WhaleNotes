@@ -34,13 +34,13 @@ class MenuCategoryCell: UITableViewCell {
     private lazy var cellBgView = SideMenuViewController.generateCellSelectedView()
     
     private lazy var arrowDownImage:UIImage = {
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .light)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
         var image = UIImage(systemName: "chevron.down", withConfiguration: config)
         return image!
     }()
     
     private lazy var arrowRightImage:UIImage = {
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .light)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
         var image = UIImage(systemName: "chevron.right", withConfiguration: config)
         return image!
     }()
@@ -62,9 +62,9 @@ class MenuCategoryCell: UITableViewCell {
     private lazy var menuButton: UIButton = UIButton().then {
         $0.contentMode = .center
         $0.imageView?.contentMode = .scaleAspectFit
-        $0.tintColor  = .thirdColor
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .light)
-        $0.setImage(UIImage(systemName: "ellipsis", withConfiguration: config), for: .normal)
+        $0.tintColor  = UIColor(hexString: "#666666")
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .light)
+        $0.setImage(UIImage(systemName: "ellipsis.circle", withConfiguration: config), for: .normal)
         $0.addTarget(self, action: #selector(self.menuButtonTapped), for: .touchUpInside)
     }
     
