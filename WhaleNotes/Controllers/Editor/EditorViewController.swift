@@ -1382,6 +1382,7 @@ extension EditorViewController {
     
     private func openChooseBackgroundVC() {
         let colorVC = NoteColorViewController()
+        colorVC.selectedColor = self.note.properties.backgroundColor
         colorVC.callbackColorChoosed = { [weak self] background in
             self?.noteInfoModel.update(background: background)
         }

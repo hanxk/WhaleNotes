@@ -20,8 +20,8 @@ class HomeTitleView:UIView {
         
         let spacing:CGFloat = 3
         
-        $0.setTitleColor(.primaryText, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 15,weight: .medium)
+        $0.setTitleColor(.black, for: .normal)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16,weight: .medium)
         $0.setImageTitleSpace(3)
         
         $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: arrowSpacing)

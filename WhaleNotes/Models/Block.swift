@@ -311,15 +311,25 @@ enum NoteBlockStatus: Int,Codable {
 
 
 enum NoteBackground {
-    static let gray = "#EEEEEE"
-    static let red = "#FBCFCE"
-    static let orange = "#FDDFCC"
-    static let yellow = "#FEF49C"//#FCE9AD
-    static let green = "#F0FDB7"
-    static let cyan = "#CAFCEE"
-    static let blue = "#C5EBFD"
-    static let purple = "#CADDFD"
-    static let pink = "#FFC7C7"//#FFC9E7
+    
+    static let gray = "#FFFFFF"
+    static let red = "#FBCFCE"//#FBCFCE
+//    static let orange = "#FFE9A5"//#FDDFCC
+    static let yellow = "#FCE9AD"//#FCE9AD
+    static let green = "#F0FDB7"//#F0FDB7
+//    static let cyan = "#CAFCEE"
+    static let blue = "#C5EBFD"//#C5EBFD
+    static let purple = "#CADDFD"//#CADDFD
+    static let pink = "#FFC9E7"//#FFC9E7
+    
+    
+//    static let gray = "#EEEEEE"
+//    static let red = "#FFC2BA"//#FBCFCE
+//    static let yellow = "#FEF49C"//#FCE9AD
+//    static let green = "#B3FFA1"//#F0FDB7
+//    static let blue = "#ADF4FF"//#C5EBFD
+//    static let purple = "#B6CAFF"//#CADDFD
+//    static let pink = "#FFC7C7"//#FFC9E7
     
 //    var uicolor:UIColor {
 //        return UIColor(hexString: self.rawValue)

@@ -39,7 +39,7 @@ extension UIColor {
             //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
 //            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.06)
 //                        return UIColor(hexString: "#EFF0F1")
-            return  UIColor(red: 0.913, green: 0.913, blue: 0.92, alpha: 0.6)
+            return  UIColor(red: 0, green: 0, blue: 0, alpha: 0.9)
 
 
         }
@@ -111,7 +111,9 @@ extension UIColor {
     open class var bg: UIColor {
         get {
 //            return UIColor.init(hexString: "#F5F5F7")
-            return UIColor.init(hexString: "#FFFFFF")
+//            return UIColor.init(hexString: "#FFFFFF")
+//            return UIColor.init(hexString: "#EDEDED")
+            return UIColor.init(hexString: "#EAEAEB")
 //            return UIColor.init(hexString: "#f2f2f2")
         }
     }

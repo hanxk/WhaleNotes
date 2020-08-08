@@ -289,7 +289,7 @@ extension TrashView: UICollectionViewDelegate{
             self.openChooseBoardVC(noteInfo: noteInfo, model: model)
             break
         case .background:
-            self.openChooseBackgroundVC(model: model)
+            self.openChooseBackgroundVC(noteInfo: noteInfo,model: model)
             break
         case .trash:
             model.update(status: .trash)
@@ -347,13 +347,12 @@ extension TrashView: UICollectionViewDelegate{
         self.controller?.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
-    private func openChooseBackgroundVC(model:NoteEidtorMenuModel) {
-        
+    private func openChooseBackgroundVC(noteInfo:NoteInfo,model:NoteEidtorMenuModel) {
         let colorVC = NoteColorViewController()
+        colorVC.selectedColor = noteInfo.properties.backgroundColor
         colorVC.callbackColorChoosed = { background in
             model.update(background: background)
         }
-        
         let nav = MyNavigationController(rootViewController: colorVC)
         nav.modalPresentationStyle = .custom
         nav.transitioningDelegate = colorVC.self

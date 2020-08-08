@@ -93,7 +93,7 @@ class BoardSettingViewController:UIViewController {
         let barButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(self.doneButtonTapped))
         barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
         self.navigationItem.rightBarButtonItem = barButtonItem
-        self.navigationController?.navigationBar.barTintColor = .bg
+        self.navigationController?.navigationBar.barTintColor = .white
         
         
         self.title = boardProperties.title

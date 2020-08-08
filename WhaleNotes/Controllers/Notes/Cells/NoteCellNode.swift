@@ -53,8 +53,11 @@ class NoteCellNode: ASCellNode {
                 $0.backgroundColor = noteProperties.background
                 $0.borderWidth = 1
                 $0.borderColor = UIColor.cardBorder.cgColor
+                
+//                $0.cornerRoundingType = .precomposited
                 $0.cornerRadius = NoteCellConstants.cornerRadius
-                $0.clipsToBounds = true
+//                $0.cornerRadius = NoteCellConstants.cornerRadius
+//                $0.clipsToBounds = true
                 $0.style.flexShrink = 1
             }
             self.addSubnode(cardbackground)

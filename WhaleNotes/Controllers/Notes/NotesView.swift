@@ -32,7 +32,7 @@ enum DisplayMode {
 enum NotesViewConstants {
     static let cellSpace: CGFloat = 12
     static let cellVerticalSpace: CGFloat = 14
-    static let cellHorizontalSpace: CGFloat = 12
+    static let cellHorizontalSpace: CGFloat = 14
     
     static let waterfall_cellSpace: CGFloat = 12
     static let waterfall_cellHorizontalSpace: CGFloat = 14
@@ -315,7 +315,7 @@ extension NotesView: UICollectionViewDelegate{
             self.openChooseBoardVC(noteInfo: noteInfo, model: model)
             break
         case .background:
-            self.openChooseBackgroundVC(model: model)
+            self.openChooseBackgroundVC(noteInfo: noteInfo,model: model)
             break
         case .trash:
             model.update(status: .trash)
@@ -373,9 +373,10 @@ extension NotesView: UICollectionViewDelegate{
         self.controller?.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
-    private func openChooseBackgroundVC(model:NoteEidtorMenuModel) {
+    private func openChooseBackgroundVC(noteInfo:NoteInfo,model:NoteEidtorMenuModel) {
         
         let colorVC = NoteColorViewController()
+        colorVC.selectedColor = noteInfo.properties.backgroundColor
         colorVC.callbackColorChoosed = { background in
             model.update(background: background)
         }

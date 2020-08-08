@@ -10,7 +10,7 @@ import FloatingPanel
 
 class NoteColorViewController: UIViewController {
     
-    private let noOfCellsInRow = 5
+    private let noOfCellsInRow = 6
     
     static func openModel(sourceVC:UIViewController) {
         
@@ -30,13 +30,13 @@ class NoteColorViewController: UIViewController {
     var colors:[(String,String)] = [
         (NoteBackground.gray,"默认"),
         (NoteBackground.red,"红"),
-        (NoteBackground.orange,"橙"),
+//        (NoteBackground.orange,"橙"),
         (NoteBackground.yellow,"黄"),
-        (NoteBackground.green,"绿"),
-        (NoteBackground.cyan,"青"),
         (NoteBackground.blue,"蓝"),
+        (NoteBackground.green,"绿"),
+//        (NoteBackground.cyan,"青"),
         (NoteBackground.purple,"紫"),
-        (NoteBackground.pink,"粉")
+//        (NoteBackground.pink,"粉")
                         ]
     
     private let cellReuseIndetifier = "NoteColorCircleCell"
@@ -46,13 +46,13 @@ class NoteColorViewController: UIViewController {
     var callbackColorChoosed:((String)->Void)?
     
     let flowLayout = UICollectionViewFlowLayout().then {
-        let space:CGFloat = 18
-        let topPadding:CGFloat = 16
+        let space:CGFloat = 14
+        let topPadding:CGFloat = 14
         $0.minimumLineSpacing = space
         $0.minimumInteritemSpacing = space
         $0.scrollDirection = .vertical
         
-        $0.sectionInset = UIEdgeInsets(top: topPadding, left:  space, bottom: topPadding, right:  space)
+        $0.sectionInset = UIEdgeInsets(top: topPadding, left:  space, bottom: topPadding+6, right:  space)
     }
     
     lazy var collectionView = UICollectionView(frame: CGRect.zero,collectionViewLayout: flowLayout).then { [weak self] in
@@ -183,12 +183,12 @@ extension NoteColorViewController: UIViewControllerTransitioningDelegate {
     }
     
     func generatePopHeight() -> CGFloat {
-        let noOfRows = 2
+        let noOfRows = 1
         let flowLayout = self.flowLayout
         let totalSpace = flowLayout.sectionInset.top + flowLayout.sectionInset.bottom
                         + (flowLayout.minimumLineSpacing * CGFloat(noOfRows - 1))
         
         let itemSize = self.generateItemSize()
-        return  itemSize.height * 2 + totalSpace + self.topbarHeight
+        return  itemSize.height * CGFloat(noOfRows) + totalSpace + self.topbarHeight
     }
 }
