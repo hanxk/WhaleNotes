@@ -11,18 +11,4 @@ import RxSwift
 
 class EditorViewModel {
     
-    private let noteInfoViewModel:NoteEidtorMenuModel
-    
-//    var noteInfoPub: PublishSubject<NoteInfo> {
-//        return noteInfoViewModel.noteInfoPub
-//    }
-//    
-    init(noteInfo:NoteInfo) {
-        self.noteInfoViewModel = NoteEidtorMenuModel(model: noteInfo)
-    }
-    
-    
-    func updateTitle(title:String) {
-        
-    }
 }

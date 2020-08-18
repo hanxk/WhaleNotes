@@ -19,7 +19,6 @@ import FloatingPanel
 
 class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
-    
     private lazy var disposeBag = DisposeBag()
     
     private var contentView:UIView?
@@ -49,6 +48,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.extendedLayoutIncludesOpaqueBars = true
+        self.view.backgroundColor = .bg
         
         func openBoardSetting(board: BlockInfo) {
             let settingVC = BoardSettingViewController()
@@ -99,14 +99,14 @@ extension HomeViewController {
     private func handleBoardUpdated(board:BlockInfo) {
         self.sideMenuItemType = SideMenuItem.board(board: board)
         let properties = board.blockBoardProperties!
-        titleButton.setTitle(properties.title,emoji: properties.icon)
+        titleButton.setTitle(board.title,emoji: properties.icon)
 
-        self.sideMenuViewController.boardIsUpdated(board:board)
+//        self.delegate.boardIsUpdated(board:board)
         
     }
     
     private func handleBoardDeleted(board:BlockInfo) {
-        self.sideMenuViewController.boardIsDeleted(board: board)
+//        self.sideMenuViewController.boardIsDeleted(board: board)
     }
 }
 
@@ -139,22 +139,21 @@ extension HomeViewController {
         }
         let window = UIApplication.shared.windows.first { $0.isKeyWindow }
         let height = self.view.frame.height - (window?.safeAreaInsets.bottom ?? 0)
-        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: height),board: board)
-        notesView.callbackSearchButtonTapped = { _ in
-            self.handleShowSearchbar()
-        }
-        self.contentView = notesView
-        self.view.backgroundColor = .toolbarBg
+        let boardView = BoardView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: height),board: board)
+//        notesView.callbackSearchButtonTapped = { _ in
+//            self.handleShowSearchbar()
+//        }
+        self.contentView = boardView
 
-        self.view.addSubview(notesView)
-        notesView.snp.makeConstraints { make in
+        self.view.addSubview(boardView)
+        boardView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
         if let blockBoardProperties = board.blockBoardProperties,
-           blockBoardProperties.type == BoardType.user
+           blockBoardProperties.type == .user
            {
             
-           titleButton.setTitle(blockBoardProperties.title,emoji: blockBoardProperties.icon)
+           titleButton.setTitle(board.title,emoji: blockBoardProperties.icon)
         }
         
     }
@@ -164,7 +163,7 @@ extension HomeViewController {
         case .board(let board):
              self.setupBoardView(board:board)
             if let blockBoardProperties = board.blockBoardProperties {
-                self.titleButton.setTitle(blockBoardProperties.title, icon:systemMenu.iconImage)
+                self.titleButton.setTitle(board.title, icon:systemMenu.iconImage)
             }
             break
         case .trash:
@@ -180,9 +179,9 @@ extension HomeViewController {
         let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         self.contentView = trashView
         self.view.backgroundColor = .bg
-        trashView.callbackOpenBoard = { [weak self] boardBlock in
-            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
-        }
+//        trashView.callbackOpenBoard = { [weak self] boardBlock in
+//            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
+//        }
         self.view.addSubview(trashView)
         trashView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -224,29 +223,19 @@ extension HomeViewController {
     }
     
     @objc func handleShowSearchbar() {
-        let vc = SearchViewController()
-        vc.callbackOpenBoard = { [weak self] boardBlock in
-            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
-        }
-        vc.callbackNoteEdited = { [weak self] editorMode in
-            self?.handleEditorMode(editorMode)
-        }
-        let navVC = MyNavigationController(rootViewController: vc)
-        navVC.modalPresentationStyle = .overFullScreen
-        navVC.modalTransitionStyle = .crossDissolve
-        self.navigationController?.present(navVC, animated: true, completion: nil)
+//        let vc = SearchViewController()
+//        vc.callbackOpenBoard = { [weak self] boardBlock in
+//            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
+//        }
+//        vc.callbackNoteEdited = { [weak self] editorMode in
+//            self?.handleEditorMode(editorMode)
+//        }
+//        let navVC = MyNavigationController(rootViewController: vc)
+//        navVC.modalPresentationStyle = .overFullScreen
+//        navVC.modalTransitionStyle = .crossDissolve
+//        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
     
-    private func handleEditorMode(_ editorMode:EditorUpdateMode) {
-//        if let notesView =  self.contentView as? NotesView {
-//            notesView.noteEditorUpdated(mode: editorMode)
-//            return
-//        }
-//        if let trashView =  self.contentView as? TrashView {
-//            trashView.noteEditorUpdated(mode: editorMode)
-//            return
-//        }
-    }
     
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {
         let modes: [SideMenuPresentationStyle] = [.menuSlideIn, .viewSlideOut, .viewSlideOutMenuIn, .menuDissolveIn]

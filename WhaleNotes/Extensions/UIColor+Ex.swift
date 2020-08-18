@@ -110,10 +110,10 @@ extension UIColor {
     // OLD: #EFEFEF
     open class var bg: UIColor {
         get {
-//            return UIColor.init(hexString: "#F5F5F7")
+            return UIColor.init(hexString: "#F5F5F7")
 //            return UIColor.init(hexString: "#FFFFFF")
 //            return UIColor.init(hexString: "#EDEDED")
-            return UIColor.init(hexString: "#EAEAEB")
+//            return UIColor.init(hexString: "#EAEAEB")
 //            return UIColor.init(hexString: "#f2f2f2")
         }
     }
@@ -205,7 +205,8 @@ extension UIColor {
         get {
             //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
 //            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.04)
-            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
+//            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
+            return UIColor(hexString: "#EDEDEF")
             //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.06)
         }
     }

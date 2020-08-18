@@ -30,7 +30,7 @@ class TextBlockCell: UITableViewCell {
     
     private var textBlock: Block! {
         didSet {
-            textView.text = textBlock.blockTextProperties?.title ?? ""
+//            textView.text = textBlock.blockTextProperties?.title ?? ""
             placeholderLabel.isHidden = textView.text.isNotEmpty
         }
     }

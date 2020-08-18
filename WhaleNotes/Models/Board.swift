@@ -12,17 +12,17 @@ struct Board: Equatable,Hashable {
     var id:String
     var icon:String
     var title:String
-    var sort:Double
-    var categoryId:String // 分类id
+    var position:Double
+    var parentId:String // 分类id
     var type:Int // 1: user  2. 收集板
     var createdAt:Date
     
-    init(id:String = UUID.init().uuidString,icon:String,title:String,sort:Double,categoryId:String="", type:Int = 1,createdAt:Date=Date()) {
+    init(id:String = UUID.init().uuidString,icon:String,title:String,position:Double,parentId:String="", type:Int = 1,createdAt:Date=Date()) {
         self.id = id
         self.icon = icon
         self.title = title
-        self.sort = sort
-        self.categoryId = categoryId
+        self.position = position
+        self.parentId = parentId
         self.type = type
         self.createdAt = createdAt
     }

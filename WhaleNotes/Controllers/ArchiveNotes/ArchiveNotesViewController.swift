@@ -23,15 +23,15 @@ class ArchiveNotesViewController: UIViewController, UINavigationControllerDelega
     }
     
     func setupBoardView(board:BlockInfo) {
-        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board,noteStatus: NoteBlockStatus.archive)
-        notesView.callbackNotesCountChanged = {
-            self.callbackNotesCountChanged?($0)
-        }
-        self.view.addSubview(notesView)
-        notesView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        self.title = "已归档的便签"
+//        let notesView = NotesView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height),board: board,noteStatus: NoteBlockStatus.archive)
+//        notesView.callbackNotesCountChanged = {
+//            self.callbackNotesCountChanged?($0)
+//        }
+//        self.view.addSubview(notesView)
+//        notesView.snp.makeConstraints { make in
+//            make.edges.equalToSuperview()
+//        }
+//        self.title = "已归档的便签"
     }
     
     override func viewWillAppear(_ animated: Bool) {

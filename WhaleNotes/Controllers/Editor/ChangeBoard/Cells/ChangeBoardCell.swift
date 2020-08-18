@@ -17,7 +17,7 @@ class ChangeBoardCell: UITableViewCell {
             }else {
                 emojiLabel.image = UIImage(systemName: boardProperties.icon, pointSize: fontSize, weight: .light)
             }
-            titleLabel.text = boardProperties.title
+            titleLabel.text = board.title
         }
     }
     

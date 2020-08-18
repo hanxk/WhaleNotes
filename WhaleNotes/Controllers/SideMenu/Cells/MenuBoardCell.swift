@@ -9,11 +9,11 @@
 import UIKit
 class MenuBoardCell: UITableViewCell {
     
-    var board:Block! {
+    var board:BlockInfo! {
         didSet {
             if let properties = board.blockBoardProperties {
                 emojiLabel.text = properties.icon
-                titleLabel.text = properties.title
+                titleLabel.text = board.title
             }
         }
     }
@@ -69,7 +69,7 @@ class MenuBoardCell: UITableViewCell {
         
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(emojiLabel.snp.trailing).offset(14)
+            $0.leading.equalTo(emojiLabel.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().offset(-20)
             $0.centerY.equalToSuperview()
         }

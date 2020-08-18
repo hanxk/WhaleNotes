@@ -60,20 +60,14 @@
 		1859303024BA952800D1352A /* SQLite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859302F24BA952800D1352A /* SQLite.swift */; };
 		1859303224BA97C300D1352A /* DBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303124BA97C300D1352A /* DBManager.swift */; };
 		1859303424BA9E3500D1352A /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303324BA9E3500D1352A /* Board.swift */; };
-		1859303E24BAA00600D1352A /* SectionNoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303524BAA00500D1352A /* SectionNoteInfo.swift */; };
 		1859303F24BAA00600D1352A /* BoardCategoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303624BAA00500D1352A /* BoardCategoryInfo.swift */; };
-		1859304124BAA00600D1352A /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303824BAA00600D1352A /* Section.swift */; };
-		1859304224BAA00600D1352A /* NoteAndBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303924BAA00600D1352A /* NoteAndBoard.swift */; };
-		1859304324BAA00600D1352A /* SectionAndNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303A24BAA00600D1352A /* SectionAndNote.swift */; };
 		1859304424BAA00600D1352A /* BoardCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303B24BAA00600D1352A /* BoardCategory.swift */; };
-		1859304524BAA00600D1352A /* BoardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303C24BAA00600D1352A /* BoardInfo.swift */; };
 		1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303D24BAA00600D1352A /* ImageFetchInfo.swift */; };
-		1859304824BAA1F200D1352A /* Space.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304724BAA1F200D1352A /* Space.swift */; };
-		1859304A24BAA7E700D1352A /* SpaceDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304924BAA7E700D1352A /* SpaceDao.swift */; };
 		1859304C24BAAE2900D1352A /* JSONHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304B24BAAE2900D1352A /* JSONHelper.swift */; };
-		1859304E24BAD18400D1352A /* SpaceRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304D24BAD18400D1352A /* SpaceRepo.swift */; };
 		1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304F24BAD35C00D1352A /* BlockRepo.swift */; };
-		1859A0FA24868416008D51B4 /* BoardRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A0F924868416008D51B4 /* BoardRepo.swift */; };
+		1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859BCAD24EA79FB0089CB1B /* CardEditorViewController.swift */; };
+		1859BCB124EA7A0D0089CB1B /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859BCB024EA7A0D0089CB1B /* NoteView.swift */; };
+		1859BCB324EA812B0089CB1B /* BoardActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859BCB224EA812B0089CB1B /* BoardActionView.swift */; };
 		18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18621F6624CC179F00BCC27D /* NoteInfoModel.swift */; };
 		1865AEF4244C5EF50006B48D /* ColorTheme.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */; };
 		1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AEF5244C61F80006B48D /* UIColor+Ex.swift */; };
@@ -100,18 +94,18 @@
 		188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942A7246E845D006173F8 /* TodoGroupCell.swift */; };
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
+		18A463F024EBD0E400D7EBD0 /* CardEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A463EF24EBD0E400D7EBD0 /* CardEditorViewModel.swift */; };
 		18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */; };
 		18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */; };
 		18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
-		18C1470424C1E04E008EE166 /* NoteBoardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1470324C1E04E008EE166 /* NoteBoardInfo.swift */; };
-		18C1470624C41E0F008EE166 /* BlockBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1470524C41E0F008EE166 /* BlockBoard.swift */; };
+		18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BCA59724E8165800612889 /* BoardsRepo.swift */; };
 		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
 		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
-		18C6379E24BD335D007E01B9 /* SpaceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379D24BD335D007E01B9 /* SpaceInfo.swift */; };
 		18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CED671249F9259009181E0 /* TrashHeaderNode.swift */; };
-		18D1BEA624BEC95F00817D02 /* NoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D1BEA524BEC95F00817D02 /* NoteInfo.swift */; };
 		18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D1BEA724BED44900817D02 /* BaseRepo.swift */; };
+		18DCC91C24EA70E2000B4BF1 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DCC91B24EA70E2000B4BF1 /* BoardView.swift */; };
+		18DCC91F24EA744B000B4BF1 /* CardCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DCC91E24EA744B000B4BF1 /* CardCellNode.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
 		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
 		18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */; };
@@ -119,7 +113,6 @@
 		18E6E670247BB9D700D598C5 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E66F247BB9D700D598C5 /* Block.swift */; };
 		18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E673247BBC5800D598C5 /* DBStore.swift */; };
 		18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E676247BBDBF00D598C5 /* BlockDao.swift */; };
-		18E6E67B247BCCD700D598C5 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E67A247BCCD700D598C5 /* Note.swift */; };
 		18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */; };
 		18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7664024A5CD8E005DCB03 /* SearchViewController.swift */; };
 		18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E7664224A5D3B2005DCB03 /* SearchNotesView.swift */; };
@@ -150,10 +143,11 @@
 		18E9D6C324715112001E41A0 /* NoteCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E9D6C224715112001E41A0 /* NoteCellNode.swift */; };
 		18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A1245D4A9900E8CE14 /* TLPHAsset+Ex.swift */; };
 		18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */; };
-		18EEF674247D2FD100E2E3BA /* NoteRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EEF673247D2FD100E2E3BA /* NoteRepo.swift */; };
+		18F3723F24EAD1B600AC2532 /* BaseCardEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3723E24EAD1B600AC2532 /* BaseCardEditorView.swift */; };
 		18F3A07224CD5D9900C023EA /* NoteColorCircleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07124CD5D9900C023EA /* NoteColorCircleCell.swift */; };
 		18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */; };
 		18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07524CD8F9000C023EA /* EditorViewModel.swift */; };
+		18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3D50E24E8C6EE000E94F7 /* EventManager.swift */; };
 		18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -211,20 +205,14 @@
 		1859302F24BA952800D1352A /* SQLite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLite.swift; sourceTree = "<group>"; };
 		1859303124BA97C300D1352A /* DBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBManager.swift; sourceTree = "<group>"; };
 		1859303324BA9E3500D1352A /* Board.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
-		1859303524BAA00500D1352A /* SectionNoteInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionNoteInfo.swift; sourceTree = "<group>"; };
 		1859303624BAA00500D1352A /* BoardCategoryInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardCategoryInfo.swift; sourceTree = "<group>"; };
-		1859303824BAA00600D1352A /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
-		1859303924BAA00600D1352A /* NoteAndBoard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteAndBoard.swift; sourceTree = "<group>"; };
-		1859303A24BAA00600D1352A /* SectionAndNote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionAndNote.swift; sourceTree = "<group>"; };
 		1859303B24BAA00600D1352A /* BoardCategory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardCategory.swift; sourceTree = "<group>"; };
-		1859303C24BAA00600D1352A /* BoardInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardInfo.swift; sourceTree = "<group>"; };
 		1859303D24BAA00600D1352A /* ImageFetchInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
-		1859304724BAA1F200D1352A /* Space.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Space.swift; sourceTree = "<group>"; };
-		1859304924BAA7E700D1352A /* SpaceDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceDao.swift; sourceTree = "<group>"; };
 		1859304B24BAAE2900D1352A /* JSONHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONHelper.swift; sourceTree = "<group>"; };
-		1859304D24BAD18400D1352A /* SpaceRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceRepo.swift; sourceTree = "<group>"; };
 		1859304F24BAD35C00D1352A /* BlockRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockRepo.swift; sourceTree = "<group>"; };
-		1859A0F924868416008D51B4 /* BoardRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardRepo.swift; sourceTree = "<group>"; };
+		1859BCAD24EA79FB0089CB1B /* CardEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorViewController.swift; sourceTree = "<group>"; };
+		1859BCB024EA7A0D0089CB1B /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
+		1859BCB224EA812B0089CB1B /* BoardActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardActionView.swift; sourceTree = "<group>"; };
 		18621F6624CC179F00BCC27D /* NoteInfoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInfoModel.swift; sourceTree = "<group>"; };
 		1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ColorTheme.xcassets; sourceTree = "<group>"; };
 		1865AEF5244C61F80006B48D /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
@@ -251,18 +239,18 @@
 		188942A7246E845D006173F8 /* TodoGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroupCell.swift; sourceTree = "<group>"; };
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
+		18A463EF24EBD0E400D7EBD0 /* CardEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorViewModel.swift; sourceTree = "<group>"; };
 		18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CreateBoardViewController.swift; path = ../../../../../../../../CreateBoardViewController.swift; sourceTree = "<group>"; };
 		18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+Ex.swift"; sourceTree = "<group>"; };
 		18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
-		18C1470324C1E04E008EE166 /* NoteBoardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteBoardInfo.swift; sourceTree = "<group>"; };
-		18C1470524C41E0F008EE166 /* BlockBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBoard.swift; sourceTree = "<group>"; };
+		18BCA59724E8165800612889 /* BoardsRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardsRepo.swift; sourceTree = "<group>"; };
 		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
 		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
-		18C6379D24BD335D007E01B9 /* SpaceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceInfo.swift; sourceTree = "<group>"; };
 		18CED671249F9259009181E0 /* TrashHeaderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashHeaderNode.swift; sourceTree = "<group>"; };
-		18D1BEA524BEC95F00817D02 /* NoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInfo.swift; sourceTree = "<group>"; };
 		18D1BEA724BED44900817D02 /* BaseRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRepo.swift; sourceTree = "<group>"; };
+		18DCC91B24EA70E2000B4BF1 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
+		18DCC91E24EA744B000B4BF1 /* CardCellNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCellNode.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
 		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
 		18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Ex.swift"; sourceTree = "<group>"; };
@@ -270,7 +258,6 @@
 		18E6E66F247BB9D700D598C5 /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
 		18E6E673247BBC5800D598C5 /* DBStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBStore.swift; sourceTree = "<group>"; };
 		18E6E676247BBDBF00D598C5 /* BlockDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDao.swift; sourceTree = "<group>"; };
-		18E6E67A247BCCD700D598C5 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		18E7663D24A46F84005DCB03 /* ArchiveNotesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveNotesViewController.swift; sourceTree = "<group>"; };
 		18E7664024A5CD8E005DCB03 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		18E7664224A5D3B2005DCB03 /* SearchNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchNotesView.swift; sourceTree = "<group>"; };
@@ -303,10 +290,11 @@
 		18E9D6C224715112001E41A0 /* NoteCellNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCellNode.swift; sourceTree = "<group>"; };
 		18ECA6A1245D4A9900E8CE14 /* TLPHAsset+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TLPHAsset+Ex.swift"; sourceTree = "<group>"; };
 		18ECA6A3245D6CFE00E8CE14 /* UIImageView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Ex.swift"; sourceTree = "<group>"; };
-		18EEF673247D2FD100E2E3BA /* NoteRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepo.swift; sourceTree = "<group>"; };
+		18F3723E24EAD1B600AC2532 /* BaseCardEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCardEditorView.swift; sourceTree = "<group>"; };
 		18F3A07124CD5D9900C023EA /* NoteColorCircleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteColorCircleCell.swift; sourceTree = "<group>"; };
 		18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomPresentationController.swift; sourceTree = "<group>"; };
 		18F3A07524CD8F9000C023EA /* EditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewModel.swift; sourceTree = "<group>"; };
+		18F3D50E24E8C6EE000E94F7 /* EventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
 		18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -477,6 +465,25 @@
 			path = SQLite;
 			sourceTree = "<group>";
 		};
+		1859BCAC24EA79E40089CB1B /* CardDetail */ = {
+			isa = PBXGroup;
+			children = (
+				1859BCAF24EA7A020089CB1B /* Views */,
+				1859BCAD24EA79FB0089CB1B /* CardEditorViewController.swift */,
+				18A463EF24EBD0E400D7EBD0 /* CardEditorViewModel.swift */,
+			);
+			path = CardDetail;
+			sourceTree = "<group>";
+		};
+		1859BCAF24EA7A020089CB1B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1859BCB024EA7A0D0089CB1B /* NoteView.swift */,
+				18F3723E24EAD1B600AC2532 /* BaseCardEditorView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		1865AEF0244C5D4E0006B48D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -512,6 +519,7 @@
 				182BE8EF24989C7400C85F8F /* TitleTextField.swift */,
 				182BE8F6249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift */,
 				1859304B24BAAE2900D1352A /* JSONHelper.swift */,
+				18F3D50E24E8C6EE000E94F7 /* EventManager.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -557,25 +565,9 @@
 		1865AF10244D4FBE0006B48D /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				18E6E66F247BB9D700D598C5 /* Block.swift */,
-				18C1470524C41E0F008EE166 /* BlockBoard.swift */,
-				181E395624BC0BFC00631EF0 /* BlockPosition.swift */,
-				18C6379B24BC5159007E01B9 /* BlockInfo.swift */,
-				1859303C24BAA00600D1352A /* BoardInfo.swift */,
+				18FA5CCE24DE8FAA00E06642 /* DB */,
 				1859303D24BAA00600D1352A /* ImageFetchInfo.swift */,
-				18E6E67A247BCCD700D598C5 /* Note.swift */,
-				1859303324BA9E3500D1352A /* Board.swift */,
-				1859303B24BAA00600D1352A /* BoardCategory.swift */,
-				1859303624BAA00500D1352A /* BoardCategoryInfo.swift */,
-				1859303924BAA00600D1352A /* NoteAndBoard.swift */,
-				1859303824BAA00600D1352A /* Section.swift */,
-				1859303A24BAA00600D1352A /* SectionAndNote.swift */,
-				1859303524BAA00500D1352A /* SectionNoteInfo.swift */,
 				18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */,
-				1859304724BAA1F200D1352A /* Space.swift */,
-				18C6379D24BD335D007E01B9 /* SpaceInfo.swift */,
-				18D1BEA524BEC95F00817D02 /* NoteInfo.swift */,
-				18C1470324C1E04E008EE166 /* NoteBoardInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -650,7 +642,6 @@
 		188942A9246FDBAB006173F8 /* Notes */ = {
 			isa = PBXGroup;
 			children = (
-				18EF597F24D0F52000E20BCE /* Prodivder */,
 				1870041924C99F1D00AE784C /* Views */,
 				186DDE7F249323AE00A4C63C /* Layout */,
 				188942AC24702A2B006173F8 /* Cells */,
@@ -671,11 +662,9 @@
 			isa = PBXGroup;
 			children = (
 				1820C4B3248D1BC800484AF8 /* Emoji */,
-				18EEF673247D2FD100E2E3BA /* NoteRepo.swift */,
-				1859A0F924868416008D51B4 /* BoardRepo.swift */,
-				1859304D24BAD18400D1352A /* SpaceRepo.swift */,
 				1859304F24BAD35C00D1352A /* BlockRepo.swift */,
 				18D1BEA724BED44900817D02 /* BaseRepo.swift */,
+				18BCA59724E8165800612889 /* BoardsRepo.swift */,
 			);
 			path = Repos;
 			sourceTree = "<group>";
@@ -711,6 +700,25 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
+		18DCC91A24EA70A9000B4BF1 /* Cards */ = {
+			isa = PBXGroup;
+			children = (
+				18EF597F24D0F52000E20BCE /* Prodivder */,
+				18DCC91D24EA72FC000B4BF1 /* CardCells */,
+				18DCC91B24EA70E2000B4BF1 /* BoardView.swift */,
+				1859BCB224EA812B0089CB1B /* BoardActionView.swift */,
+			);
+			path = Cards;
+			sourceTree = "<group>";
+		};
+		18DCC91D24EA72FC000B4BF1 /* CardCells */ = {
+			isa = PBXGroup;
+			children = (
+				18DCC91E24EA744B000B4BF1 /* CardCellNode.swift */,
+			);
+			path = CardCells;
+			sourceTree = "<group>";
+		};
 		18E6E66B247BA1B900D598C5 /* DB */ = {
 			isa = PBXGroup;
 			children = (
@@ -726,7 +734,6 @@
 			isa = PBXGroup;
 			children = (
 				18E6E676247BBDBF00D598C5 /* BlockDao.swift */,
-				1859304924BAA7E700D1352A /* SpaceDao.swift */,
 				18C6379724BC1091007E01B9 /* BlockPositionDao.swift */,
 			);
 			path = Dao;
@@ -833,6 +840,8 @@
 		18E956882449AABA003755BF /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				1859BCAC24EA79E40089CB1B /* CardDetail */,
+				18DCC91A24EA70A9000B4BF1 /* Cards */,
 				18E7663F24A5CD77005DCB03 /* Search */,
 				18E7663C24A46F5D005DCB03 /* ArchiveNotes */,
 				186DDE7A249261C900A4C63C /* Trash */,
@@ -881,6 +890,27 @@
 				182F359124D10F8A00E88657 /* ImageCellProvider.swift */,
 			);
 			path = Prodivder;
+			sourceTree = "<group>";
+		};
+		18FA5CCE24DE8FAA00E06642 /* DB */ = {
+			isa = PBXGroup;
+			children = (
+				18E6E66F247BB9D700D598C5 /* Block.swift */,
+				181E395624BC0BFC00631EF0 /* BlockPosition.swift */,
+				18C6379B24BC5159007E01B9 /* BlockInfo.swift */,
+				18FA5CCF24DE951B00E06642 /* Board */,
+			);
+			name = DB;
+			sourceTree = "<group>";
+		};
+		18FA5CCF24DE951B00E06642 /* Board */ = {
+			isa = PBXGroup;
+			children = (
+				1859303324BA9E3500D1352A /* Board.swift */,
+				1859303B24BAA00600D1352A /* BoardCategory.swift */,
+				1859303624BAA00500D1352A /* BoardCategoryInfo.swift */,
+			);
+			name = Board;
 			sourceTree = "<group>";
 		};
 		4354D1850ECD26DA681F44C3 /* Pods */ = {
@@ -1031,7 +1061,6 @@
 				18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */,
 				18E9D6BF2470D985001E41A0 /* String+Ex.swift in Sources */,
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
-				1859304524BAA00600D1352A /* BoardInfo.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
 				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
 				18251C16249AE9F000484D23 /* NoteDateView.swift in Sources */,
@@ -1039,11 +1068,9 @@
 				18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */,
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
-				18C1470624C41E0F008EE166 /* BlockBoard.swift in Sources */,
 				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
-				1859304124BAA00600D1352A /* Section.swift in Sources */,
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
 				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
@@ -1052,14 +1079,12 @@
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
 				18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */,
 				18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */,
-				18C6379E24BD335D007E01B9 /* SpaceInfo.swift in Sources */,
 				182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */,
-				1859304A24BAA7E700D1352A /* SpaceDao.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
 				18E7BF8C248C94F300B8AEC1 /* IconLabel.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
+				18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */,
 				1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */,
-				18EEF674247D2FD100E2E3BA /* NoteRepo.swift in Sources */,
 				18E7BF95248C9D2C00B8AEC1 /* EmojiRepo.swift in Sources */,
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1859304424BAA00600D1352A /* BoardCategory.swift in Sources */,
@@ -1067,7 +1092,6 @@
 				18251C1A249B29C700484D23 /* NoteMenuViewController.swift in Sources */,
 				1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */,
 				1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */,
-				18E6E67B247BCCD700D598C5 /* Note.swift in Sources */,
 				18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */,
 				18E7BF83248C8B6400B8AEC1 /* MyTextField.swift in Sources */,
 				1890290A245E82720017814A /* UIImage+Ex.swift in Sources */,
@@ -1075,9 +1099,12 @@
 				18E7BF7D248BCA9900B8AEC1 /* UIView+Border.swift in Sources */,
 				1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */,
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
+				18DCC91F24EA744B000B4BF1 /* CardCellNode.swift in Sources */,
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
 				18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */,
 				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
+				18DCC91C24EA70E2000B4BF1 /* BoardView.swift in Sources */,
+				1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
@@ -1099,6 +1126,7 @@
 				1865AF16244DCB850006B48D /* TextBlockCell.swift in Sources */,
 				1865AF12244D63700006B48D /* Ditionary+Ex.swift in Sources */,
 				18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */,
+				1859BCB324EA812B0089CB1B /* BoardActionView.swift in Sources */,
 				1820C4A2248CE35000484AF8 /* EmojiSectionHeaderView.swift in Sources */,
 				1847ADB124A1F62B007B39EE /* BoardIconCell.swift in Sources */,
 				188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */,
@@ -1122,43 +1150,39 @@
 				18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */,
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
 				181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */,
-				1859304824BAA1F200D1352A /* Space.swift in Sources */,
 				181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */,
 				1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */,
+				18A463F024EBD0E400D7EBD0 /* CardEditorViewModel.swift in Sources */,
 				18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */,
 				18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */,
+				18F3723F24EAD1B600AC2532 /* BaseCardEditorView.swift in Sources */,
 				1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */,
 				181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */,
 				1859303424BA9E3500D1352A /* Board.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
+				18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */,
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
-				18C1470424C1E04E008EE166 /* NoteBoardInfo.swift in Sources */,
-				1859304324BAA00600D1352A /* SectionAndNote.swift in Sources */,
-				1859303E24BAA00600D1352A /* SectionNoteInfo.swift in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
 				18251C1C249B2F8D00484D23 /* NoteColorViewController.swift in Sources */,
 				1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */,
 				18E9D6C324715112001E41A0 /* NoteCellNode.swift in Sources */,
+				1859BCB124EA7A0D0089CB1B /* NoteView.swift in Sources */,
 				183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */,
 				18E7BF91248C9B5E00B8AEC1 /* EmojiViewController.swift in Sources */,
-				1859A0FA24868416008D51B4 /* BoardRepo.swift in Sources */,
 				188942AB246FDC20006173F8 /* NotesView.swift in Sources */,
 				18E9D6C124714ADA001E41A0 /* MosaicCollectionViewLayout.swift in Sources */,
 				1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */,
-				1859304E24BAD18400D1352A /* SpaceRepo.swift in Sources */,
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
 				1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */,
 				182F359024D10F5200E88657 /* NoteCellProvider.swift in Sources */,
-				1859304224BAA00600D1352A /* NoteAndBoard.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
 				186DDE7C249261D600A4C63C /* TrashView.swift in Sources */,
 				18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */,
-				18D1BEA624BEC95F00817D02 /* NoteInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

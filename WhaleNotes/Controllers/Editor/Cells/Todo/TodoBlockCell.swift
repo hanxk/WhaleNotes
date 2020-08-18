@@ -31,8 +31,8 @@ class TodoBlockCell: UITableViewCell {
     var todoBlock: BlockInfo!{
         didSet {
             isChecked = todoProperties.isChecked
-            isEmpty = todoProperties.title.isEmpty
-            textView.attributedText = getAttributeText(text: todoProperties.title, isChecked: isChecked)
+            isEmpty = todoBlock.title.isEmpty
+            textView.attributedText = getAttributeText(text: todoBlock.title, isChecked: isChecked)
         }
     }
     
@@ -151,7 +151,7 @@ class TodoBlockCell: UITableViewCell {
     
     @objc private func handleChkButtonTapped() {
         self.isChecked = !self.isChecked
-        let newProperty = BlockTodoProperty(title: self.textView.text.trimmingCharacters(in: .whitespaces), isChecked: self.isChecked)
+        let newProperty = BlockTodoProperty(isChecked: self.isChecked)
         self.todoBlock.blockTodoProperties = newProperty
         self.todoBlock.updatedAt = Date()
         delegate?.todoBlockContentChange(newBlock: self.todoBlock)
@@ -176,8 +176,8 @@ extension TodoBlockCell: UITextViewDelegate {
 //            delegate?.todoBlockNeedDelete(newBlock: self.todoBlock)
 //            return true
 //        }
-        if  text != todoProperties.title {
-            self.todoProperties.title = text
+        if  text != todoBlock.title {
+            self.todoBlock.title = text
             self.todoBlock.updatedAt = Date()
             delegate?.todoBlockContentChange(newBlock: self.todoBlock)
         }
@@ -190,7 +190,7 @@ extension TodoBlockCell: UITextViewDelegate {
             return false
         }
         if text.isEmpty && textView.text.isEmpty {
-            self.todoProperties.title = ""
+            self.todoBlock.title = ""
             delegate?.todoBlockNeedDelete(newBlock: self.todoBlock)
             return false
         }
@@ -199,7 +199,7 @@ extension TodoBlockCell: UITextViewDelegate {
     
     func handleEnterKeyInput() {
         let text = textView.text ?? ""
-        self.todoProperties.title = text
+        self.todoBlock.title = text
         delegate?.todoBlockEnterKeyInput(newBlock: self.todoBlock)
     }
     

@@ -17,7 +17,7 @@ struct BoardCategoryInfo {
     }
     
     mutating func insertBoard(_ board:Board) -> Int {
-        let insertIndex = self.boards.firstIndex(where: {$0.sort > board.sort}) ?? 0
+        let insertIndex = self.boards.firstIndex(where: {$0.position > board.position}) ?? 0
         self.boards.insert(board, at: insertIndex)
         return insertIndex
     }
@@ -31,7 +31,7 @@ struct BoardCategoryInfo {
         var fromBoard = self.boards[from]
         self.boards.remove(at: from)
         
-        fromBoard.sort = calcSort(toRow: to, boards: self.boards)
+        fromBoard.position = calcSort(toRow: to, boards: self.boards)
         self.boards.insert(fromBoard, at: to)
         return fromBoard
     }
@@ -41,11 +41,11 @@ struct BoardCategoryInfo {
             return 65536
         }
         if toRow == 0 {
-            return boards[toRow].sort / 2
+            return boards[toRow].position / 2
         }
         if toRow == boards.count {
-            return  boards[toRow-1].sort + 65536
+            return  boards[toRow-1].position + 65536
         }
-        return (boards[toRow-1].sort + boards[toRow].sort)/2
+        return (boards[toRow-1].position + boards[toRow].position)/2
     }
 }

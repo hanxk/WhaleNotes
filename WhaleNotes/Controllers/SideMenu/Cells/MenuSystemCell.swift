@@ -68,7 +68,7 @@ class MenuSystemCell: UITableViewCell {
         
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(14)
+            make.leading.equalTo(iconImageView.snp.trailing).offset(10)
             make.trailing.equalToSuperview().offset(-SideMenuCellContants.cellPadding)
             make.centerY.equalToSuperview()
         }

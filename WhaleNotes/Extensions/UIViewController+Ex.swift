@@ -103,9 +103,28 @@ extension UIViewController {
     }
     
     
-    func generateUIBarButtonItem(imageName:String,imageSize:CGFloat = 19,action: Selector?) -> UIBarButtonItem {
+    func generateUIBarButtonItem(title:String="",imageName:String,imageSize:CGFloat = 19,action: Selector?) -> UIBarButtonItem {
         let weight:UIImage.SymbolWeight = .regular
         let image = UIImage(systemName: imageName, pointSize: imageSize, weight: weight)!
-        return UIBarButtonItem(image: image, style: .plain, target: self, action: action)
+        return UIBarButtonItem(image: image, title: title, target: self, action: action)
+    }
+}
+
+extension UIBarButtonItem {
+    convenience init(image :UIImage, title :String, target: Any?, action: Selector?) {
+        let button = UIButton(type: .custom)
+        button.setImage(image, for: .normal)
+        button.setTitle(title, for: .normal)
+        button.sizeToFit()
+        button.setImageTitleSpace(8)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        button.setTitleColor(.primaryText, for: .normal)
+//        button.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+
+        if let target = target, let action = action {
+            button.addTarget(target, action: action, for: .touchUpInside)
+        }
+
+        self.init(customView: button)
     }
 }

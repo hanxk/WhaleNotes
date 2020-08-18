@@ -8,10 +8,15 @@
 
 import Foundation
 struct BlockInfo:Equatable {
+    var block:Block
+    var blockPosition:BlockPosition = BlockPosition()
+    
     static func == (lhs: BlockInfo, rhs: BlockInfo) -> Bool {
         return lhs.id == rhs.id
     }
-    
+}
+
+extension BlockInfo {
     
     var id:String {
         return block.id
@@ -21,16 +26,10 @@ struct BlockInfo:Equatable {
         return blockPosition.ownerId
     }
     
-    var parentId:String {
-        return block.parentId
+    var title:String {
+        get { return block.title}
+        set  { block.title = newValue}
     }
-    
-    var block:Block
-    var blockPosition:BlockPosition = BlockPosition()
-    
-    var contentBlocks:[BlockInfo] = []
-    
-    
     var position:Double {
         get { return blockPosition.position}
         set  { blockPosition.position = newValue}
@@ -48,12 +47,8 @@ struct BlockInfo:Equatable {
 
 
 extension BlockInfo {
-    var blockNoteProperties:BlockNoteProperty? {
+    var noteProperties:BlockNoteProperty? {
         get { self.block.properties as? BlockNoteProperty }
-        set {  self.block.properties =  newValue }
-    }
-    var blockTextProperties:BlockTextProperty? {
-        get { self.block.properties as? BlockTextProperty }
         set {  self.block.properties =  newValue }
     }
     var blockTodoProperties:BlockTodoProperty? {
@@ -75,14 +70,4 @@ extension BlockInfo {
         set {  self.block.properties =  newValue }
     }
     
-    var blockToggleProperties:BlockToggleProperty? {
-        get { self.block.properties as? BlockToggleProperty }
-        set {  self.block.properties =  newValue }
-    }
-    
-    var groupProperties:BlockGroupProperty? {
-        get { self.block.blockGroupProperties }
-        set {  self.block.blockGroupProperties =  newValue }
-    }
-
 }

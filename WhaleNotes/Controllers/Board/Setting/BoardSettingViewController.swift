@@ -36,9 +36,9 @@ class BoardSettingViewController:UIViewController {
                 isBoardEdited = true
             }
             if  boardProperties.type == .user {
-                self.settingItems = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.archived,BoardSettingItem.trash]
+                self.settingItems = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.trash]
             }else {
-                self.settingItems = [BoardSettingItem.icon,BoardSettingItem.title,BoardSettingItem.archived]
+                self.settingItems = [BoardSettingItem.icon,BoardSettingItem.title]
             }
         }
     }
@@ -96,7 +96,7 @@ class BoardSettingViewController:UIViewController {
         self.navigationController?.navigationBar.barTintColor = .white
         
         
-        self.title = boardProperties.title
+        self.title = board.title
         self.navigationController?.presentationController?.delegate = self
         
         self.setupData()
@@ -113,14 +113,14 @@ class BoardSettingViewController:UIViewController {
     
     private func setupData() {
         
-        BoardRepo.shared.getNotesCount(boardId: self.board.id, noteBlockStatus: .archive)
-            .subscribe(onNext: {
-                self.archiveCount = $0
-                self.tableView.reloadData()
-            }, onError: { error in
-                Logger.error(error)
-            })
-            .disposed(by: disposeBag)
+//        BoardRepo.shared.getNotesCount(boardId: self.board.id, noteBlockStatus: .archive)
+//            .subscribe(onNext: {
+//                self.archiveCount = $0
+//                self.tableView.reloadData()
+//            }, onError: { error in
+//                Logger.error(error)
+//            })
+//            .disposed(by: disposeBag)
         
     }
     
@@ -153,8 +153,8 @@ class BoardSettingViewController:UIViewController {
     @objc func doneButtonTapped() {
         if isBoardEdited {
             self.board.updatedAt = Date()
-            BoardRepo.shared.updateBoardProperties(boardId: self.board.id, blockBoardProperties: boardProperties)
-                .subscribe {
+            BlockRepo.shared.update(blockInfo: self.board)
+                .subscribe { _ in
                     self.callbackBoardSettingEdited?(BoardSettingEditedType.update(board:self.board))
                     self.dismiss(animated: true, completion:nil)
                 } onError: {
@@ -220,10 +220,10 @@ extension BoardSettingViewController:UITableViewDataSource {
             break
         case .title:
             let titleCell = cell as! BoardSettingTitleCell
-            titleCell.title = boardProperties.title
+            titleCell.title = board.title
             titleCell.titleTextField.isEnabled = boardProperties.type == .user
             titleCell.callbackTitleChanged = { title in
-                self.boardProperties.title = title
+                self.board.title = title
                 self.navigationItem.rightBarButtonItem?.isEnabled = title.isNotEmpty
             }
             break
@@ -332,14 +332,14 @@ extension BoardSettingViewController {
     }
     
     private func handleDeleteBoard() {
-        BoardRepo.shared.delete(boardId: self.board.id)
-            .subscribe {
-                self.dismiss(animated: true, completion: {
-                    self.callbackBoardSettingEdited?(BoardSettingEditedType.delete(board:self.board))
-                })
-            } onError: {
-                Logger.error($0)
-            }
-            .disposed(by: disposeBag)
+//        BoardRepo.shared.delete(boardId: self.board.id)
+//            .subscribe {
+//                self.dismiss(animated: true, completion: {
+//                    self.callbackBoardSettingEdited?(BoardSettingEditedType.delete(board:self.board))
+//                })
+//            } onError: {
+//                Logger.error($0)
+//            }
+//            .disposed(by: disposeBag)
     }
 }

@@ -17,9 +17,6 @@ open class BaseRepo {
         return DBManager.shared.blockDao
     }
     
-    var spaceDao:SpaceDao {
-        return DBManager.shared.spaceDao
-    }
     
     var blockPositionDao:BlockPositionDao {
         return DBManager.shared.blockPositionDao
@@ -56,4 +53,12 @@ extension BaseRepo {
         return Disposables.create()
     }
     
+}
+
+
+extension BaseRepo {
+    internal func insertBlockInfo(blockInfo:BlockInfo) throws {
+        try blockDao.insert(blockInfo.block)
+        try blockPositionDao.insert(blockInfo.blockPosition)
+    }
 }
