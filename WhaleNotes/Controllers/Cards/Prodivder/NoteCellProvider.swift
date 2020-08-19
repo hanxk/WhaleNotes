@@ -19,8 +19,8 @@ enum NoteCellConstants {
     
     static  let cornerRadius:CGFloat = 8
     
-    static let horizontalPadding: CGFloat = 10
-    static let verticalPadding: CGFloat = 10
+    static let horizontalPadding: CGFloat = 12
+    static let verticalPadding: CGFloat = 12
     static let verticalPaddingBottom: CGFloat = 4
     static let attachHeigh: CGFloat = 74
     

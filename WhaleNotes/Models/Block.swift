@@ -29,7 +29,7 @@ struct Block {
         block.type = .todo
         block.properties = properties
         
-        let blockPosition = BlockPosition(blockId: block.id, ownerId: "block.parentId", position: position)
+        let blockPosition = BlockPosition(blockId: block.id, ownerId: parentId, position: position)
         return BlockInfo(block: block, blockPosition: blockPosition)
     }
     
@@ -38,7 +38,7 @@ struct Block {
         block.type = .image
         block.properties = properties
         
-        let blockPosition = BlockPosition(blockId: block.id, ownerId: "block.parentId", position: position)
+        let blockPosition = BlockPosition(blockId: block.id, ownerId: parent, position: position)
         return BlockInfo(block: block, blockPosition: blockPosition)
     }
     

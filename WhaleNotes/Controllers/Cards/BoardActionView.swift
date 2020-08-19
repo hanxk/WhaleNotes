@@ -26,17 +26,17 @@ class BoardActionView: UIView {
     let noteButton = UIButton().then {
         $0.contentMode = .center
         $0.backgroundColor = .clear
-        $0.setImage(UIImage(systemName: "square.and.pencil", pointSize: 17), for: .normal)
+        $0.setImage(UIImage(systemName: "square.and.pencil", pointSize: 18), for: .normal)
     }
     
     let divider = UIView().then {
-        $0.backgroundColor = .white
+        $0.backgroundColor = UIColor.white.withAlphaComponent(0.7)
     }
     
     let moreButton = UIButton().then {
         $0.contentMode = .center
         $0.backgroundColor = .clear
-        $0.setImage(UIImage(systemName: "ellipsis", pointSize: 16,weight: .light), for: .normal)
+        $0.setImage(UIImage(systemName: "ellipsis", pointSize: 17,weight: .light), for: .normal)
     }
     
     init() {
@@ -62,7 +62,7 @@ class BoardActionView: UIView {
         addSubview(divider)
         divider.snp.makeConstraints {
             $0.width.equalTo(0.5)
-            $0.height.equalTo(20)
+            $0.height.equalTo(16)
             $0.leading.equalTo(noteButton.snp.trailing)
             $0.centerY.equalToSuperview()
         }

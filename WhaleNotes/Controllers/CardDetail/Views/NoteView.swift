@@ -19,15 +19,18 @@ class NoteView: BaseCardEditorView {
     private var viewModel:CardEditorViewModel!
     
     let textView: UITextView = UITextView().then {
-        $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         $0.textColor = .primaryText
         $0.isEditable = true
         $0.isScrollEnabled = false
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
-        $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 14, right: 0)
+        $0.textContainerInset = UIEdgeInsets(top: 4, left: 16, bottom: 14, right: 16)
         $0.textContainer.lineFragmentPadding = 0
         $0.backgroundColor = .clear
+        $0.isScrollEnabled = true
+        $0.alwaysBounceVertical = true
+        $0.keyboardDismissMode = .onDrag
     }
     
     init(viewModel:CardEditorViewModel) {

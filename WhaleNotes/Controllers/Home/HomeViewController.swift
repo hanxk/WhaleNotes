@@ -210,7 +210,7 @@ extension HomeViewController {
             }
         }
         
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
         let search =  UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
 //        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItems = [search]

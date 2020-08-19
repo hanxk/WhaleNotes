@@ -28,6 +28,9 @@ class CardCellNode: ASCellNode {
     var callbackBoardButtonTapped:((BlockInfo,BlockInfo)->Void)?
     var boardButton:ASButtonNode?
     var itemSize:CGSize!
+    
+    
+    var titleTextNote:ASTextNode?
 
 
     required init(cardBlock:BlockInfo,board:BlockInfo? = nil) {
@@ -51,7 +54,7 @@ class CardCellNode: ASCellNode {
 //                $0.clipsToBounds = true
             $0.style.flexShrink = 1
             
-            $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.02).cgColor
+            $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03).cgColor
             $0.shadowOpacity = 1
             $0.shadowRadius = 8
             $0.shadowOffset = CGSize(width: 0, height: 0)
@@ -62,38 +65,43 @@ class CardCellNode: ASCellNode {
         self.cellProvider.attach(cell: self)
 
 
-        if let board = board,let properties = board.blockBoardProperties  {
-            let boardButton = ASButtonNode().then {
-                $0.style.height = ASDimensionMake(NoteCellConstants.boardHeight)
-                $0.style.width = ASDimensionMake(itemSize.width)
-                $0.contentHorizontalAlignment = .left
-                let horizontalPadding:CGFloat = 2
-                $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: horizontalPadding, bottom:0, right: horizontalPadding)
-
-//                $0.setAttributedTitle(getBoardButtonAttributesText(text: properties.title), for: .normal)
-//                $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
-//                Logger.info("title:\(properties.title)   id:\(note.noteBlock.id)")
+//        if let board = board,let properties = board.blockBoardProperties  {
+//            let boardButton = ASButtonNode().then {
+//                $0.style.height = ASDimensionMake(NoteCellConstants.boardHeight)
+//                $0.style.width = ASDimensionMake(itemSize.width)
+//                $0.contentHorizontalAlignment = .left
+//                let horizontalPadding:CGFloat = 2
+//                $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: horizontalPadding, bottom:0, right: horizontalPadding)
+//
+////                $0.setAttributedTitle(getBoardButtonAttributesText(text: properties.title), for: .normal)
+////                $0.addTarget(self, action: #selector(boardButtonTapped), forControlEvents: .touchUpInside)
+////                Logger.info("title:\(properties.title)   id:\(note.noteBlock.id)")
+//            }
+//            self.boardButton = boardButton
+//            self.addSubnode(boardButton)
+//        }
+        
+        if cardBlock.type != .note &&
+            cardBlock.type != .todo && cardBlock.title.isNotEmpty {
+            let titleTextNote = ASTextNode().then {
+                $0.attributedText = getBoardButtonAttributesText(text: cardBlock.title)
+                $0.maximumNumberOfLines = 2
             }
-            self.boardButton = boardButton
-            self.addSubnode(boardButton)
+            self.addSubnode(titleTextNote)
+            self.titleTextNote = titleTextNote
         }
 
     }
 
     private func generateCellProvider(block:BlockInfo) -> CellProvider {
-
-//        let isTitleExists = note.properties.title.isNotEmpty
-//        let isTextExists =  note.textBlock?.blockTextProperties?.title.isNotEmpty ?? false
-//        let isTodoExists = note.todoGroupBlock?.contentBlocks.isNotEmpty ?? false
-//        let isAttachExists = note.attachmentGroupBlock?.contentBlocks.isNotEmpty ?? false
-//
-//        if !isTitleExists && !isTextExists && !isTodoExists && isAttachExists { //附件
-//            let imageBlock = note.attachmentGroupBlock!.contentBlocks[0]
-//            return ImageCellProvider(noteInfo: noteInfo, imageBlock: imageBlock)
-//        }
-
-
-        return NoteCellProvider(noteBlock: block)
+        switch block.block.type {
+        case .note:
+            return NoteCellProvider(noteBlock: block)
+        case .image:
+            return ImageCellProvider(imageBlock: block)
+        default:
+            fatalError("Unexpected block type \(block.type.rawValue)")
+        }
     }
 
 
@@ -105,17 +113,19 @@ class CardCellNode: ASCellNode {
             $0.style.flexGrow = 1.0
             $0.style.flexShrink = 1.0
         }
+        
+        let padding = BoardViewConstants.cellShadowSize
+        let insets = UIEdgeInsets(top:padding, left: padding, bottom: padding, right: padding)
 
-        if let boardButton = self.boardButton {
+        if let titleTextNote = self.titleTextNote {
             let stackVLayout = ASStackLayoutSpec.vertical().then {
                 $0.style.flexGrow = 1.0
                 $0.style.flexShrink = 1.0
             }
-            stackVLayout.children =  [contentLayoutSpec,boardButton]
-            return stackVLayout
+            stackVLayout.spacing = 6
+            stackVLayout.children =  [contentLayoutSpec,titleTextNote]
+            return ASInsetLayoutSpec(insets: insets, child: stackVLayout)
         }
-        let padding:CGFloat = 7
-        let insets = UIEdgeInsets(top:padding, left: padding, bottom: padding, right: padding)
         return  ASInsetLayoutSpec(insets: insets, child: contentLayoutSpec)
 
     }

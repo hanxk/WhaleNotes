@@ -52,6 +52,7 @@ class CardEditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.registerViewModel()
+        titleTextField.text = viewModel.blockInfo.title
         self.navigationItem.titleView = titleTextField
     }
     
@@ -112,8 +113,15 @@ extension CardEditorViewController {
 
 extension CardEditorViewController {
     private func generateContentView() -> BaseCardEditorView {
-        let noteView = NoteView(viewModel: viewModel)
-        return noteView
+        let blockInfo = viewModel.blockInfo
+        switch blockInfo.block.type {
+        case .note:
+            return NoteView(viewModel: viewModel)
+        case .image:
+            return ImageBlockView(imageBlock: blockInfo)
+        default:
+            return BaseCardEditorView(frame: .zero)
+        }
     }
     
 }

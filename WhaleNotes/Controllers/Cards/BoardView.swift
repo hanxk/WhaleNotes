@@ -29,6 +29,10 @@ enum BoardViewConstants {
     static let cellVerticalSpace: CGFloat = 14
     static let cellHorizontalSpace: CGFloat = 14
     
+    
+    
+    static let cellShadowSize:CGFloat = 7
+    
     static let cornerRadius:CGFloat = 8
     
     static let waterfall_cellSpace: CGFloat = 0
@@ -72,7 +76,7 @@ class BoardView: UIView, UINavigationControllerDelegate {
             $0.dataSource = self
             $0.delegate = self
             $0.layoutInspector = _layoutInspector
-            $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: 160, right: 0)
+            $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: 80, right: 0)
             $0.showsVerticalScrollIndicator = false
             
         }
@@ -104,6 +108,7 @@ class BoardView: UIView, UINavigationControllerDelegate {
         
         let boardView = BoardActionView()
         boardView.noteButton.addTarget(self, action: #selector(handleNoteButtonTapped), for: .touchUpInside)
+        boardView.moreButton.addTarget(self, action: #selector(handleMoreButtonTapped), for: .touchUpInside)
         self.addSubview(boardView)
         boardView.snp.makeConstraints {
             $0.height.equalTo(FloatButtonConstants.btnSize)
@@ -117,6 +122,12 @@ class BoardView: UIView, UINavigationControllerDelegate {
     
     @objc func handleNoteButtonTapped(button:UIButton) {
         self.createNewNote()
+    }
+    
+    @objc func handleMoreButtonTapped (sender:UIButton) {
+        NotesView.showNotesMenu(sourceView: sender, sourceVC: self.controller!,isIncludeText: false) { [weak self]  menuType in
+            self?.openNoteEditor(type:menuType)
+        }
     }
     
     private func setupData() {
@@ -155,39 +166,6 @@ extension BoardView {
        self.insertBlockCell(block: cardBlock)
     }
 }
-
-
-
-//extension NotesView:NoteCellNodeDelegate {
-//    func noteCellImageBlockTapped(imageView: ASImageNode, note: Note) {
-//
-//        let defaultImage: UIImage = imageView.image!
-//        let browser = PhotoViewerViewController(note: note)
-//        browser.transitionAnimator = JXPhotoBrowserZoomAnimator(previousView: { index -> UIView? in
-//            imageView.image = defaultImage
-//            return imageView.view
-//        })
-//        browser.callBackShowNoteButtonTapped = {
-//            if let noteIndex = self.noteInfos.firstIndex(where: {$0.id == note.id}) {
-//                self.openEditorVC(note: self.noteInfos[noteIndex])
-//            }
-//        }
-//        browser.show()
-//    }
-//
-//    func noteCellImageBlockTapped(imageView: ASImageNode, blocks: [Block], index: Int) {
-//
-//    }
-//
-//
-//    func noteCellBlockTapped(block: Block) {
-//
-//    }
-//
-//    func noteCellMenuTapped(sender: UIView,note:Note) {
-//        //        NoteMenuViewController.show(mode: .list, note: note,sourceView: sender,delegate: self)
-//    }
-//}
 
 
 extension BoardView: ASCollectionDataSource {
@@ -257,9 +235,11 @@ extension BoardView: ASCollectionDelegate {
     private func refreshBlockCell(block:BlockInfo) {
         guard let index = self.cards.firstIndex(where: {$0.id == block.id}) else { return }
         self.cards[index] = block
-        self.collectionNode.performBatchUpdates({
-            self.collectionNode.reloadItems(at: [IndexPath(row: index, section: 0)])
-        }, completion: nil)
+        UIView.performWithoutAnimation {
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.reloadItems(at: [IndexPath(row: index, section: 0)])
+            }, completion: nil)
+        }
     }
     
     private func removeBlockCell(block:BlockInfo) {
@@ -267,124 +247,12 @@ extension BoardView: ASCollectionDelegate {
     }
     private func insertBlockCell(block:BlockInfo,at:Int = 0) {
         self.cards.insert(block, at: at)
-        self.collectionNode.performBatchUpdates({
-            self.collectionNode.insertItems(at: [IndexPath(row: at, section: 0)])
-        }, completion: nil)
+        UIView.performWithoutAnimation {
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.insertItems(at: [IndexPath(row: at, section: 0)])
+            }, completion: nil)
+        }
     }
-}
-
-//MARK: CONTEXT MENU
-extension BoardView: UICollectionViewDelegate{
-    
-//    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-//        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
-//            return self.makeContextMenu(noteInfo: self.noteInfos[indexPath.row] )
-//        })
-//    }
-    
-//    func makeContextMenu(noteInfo:NoteInfo) -> UIMenu {
-//        let menus =   NoteMenuViewController.generateNoteMenuItems(noteInfo: noteInfo).map { menuItem in
-//            UIAction(title: menuItem.label, image: UIImage(systemName: menuItem.icon)) { action in
-//                self.handleNoteInfoUpdate(noteInfo: noteInfo,menuType: menuItem.menuType)
-//            }
-//        }
-//        return UIMenu(title: "", children: menus)
-//    }
-//
-//    private func newNoteInfoModel(noteInfo:NoteInfo) -> NoteEidtorMenuModel {
-//        let model = NoteEidtorMenuModel(model: noteInfo)
-//        model.noteInfoPub.subscribe(onNext: { event in
-//            self.handleNoteInfoEvent(event: event)
-//        }).disposed(by: disposeBag)
-//        return model
-//    }
-//
-//
-//    private func handleNoteInfoUpdate(noteInfo:NoteInfo,menuType:NoteEditorAction) {
-//
-//        let model = newNoteInfoModel(noteInfo: noteInfo)
-//
-//        switch menuType {
-//        case .pin:
-//            break
-//        case .archive:
-//            model.update(status: .archive)
-//            break
-//        case .move:
-//            self.openChooseBoardVC(noteInfo: noteInfo, model: model)
-//            break
-//        case .background:
-//            self.openChooseBackgroundVC(noteInfo: noteInfo,model: model)
-//            break
-//        case .trash:
-//            model.update(status: .trash)
-//            break
-//        case .deleteBlock:
-//            break
-//        case .restore:
-//            model.update(status: .normal)
-//            break
-//        case .delete:
-//            break
-//        }
-//    }
-//
-//    private func handleNoteInfoEvent(event:EditorUpdateEvent) {
-//        switch event {
-//        case .statusChanged(noteInfo: let noteInfo):
-//            self.handleDeleteNote(noteInfo)
-//        case .backgroundChanged(noteInfo: let noteInfo):
-//            self.handleUpdateNote(noteInfo)
-//        case .delete(noteInfo: let noteInfo):
-//            self.handleDeleteNote(noteInfo)
-//        case .updated(noteInfo: let noteInfo):
-//            self.handleUpdateNote(noteInfo)
-//        case .moved(noteInfo: let noteInfo, _):
-//            self.handleDeleteNote(noteInfo)
-//        }
-//    }
-//
-//
-//    func handleUpdateNote(_ noteInfo:NoteInfo) {
-//        if let row = noteInfos.firstIndex(where: { $0.id == noteInfo.id }) {
-//            self.noteInfos[row] = noteInfo
-//            self.collectionNode.performBatchUpdates({
-//                self.collectionNode.reloadItems(at: [IndexPath(row: row, section: 0)])
-//            }, completion: nil)
-//        }
-//    }
-//
-//    func handleDeleteNote(_ note:NoteInfo) {
-//        if let row = noteInfos.firstIndex(where: { $0.id == note.id }) {
-//            noteInfos.remove(at: row)
-//            self.collectionNode.performBatchUpdates({
-//                self.collectionNode.deleteItems(at: [IndexPath(row: row, section: 0)])
-//            }, completion:nil)
-//        }
-//    }
-//
-//    private func openChooseBoardVC(noteInfo:NoteInfo,model:NoteEidtorMenuModel) {
-//        let vc = ChangeBoardViewController()
-//        vc.noteInfo = noteInfo
-//        vc.callbackChooseBoard = { boardBlock in
-//            model.moveBoard(boardBlock: boardBlock)
-//        }
-//        self.controller?.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-//    }
-//
-//    private func openChooseBackgroundVC(noteInfo:NoteInfo,model:NoteEidtorMenuModel) {
-//
-//        let colorVC = NoteColorViewController()
-//        colorVC.selectedColor = noteInfo.properties.backgroundColor
-//        colorVC.callbackColorChoosed = { background in
-//            model.update(background: background)
-//        }
-//
-//        let nav = MyNavigationController(rootViewController: colorVC)
-//        nav.modalPresentationStyle = .custom
-//        nav.transitioningDelegate = colorVC.self
-//        self.controller?.present(nav, animated: true, completion: nil)
-//    }
 }
 
 
@@ -438,7 +306,7 @@ extension BoardView {
             break
         case .image:
             let viewController = TLPhotosPickerViewController()
-//            viewController.delegate = self
+            viewController.delegate = self
             var configure = TLPhotosPickerConfigure()
             configure.allowedVideo = false
             configure.doneTitle = "完成"
@@ -449,7 +317,7 @@ extension BoardView {
             self.controller?.present(viewController, animated: true, completion: nil)
         case .camera:
             let vc = UIImagePickerController()
-//            vc.delegate = self
+            vc.delegate = self
             vc.sourceType = .camera
             vc.mediaTypes = ["public.image"]
             self.controller?.present(vc, animated: true)
@@ -612,15 +480,29 @@ extension BoardView: TLPhotosPickerViewControllerDelegate {
     
     func handlePicker(images: [TLPHAsset]) {
         self.controller?.showHud()
-//        NoteRepo.shared.saveImages(images: images)
-//            .subscribe {
-//                self.createImagesNote(imageProperties: $0)
-//            } onError: {
-//                Logger.error($0)
-//            } onCompleted: {
-//                self.controller?.hideHUD()
-//            }
-//            .disposed(by: disposeBag)
+        
+        BlockRepo.shared.createImageBlocks(images: images, ownerId: board.id)
+            .subscribe {
+                self.handleBlocksInserted($0)
+            } onError: {
+                Logger.error($0)
+            } onCompleted: {
+                self.controller?.hideHUD()
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func handleBlocksInserted(_ blocks:[BlockInfo]) {
+        var indexPaths:[IndexPath] = []
+        for i in 0..<blocks.count {
+            indexPaths.append(IndexPath(row: i, section: 0))
+        }
+        self.cards.insert(contentsOf: blocks, at: 0)
+        UIView.performWithoutAnimation {
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.insertItems(at: indexPaths)
+            }, completion: nil)
+        }
     }
 }
 
@@ -634,14 +516,14 @@ extension BoardView: UIImagePickerControllerDelegate {
     
     func handlePicker(image: UIImage) {
         self.controller?.showHud()
-//        NoteRepo.shared.saveImage(image: image)
-//            .subscribe {
-//                self.createImagesNote(imageProperties: [$0])
-//            } onError: {
-//                Logger.error($0)
-//            } onCompleted: {
-//                self.controller?.hideHUD()
-//            }
-//            .disposed(by: disposeBag)
+        BlockRepo.shared.createImageBlock(image: image, ownerId: self.board.id)
+            .subscribe {
+                self.handleBlocksInserted($0)
+            } onError: {
+                Logger.error($0)
+            } onCompleted: {
+                self.controller?.hideHUD()
+            }
+            .disposed(by: disposeBag)
     }
 }
