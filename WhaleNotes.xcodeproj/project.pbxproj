@@ -55,6 +55,8 @@
 		1847ADB724A20B50007B39EE /* BoardIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADB624A20B50007B39EE /* BoardIconView.swift */; };
 		1848ABCF24ED1ACF00BFE0DF /* ImageZoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1848ABCE24ED1ACF00BFE0DF /* ImageZoomView.swift */; };
 		1848ABD124ED1C3800BFE0DF /* ImageBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1848ABD024ED1C3800BFE0DF /* ImageBlockView.swift */; };
+		1848ABD324EE41C700BFE0DF /* TodoBlockEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1848ABD224EE41C700BFE0DF /* TodoBlockEditorView.swift */; };
+		1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1848ABD624EEBAEE00BFE0DF /* TodoCellProvider.swift */; };
 		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
 		18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18494930245AB416001B61C3 /* UIViewController+Ex.swift */; };
 		1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859302B24BA94E900D1352A /* SQLStatement.swift */; };
@@ -201,6 +203,8 @@
 		1847ADB624A20B50007B39EE /* BoardIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardIconView.swift; sourceTree = "<group>"; };
 		1848ABCE24ED1ACF00BFE0DF /* ImageZoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageZoomView.swift; sourceTree = "<group>"; };
 		1848ABD024ED1C3800BFE0DF /* ImageBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageBlockView.swift; sourceTree = "<group>"; };
+		1848ABD224EE41C700BFE0DF /* TodoBlockEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockEditorView.swift; sourceTree = "<group>"; };
+		1848ABD624EEBAEE00BFE0DF /* TodoCellProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCellProvider.swift; sourceTree = "<group>"; };
 		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
 		1849491F245A8B81001B61C3 /* WhaleNotes-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhaleNotes-bridge.h"; sourceTree = "<group>"; };
 		18494930245AB416001B61C3 /* UIViewController+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Ex.swift"; sourceTree = "<group>"; };
@@ -458,6 +462,25 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
+		1848ABD824EEC2E600BFE0DF /* Todo */ = {
+			isa = PBXGroup;
+			children = (
+				1848ABD924EEC31600BFE0DF /* Cells */,
+				1848ABD224EE41C700BFE0DF /* TodoBlockEditorView.swift */,
+			);
+			path = Todo;
+			sourceTree = "<group>";
+		};
+		1848ABD924EEC31600BFE0DF /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				1865AF20245018C30006B48D /* TodoBlockCell.swift */,
+				182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */,
+				188942A7246E845D006173F8 /* TodoGroupCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
 		1859302A24BA946100D1352A /* SQLite */ = {
 			isa = PBXGroup;
 			children = (
@@ -482,6 +505,7 @@
 		1859BCAF24EA7A020089CB1B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1848ABD824EEC2E600BFE0DF /* Todo */,
 				1859BCB024EA7A0D0089CB1B /* NoteView.swift */,
 				18F3723E24EAD1B600AC2532 /* BaseCardEditorView.swift */,
 				1848ABD024ED1C3800BFE0DF /* ImageBlockView.swift */,
@@ -581,9 +605,6 @@
 		1865AF1F245018950006B48D /* Todo */ = {
 			isa = PBXGroup;
 			children = (
-				1865AF20245018C30006B48D /* TodoBlockCell.swift */,
-				182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */,
-				188942A7246E845D006173F8 /* TodoGroupCell.swift */,
 			);
 			path = Todo;
 			sourceTree = "<group>";
@@ -894,6 +915,7 @@
 			children = (
 				182F358F24D10F5200E88657 /* NoteCellProvider.swift */,
 				182F359124D10F8A00E88657 /* ImageCellProvider.swift */,
+				1848ABD624EEBAEE00BFE0DF /* TodoCellProvider.swift */,
 			);
 			path = Prodivder;
 			sourceTree = "<group>";
@@ -1171,6 +1193,7 @@
 				18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */,
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
+				1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
@@ -1187,6 +1210,7 @@
 				1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */,
+				1848ABD324EE41C700BFE0DF /* TodoBlockEditorView.swift in Sources */,
 				182F359024D10F5200E88657 /* NoteCellProvider.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
 				186DDE7C249261D600A4C63C /* TrashView.swift in Sources */,

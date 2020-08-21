@@ -81,8 +81,8 @@ class CardCellNode: ASCellNode {
 //            self.addSubnode(boardButton)
 //        }
         
-        if cardBlock.type != .note &&
-            cardBlock.type != .todo && cardBlock.title.isNotEmpty {
+        if (cardBlock.type != .note &&
+                cardBlock.type != .todo_list) && cardBlock.title.isNotEmpty {
             let titleTextNote = ASTextNode().then {
                 $0.attributedText = getBoardButtonAttributesText(text: cardBlock.title)
                 $0.maximumNumberOfLines = 2
@@ -99,6 +99,8 @@ class CardCellNode: ASCellNode {
             return NoteCellProvider(noteBlock: block)
         case .image:
             return ImageCellProvider(imageBlock: block)
+        case .todo_list:
+            return TodoCellProvider(todoBlock: block)
         default:
             fatalError("Unexpected block type \(block.type.rawValue)")
         }

@@ -25,7 +25,7 @@ extension BoardsRepo {
                 // 新增 collect board
                 let property = BlockBoardProperty(icon: "", type: .collect)
                 var collectBoard = Block.board(title: "collect", properties: property, position: 65536*2)
-                try self.insertBlockInfo(blockInfo: collectBoard)
+                try self.insertBlockInfo(collectBoard)
                 collectBoard.block =  Block.convert2LocalSystemBoard(board: collectBoard.block)
                 return [collectBoard]
             }
@@ -47,7 +47,7 @@ extension BoardsRepo {
                 }
                 
                 let board = Block.board(title: title, properties: BlockBoardProperty(icon: icon, type: .user), position: minPos)
-                try self.insertBlockInfo(blockInfo: board)
+                try self.insertBlockInfo(board)
                 return board
             }
         }

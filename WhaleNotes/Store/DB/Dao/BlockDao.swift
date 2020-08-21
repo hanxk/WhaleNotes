@@ -34,6 +34,11 @@ extension BlockDao {
         try db.execute(updateSQL, args:id)
     }
     
+    func updateProperties(id:String,properties:String) throws {
+        let updateSQL = " update block set properties = ? where id = ?"
+        try db.execute(updateSQL, args:id,properties)
+    }
+    
     
     func update(blockId:String,properties:String) throws {
         let updateSQL = "update block set properties = ?,updated_at=datetime('now') where id = ?"
@@ -73,12 +78,52 @@ extension BlockDao {
                       select * from b where id != ? order by position;
                     """
         let rows = try db.query(selectSQL, args: status,ownerId,status,ownerId)
-        let blockInfos:[BlockInfo] = extract(rows: rows)
-        return blockInfos
+        
+        let rootAndContentBlocks = extractRootAndContentBlocks(rows: rows, ownerId: ownerId)
+        
+        var rootBlockInfos:[BlockInfo] = rootAndContentBlocks.0.sorted { $0.blockPosition.position <  $1.blockPosition.position}
+        let contentBlockInfos = rootAndContentBlocks.1
+        if contentBlockInfos.isEmpty { return rootBlockInfos}
+        
+        for i in 0..<rootBlockInfos.count {
+            var childBlockInfos:[BlockInfo] = []
+            getChildBlocksByBlock(blocks: contentBlockInfos, childBlocks: &childBlockInfos, parentBlock: rootBlockInfos[i])
+            rootBlockInfos[i].contents.append(contentsOf: childBlockInfos)
+        }
+        return rootBlockInfos
+    }
+    
+    private func getChildBlocksByBlock(blocks:[BlockInfo],childBlocks:inout [BlockInfo], parentBlock:BlockInfo) {
+        var tempChildBlocks = blocks.filter { $0.ownerId == parentBlock.id }
+        if tempChildBlocks.isNotEmpty {
+            for i in 0..<tempChildBlocks.count {
+                var childBlockInfos:[BlockInfo] = []
+                getChildBlocksByBlock(blocks:blocks,childBlocks:&childBlockInfos,parentBlock:tempChildBlocks[i])
+                tempChildBlocks[i].contents.append(contentsOf: childBlockInfos)
+            }
+            tempChildBlocks.sort { $0.blockPosition.position <  $1.blockPosition.position}
+            childBlocks.append(contentsOf: tempChildBlocks)
+        }
     }
 }
 
 extension BlockDao {
+    
+    
+    fileprivate func extractRootAndContentBlocks(rows: [Row],ownerId:String) -> ([BlockInfo],[BlockInfo]) {
+        var rootBlocks:[BlockInfo] = []
+        var contentBlocks:[BlockInfo] = []
+        for row in rows {
+            let blockInfo:BlockInfo = extract(row: row)
+            if blockInfo.ownerId == ownerId {
+                rootBlocks.append(blockInfo)
+            }else {
+                contentBlocks.append(blockInfo)
+            }
+        }
+        return (rootBlocks,contentBlocks)
+    }
+    
     
     fileprivate func extract(rows: [Row]) -> [Block] {
         var blocks:[Block] = []

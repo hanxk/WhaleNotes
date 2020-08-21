@@ -57,8 +57,17 @@ extension BaseRepo {
 
 
 extension BaseRepo {
-    internal func insertBlockInfo(blockInfo:BlockInfo) throws {
+    internal func insertBlockInfo(_ blockInfo:BlockInfo) throws {
         try blockDao.insert(blockInfo.block)
         try blockPositionDao.insert(blockInfo.blockPosition)
+        
+        for content in blockInfo.contents {
+            try insertBlockInfo(content)
+        }
+    }
+    internal func deleteBlockInfo(_ blockInfo:BlockInfo) throws {
+        let blockId = blockInfo.block.id
+        try blockPositionDao.delete(ownerId: blockId)
+        try blockDao.delete(blockId)
     }
 }

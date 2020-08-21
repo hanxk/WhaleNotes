@@ -147,19 +147,31 @@ class BoardView: UIView, UINavigationControllerDelegate {
 
 extension BoardView {
     private func createNewNote() {
+        self.createBlockInfo(blockInfo: Block.note(title: "", parentId: board.id, position:generatePosition() ))
+    }
+    
+    private func createTodoListBlock() {
+        var todoListBlock = Block.todoList(parentId: board.id, position: generatePosition())
+        let todoBlock = Block.todo(parentId: todoListBlock.id, position: 65536)
+        todoListBlock.contents = [todoBlock]
+        self.createBlockInfo(blockInfo: todoListBlock)
+    }
+    
+    private func generatePosition() -> Double {
         let position = self.cards.count > 0 ? self.cards[0].position / 2 : 65536
-        self.createBlockInfo(blockInfo: Block.note(title: "", parentId: board.id, position:position ))
+        return position
     }
     
     private func createBlockInfo(blockInfo:BlockInfo) {
-       BlockRepo.shared.createBlock(blockInfo)
-            .subscribe { [weak self] cardBlock in
-                self?.handleCreateBlock(cardBlock)
+        BlockRepo.shared.executeActions(actions: [BlockInfoAction.insert(blockInfo: blockInfo)])
+            .subscribe {
+                self.handleCreateBlock(blockInfo)
             } onError: {
                 Logger.error($0)
             }
             .disposed(by: disposeBag)
     }
+    
     
     private func handleCreateBlock(_ cardBlock:BlockInfo) {
        self.openEditorVC(cardBlock: cardBlock, isNew: true)
@@ -302,7 +314,7 @@ extension BoardView {
 //            self.createTextNote()
             break
         case .todo:
-//            self.createTodoNote()
+            self.createTodoListBlock()
             break
         case .image:
             let viewController = TLPhotosPickerViewController()

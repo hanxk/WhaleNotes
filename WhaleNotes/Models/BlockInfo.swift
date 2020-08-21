@@ -11,6 +11,8 @@ struct BlockInfo:Equatable {
     var block:Block
     var blockPosition:BlockPosition = BlockPosition()
     
+    var contents:[BlockInfo] = []
+    
     static func == (lhs: BlockInfo, rhs: BlockInfo) -> Bool {
         return lhs.id == rhs.id
     }
@@ -49,6 +51,10 @@ extension BlockInfo {
 extension BlockInfo {
     var noteProperties:BlockNoteProperty? {
         get { self.block.properties as? BlockNoteProperty }
+        set {  self.block.properties =  newValue }
+    }
+    var blockTodoListProperties:BlockTodoListProperty? {
+        get { self.block.properties as? BlockTodoListProperty }
         set {  self.block.properties =  newValue }
     }
     var blockTodoProperties:BlockTodoProperty? {

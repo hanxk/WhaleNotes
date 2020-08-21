@@ -24,6 +24,16 @@ struct Block {
         return BlockInfo(block: block, blockPosition: position)
     }
     
+    
+    static func todoList(parentId:String,properties:BlockTodoListProperty = BlockTodoListProperty(),position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = .todo_list
+        block.properties = properties
+        
+        let blockPosition = BlockPosition(blockId: block.id, ownerId: parentId, position: position)
+        return BlockInfo(block: block, blockPosition: blockPosition)
+    }
+    
     static func todo(parentId:String,properties:BlockTodoProperty = BlockTodoProperty(),position:Double) -> BlockInfo {
         var block = Block()
         block.type = .todo

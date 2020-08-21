@@ -26,6 +26,9 @@ enum NoteCellConstants {
     
     static let contentVerticalSpacing: CGFloat = 2
     
+    
+    static let titleSpace: CGFloat = 4
+    
     static let todoHeight:CGFloat = 22
     static let todoVSpace:CGFloat = 0
     static let todoTextSpace:CGFloat = 2
@@ -63,11 +66,7 @@ class NoteCellProvider:CellProvider {
             print(textProperties.text)
             textNode.attributedText = getTextLabelAttributes(text: textProperties.text)
             textNode.truncationMode = .byTruncatingTail
-//
-//            textHeight = textNode.attributedText!.height(containerWidth: contentWidth)
-//            textNode.style.maxHeight = ASDimensionMake(remainHeight)
-//            //            textNode.backgroundColor = .red
-//
+            
             self.textNode = textNode
             cell.addSubnode(textNode)
         }
@@ -77,7 +76,7 @@ class NoteCellProvider:CellProvider {
         let insets =  UIEdgeInsets.init(top: NoteCellConstants.verticalPadding, left: NoteCellConstants.horizontalPadding, bottom: NoteCellConstants.verticalPadding, right:  NoteCellConstants.horizontalPadding)
         
         let contentLayout = ASStackLayoutSpec.vertical().then {
-            $0.spacing = NoteCellConstants.contentVerticalSpacing
+            $0.spacing =  NoteCellConstants.titleSpace
             $0.style.flexShrink = 1.0
             $0.style.flexGrow = 1.0
         }

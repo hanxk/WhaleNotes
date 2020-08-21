@@ -62,8 +62,7 @@ class CardEditorViewController: UIViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        titleTextField.endEditing(true)
-        self.view.endEditing(true)
+        self.tryResignResponder()
         super.viewWillDisappear(animated)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             print("push了............")
@@ -82,9 +81,19 @@ class CardEditorViewController: UIViewController {
         }.disposed(by: disposeBag)
     }
     
+    private func tryResignResponder() {
+        titleTextField.endEditing(true)
+        self.view.endEditing(true)
+    }
+    
     private func setupKeyboard() {
-        if isNew && view is NoteView {
-            (view as! NoteView).textView.becomeFirstResponder()
+        if !isNew { return }
+        if let noteView = view as? NoteView {
+            noteView.textView.becomeFirstResponder()
+            return
+        }
+        if let todoListView = view as? TodoBlockEditorView {
+            todoListView.todoBecomeFirstResponder()
         }
     }
     
@@ -119,6 +128,12 @@ extension CardEditorViewController {
             return NoteView(viewModel: viewModel)
         case .image:
             return ImageBlockView(imageBlock: blockInfo)
+        case .todo_list:
+            let todoListView = TodoBlockEditorView(viewModel: viewModel)
+            todoListView.callbackTryHideKeyboard = {
+                 self.tryResignResponder()
+            }
+            return todoListView
         default:
             return BaseCardEditorView(frame: .zero)
         }

@@ -55,7 +55,11 @@ extension BlockRepo {
     func createBlock(_ block:BlockInfo) -> Observable<BlockInfo> {
         return Observable<BlockInfo>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> BlockInfo in
-                try self.insertBlockInfo(blockInfo: block)
+                try self.insertBlockInfo(block)
+                // 添加 content
+                for content in block.contents {
+                  try self.insertBlockInfo(content)
+                }
                 return block
             }
         }
@@ -68,7 +72,7 @@ extension BlockRepo {
         return Observable<[BlockInfo]>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> [BlockInfo] in
                 for blockInfo in blocks {
-                    try self.insertBlockInfo(blockInfo: blockInfo)
+                    try self.insertBlockInfo(blockInfo)
                 }
                 return blocks
             }
@@ -120,6 +124,44 @@ extension BlockRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
+    
+    func executeActions(actions:BlockInfoAction...) -> Observable<Void> {
+        return self.executeActions(actions: actions)
+    }
+    
+    func executeActions(actions:[BlockInfoAction]) -> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                for action in actions {
+                    switch action {
+                    case .insert(blockInfo: let blockInfo):
+                        try self.insertBlockInfo(blockInfo)
+                    case .delete(blockInfo: let blockInfo):
+                        try self.deleteBlockInfo(blockInfo)
+                    case .update(block: let block):
+                        try self.blockDao.update(block)
+                    case .updateForUpdatedAt(id: let id):
+                        try self.blockDao.updateUpdatedAt(id: id)
+                    case .updateForProperties(id: let id, properties: let properties):
+                        try self.blockDao.updateProperties(id: id, properties: properties)
+                    case .updateForPosition(position: let position):
+                        try self.blockPositionDao.update(position)
+                    }
+                }
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+}
+
+enum BlockInfoAction {
+    case insert(blockInfo:BlockInfo)
+    case delete(blockInfo:BlockInfo)
+    case update(block:Block)
+    case updateForUpdatedAt(id:String)
+    case updateForProperties(id:String,properties:String)
+    case updateForPosition(position:BlockPosition)
 }
 
 //MARK: image block
@@ -156,7 +198,7 @@ extension BlockRepo {
                     return imageblock
                 }
                 for blockInfo in imageBlocks {
-                    try self.insertBlockInfo(blockInfo: blockInfo)
+                    try self.insertBlockInfo(blockInfo)
                 }
                 return imageBlocks
             }
