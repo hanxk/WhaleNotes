@@ -196,11 +196,23 @@ extension HomeViewController {
         let button =  UIButton()
         button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
         button.contentHorizontalAlignment = .leading
+//        button.backgroundColor = .red
         button.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
         button.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         let barButton = UIBarButtonItem(customView: button)
         
+        let label = UILabel()
+        label.textColor = UIColor.white
+        label.text = "TCO_choose_reminder";
+        
+        
+        let titleView2 =  UIBarButtonItem(customView: titleButton)
+//        titleButton.backgroundColor = .red
+        
+        
         self.navigationItem.leftBarButtonItems = [barButton]
+        
+        
         self.navigationItem.titleView = titleButton
         
         if let titleView = self.navigationItem.titleView  {
@@ -209,11 +221,25 @@ extension HomeViewController {
                 $0.height.equalToSuperview()
             }
         }
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+//        let imageSize:CGFloat = 38
+//        let searchButton : UIButton = UIButton.init(type: .custom)
+////        searchButton.backgroundColor = .red
+//        searchButton.setImage(UIImage(systemName: "magnifyingglass",withConfiguration: config), for: .normal)
+//        searchButton.addTarget(self, action: #selector(handleShowSearchbar), for: .touchUpInside)
+//        searchButton.frame = CGRect(x: 0, y: 0, width: imageSize, height: imageSize)
+//        let searchButtonItem = UIBarButtonItem(customView: searchButton)
+//
+//
+//        let menuButton : UIButton = UIButton.init(type: .custom)
+//        menuButton.setImage(UIImage(systemName: "ellipsis.circle",withConfiguration: config), for: .normal)
+//        menuButton.addTarget(self, action: #selector(handleShowSearchbar), for: .touchUpInside)
+//        menuButton.frame = CGRect(x: 0, y: 0, width: imageSize, height: imageSize)
+//        let menuButtonItem = UIBarButtonItem(customView: menuButton)
         
-        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
-        let search =  UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
-//        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: nil)
-        navigationItem.rightBarButtonItems = [search]
+        let searchButtonItem =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
+//        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: nil)
+        navigationItem.rightBarButtonItems = [searchButtonItem]
     }
     
     @objc func toggleSideMenu () {
@@ -234,7 +260,66 @@ extension HomeViewController {
 //        navVC.modalPresentationStyle = .overFullScreen
 //        navVC.modalTransitionStyle = .crossDissolve
 //        self.navigationController?.present(navVC, animated: true, completion: nil)
+        
+        let alert = UIAlertController(title: "Title", message: "Please Select an Option", preferredStyle: .actionSheet)
+         
+         alert.addAction(UIAlertAction(title: "Approve", style: .default , handler:{ (UIAlertAction)in
+             print("User click Approve button")
+         }))
+         
+         alert.addAction(UIAlertAction(title: "Edit", style: .default , handler:{ (UIAlertAction)in
+             print("User click Edit button")
+         }))
+
+         alert.addAction(UIAlertAction(title: "Delete", style: .destructive , handler:{ (UIAlertAction)in
+             print("User click Delete button")
+         }))
+         
+         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler:{ (UIAlertAction)in
+             print("User click Dismiss button")
+         }))
+
+         
+         //uncomment for iPad Support
+         //alert.popoverPresentationController?.sourceView = self.view
+
+         self.present(alert, animated: true, completion: {
+             print("completion block")
+         })
     }
+    
+    func createMenu() -> UIMenu {
+      
+      let photoAction = UIAction(
+        title: "Camera",
+        image: UIImage(systemName: "camera")
+      ) { (_) in
+        print("New Photo from Camera")
+      }
+      
+      let albumAction = UIAction(
+        title: "Photo Album",
+        image: UIImage(systemName: "square.stack")
+      ) { (_) in
+        print("Photo from photo album")
+      }
+      
+      let fromWebAction = UIAction(
+        title: "From the Web",
+        image: UIImage(systemName: "globe")
+      ) { (_) in
+        print("Photo from the internet")
+      }
+      
+      let menuActions = [photoAction, albumAction, fromWebAction]
+      
+      let addNewMenu = UIMenu(
+        title: "",
+        children: menuActions)
+      
+      return addNewMenu
+    }
+
     
     
     private func selectedPresentationStyle() -> SideMenuPresentationStyle {

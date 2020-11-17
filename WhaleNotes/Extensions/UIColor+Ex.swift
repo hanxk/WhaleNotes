@@ -11,14 +11,14 @@ import UIKit
 extension UIColor {
     open class var brand: UIColor {
         get {
-            return  UIColor(named: "Brand")!
+            return UIColor(named: "Brand")!
         }
     }
     
     
     open class var primaryText: UIColor {
         get {
-            //            return UIColor(named: "PrimaryText")!
+            //  2b292e          return UIColor(named: "PrimaryText")!
             UIColor.init(hexString: "#2b292e")
         }
     }
@@ -30,7 +30,7 @@ extension UIColor {
     
     open class var buttonTintColor: UIColor {
         get {
-            return UIColor(named: "ButtonTintColor")!
+            return UIColor(red: 0.188, green: 0.192, blue: 0.2, alpha: 0.9)
         }
     }
     
@@ -63,7 +63,7 @@ extension UIColor {
     
     open class var iconColor: UIColor {
         get {
-            return UIColor(hexString: "#202020")
+            return UIColor(red: 0.122, green: 0.133, blue: 0.145, alpha: 1)
         }
     }
     
@@ -110,23 +110,18 @@ extension UIColor {
     // OLD: #EFEFEF
     open class var bg: UIColor {
         get {
-            return UIColor.init(hexString: "#F5F5F7")
-//            return UIColor.init(hexString: "#FFFFFF")
-//            return UIColor.init(hexString: "#EDEDED")
-//            return UIColor.init(hexString: "#EAEAEB")
-//            return UIColor.init(hexString: "#f2f2f2")
+            return UIColor.init(hexString: "#E8EAED")
         }
     }
     
     open class var sidemenuBg: UIColor {
         get {
-//            return UIColor.init(hexString: "#F6F6F6")
-            return UIColor.init(hexString: "#FCFCFD")
+            return UIColor.init(hexString: "#FFFFFF")
         }
     }
     open class var sidemenuSelectedBg: UIColor {
         get {
-            return UIColor.init(hexString: "#E8E8E8")
+            return UIColor.init(hexString: "#E7E8EB")
         }
     }
     
@@ -196,7 +191,7 @@ extension UIColor {
         get {
             //            return UIColor(named: "PrimaryText")!
             //                 UIColor.init(hexString: "#333333")
-            UIColor.init(hexString: "#2b292e")
+            UIColor.init(hexString: "#303133")
         }
     }
     
@@ -206,7 +201,8 @@ extension UIColor {
             //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
 //            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.04)
 //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
-            return UIColor(hexString: "#EDEDEF")
+//            return UIColor(hexString: "#EDEDEF")
+            return UIColor(hexString: "#E8E8E8")
             //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.06)
         }
     }

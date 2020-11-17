@@ -16,11 +16,11 @@ class NoteColorViewController: UIViewController {
         
         let contentVC = NoteColorViewController()
         let fpc = FloatingPanelController()
-        fpc.delegate = contentVC
+//        fpc.delegate = contentVC
         fpc.isRemovalInteractionEnabled = true
         fpc.backdropView.dismissalTapGestureRecognizer.isEnabled = true
-        fpc.surfaceView.cornerRadius = 8
-        fpc.surfaceView.shadowHidden = false
+//        fpc.surfaceView.cornerRadius = 8
+//        fpc.surfaceView.shadowHidden = false
         fpc.track(scrollView: contentVC.collectionView)
         
         fpc.set(contentViewController: contentVC)
@@ -145,33 +145,33 @@ extension NoteColorViewController: UICollectionViewDelegateFlowLayout {
     
 }
 
-extension NoteColorViewController: FloatingPanelControllerDelegate {
-    func floatingPanel(_ vc: FloatingPanelController, layoutFor newCollection: UITraitCollection) -> FloatingPanelLayout? {
-           return MyFloatingPanelLayout()
-    }
-}
-
-fileprivate class MyFloatingPanelLayout: FloatingPanelLayout {
-    public var initialPosition: FloatingPanelPosition {
-        return .tip
-    }
-
-    public var supportedPositions: Set<FloatingPanelPosition> {
-        return [.tip]
-    }
-    public func insetFor(position: FloatingPanelPosition) -> CGFloat? {
-        switch position {
-            case .full: return 16.0 // A top inset from safe area
-            case .half: return 216.0 // A bottom inset from the safe area
-            case .tip: return 144.0 // A bottom inset from the safe area
-            default: return nil // Or `case .hidden: return nil`
-        }
-    }
-    
-    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
-        return 0.1
-    }
-}
+//extension NoteColorViewController: FloatingPanelControllerDelegate {
+//    func floatingPanel(_ vc: FloatingPanelController, layoutFor newCollection: UITraitCollection) -> FloatingPanelLayout? {
+//           return MyFloatingPanelLayout()
+//    }
+//}
+//
+//fileprivate class MyFloatingPanelLayout: FloatingPanelLayout {
+//    public var initialPosition: FloatingPanelPosition {
+//        return .tip
+//    }
+//
+//    public var supportedPositions: Set<FloatingPanelPosition> {
+//        return [.tip]
+//    }
+//    public func insetFor(position: FloatingPanelPosition) -> CGFloat? {
+//        switch position {
+//            case .full: return 16.0 // A top inset from safe area
+//            case .half: return 216.0 // A bottom inset from the safe area
+//            case .tip: return 144.0 // A bottom inset from the safe area
+//            default: return nil // Or `case .hidden: return nil`
+//        }
+//    }
+//
+//    func backdropAlphaFor(position: FloatingPanelPosition) -> CGFloat {
+//        return 0.1
+//    }
+//}
 
 
 

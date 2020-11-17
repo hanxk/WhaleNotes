@@ -10,7 +10,7 @@ import SnapKit
 
 
 enum FloatButtonConstants {
-    static let btnSize:CGFloat = 52
+    static let btnSize:CGFloat = 54
     static let trailing:CGFloat = 14
     static let bottom:CGFloat = 14
     static let iconSize:CGFloat = 20
@@ -20,7 +20,7 @@ enum BoardActionViewConstants {
     static let noteBtnWidth:CGFloat = 70
     static let moreBtnWidth:CGFloat = 68
 }
-
+// 首页悬浮 view
 class BoardActionView: UIView {
     
     let noteButton = UIButton().then {
@@ -50,7 +50,7 @@ class BoardActionView: UIView {
     
     private func setupUI() {
         
-            self.tintColor = .white
+        self.tintColor = .white
         makeupSelf()
         
         addSubview(noteButton)
@@ -78,13 +78,13 @@ class BoardActionView: UIView {
     
     
     private func makeupSelf() {
-        self.backgroundColor = UIColor(hexString: "#2D2D2D")
-        self.clipsToBounds = true
+        self.backgroundColor = UIColor(hexString: "#1F2225")
+//        self.clipsToBounds = true
         let layer0 = self.layer
         layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
         layer0.shadowOpacity = 1
-        layer0.shadowRadius = 4
-        layer0.shadowOffset = CGSize(width: 0, height: 4)
+        layer0.shadowRadius = 14
+        layer0.shadowOffset = CGSize(width: 0, height: 2)
         layer0.cornerRadius = FloatButtonConstants.btnSize / 2
         
     }

@@ -31,7 +31,7 @@ enum BoardViewConstants {
     
     
     
-    static let cellShadowSize:CGFloat = 7
+    static let cellShadowSize:CGFloat = 8
     
     static let cornerRadius:CGFloat = 8
     

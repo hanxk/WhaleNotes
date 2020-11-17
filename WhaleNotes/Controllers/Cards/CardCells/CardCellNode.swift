@@ -45,16 +45,16 @@ class CardCellNode: ASCellNode {
 
         let cardbackground = ASDisplayNode().then {
             $0.backgroundColor = .white
-            $0.borderWidth = 1
-            $0.borderColor = UIColor.cardBorder.cgColor
+//            $0.borderWidth = 0.5
+//            $0.borderColor = UIColor.cardBorder.cgColor
 
 //                $0.cornerRoundingType = .precomposited
             $0.cornerRadius = BoardViewConstants.cornerRadius
 //                $0.cornerRadius = NoteCellConstants.cornerRadius
 //                $0.clipsToBounds = true
-            $0.style.flexShrink = 1
+//            $0.style.flexShrink = 1
             
-            $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03).cgColor
+            $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.01).cgColor
             $0.shadowOpacity = 1
             $0.shadowRadius = 8
             $0.shadowOffset = CGSize(width: 0, height: 0)

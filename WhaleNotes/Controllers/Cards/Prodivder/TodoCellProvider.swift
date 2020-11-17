@@ -51,7 +51,7 @@ class TodoCellProvider:CellProvider {
                 $0.style.flexShrink = 1.0
                 $0.maximumNumberOfLines = 2
                 $0.truncationMode = .byTruncatingTail
-                $0.textContainerInset = UIEdgeInsets(top: 2.5, left: 0, bottom: 0, right: 0)
+                $0.textContainerInset = UIEdgeInsets(top: 3, left: 0, bottom: 0, right: 0)
             }
             cell.addSubnode(todoNode)
             self.todosElements.append(todoNode)
