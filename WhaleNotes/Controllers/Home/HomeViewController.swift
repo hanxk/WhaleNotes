@@ -21,6 +21,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
+    static let toolbarHeight:CGFloat = 54
+    
     private var contentView:UIView?
     private var sideMenuItemType:SideMenuItem! {
         didSet {
@@ -33,8 +35,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private lazy var navBar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = true
         $0.delegate = self
+        $0.tintColor = .iconColor
         let barAppearance =  UINavigationBarAppearance()
-    //   barAppearance.configureWithDefaultBackground()
         barAppearance.configureWithDefaultBackground()
         $0.standardAppearance.backgroundColor = .bg
             
@@ -97,12 +99,16 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         }
     }
     
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+////        self.navigationController?.navigationBar.barTintColor = .bg
+//    }
+    
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.barTintColor = .bg
+        super.viewWillAppear(true)
     }
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+        super.viewWillDisappear(true)
     }
     
 }
@@ -112,7 +118,15 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
 extension HomeViewController {
     
     private  func setupToolbar() {
-        self.navigationController?.isToolbarHidden = false
+        
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 35)).then {
+            $0.tintColor = .iconColor
+            $0.barTintColor = UIColor(hexString: "#EBECEF")
+            $0.isTranslucent = false
+            
+//            $0.clipsToBounds = true
+        }
+        
         var items = [UIBarButtonItem]()
         items.append(generateUIBarButtonItem(systemName:"camera"))
         items.append(generateSpace())
@@ -122,26 +136,34 @@ extension HomeViewController {
         items.append(generateSpace())
         items.append(generateUIBarButtonItem(systemName:"link"))
         items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-        items.append(generateUIBarButtonItem(systemName:"plus.circle.fill",pointSize: 19))
-        toolbarItems = items
+        items.append(generateUIBarButtonItem(systemName:"plus.circle.fill",pointSize: 18))
+//        toolbarItems = items
         
-        self.navigationController?.toolbar.frame = CGRect(x: 0, y: 0, width: 375, height: 54)
-        self.navigationController?.toolbar.tintColor = .iconColor
-        self.navigationController?.toolbar.barTintColor = UIColor(hexString: "#EBECEF")
-        self.navigationController?.toolbar.isTranslucent = true
-        DispatchQueue.main.async {
-            self.navigationController?.toolbar.updateConstraintsIfNeeded()
+        toolbar.items = items
+        
+        self.view.addSubview(toolbar)
+        toolbar.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.left.equalToSuperview()
+            $0.right.equalToSuperview()
+//            $0.height.equalTo(HomeViewController.toolbarHeight)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
         }
+//        DispatchQueue.main.async {
+//            self.navigationController?.toolbar.updateConstraintsIfNeeded()
+//        }
     }
     
     private func generateUIBarButtonItem(systemName:String,pointSize:CGFloat = 15) -> UIBarButtonItem {
-        let item = UIBarButtonItem(image: UIImage(systemName: systemName, pointSize: pointSize), style: .plain, target: self, action: #selector(handleToolbarAction))
+        let icon = UIImage(systemName: systemName, pointSize: pointSize)
+        let item = UIBarButtonItem(image:icon , style: .plain, target: self, action: #selector(handleToolbarAction))
+//        item.imageInsets = UIEdgeInsets(top: 0, left: 0, bottom: -18, right: 0)
         return item
     }
     
     private func generateSpace() -> UIBarButtonItem {
         let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-        space.width = 12
+        space.width = 14
         return space
     }
     

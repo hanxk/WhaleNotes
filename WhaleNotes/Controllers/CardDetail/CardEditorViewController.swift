@@ -137,11 +137,10 @@ extension CardEditorViewController:UINavigationBarDelegate{
     
     func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
         
-        let backButtonImage =  UIImage(systemName: "chevron.left", pointSize: 20, weight: .regular)?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0))
+        let backButtonImage =  UIImage(systemName: "chevron.left", pointSize: 20, weight: .regular)
         
-        let imageSize:CGFloat = 24
-           let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: imageSize, height: imageSize))
-           backButton.setImage(backButtonImage!, for: .normal)
+        let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
 //        backButton.backgroundColor = .red
            backButton.addTarget(self, action: #selector(CardEditorViewController.backBarButtonTapped), for: .touchUpInside)
            let backBarButton = UIBarButtonItem(customView: backButton)
