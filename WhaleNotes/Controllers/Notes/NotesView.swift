@@ -121,9 +121,9 @@ class NotesView: UIView, UINavigationControllerDelegate {
         collectionNode.frame = self.frame
         collectionNode.backgroundColor = .bg
         self.addSubnode(collectionNode)
-        if noteStatus == NoteBlockStatus.normal {
-            self.setupFloatButtons()
-        }
+//        if noteStatus == NoteBlockStatus.normal {
+//            self.setupFloatButtons()
+//        }
     }
     
     private func setupData() {

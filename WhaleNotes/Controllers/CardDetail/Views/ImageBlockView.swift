@@ -32,7 +32,9 @@ class ImageBlockView: BaseCardEditorView {
     private func initializeUI() {
         addSubview(imageZoomView)
         imageZoomView.snp.makeConstraints {
-            $0.width.height.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.top.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
     }
 }

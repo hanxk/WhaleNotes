@@ -18,7 +18,20 @@ class CardEditorViewController: UIViewController {
     var viewModel:CardEditorViewModel!
     var isNew = false
     
-    lazy var titleTextField =  TitleTextField(frame:  CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 120, height: 44 )).then {
+    
+    private lazy var navBar:UINavigationBar = UINavigationBar() .then{
+        $0.isTranslucent = false
+        $0.delegate = self
+        let barAppearance =  UINavigationBarAppearance()
+    //   barAppearance.configureWithDefaultBackground()
+        barAppearance.configureWithDefaultBackground()
+        $0.standardAppearance.backgroundColor = .white
+            
+        $0.scrollEdgeAppearance = barAppearance
+        $0.standardAppearance.shadowColor = nil
+    }
+    
+    private lazy var titleTextField =  TitleTextField(frame:  CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 120, height: 44 )).then {
         $0.textAlignment = .center
         $0.placeholder = "标题"
         $0.clipsToBounds = true
@@ -29,28 +42,16 @@ class CardEditorViewController: UIViewController {
         $0.delegate = self
     }
     
-    private var bg:UIColor! {
-        didSet {
-//            let bgColor = UIColor(hexString: bg)
-            self.navigationItem.titleView = titleTextField
-            navigationController?.navigationBar.barTintColor = bg
-            self.view.backgroundColor =  bg
-        }
-    }
+    private var bg:UIColor!
     
     var updateEvent:EditorUpdateEvent!
     var updateCallback:((EditorUpdateEvent) -> Void)? = nil
     
     private  var disposeBag = DisposeBag()
     
-    override func loadView() {
-        editorView = generateContentView()
-        view = editorView
-        self.bg = .white
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.setupUI()
         self.registerViewModel()
         titleTextField.text = viewModel.blockInfo.title
         self.navigationItem.titleView = titleTextField
@@ -98,6 +99,64 @@ class CardEditorViewController: UIViewController {
     }
     
 }
+
+extension CardEditorViewController:UINavigationBarDelegate{
+    
+    private func setupUI(){
+        
+        editorView = generateContentView()
+        
+        self.view.addSubview(editorView)
+        editorView.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(self.topbarHeight)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+        }
+        
+        self.view.addSubview(navBar)
+        navBar.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
+        }
+        
+        
+        self.bg = .white
+        self.navigationController?.navigationBar.isHidden = true
+        self.view.backgroundColor =  .white
+        
+        self.setupNavgationBar()
+    }
+    
+    private func setupNavgationBar() {
+        
+        let navItem = UINavigationItem()
+        navBar.items = [navItem]
+        self.createBackBarButton(forNavigationItem: navItem)
+        navItem.titleView = titleTextField
+    }
+    
+    func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
+        
+        let backButtonImage =  UIImage(systemName: "chevron.left", pointSize: 20, weight: .regular)?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0))
+        
+        let imageSize:CGFloat = 24
+           let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: imageSize, height: imageSize))
+           backButton.setImage(backButtonImage!, for: .normal)
+//        backButton.backgroundColor = .red
+           backButton.addTarget(self, action: #selector(CardEditorViewController.backBarButtonTapped), for: .touchUpInside)
+           let backBarButton = UIBarButtonItem(customView: backButton)
+           navigationItem.leftBarButtonItems = [backBarButton]
+    }
+    
+    @objc func backBarButtonTapped() {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    func position(for bar: UIBarPositioning) -> UIBarPosition {
+        return .topAttached
+    }
+}
+
 
 extension CardEditorViewController {
     

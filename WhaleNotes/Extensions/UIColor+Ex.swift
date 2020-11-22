@@ -63,7 +63,8 @@ extension UIColor {
     
     open class var iconColor: UIColor {
         get {
-            return UIColor(red: 0.122, green: 0.133, blue: 0.145, alpha: 1)
+//            return UIColor(red: 0.122, green: 0.133, blue: 0.145, alpha: 1)
+            return  UIColor(hexString: "#1F2225")
         }
     }
     
@@ -107,10 +108,11 @@ extension UIColor {
 // sidebar
 extension UIColor {
     
-    // OLD: #EFEFEF
+    // OLD: #EFEFEF E8EAED
     open class var bg: UIColor {
         get {
-            return UIColor.init(hexString: "#E8EAED")
+            
+            return UIColor.init(hexString: "#F0F2F5")
         }
     }
     

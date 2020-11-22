@@ -45,6 +45,7 @@ class ImageZoomView: UIScrollView, UIScrollViewDelegate {
             // make.centerX.equalTo(self.scrollView)
             // make.centerY.equalTo(self.scrollView)
         }
+        self.clipsToBounds = true
     }
     
     // Sets up the gesture recognizer that receives double taps to auto-zoom

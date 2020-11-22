@@ -102,22 +102,22 @@ class BoardView: UIView, UINavigationControllerDelegate {
         collectionNode.frame = self.frame
         collectionNode.backgroundColor = .bg
         self.addSubnode(collectionNode)
-        if noteStatus == NoteBlockStatus.normal {
-            self.setupFloatButtons()
-        }
+//        if noteStatus == NoteBlockStatus.normal {
+//            self.setupFloatButtons()
+//        }
         
-        let boardView = BoardActionView()
-        boardView.noteButton.addTarget(self, action: #selector(handleNoteButtonTapped), for: .touchUpInside)
-        boardView.moreButton.addTarget(self, action: #selector(handleMoreButtonTapped), for: .touchUpInside)
-        self.addSubview(boardView)
-        boardView.snp.makeConstraints {
-            $0.height.equalTo(FloatButtonConstants.btnSize)
-            
-            let w = BoardActionViewConstants.noteBtnWidth + BoardActionViewConstants.moreBtnWidth + 0.5
-            $0.width.equalTo(w)
-            $0.trailing.equalToSuperview().offset(-FloatButtonConstants.trailing)
-            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
-        }
+//        let boardView = BoardActionView()
+//        boardView.noteButton.addTarget(self, action: #selector(handleNoteButtonTapped), for: .touchUpInside)
+//        boardView.moreButton.addTarget(self, action: #selector(handleMoreButtonTapped), for: .touchUpInside)
+//        self.addSubview(boardView)
+//        boardView.snp.makeConstraints {
+//            $0.height.equalTo(FloatButtonConstants.btnSize)
+//            
+//            let w = BoardActionViewConstants.noteBtnWidth + BoardActionViewConstants.moreBtnWidth + 0.5
+//            $0.width.equalTo(w)
+//            $0.trailing.equalToSuperview().offset(-FloatButtonConstants.trailing)
+//            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
+//        }
     }
     
     @objc func handleNoteButtonTapped(button:UIButton) {
@@ -220,7 +220,11 @@ extension BoardView: ASCollectionDelegate {
         noteVC.updateCallback = { [weak self] event in
             self?.handleEditorUpdateEvent(event: event)
         }
+        noteVC.hidesBottomBarWhenPushed = true
+//        let nav = MyNavigationController(rootViewController: noteVC)
+        self.controller?.hidesBottomBarWhenPushed = true
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
+        self.controller?.hidesBottomBarWhenPushed = false
     }
     
     func handleEditorUpdateEvent(event:EditorUpdateEvent) {
@@ -270,14 +274,6 @@ extension BoardView: ASCollectionDelegate {
 
 ////MARK: 添加 block
 extension BoardView {
-    func setupFloatButtons() {
-//        self.addSubview(toolbar)
-//        toolbar.snp.makeConstraints { (make) -> Void in
-//            make.width.equalToSuperview()
-//            make.height.equalTo(ToolbarConstants.height)
-//            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottomMargin)
-//        }
-    }
     
     @objc func btnNewNoteTapped (sender:UIButton) {
 //        self.createTextNote()
