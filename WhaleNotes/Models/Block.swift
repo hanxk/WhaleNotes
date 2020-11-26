@@ -223,6 +223,7 @@ extension Block:SQLTable {
                     CREATE TABLE IF NOT EXISTS "block" (
                       "id" TEXT PRIMARY KEY NOT NULL,
                       "title" TEXT,
+                      "remark" TEXT,
                       "type" TEXT NOT NULL,
                       "status" INTEGER NOT NULL,
                       "properties" JSON NOT NULL,

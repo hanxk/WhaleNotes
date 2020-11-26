@@ -157,6 +157,8 @@
 		18F57C2C256D493F00834DB5 /* FormInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C2B256D493F00834DB5 /* FormInputCell.swift */; };
 		18F57C2F256E072400834DB5 /* FormCommonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C2E256E072400834DB5 /* FormCommonCell.swift */; };
 		18F57C32256E29B600834DB5 /* UITextView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C31256E29B600834DB5 /* UITextView+Ex.swift */; };
+		18F57C35256FD70800834DB5 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C34256FD70800834DB5 /* NoteEditorView.swift */; };
+		18F57C38256FD78300834DB5 /* RemarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C37256FD78300834DB5 /* RemarkViewController.swift */; };
 		18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -313,6 +315,8 @@
 		18F57C2B256D493F00834DB5 /* FormInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormInputCell.swift; sourceTree = "<group>"; };
 		18F57C2E256E072400834DB5 /* FormCommonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormCommonCell.swift; sourceTree = "<group>"; };
 		18F57C31256E29B600834DB5 /* UITextView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Ex.swift"; sourceTree = "<group>"; };
+		18F57C34256FD70800834DB5 /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
+		18F57C37256FD78300834DB5 /* RemarkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemarkViewController.swift; sourceTree = "<group>"; };
 		18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -578,6 +582,8 @@
 				1865AF17244ED46D0006B48D /* BottomBarView.swift */,
 				18251C19249B29C700484D23 /* NoteMenuViewController.swift */,
 				18621F6624CC179F00BCC27D /* NoteInfoModel.swift */,
+				18F57C34256FD70800834DB5 /* NoteEditorView.swift */,
+				18F57C37256FD78300834DB5 /* RemarkViewController.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -1147,6 +1153,7 @@
 				18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */,
 				1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */,
 				18E7BF95248C9D2C00B8AEC1 /* EmojiRepo.swift in Sources */,
+				18F57C38256FD78300834DB5 /* RemarkViewController.swift in Sources */,
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1859304424BAA00600D1352A /* BoardCategory.swift in Sources */,
 				18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */,
@@ -1227,6 +1234,7 @@
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
 				18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */,
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
+				18F57C35256FD70800834DB5 /* NoteEditorView.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */,
 				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,

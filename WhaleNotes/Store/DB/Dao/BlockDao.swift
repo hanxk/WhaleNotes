@@ -25,8 +25,8 @@ extension BlockDao {
     }
     
     func update(_ block:Block) throws {
-        let updateSQL = "update block set type = ?,title=?,status=?,properties = ?,updated_at=datetime('now') where id = ?"
-        try db.execute(updateSQL, args:block.type.rawValue,block.title,block.status.rawValue,block.propertiesJSON,block.id)
+        let updateSQL = "update block set type = ?,title=?,remark=?,status=?,properties = ?,updated_at=datetime('now') where id = ?"
+        try db.execute(updateSQL, args:block.type.rawValue,block.title,block.remark,block.status.rawValue,block.propertiesJSON,block.id)
     }
     
     func updateUpdatedAt(id:String) throws {
@@ -147,6 +147,7 @@ extension BlockDao {
         let id = row["id"] as! String
         let type = BlockType.init(rawValue:  row["type"] as! String)!
         var title = (row["title"] as? String) ?? ""
+        var remark = (row["remark"] as? String) ?? ""
         let status = BlockStatus.init(rawValue:  row["status"] as! Int)!
         let propertiesJSON = row["properties"] as! String
         
@@ -164,7 +165,7 @@ extension BlockDao {
             }
         }
         
-        let block = Block(id: id, title: title, type: type, status: status, properties: properties, createdAt: createdAt, updatedAt: updatedAt)
+        let block = Block(id: id, title: title,remark: remark, type: type, status: status, properties: properties, createdAt: createdAt, updatedAt: updatedAt)
         
         if let boardType =  block.blockBoardProperties?.type,boardType == .collect {
             return Block.convert2LocalSystemBoard(board: block)

@@ -91,8 +91,11 @@ extension SQLStatement {
             }
             return Int(sqlite3_column_int(stmt, index))
         case "CHARACTER(20)", "VARCHAR(255)", "VARYING CHARACTER(255)", "NCHAR(55)", "NATIVE CHARACTER", "NVARCHAR(100)", "TEXT", "JSON","CLOB":
-            let  text = sqlite3_column_text(stmt, index)!
-            return String(cString: text)
+            let  text = sqlite3_column_text(stmt, index)
+            if text != nil {
+                return String(cString: text!)
+            }
+            return ""
         case "BLOB", "NONE":
             let blob = sqlite3_column_blob(stmt, index)
             if blob != nil {

@@ -18,20 +18,7 @@ class NoteView: BaseCardEditorView {
     }
     private var viewModel:CardEditorViewModel!
     
-    let textView: UITextView = UITextView().then {
-        $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        $0.textColor = .primaryText
-        $0.isEditable = true
-        $0.isScrollEnabled = false
-        $0.autocorrectionType = .no
-        $0.spellCheckingType = .no
-        $0.textContainerInset = UIEdgeInsets(top: 4, left: 16, bottom: 14, right: 16)
-        $0.textContainer.lineFragmentPadding = 0
-        $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
-        $0.alwaysBounceVertical = true
-        $0.keyboardDismissMode = .onDrag
-    }
+    let textView = NoteEditorView(placeholder: "写点什么。。。")
     
     init(viewModel:CardEditorViewModel) {
         super.init(frame: .zero)
@@ -40,7 +27,13 @@ class NoteView: BaseCardEditorView {
         self.initializeUI()
         
         textView.text = properties.text
-        textView.delegate = self
+        textView.textEndEditing = { [weak self] text in
+            guard let self = self else { return }
+            if self.properties.text != text {
+                self.properties.text = text
+              self.updateBlock()
+            }
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -52,34 +45,6 @@ class NoteView: BaseCardEditorView {
         textView.snp.makeConstraints {
             $0.width.height.equalToSuperview()
         }
-    }
-}
-
-extension NoteView: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-//        textChanged?(textView.text)
-//        placeholderLabel.isHidden = !textView.text.isEmpty
-    }
-    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-//        textShouldBeginChange?(textView)
-        return true
-    }
-    
-    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
-        let text = textView.text ?? ""
-        if properties.text != text {
-            properties.text = text
-            self.updateBlock()
-        }
-//        textEndEdit?(text)
-        return true
-    }
-    
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if text == "\n" {
-//            textEnterReturnKey?()
-        }
-        return true
     }
 }
 

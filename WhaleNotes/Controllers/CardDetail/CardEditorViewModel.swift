@@ -58,6 +58,12 @@ class CardEditorViewModel {
         block.title = title
         self.update(block: block)
     }
+    
+    func updateRemark(_ remark:String) {
+        var block = blockInfo.block
+        block.remark = remark
+        self.update(block: block)
+    }
 }
 
 extension CardEditorViewModel {

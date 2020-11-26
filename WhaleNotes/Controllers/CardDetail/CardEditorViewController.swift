@@ -42,6 +42,7 @@ class CardEditorViewController: UIViewController {
         $0.delegate = self
     }
     
+    let remarkButton =  UIBarButtonItem(image: UIImage(systemName: "pencil.circle"), style: .plain, target: self, action: #selector(pencilIconTapped))
     private var bg:UIColor!
     
     var updateEvent:EditorUpdateEvent!
@@ -134,11 +135,17 @@ extension CardEditorViewController:UINavigationBarDelegate{
         self.createBackBarButton(forNavigationItem: navItem)
         navItem.titleView = titleTextField
         
+        remarkButton.tintColor = viewModel.blockInfo.remark.isNotEmpty ? .brand : .iconColor
         
-        let pen =  UIBarButtonItem(image: UIImage(systemName: "pencil.circle"), style: .plain, target: self, action: #selector(infoIconTapped))
         let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: #selector(infoIconTapped))
-        navItem.rightBarButtonItems = [more,pen]
+        navItem.rightBarButtonItems = [more,remarkButton]
         
+    }
+    
+    @objc func pencilIconTapped() {
+        let vc = RemarkViewController()
+        vc.viewModel = self.viewModel
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
     @objc func infoIconTapped() {
@@ -175,6 +182,7 @@ extension CardEditorViewController {
         self.updateEvent = event
         switch event {
         case .updated:
+            remarkButton.tintColor = viewModel.blockInfo.remark.isNotEmpty ? .brand : .iconColor
             break
         case .statusChanged:
             break

@@ -340,7 +340,7 @@ extension HomeViewController:UINavigationBarDelegate{
             $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
             $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         }
-        button.backgroundColor = .red
+//        button.backgroundColor = .red
         let barButton = UIBarButtonItem(customView: button)
         
         let label = UILabel()
