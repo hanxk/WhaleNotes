@@ -19,7 +19,7 @@ extension UIColor {
     open class var primaryText: UIColor {
         get {
             //  2b292e          return UIColor(named: "PrimaryText")!
-            UIColor.init(hexString: "#2b292e")
+            UIColor.init(hexString: "#333333")
         }
     }
     open class var primaryText2: UIColor {
@@ -112,7 +112,7 @@ extension UIColor {
     open class var bg: UIColor {
         get {
             
-            return UIColor.init(hexString: "#F0F2F5")
+            return UIColor.init(hexString: "#f4f4f4")
         }
     }
     
@@ -123,7 +123,7 @@ extension UIColor {
     }
     open class var sidemenuSelectedBg: UIColor {
         get {
-            return UIColor.init(hexString: "#E7E8EB")
+            return UIColor.init(hexString: "#E8E8E8")
         }
     }
     
@@ -193,7 +193,7 @@ extension UIColor {
         get {
             //            return UIColor(named: "PrimaryText")!
             //                 UIColor.init(hexString: "#333333")
-            UIColor.init(hexString: "#303133")
+            UIColor.init(hexString: "#333333")
         }
     }
     

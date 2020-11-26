@@ -11,184 +11,166 @@ import RxSwift
 
 enum BlockBoardSectionType {
     case system(systemBoards: [BlockInfo])
-    case boards(boardGroup: BlockInfo)
+    case boards(userBoards: [BlockInfo])
 }
 
-//class ChangeBoardViewController:UIViewController {
-//    
-//    private var sections:[BlockBoardSectionType] = []
-//    
-//    var noteInfo:NoteInfo!
-//    var callbackChooseBoard:((BlockInfo)->Void)!
-//    
-//    
-//    private let cellReuseIndentifier = "ChangeBoardCell"
-//    
-//    private let disposeBag = DisposeBag()
-//    
-//    private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
-//        $0.delegate = self
-//        $0.dataSource = self
-//        $0.showsVerticalScrollIndicator = false
+class ChangeBoardViewController:UIViewController {
+    
+    private var sections:[BlockBoardSectionType] = []
+    
+//    var choosedBoard:BlockInfo!
+//    var callbackChooseBoard:((BlockInfo)->Void)?
+    var viewModel:CardEditorViewModel!
+    private var choosedBoard:BlockInfo {
+        return viewModel.board
+    }
+    
+    
+    private let cellReuseIndentifier = "ChangeBoardCell"
+    
+    private let disposeBag = DisposeBag()
+    
+    private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
+        $0.delegate = self
+        $0.dataSource = self
+        $0.showsVerticalScrollIndicator = false
 //        $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
 //        $0.sectionFooterHeight = CGFloat.leastNormalMagnitude
 //        $0.register(ChangeBoardCell.self, forCellReuseIdentifier: self.cellReuseIndentifier)
-//    }
-//    
-//    private lazy var  cellBackgroundView = UIView().then {
-//          $0.backgroundColor = UIColor.tappedColor
-//      }
-//    
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        self.setupUI()
-//        self.loadBoards()
-//    }
-//    
-//    private func setupUI() {
-//        let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
-//        self.navigationItem.leftBarButtonItem = cancelButtonItem
-//        
-//        self.title = "移动至..."
-//        self.view.addSubview(tableView)
-//        tableView.snp.makeConstraints { (make) in
-//            make.top.equalToSuperview()
-//            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
-//            make.leading.trailing.equalToSuperview()
-//        }
-//        self.tableView.backgroundColor = .settingbg
-//        
-//        self.title = "移动至..."
-//         
-//    }
-//    
-//    private func loadBoards() {
-//        // 获取 board
-//        SpaceRepo.shared.getSpace()
-//            .subscribe {
-//                self.setupData(spaceInfo: $0)
-//            } onError: {
-//                Logger.error($0)
-//            }
-//            .disposed(by: disposeBag)
-//    }
-//    
-//    private func setupData(spaceInfo: SpaceInfo) {
-//        
-//        sections.append(BlockBoardSectionType.system(systemBoards: [spaceInfo.collectBoard]))
-//        
-//        let boardsGroups = [spaceInfo.boardGroupBlock] + spaceInfo.categoryGroupBlock.contentBlocks
-//        for boardGroup in boardsGroups {
-//            sections.append(BlockBoardSectionType.boards(boardGroup: boardGroup))
-//        }
-//        self.tableView.reloadData()
-//    }
-//    
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-////        navigationController?.setNavigationBarHidden(false, animated: animated)
-//    }
-//    
-//    @objc func cancelButtonTapped() {
-//        self.dismiss(animated: true, completion: nil)
-//    }
-//
-////    @objc func doneButtonTapped() {
-////        self.dismiss(animated: true, completion: nil)
-////    }
-//}
-//
-//extension ChangeBoardViewController:UITableViewDataSource {
-//    func numberOfSections(in tableView: UITableView) -> Int {
-//        return self.sections.count
-//    }
-//    
-//    
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        switch self.sections[section] {
-//        case .system(let boards):
-//            return boards.count
-//        case .boards(let boardGroup):
-//            return boardGroup.contentBlocks.count
-//        }
-//    }
-//    
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: self.cellReuseIndentifier) as! ChangeBoardCell
-//        var boardBlock:BlockInfo!
-//        switch self.sections[indexPath.section] {
-//        case .system(let boards):
-//            boardBlock = boards[indexPath.row]
-//        case .boards(let boardGroup):
-//            boardBlock = boardGroup.contentBlocks[indexPath.row]
-//        }
-//        cell.board = boardBlock
-//        cell.isChoosed = boardBlock.id  == self.noteInfo.noteBlock.blockPosition.ownerId
-//        return cell
-//    }
-//    
+    }
+    
+    private lazy var  cellBackgroundView = UIView().then {
+          $0.backgroundColor = UIColor.tappedColor
+      }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.setupUI()
+        self.loadBoards()
+    }
+    
+    private func setupUI() {
+        self.title = "移动至..."
+        self.view.addSubview(tableView)
+        tableView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
+            make.leading.trailing.equalToSuperview()
+        }
+        self.tableView.backgroundColor = .settingbg
+        
+        self.title = "移动至..."
+         
+    }
+    
+    private func loadBoards() {
+        BoardsRepo.shared.getBoards()
+            .subscribe {
+                self.setupData(boards: $0)
+            } onError: { error in
+                print(error)
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func setupData(boards:[BlockInfo]) {
+        
+        guard let collectBoard =  boards.first(where: {$0.blockBoardProperties!.type == .collect}) else { return }
+        let userBoards =  boards.filter({ $0.blockBoardProperties!.type == .user}).sorted(by: {$0.position < $1.position})
+        
+        sections.append(BlockBoardSectionType.system(systemBoards: [collectBoard]))
+        sections.append(BlockBoardSectionType.boards(userBoards: userBoards))
+        
+        self.tableView.reloadData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+//        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    @objc func cancelButtonTapped() {
+        self.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension ChangeBoardViewController:UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return self.sections.count
+    }
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch self.sections[section] {
+        case .system(let boards):
+            return boards.count
+        case .boards(let userBoards):
+            return userBoards.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        var boardBlock:BlockInfo!
+        var iconImage:UIImage!
+        let fontSize:CGFloat = 18
+        switch self.sections[indexPath.section] {
+        case .system(let boards):
+            boardBlock = boards[indexPath.row]
+            iconImage = UIImage(systemName: boardBlock.blockBoardProperties!.icon)
+        case .boards(let boards):
+            boardBlock = boards[indexPath.row]
+            iconImage =  boardBlock.blockBoardProperties!.icon.emojiToImage(fontSize: fontSize)
+        }
+    
+        let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
+        cell.textLabel?.text = boardBlock.title
+        cell.imageView?.image = iconImage
+        cell.accessoryType = self.choosedBoard.id == boardBlock.id ? .checkmark : .none
+        return cell
+    }
+    
 //    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
 //        return UIView(frame: .zero)
 //    }
-//    
-//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//        
-//        if case .boards(let boardGroup) =  self.sections[section] {
-//            return boardGroup.blockToggleProperties?.title ?? ""
-//        }
-//        
-//        return ""
-//    }
-//    
-//
-//    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-//        if section == 0  { return 20 }
-//        if  case .boards(let toggleGroup) =  self.sections[section] {
-//            if toggleGroup.blockToggleProperties!.title.isEmpty {
-//                return 20
-//            }
-//            return ContextMenuCell.cellHeight
-//        }
-//        return CGFloat.leastNormalMagnitude
-//    }
-//    
+        
 //    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
 //        return CGFloat.leastNormalMagnitude
 //    }
-//}
-//
-//
-//extension ChangeBoardViewController:UITableViewDelegate {
-//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return ContextMenuCell.cellHeight
-//    }
-//    
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        var boardBlock:BlockInfo!
-//        switch self.sections[indexPath.section] {
-//        case .system(let boards):
-//            boardBlock = boards[indexPath.row]
-//        case .boards(let boardGroup):
-//            boardBlock = boardGroup.contentBlocks[indexPath.row]
+}
+
+
+extension ChangeBoardViewController:UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return ContextMenuCell.cellHeight
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var boardBlock:BlockInfo!
+        switch self.sections[indexPath.section] {
+        case .system(let boards):
+            boardBlock = boards[indexPath.row]
+        case .boards(let boards):
+            boardBlock = boards[indexPath.row]
+        }
+        self.moveToBoard(boardBlock)
+    }
+    
+    func moveToBoard(_ boardBlock:BlockInfo) {
+        if viewModel.board.id != boardBlock.id {
+            viewModel.moveTo(newBoard: boardBlock)
+        }
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    func toggleBoard(_ board:Board,indexPath:IndexPath) {
+//        if let index = self.choosedBoards.firstIndex(where: {$0.id == board.id}) {
+//            self.choosedBoards.remove(at: index)
+//        }else {
+//            self.choosedBoards.append(board)
 //        }
-//        self.moveToBoard(boardBlock)
-//    }
-//    
-//    func moveToBoard(_ boardBlock:BlockInfo) {
-////        self.noteInfoModel.moveBoard(boardId: boardBlock.id)
-//        callbackChooseBoard(boardBlock)
-//        self.dismiss(animated: true, completion: nil)
-//    }
-//    
-//    func toggleBoard(_ board:Board,indexPath:IndexPath) {
-////        if let index = self.choosedBoards.firstIndex(where: {$0.id == board.id}) {
-////            self.choosedBoards.remove(at: index)
-////        }else {
-////            self.choosedBoards.append(board)
-////        }
-////
-////        self.tableView.performBatchUpdates({
-////            self.tableView.reloadRows(at: [indexPath], with: .none)
-////        }, completion: nil)
-//    }
-//}
+//
+//        self.tableView.performBatchUpdates({
+//            self.tableView.reloadRows(at: [indexPath], with: .none)
+//        }, completion: nil)
+    }
+}

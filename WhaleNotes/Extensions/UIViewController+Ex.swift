@@ -128,3 +128,27 @@ extension UIBarButtonItem {
         self.init(customView: button)
     }
 }
+
+
+extension UIViewController {
+    
+    func showDismissSheet() {
+        let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+          let deleteAction = UIAlertAction(title: "放弃更改", style: .destructive, handler:
+          {
+              (alert: UIAlertAction!) -> Void in
+                self.dismiss(animated: true, completion: nil)
+          })
+
+          let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler:
+          {
+              (alert: UIAlertAction!) -> Void in
+            optionMenu.dismiss(animated: true, completion: nil)
+          })
+          optionMenu.addAction(deleteAction)
+          optionMenu.addAction(cancelAction)
+        self.present(optionMenu, animated: true, completion: nil)
+    }
+
+}
+

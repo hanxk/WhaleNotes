@@ -27,6 +27,8 @@ enum ContentUpdateEvent {
 
 class CardEditorViewModel {
     private(set) var blockInfo: BlockInfo
+    private(set) var board: BlockInfo
+    
     private var contents:[BlockInfo] {
         get { return blockInfo.contents}
         set { blockInfo.contents = newValue}
@@ -36,8 +38,9 @@ class CardEditorViewModel {
 //    public let contentPub: PublishSubject<ContentUpdateEvent> = PublishSubject()
     private let disposable = DisposeBag()
     
-    init(blockInfo: BlockInfo) {
+    init(blockInfo: BlockInfo,board:BlockInfo) {
         self.blockInfo = blockInfo
+        self.board = board
     }
     
     func update(block:Block) {
@@ -55,6 +58,19 @@ class CardEditorViewModel {
         block.title = title
         self.update(block: block)
     }
+}
+
+extension CardEditorViewModel {
+    func moveTo(newBoard:BlockInfo) {
+        BoardsRepo.shared.moveCard2NewBoard(card: self.blockInfo, newBoard: newBoard)
+            .subscribe {
+                self.blockInfo  = $0
+                self.noteInfoPub.onNext(.moved(block: $0, boardBlock: newBoard))
+            } onError: {
+                Logger.error($0)
+            }.disposed(by: disposable)
+    }
+    
 }
 
 extension CardEditorViewModel {
@@ -99,9 +115,7 @@ extension CardEditorViewModel {
         }.disposed(by: disposable)
     }
     
-    
     func updatePosition(_ content:BlockInfo,from:Int,to:Int,callback:(()->Void)? = nil) {
-//        guard let index = self.blockInfo.contents.firstIndex(of: content) else { return }
         if self.contents[from].id != content.id { return }
         BlockRepo.shared.executeActions(actions:
                                             [

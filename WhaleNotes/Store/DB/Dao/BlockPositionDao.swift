@@ -21,13 +21,27 @@ extension BlockPositionDao {
         try db.execute(insertSql, args: blockPosition.id,blockPosition.blockId,blockPosition.ownerId,blockPosition.position)
     }
     
-    func queryMinPosition(id:String) throws -> BlockPosition? {
-        let selectSql = "SELECT id,block_id, owner_id,position FROM block_position WHERE owner_id = ? order by position limit 1"
-        let rows = try db.query(selectSql,args: id)
-        for row in rows {
-            return self.extract(row: row)
-        }
-        return nil
+//    func queryMinPosition(id:String) throws -> BlockPosition? {
+//        let selectSql = "SELECT id,block_id, owner_id,position FROM block_position WHERE owner_id = ? order by position limit 1"
+//        let rows = try db.query(selectSql,args: id)
+//        for row in rows {
+//            return self.extract(row: row)
+//        }
+//        return nil
+//    }
+    func queryMinPosition(id:String) throws -> Double? {
+        let selectSql = """
+                                SELECT IFNULL(MIN(block_position.position),-1) as min_pos FROM block_position
+                                inner join block on block.id = block_position.block_id
+                                and block_position.owner_id = ? and block.status = ?
+                           """
+        let minPos = try db.scalar(selectSql,args: id,BlockStatus.normal.rawValue)
+//        for row in rows {
+//            let position = (row["min_pos"] as! Double)
+//            return position
+//        }
+        if minPos == -1 {return nil}
+        return Double(minPos)
     }
     
     func query(id:String) throws -> BlockPosition? {

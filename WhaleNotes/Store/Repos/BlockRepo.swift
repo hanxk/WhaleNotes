@@ -52,6 +52,19 @@ extension BlockRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    
+//    func getFirstBlockInfo(ownerId:String,status:BlockStatus = .normal) -> Observable<BlockInfo?> {
+//        return Observable<[BlockInfo]>.create {  observer -> Disposable in
+//            self.executeTask(observable: observer) { () -> [BlockInfo] in
+//                let blocks:[BlockInfo] = try self.blockPositionDao.queryMinPosition(id: ownerId)
+//                return blocks
+//            }
+//        }
+//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+//        .observeOn(MainScheduler.instance)
+//    }
+    
+    
     func createBlock(_ block:BlockInfo) -> Observable<BlockInfo> {
         return Observable<BlockInfo>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> BlockInfo in
@@ -189,7 +202,7 @@ extension BlockRepo {
         return Observable<[BlockInfo]>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> [BlockInfo] in
                 
-                var minPostion = try self.blockPositionDao.queryMinPosition(id: ownerId)?.position ?? 65536*2
+                var minPostion = try self.blockPositionDao.queryMinPosition(id: ownerId) ?? 65536*2
                 minPostion =  minPostion / 2
                 
                 let imageBlocks:[BlockInfo] =  properties.map {

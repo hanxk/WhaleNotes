@@ -112,31 +112,56 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     }
     
 }
+class Toolbar: UIToolbar {
 
+    let height: CGFloat = HomeViewController.toolbarHeight
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        var newBounds = self.bounds
+        newBounds.size.height = height
+        self.bounds = newBounds
+    }
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        var size = super.sizeThatFits(size)
+        size.height = height
+        return size
+    }
+}
 
 //MARK: tool bar
 extension HomeViewController {
     
+    enum ToolbarAction:Int {
+        case Note = 0
+        case Camera = 1
+        case Photos = 2
+        case Audio = 3
+        case Bookmark = 4
+    }
+    
     private  func setupToolbar() {
         
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 35)).then {
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
             $0.tintColor = .iconColor
-            $0.barTintColor = UIColor(hexString: "#EBECEF")
+//            $0.barTintColor = UIColor(hexString: "#EBECEF")
             $0.isTranslucent = false
             
 //            $0.clipsToBounds = true
         }
         
         var items = [UIBarButtonItem]()
-        items.append(generateUIBarButtonItem(systemName:"camera"))
+        items.append(generateUIBarButtonItem(systemName:"camera",action: .camera))
         items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle"))
+        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle",action: .image))
         items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"mic"))
+        items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
         items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"link"))
+        items.append(generateUIBarButtonItem(systemName:"link",action: .text))
         items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-        items.append(generateUIBarButtonItem(systemName:"plus.circle.fill",pointSize: 18))
+        items.append(generateUIBarButtonItem(systemName:"plus.circle.fill",action: .text,pointSize: 18))
 //        toolbarItems = items
         
         toolbar.items = items
@@ -149,15 +174,37 @@ extension HomeViewController {
 //            $0.height.equalTo(HomeViewController.toolbarHeight)
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
         }
-//        DispatchQueue.main.async {
-//            self.navigationController?.toolbar.updateConstraintsIfNeeded()
+    }
+    
+    
+    func showVC() {
+        /* 2 */
+        //Configure the presentation controller
+        
+        let controller = MyPopViewController()
+//        controller.modalPresentationStyle = .
+//        controller.preferredContentSize = CGSize(width: 100, height: 200)
+
+        self.present(controller, animated: true)
+//        popoverContentController.
+//        popoverContentController?.modalPresentationStyle = .popover
+        /* 3 */
+//        if let popoverPresentationController = popoverContentController?.popoverPresentationController {
+//        popoverPresentationController.permittedArrowDirections = .up
+//        popoverPresentationController.sourceView = self.view
+//        popoverPresentationController.sourceRect = buttonFrame
+//        popoverPresentationController.delegate = self
+//        if let popoverController = popoverContentController {
+//        present(popoverController, animated: true, completion: nil)
+//        }
 //        }
     }
     
-    private func generateUIBarButtonItem(systemName:String,pointSize:CGFloat = 15) -> UIBarButtonItem {
+    private func generateUIBarButtonItem(systemName:String,action:MenuType,pointSize:CGFloat = 15) -> UIBarButtonItem {
         let icon = UIImage(systemName: systemName, pointSize: pointSize)
-        let item = UIBarButtonItem(image:icon , style: .plain, target: self, action: #selector(handleToolbarAction))
-//        item.imageInsets = UIEdgeInsets(top: 0, left: 0, bottom: -18, right: 0)
+        let item = UIBarButtonItem(image:icon , style: .plain, target: self, action: #selector(toolbarActionTapped(sender:)))
+        item.tag = action.rawValue
+        item.imageInsets = UIEdgeInsets(top: 0, left: 0, bottom: -20, right: 0)
         return item
     }
     
@@ -168,8 +215,12 @@ extension HomeViewController {
     }
     
     
-    @objc func handleToolbarAction () {
-        
+    @objc func toolbarActionTapped (sender: UIBarButtonItem) {
+        guard let boardView = self.contentView as? BoardView,
+             let toolbarAction = MenuType.init(rawValue: sender.tag) else{
+            return
+        }
+        boardView.openNoteEditor(type: toolbarAction)
     }
     
 }
@@ -289,6 +340,7 @@ extension HomeViewController:UINavigationBarDelegate{
             $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
             $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         }
+        button.backgroundColor = .red
         let barButton = UIBarButtonItem(customView: button)
         
         let label = UILabel()

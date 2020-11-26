@@ -168,7 +168,7 @@ class BoardSettingViewController:UIViewController {
     
 }
 
-extension BoardSettingViewController:UIAdaptivePresentationControllerDelegate,UIActionSheetDelegate {
+extension BoardSettingViewController:UIAdaptivePresentationControllerDelegate {
     func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
         if  self.isPreventChild {
             return false
@@ -179,26 +179,6 @@ extension BoardSettingViewController:UIAdaptivePresentationControllerDelegate,UI
         }
         return true
     }
-    
-    func showDismissSheet() {
-        let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let deleteAction = UIAlertAction(title: "放弃更改", style: .destructive, handler:
-                                            {
-                                                (alert: UIAlertAction!) -> Void in
-                                                self.dismiss(animated: true, completion: nil)
-                                            })
-        
-        let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler:
-                                            {
-                                                (alert: UIAlertAction!) -> Void in
-                                                optionMenu.dismiss(animated: true, completion: nil)
-                                            })
-        optionMenu.addAction(deleteAction)
-        optionMenu.addAction(cancelAction)
-        self.present(optionMenu, animated: true, completion: nil)
-    }
-    
-    
 }
 
 extension BoardSettingViewController:UITableViewDataSource {

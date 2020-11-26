@@ -152,6 +152,11 @@
 		18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */; };
 		18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3A07524CD8F9000C023EA /* EditorViewModel.swift */; };
 		18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F3D50E24E8C6EE000E94F7 /* EventManager.swift */; };
+		18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C23256D149F00834DB5 /* MyPopViewController.swift */; };
+		18F57C28256D464300834DB5 /* CardSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C27256D464300834DB5 /* CardSettingViewController.swift */; };
+		18F57C2C256D493F00834DB5 /* FormInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C2B256D493F00834DB5 /* FormInputCell.swift */; };
+		18F57C2F256E072400834DB5 /* FormCommonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C2E256E072400834DB5 /* FormCommonCell.swift */; };
+		18F57C32256E29B600834DB5 /* UITextView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C31256E29B600834DB5 /* UITextView+Ex.swift */; };
 		18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -303,6 +308,11 @@
 		18F3A07324CD5F6300C023EA /* BottomPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomPresentationController.swift; sourceTree = "<group>"; };
 		18F3A07524CD8F9000C023EA /* EditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewModel.swift; sourceTree = "<group>"; };
 		18F3D50E24E8C6EE000E94F7 /* EventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
+		18F57C23256D149F00834DB5 /* MyPopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPopViewController.swift; sourceTree = "<group>"; };
+		18F57C27256D464300834DB5 /* CardSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingViewController.swift; sourceTree = "<group>"; };
+		18F57C2B256D493F00834DB5 /* FormInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormInputCell.swift; sourceTree = "<group>"; };
+		18F57C2E256E072400834DB5 /* FormCommonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormCommonCell.swift; sourceTree = "<group>"; };
+		18F57C31256E29B600834DB5 /* UITextView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Ex.swift"; sourceTree = "<group>"; };
 		18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -533,6 +543,7 @@
 				18E7BF7A248BC7B900B8AEC1 /* UIButton+Ex.swift */,
 				18E7BF89248C92CB00B8AEC1 /* UILabel+Ex.swift */,
 				18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */,
+				18F57C31256E29B600834DB5 /* UITextView+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -557,6 +568,7 @@
 		1865AEF7244C79400006B48D /* Editor */ = {
 			isa = PBXGroup;
 			children = (
+				18F57C26256D461C00834DB5 /* Setting */,
 				18251C1D249B303A00484D23 /* NoteColor */,
 				182BE901249A55A700C85F8F /* Menu */,
 				182BE8F9249A13CA00C85F8F /* ChangeBoard */,
@@ -878,6 +890,7 @@
 				18E7BF7E248BD4D400B8AEC1 /* Board */,
 				188942A9246FDBAB006173F8 /* Notes */,
 				18E956892449AAC7003755BF /* Home */,
+				18F57C23256D149F00834DB5 /* MyPopViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -918,6 +931,24 @@
 				1848ABD624EEBAEE00BFE0DF /* TodoCellProvider.swift */,
 			);
 			path = Prodivder;
+			sourceTree = "<group>";
+		};
+		18F57C26256D461C00834DB5 /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				18F57C2A256D472A00834DB5 /* Cells */,
+				18F57C27256D464300834DB5 /* CardSettingViewController.swift */,
+			);
+			path = Setting;
+			sourceTree = "<group>";
+		};
+		18F57C2A256D472A00834DB5 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				18F57C2B256D493F00834DB5 /* FormInputCell.swift */,
+				18F57C2E256E072400834DB5 /* FormCommonCell.swift */,
+			);
+			path = Cells;
 			sourceTree = "<group>";
 		};
 		18FA5CCE24DE8FAA00E06642 /* DB */ = {
@@ -1088,6 +1119,7 @@
 				1859303024BA952800D1352A /* SQLite.swift in Sources */,
 				18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */,
 				18E9D6BF2470D985001E41A0 /* String+Ex.swift in Sources */,
+				18F57C2C256D493F00834DB5 /* FormInputCell.swift in Sources */,
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
 				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
@@ -1140,6 +1172,7 @@
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
+				18F57C28256D464300834DB5 /* CardSettingViewController.swift in Sources */,
 				18F3A07224CD5D9900C023EA /* NoteColorCircleCell.swift in Sources */,
 				1870041D24C9A09A00AE784C /* BaseToolbar.swift in Sources */,
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
@@ -1158,6 +1191,7 @@
 				18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */,
 				1859BCB324EA812B0089CB1B /* BoardActionView.swift in Sources */,
 				1820C4A2248CE35000484AF8 /* EmojiSectionHeaderView.swift in Sources */,
+				18F57C32256E29B600834DB5 /* UITextView+Ex.swift in Sources */,
 				1847ADB124A1F62B007B39EE /* BoardIconCell.swift in Sources */,
 				188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */,
 				18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */,
@@ -1181,6 +1215,7 @@
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
 				181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */,
 				181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */,
+				18F57C2F256E072400834DB5 /* FormCommonCell.swift in Sources */,
 				1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */,
 				18A463F024EBD0E400D7EBD0 /* CardEditorViewModel.swift in Sources */,
 				18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */,
@@ -1194,6 +1229,7 @@
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */,
+				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
@@ -1282,7 +1318,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1336,7 +1372,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

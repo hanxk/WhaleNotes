@@ -32,6 +32,10 @@ extension BlockInfo {
         get { return block.title}
         set  { block.title = newValue}
     }
+    var remark:String {
+        get { return block.remark}
+        set  { block.remark = newValue}
+    }
     var position:Double {
         get { return blockPosition.position}
         set  { blockPosition.position = newValue}

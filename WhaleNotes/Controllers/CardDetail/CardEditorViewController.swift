@@ -75,7 +75,6 @@ class CardEditorViewController: UIViewController {
     
     private func registerViewModel() {
         viewModel.noteInfoPub.subscribe { [weak self] in
-            print("更新了............")
             self?.handleEditorUpdateEvent(event: $0)
         } onError: {
             Logger.error($0)
@@ -89,11 +88,11 @@ class CardEditorViewController: UIViewController {
     
     private func setupKeyboard() {
         if !isNew { return }
-        if let noteView = view as? NoteView {
+        if let noteView = editorView as? NoteView {
             noteView.textView.becomeFirstResponder()
             return
         }
-        if let todoListView = view as? TodoBlockEditorView {
+        if let todoListView = editorView as? TodoBlockEditorView {
             todoListView.todoBecomeFirstResponder()
         }
     }
@@ -131,8 +130,21 @@ extension CardEditorViewController:UINavigationBarDelegate{
         
         let navItem = UINavigationItem()
         navBar.items = [navItem]
+        navBar.tintColor = .iconColor
         self.createBackBarButton(forNavigationItem: navItem)
         navItem.titleView = titleTextField
+        
+        
+        let pen =  UIBarButtonItem(image: UIImage(systemName: "pencil.circle"), style: .plain, target: self, action: #selector(infoIconTapped))
+        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: #selector(infoIconTapped))
+        navItem.rightBarButtonItems = [more,pen]
+        
+    }
+    
+    @objc func infoIconTapped() {
+        let vc = CardSettingViewController()
+        vc.viewModel = self.viewModel
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
     func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){

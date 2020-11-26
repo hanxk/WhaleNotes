@@ -609,10 +609,10 @@ struct MenuItem  {
     var type: MenuType
 }
 
-enum MenuType {
-    case text
-    case image
-    case camera
-    case todo
-    case bookmark
+enum MenuType:Int {
+    case text = 0
+    case image = 1
+    case camera = 2
+    case todo = 3
+    case bookmark = 4
 }

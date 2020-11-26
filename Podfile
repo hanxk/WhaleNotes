@@ -25,5 +25,6 @@ target 'WhaleNotes' do
   pod 'Toast-Swift', '~> 5.0.1'
   pod 'SwiftLinkPreview', '~> 3.1.0'
   pod 'FloatingPanel'
+  pod 'QuickTableViewController'
   # Pods for WhaleNotes
 end

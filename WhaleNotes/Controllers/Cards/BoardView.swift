@@ -36,7 +36,8 @@ enum BoardViewConstants {
     static let cornerRadius:CGFloat = 8
     
     static let waterfall_cellSpace: CGFloat = 0
-    static let waterfall_cellHorizontalSpace: CGFloat = 10
+    static let waterfall_cellHorizontalSpace: CGFloat = 8
+    static let waterfall_verticalSpace: CGFloat = 8
     
 }
 
@@ -60,9 +61,9 @@ class BoardView: UIView, UINavigationControllerDelegate {
    
     private lazy var  layoutDelegate = WaterfallCollectionLayoutDelegate().then {
         $0.layoutInfo = WaterfallCollectionLayoutInfo(numberOfColumns: Int(numberOfColumns),
-                                                      columnSpacing: BoardViewConstants.waterfall_cellSpace,
-                                                      interItemSpacing: BoardViewConstants.waterfall_cellSpace,
-                                                      sectionInsets: UIEdgeInsets(top: BoardViewConstants.waterfall_cellSpace, left: BoardViewConstants.waterfall_cellHorizontalSpace, bottom: BoardViewConstants.waterfall_cellSpace, right:  BoardViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
+                                                      columnSpacing: 0,
+                                                      interItemSpacing: 0,
+                                                      sectionInsets: UIEdgeInsets(top: 0, left: BoardViewConstants.waterfall_cellHorizontalSpace, bottom: BoardViewConstants.waterfall_verticalSpace, right:  BoardViewConstants.waterfall_cellHorizontalSpace), scrollDirection: ASScrollDirectionVerticalDirections)
     }
     
     
@@ -146,7 +147,7 @@ class BoardView: UIView, UINavigationControllerDelegate {
 }
 
 extension BoardView {
-    private func createNewNote() {
+    func createNewNote() {
         self.createBlockInfo(blockInfo: Block.note(title: "", parentId: board.id, position:generatePosition() ))
     }
     
@@ -213,18 +214,14 @@ extension BoardView: ASCollectionDelegate {
         self.openEditorVC(cardBlock: cardBlock)
     }
     func openEditorVC(cardBlock: BlockInfo,isNew:Bool = false) {
-        let viewModel:CardEditorViewModel = CardEditorViewModel(blockInfo: cardBlock)
+        let viewModel:CardEditorViewModel = CardEditorViewModel(blockInfo: cardBlock,board: self.board)
         let noteVC  = CardEditorViewController()
         noteVC.viewModel = viewModel
         noteVC.isNew = isNew
         noteVC.updateCallback = { [weak self] event in
             self?.handleEditorUpdateEvent(event: event)
         }
-        noteVC.hidesBottomBarWhenPushed = true
-//        let nav = MyNavigationController(rootViewController: noteVC)
-        self.controller?.hidesBottomBarWhenPushed = true
         self.controller?.navigationController?.pushViewController(noteVC, animated: true)
-        self.controller?.hidesBottomBarWhenPushed = false
     }
     
     func handleEditorUpdateEvent(event:EditorUpdateEvent) {
@@ -239,11 +236,11 @@ extension BoardView: ASCollectionDelegate {
                 self.refreshBlockCell(block: block)
                 break
             case .moved(block: let block, boardBlock: let boardBlock):
-                self.removeBlockCell(block: block)
+                self.removeCardCell(card: block)
                 print(boardBlock.title)
                 break
             case .delete(block: let block):
-                self.removeBlockCell(block: block)
+                self.removeCardCell(card: block)
                 break
         }
     }
@@ -258,8 +255,14 @@ extension BoardView: ASCollectionDelegate {
         }
     }
     
-    private func removeBlockCell(block:BlockInfo) {
-        
+    private func removeCardCell(card:BlockInfo) {
+       guard let index = self.cards.firstIndex(where: {$0.id == card.id}) else { return }
+        self.cards.remove(at: index)
+        UIView.performWithoutAnimation {
+            self.collectionNode.performBatchUpdates({
+                self.collectionNode.deleteItems(at: [IndexPath(row: index, section: 0)])
+            }, completion: nil)
+        }
     }
     private func insertBlockCell(block:BlockInfo,at:Int = 0) {
         self.cards.insert(block, at: at)
@@ -304,10 +307,10 @@ extension BoardView {
         }
     }
     
-    private func openNoteEditor(type: MenuType) {
+    func openNoteEditor(type: MenuType) {
         switch type {
         case .text:
-//            self.createTextNote()
+            self.createNewNote()
             break
         case .todo:
             self.createTodoListBlock()

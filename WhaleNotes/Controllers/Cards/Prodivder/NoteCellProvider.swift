@@ -66,6 +66,7 @@ class NoteCellProvider:CellProvider {
             print(textProperties.text)
             textNode.attributedText = getTextLabelAttributes(text: textProperties.text)
             textNode.truncationMode = .byTruncatingTail
+            textNode.maximumNumberOfLines = 12
             
             self.textNode = textNode
             cell.addSubnode(textNode)
@@ -102,7 +103,7 @@ extension NoteCellProvider {
         paragraphStyle.lineSpacing = 1.8
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
+            .font: UIFont.systemFont(ofSize: 16, weight: .medium),
             .foregroundColor: UIColor.cardText,
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)
@@ -115,7 +116,7 @@ extension NoteCellProvider {
         
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 16),
+            .font: UIFont.systemFont(ofSize: 15),
             .foregroundColor: UIColor.cardText,
             .paragraphStyle:paragraphStyle
         ]

@@ -9,6 +9,7 @@ import UIKit
 struct Block {
     var id:String = UUID.init().uuidString
     var title:String = ""
+    var remark:String = ""
     var type:BlockType!
     var status:BlockStatus = .normal
     var properties:Any!
