@@ -86,8 +86,8 @@ class SideMenuViewController: UIViewController {
         }
     }
     
-    private var collectBoard:BlockInfo!
-    private var userBoards:[BlockInfo]!
+    private(set) var collectBoard:BlockInfo!
+    private(set) var userBoards:[BlockInfo]!
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
         $0.separatorColor = .clear

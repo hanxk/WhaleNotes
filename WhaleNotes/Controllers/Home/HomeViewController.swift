@@ -161,7 +161,7 @@ extension HomeViewController {
         items.append(generateSpace())
         items.append(generateUIBarButtonItem(systemName:"link",action: .text))
         items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-        items.append(generateUIBarButtonItem(systemName:"plus.circle.fill",action: .text,pointSize: 18))
+        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 18))
 //        toolbarItems = items
         
         toolbar.items = items
@@ -389,43 +389,24 @@ extension HomeViewController:UINavigationBarDelegate{
     }
     
     @objc func handleShowSearchbar() {
-        //        let vc = SearchViewController()
-        //        vc.callbackOpenBoard = { [weak self] boardBlock in
-        //            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
-        //        }
-        //        vc.callbackNoteEdited = { [weak self] editorMode in
-        //            self?.handleEditorMode(editorMode)
-        //        }
-        //        let navVC = MyNavigationController(rootViewController: vc)
-        //        navVC.modalPresentationStyle = .overFullScreen
-        //        navVC.modalTransitionStyle = .crossDissolve
-        //        self.navigationController?.present(navVC, animated: true, completion: nil)
+        let vc = SearchViewController()
         
-        let alert = UIAlertController(title: "Title", message: "Please Select an Option", preferredStyle: .actionSheet)
+        var boards:[BlockInfo] = []
+        boards.append(contentsOf: sideMenuViewController.userBoards)
+        boards.append(sideMenuViewController.collectBoard)
         
-        alert.addAction(UIAlertAction(title: "Approve", style: .default , handler:{ (UIAlertAction)in
-            print("User click Approve button")
-        }))
+        vc.boards = boards
         
-        alert.addAction(UIAlertAction(title: "Edit", style: .default , handler:{ (UIAlertAction)in
-            print("User click Edit button")
-        }))
-        
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive , handler:{ (UIAlertAction)in
-            print("User click Delete button")
-        }))
-        
-        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler:{ (UIAlertAction)in
-            print("User click Dismiss button")
-        }))
-        
-        
-        //uncomment for iPad Support
-        //alert.popoverPresentationController?.sourceView = self.view
-        
-        self.present(alert, animated: true, completion: {
-            print("completion block")
-        })
+//        vc.callbackOpenBoard = { [weak self] boardBlock in
+//            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
+//        }
+//        vc.callbackNoteEdited = { [weak self] editorMode in
+//            self?.handleEditorMode(editorMode)
+//        }
+        let navVC = MyNavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+        navVC.modalTransitionStyle = .crossDissolve
+        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
     
     

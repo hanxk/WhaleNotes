@@ -50,7 +50,6 @@ class ChangeBoardViewController:UIViewController {
     }
     
     private func setupUI() {
-        self.title = "移动至..."
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
@@ -59,7 +58,7 @@ class ChangeBoardViewController:UIViewController {
         }
         self.tableView.backgroundColor = .settingbg
         
-        self.title = "移动至..."
+        self.title = "移动至"
          
     }
     
@@ -159,7 +158,7 @@ extension ChangeBoardViewController:UITableViewDelegate {
         if viewModel.board.id != boardBlock.id {
             viewModel.moveTo(newBoard: boardBlock)
         }
-        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     
     func toggleBoard(_ board:Board,indexPath:IndexPath) {

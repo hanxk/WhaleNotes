@@ -93,6 +93,26 @@ extension BlockDao {
         return rootBlockInfos
     }
     
+    
+    
+    func searchCards(keyword:String,status:Int = BlockStatus.normal.rawValue) throws ->[BlockInfo] {
+        // common: title,remark
+        // note: text
+        var keywordSql = " block.title like '%"+keyword+"%' or block.remark like '%"+keyword+"%' "
+        keywordSql += " or  (json_extract(block.properties,'$.text') like '%"+keyword+"%' and  block.type = '"+BlockType.note.rawValue+"')"
+        
+        var selectSQL = """
+                       select block.*,
+                       IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                       from block
+                       join block_position on block_position.block_id = block.id and block.status = ? and type != ?
+                    """
+        selectSQL += "and ("+keywordSql+")"
+        let rows = try db.query(selectSQL, args: status,BlockType.board.rawValue)
+        let cards = extractBlocks(rows:rows)
+        return cards
+    }
+    
     private func getChildBlocksByBlock(blocks:[BlockInfo],childBlocks:inout [BlockInfo], parentBlock:BlockInfo) {
         var tempChildBlocks = blocks.filter { $0.ownerId == parentBlock.id }
         if tempChildBlocks.isNotEmpty {
@@ -110,12 +130,22 @@ extension BlockDao {
 extension BlockDao {
     
     
-    fileprivate func extractRootAndContentBlocks(rows: [Row],ownerId:String) -> ([BlockInfo],[BlockInfo]) {
+    fileprivate func extractBlocks(rows: [Row]) -> [BlockInfo] {
+        var blocks:[BlockInfo] = []
+        for row in rows {
+            let blockInfo:BlockInfo = extract(row: row)
+            blocks.append(blockInfo)
+        }
+        return blocks
+    }
+    
+    
+    fileprivate func extractRootAndContentBlocks(rows: [Row],ownerId:String? = nil) -> ([BlockInfo],[BlockInfo]) {
         var rootBlocks:[BlockInfo] = []
         var contentBlocks:[BlockInfo] = []
         for row in rows {
             let blockInfo:BlockInfo = extract(row: row)
-            if blockInfo.ownerId == ownerId {
+            if let ownerId = ownerId,blockInfo.ownerId == ownerId {
                 rootBlocks.append(blockInfo)
             }else {
                 contentBlocks.append(blockInfo)
@@ -147,7 +177,7 @@ extension BlockDao {
         let id = row["id"] as! String
         let type = BlockType.init(rawValue:  row["type"] as! String)!
         var title = (row["title"] as? String) ?? ""
-        var remark = (row["remark"] as? String) ?? ""
+        let remark = (row["remark"] as? String) ?? ""
         let status = BlockStatus.init(rawValue:  row["status"] as! Int)!
         let propertiesJSON = row["properties"] as! String
         
@@ -180,9 +210,17 @@ extension BlockDao {
         
         let positionId = row["position_id"] as! String
         let ownerId = row["owner_id"] as! String
-        let position = row["position"] as! Double
         
-        let blockPosition = BlockPosition(id: positionId, blockId: block.id, ownerId: ownerId, position: position)
+        var rightPos:Double = 0
+        if let pos = row["position"] {
+            if let position = pos as? Double {
+                rightPos = position
+            }else if let position = pos as? String {
+                rightPos = Double(position) ?? 0
+            }
+        }
+        
+        let blockPosition = BlockPosition(id: positionId, blockId: block.id, ownerId: ownerId, position: rightPos)
         
         return BlockInfo(block: block, blockPosition: blockPosition)
     }

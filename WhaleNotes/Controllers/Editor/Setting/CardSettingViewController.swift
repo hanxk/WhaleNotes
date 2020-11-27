@@ -26,7 +26,7 @@ class CardSettingViewController: UIViewController  {
         
         formSections =  [
             FormSection(rows: [
-                FormTapRow(icon: "folder", title: "收集板", value: board.title,action: {[weak self] in self?.handleBoardTapped()}),
+                FormTapRow(icon: "arrow.turn.up.right", title: "移动至", value: board.title,action: {[weak self] in self?.handleBoardTapped()}),
                 FormTapRow(icon: "tag", title: "标签", value: board.title,action: {[weak self] in self?.handleBoardTapped()})
             ]),
             FormSection(rows: [
@@ -71,11 +71,11 @@ class CardSettingViewController: UIViewController  {
     }
     
     private func setupNav() {
-//        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "完成", style: .plain, target: self, action: #selector(doneButtonTapped))
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "完成", style: .plain, target: self, action: #selector(doneButtonTapped))
     }
     
     @objc func doneButtonTapped() {
-        
+        self.dismiss(animated: true, completion: nil)
     }
 }
 

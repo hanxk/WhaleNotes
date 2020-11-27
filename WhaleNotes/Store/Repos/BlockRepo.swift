@@ -29,18 +29,6 @@ extension BlockRepo {
 //MARK: BlockInfo
 extension BlockRepo {
     
-    func getBlockInfos(ownerId:String,blockType:BlockType,status:BlockStatus = .normal) -> Observable<[BlockInfo]> {
-        return Observable<[BlockInfo]>.create {  observer -> Disposable in
-            self.executeTask(observable: observer) { () -> [BlockInfo] in
-                let blocks:[BlockInfo] = try self.blockDao.query(ownerId: ownerId, type: blockType.rawValue, status: status.rawValue)
-                return blocks
-            }
-        }
-        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-        .observeOn(MainScheduler.instance)
-    }
-    
-    
     func getBlockInfos2(ownerId:String,status:BlockStatus = .normal) -> Observable<[BlockInfo]> {
         return Observable<[BlockInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [BlockInfo] in
@@ -52,17 +40,16 @@ extension BlockRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    
-//    func getFirstBlockInfo(ownerId:String,status:BlockStatus = .normal) -> Observable<BlockInfo?> {
-//        return Observable<[BlockInfo]>.create {  observer -> Disposable in
-//            self.executeTask(observable: observer) { () -> [BlockInfo] in
-//                let blocks:[BlockInfo] = try self.blockPositionDao.queryMinPosition(id: ownerId)
-//                return blocks
-//            }
-//        }
-//        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-//        .observeOn(MainScheduler.instance)
-//    }
+    func searchCards(keyword: String) -> Observable<[BlockInfo]> {
+        return Observable<[BlockInfo]>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> [BlockInfo] in
+                let blocks:[BlockInfo] = try self.blockDao.searchCards(keyword: keyword)
+                return blocks
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
     
     func createBlock(_ block:BlockInfo) -> Observable<BlockInfo> {
