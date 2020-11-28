@@ -31,6 +31,12 @@ class CardEditorViewController: UIViewController {
         $0.standardAppearance.shadowColor = nil
     }
     
+    
+    let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
+        $0.tintColor = .iconColor
+        $0.isTranslucent = false
+    }
+    
     private lazy var titleTextField =  TitleTextField(frame:  CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 120, height: 44 )).then {
         $0.textAlignment = .center
         $0.placeholder = "标题"
@@ -125,6 +131,7 @@ extension CardEditorViewController:UINavigationBarDelegate{
         self.view.backgroundColor =  .white
         
         self.setupNavgationBar()
+        self.setupToolbar()
     }
     
     private func setupNavgationBar() {
@@ -136,20 +143,13 @@ extension CardEditorViewController:UINavigationBarDelegate{
         navItem.titleView = titleTextField
         
         remarkButton.tintColor = viewModel.blockInfo.remark.isNotEmpty ? .brand : .iconColor
-        
-        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: #selector(infoIconTapped))
-        navItem.rightBarButtonItems = [more,remarkButton]
-        
+        navItem.rightBarButtonItems = [remarkButton]
     }
+    
+    
     
     @objc func pencilIconTapped() {
         let vc = RemarkViewController()
-        vc.viewModel = self.viewModel
-        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-    }
-    
-    @objc func infoIconTapped() {
-        let vc = CardSettingViewController()
         vc.viewModel = self.viewModel
         self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
     }
@@ -176,6 +176,40 @@ extension CardEditorViewController:UINavigationBarDelegate{
 }
 
 
+
+//MARK: toolbar
+extension CardEditorViewController {
+    
+    private func setupToolbar() {
+        self.view.addSubview(toolbar)
+        toolbar.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
+        }
+        
+        var items = [UIBarButtonItem]()
+        items.append(UIBarButtonItem(image:UIImage(systemName: "square.and.arrow.up") , style: .plain, target: self, action: #selector(toolbarActionTapped)))
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        items.append(space)
+        items.append(UIBarButtonItem(image:UIImage(systemName: "ellipsis") , style: .plain, target: self, action: #selector(infoIconTapped)))
+        toolbar.items = items
+    }
+    
+    @objc func toolbarActionTapped() {
+        
+    }
+    
+    
+    @objc func infoIconTapped() {
+        let vc = CardSettingViewController()
+        vc.viewModel = self.viewModel
+        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    
+}
+
+
 extension CardEditorViewController {
     
     func handleEditorUpdateEvent(event:EditorUpdateEvent) {
@@ -184,7 +218,10 @@ extension CardEditorViewController {
         case .updated:
             remarkButton.tintColor = viewModel.blockInfo.remark.isNotEmpty ? .brand : .iconColor
             break
-        case .statusChanged:
+        case .statusChanged(let card):
+            if card.block.status == .trash {
+                self.navigationController?.popViewController(animated: true)
+            }
             break
         case .backgroundChanged:
             break

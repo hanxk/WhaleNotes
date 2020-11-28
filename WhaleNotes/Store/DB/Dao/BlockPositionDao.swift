@@ -100,6 +100,17 @@ extension BlockPositionDao {
     }
     
     
+    func delete(status:BlockStatus) throws {
+        let deleteSQL = """
+                      delete from block_position where block_id in (
+                            select block.id from block
+                            where json_extract(block.properties,'$.status') = ?
+                        );
+                    """
+        try db.execute(deleteSQL,args: status.rawValue)
+    }
+    
+    
     func delete(ownerId:String) throws{
         let deleteSql = "DELETE FROM block_position WHERE owner_id = ?";
         try db.execute(deleteSql, args:ownerId)

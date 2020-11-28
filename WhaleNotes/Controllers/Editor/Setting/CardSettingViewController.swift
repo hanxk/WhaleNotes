@@ -24,13 +24,16 @@ class CardSettingViewController: UIViewController  {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let trashRow = blockInfo.block.status == .trash ? (FormTapRow(icon: "trash.slash", title: "恢复",showIndicator:false,action: {[weak self] in self?.handleTrashRestoreItemTapped()}))
+        :(FormTapRow(icon: "trash", title: "移到废纸篓",showIndicator:false,action: {[weak self] in self?.handleTrashItemTapped()}))
+        
         formSections =  [
             FormSection(rows: [
                 FormTapRow(icon: "arrow.turn.up.right", title: "移动至", value: board.title,action: {[weak self] in self?.handleBoardTapped()}),
                 FormTapRow(icon: "tag", title: "标签", value: board.title,action: {[weak self] in self?.handleBoardTapped()})
             ]),
             FormSection(rows: [
-                FormTapRow(icon: "trash", title: "移到废纸篓",showIndicator:false,action: {[weak self] in self?.handleBoardTapped()})
+                trashRow
             ])
         ]
         
@@ -84,12 +87,22 @@ class CardSettingViewController: UIViewController  {
 extension CardSettingViewController {
     func handleBoardTapped() {
         let choosedBoardVC = ChangeBoardViewController()
-//        choosedBoardVC.choosedBoard = self.board
-//        choosedBoardVC.callbackChooseBoard = { [weak self] board in
-////            self?.viewModel.createContent(<#T##content: BlockInfo##BlockInfo#>, index: <#T##Int#>)
-//        }
         choosedBoardVC.viewModel = self.viewModel
         self.navigationController?.pushViewController(choosedBoardVC, animated: true)
+    }
+    
+    func handleTrashItemTapped() {
+        self.viewModel.move2Trash()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
+            self?.navigationController?.dismiss(animated: true, completion: nil)
+        }
+    }
+    
+    func handleTrashRestoreItemTapped() {
+        self.viewModel.moveOutTrash()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
+            self?.navigationController?.dismiss(animated: true, completion: nil)
+        }
     }
 }
 

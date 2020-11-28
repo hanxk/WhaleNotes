@@ -19,7 +19,7 @@ class SearchViewController: UIViewController {
 //            self.callbackNoteEdited(editorMode)
 //        }
     }
-    var boards:[BlockInfo]  = []
+    var boardsMap:[String:BlockInfo]  = [:]
     
     var callbackOpenBoard:((_ boardBlock:BlockInfo) -> Void )?
     
@@ -60,7 +60,7 @@ class SearchViewController: UIViewController {
 //           make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
 //           make.leading.trailing.equalToSuperview()
 //        }
-        notesView.boardMap = Dictionary(uniqueKeysWithValues: boards.map { ($0.id, $0) })
+        notesView.boardMap = self.boardsMap
         searchBar.searchTextField.becomeFirstResponder()
     }
     

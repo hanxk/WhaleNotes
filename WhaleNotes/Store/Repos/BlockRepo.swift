@@ -40,6 +40,17 @@ extension BlockRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    func getCards(ownerId:String?=nil,status:BlockStatus = .normal) -> Observable<[BlockInfo]> {
+        return Observable<[BlockInfo]>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> [BlockInfo] in
+                let blocks:[BlockInfo] = try self.blockDao.queryCards(status:status.rawValue,ownerId:ownerId)
+                return blocks
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
     func searchCards(keyword: String) -> Observable<[BlockInfo]> {
         return Observable<[BlockInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [BlockInfo] in
@@ -51,6 +62,26 @@ extension BlockRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    func deleteTrashCards()-> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                try self.blockPositionDao.delete(status: .trash)
+                try self.blockDao.deleteByStatus(status: .trash)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func restoreTrashCards()-> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                try self.blockDao.updateTrash2Normal()
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
     func createBlock(_ block:BlockInfo) -> Observable<BlockInfo> {
         return Observable<BlockInfo>.create {  observer -> Disposable in

@@ -87,7 +87,17 @@ class SideMenuViewController: UIViewController {
     }
     
     private(set) var collectBoard:BlockInfo!
-    private(set) var userBoards:[BlockInfo]!
+    private(set) var boardsMap:[String:BlockInfo] = [:]
+    
+    
+    private(set) var userBoards:[BlockInfo]! {
+        didSet {
+            var boards:[BlockInfo] = []
+            boards.append(contentsOf: userBoards)
+            boards.append(collectBoard)
+            boardsMap = Dictionary(uniqueKeysWithValues: boards.map { ($0.id, $0) })
+        }
+    }
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
         $0.separatorColor = .clear

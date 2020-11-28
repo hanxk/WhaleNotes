@@ -53,6 +53,19 @@ class CardEditorViewModel {
             }.disposed(by: disposable)
     }
     
+    
+    func update(status:BlockStatus) {
+        var block = self.blockInfo.block
+        block.status = status
+        BlockRepo.shared.updateBlock(block: block, ownerId: blockInfo.ownerId)
+            .subscribe {
+                self.blockInfo.block = block
+                self.noteInfoPub.onNext(.statusChanged(block: self.blockInfo))
+            } onError: {
+                Logger.error($0)
+            }.disposed(by: disposable)
+    }
+    
     func update(title:String) {
         var block = blockInfo.block
         block.title = title
@@ -63,6 +76,14 @@ class CardEditorViewModel {
         var block = blockInfo.block
         block.remark = remark
         self.update(block: block)
+    }
+    
+    func move2Trash() {
+        self.update(status: .trash)
+    }
+    
+    func moveOutTrash() {
+        self.update(status: .normal)
     }
 }
 

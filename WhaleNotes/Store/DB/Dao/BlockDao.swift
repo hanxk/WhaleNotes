@@ -93,6 +93,21 @@ extension BlockDao {
         return rootBlockInfos
     }
     
+    func queryCards(status:Int = BlockStatus.normal.rawValue,ownerId:String? = nil) throws ->[BlockInfo] {
+        var ownerSql = ""
+        if let ownerId = ownerId {
+                ownerSql = " and owner_id = " + ownerId
+        }
+        let selectSQL = """
+                       select block.*,
+                       IFNULL(block_position.id,'') as position_id, IFNULL(block_position.owner_id,'') as owner_id, IFNULL(block_position.position,0) as position
+                       from block
+                       join block_position on block_position.block_id = block.id and block.status = ? and type != ? \(ownerSql)
+                    """
+        let rows = try db.query(selectSQL, args: status,BlockType.board.rawValue)
+        let cards = extractBlocks(rows:rows)
+        return cards
+    }
     
     
     func searchCards(keyword:String,status:Int = BlockStatus.normal.rawValue) throws ->[BlockInfo] {
@@ -124,6 +139,16 @@ extension BlockDao {
             tempChildBlocks.sort { $0.blockPosition.position <  $1.blockPosition.position}
             childBlocks.append(contentsOf: tempChildBlocks)
         }
+    }
+    
+    func deleteByStatus(status:BlockStatus) throws  {
+        let sql = "delete from block where status = ?"
+        try db.execute(sql, args: status.rawValue)
+    }
+    
+    func updateTrash2Normal() throws  {
+        let sql = "update block set status = ? where status = ?"
+        try db.execute(sql, args: BlockStatus.normal.rawValue,BlockStatus.trash.rawValue)
     }
 }
 

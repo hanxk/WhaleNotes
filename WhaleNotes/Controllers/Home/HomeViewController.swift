@@ -43,6 +43,16 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         $0.scrollEdgeAppearance = barAppearance
         $0.standardAppearance.shadowColor = nil
     }
+    
+    let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
+        $0.tintColor = .iconColor
+//            $0.barTintColor = UIColor(hexString: "#EBECEF")
+        $0.isTranslucent = false
+        
+//            $0.clipsToBounds = true
+    }
+    
+    
     private var containerView:UIView = UIView()
     
     private let titleButton:HomeTitleView = HomeTitleView()
@@ -143,29 +153,6 @@ extension HomeViewController {
     }
     
     private  func setupToolbar() {
-        
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
-            $0.tintColor = .iconColor
-//            $0.barTintColor = UIColor(hexString: "#EBECEF")
-            $0.isTranslucent = false
-            
-//            $0.clipsToBounds = true
-        }
-        
-        var items = [UIBarButtonItem]()
-        items.append(generateUIBarButtonItem(systemName:"camera",action: .camera))
-        items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle",action: .image))
-        items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
-        items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"link",action: .text))
-        items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 18))
-//        toolbarItems = items
-        
-        toolbar.items = items
-        
         self.view.addSubview(toolbar)
         toolbar.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -176,29 +163,32 @@ extension HomeViewController {
         }
     }
     
-    
-    func showVC() {
-        /* 2 */
-        //Configure the presentation controller
+    private func setupBoardToolbar() {
+        var items = [UIBarButtonItem]()
+        items.append(generateUIBarButtonItem(systemName:"camera",action: .camera))
+        items.append(generateSpace())
+        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle",action: .image))
+        items.append(generateSpace())
+        items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
+        items.append(generateSpace())
+        items.append(generateUIBarButtonItem(systemName:"link",action: .text))
+        items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
+        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 18))
         
-        let controller = MyPopViewController()
-//        controller.modalPresentationStyle = .
-//        controller.preferredContentSize = CGSize(width: 100, height: 200)
-
-        self.present(controller, animated: true)
-//        popoverContentController.
-//        popoverContentController?.modalPresentationStyle = .popover
-        /* 3 */
-//        if let popoverPresentationController = popoverContentController?.popoverPresentationController {
-//        popoverPresentationController.permittedArrowDirections = .up
-//        popoverPresentationController.sourceView = self.view
-//        popoverPresentationController.sourceRect = buttonFrame
-//        popoverPresentationController.delegate = self
-//        if let popoverController = popoverContentController {
-//        present(popoverController, animated: true, completion: nil)
-//        }
-//        }
+        toolbar.tintColor = .iconColor
+        toolbar.items = items
     }
+    
+    private func setupTrashToolbar() {
+        var items = [UIBarButtonItem]()
+        items.append(UIBarButtonItem(title: "全部恢复", style: .plain, target: self, action: #selector(trashRestoreTapped(sender:))))
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        items.append(space)
+        items.append(UIBarButtonItem(title: "全部删除", style: .plain, target: self, action: #selector(trashDeleteTapped(sender:))))
+        toolbar.tintColor = .brand
+        toolbar.items = items
+    }
+    
     
     private func generateUIBarButtonItem(systemName:String,action:MenuType,pointSize:CGFloat = 15) -> UIBarButtonItem {
         let icon = UIImage(systemName: systemName, pointSize: pointSize)
@@ -221,6 +211,16 @@ extension HomeViewController {
             return
         }
         boardView.openNoteEditor(type: toolbarAction)
+    }
+    
+    
+    @objc func trashDeleteTapped (sender: UIBarButtonItem) {
+        guard let trashView = self.contentView as? TrashView else{ return }
+        trashView.handleClearTrash()
+    }
+    @objc func trashRestoreTapped (sender: UIBarButtonItem) {
+        guard let trashView = self.contentView as? TrashView else{ return }
+        trashView.handleRestoreTrash()
     }
     
 }
@@ -270,7 +270,8 @@ extension HomeViewController {
         let height:CGFloat = self.view.frame.height - topPadding
         let boardView = BoardView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height),board: board)
         self.contentView = boardView
-        
+        self.setupBoardToolbar()
+    
         self.containerView.addSubview(boardView)
         boardView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -302,13 +303,18 @@ extension HomeViewController {
         if let oldView =  self.contentView {
             oldView.removeFromSuperview()
         }
-        let trashView = TrashView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        
+        let topPadding = self.topbarHeight
+        let height:CGFloat = self.view.frame.height - topPadding
+        let trashView = TrashView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height),boardsMap:
+                                    sideMenuViewController.boardsMap)
         self.contentView = trashView
-        self.view.backgroundColor = .bg
-        self.view.addSubview(trashView)
+        self.containerView.addSubview(trashView)
         trashView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        
+        self.setupTrashToolbar()
     }
 }
 
@@ -388,14 +394,11 @@ extension HomeViewController:UINavigationBarDelegate{
         }
     }
     
+    
     @objc func handleShowSearchbar() {
         let vc = SearchViewController()
-        
-        var boards:[BlockInfo] = []
-        boards.append(contentsOf: sideMenuViewController.userBoards)
-        boards.append(sideMenuViewController.collectBoard)
-        
-        vc.boards = boards
+        vc.boardsMap = sideMenuViewController.boardsMap
+//        vc.boards = boards
         
 //        vc.callbackOpenBoard = { [weak self] boardBlock in
 //            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)

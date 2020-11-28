@@ -230,6 +230,10 @@ extension BoardView: ASCollectionDelegate {
                 self.refreshBlockCell(block: block)
                 break
             case .statusChanged(block: let block):
+                if block.block.status == .trash {
+                  self.removeCardCell(card: block)
+                  return
+                }
                 self.refreshBlockCell(block: block)
                 break
             case .backgroundChanged(block: let block):
