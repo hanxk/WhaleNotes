@@ -198,6 +198,15 @@ extension UIColor {
     }
     
     
+    open class var cardTextSecondary: UIColor {
+        get {
+            //            return UIColor(named: "PrimaryText")!
+            //                 UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#666666")
+        }
+    }
+    
+    
     open class var cardBorder: UIColor {
         get {
             //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor

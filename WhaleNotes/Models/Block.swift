@@ -26,6 +26,16 @@ struct Block {
     }
     
     
+    
+    static func bookmark(parentId:String,properties:BlockBookmarkProperty,position:Double) -> BlockInfo {
+        var block = Block()
+        block.type = .bookmark
+        block.properties = properties
+        
+        let blockPosition = BlockPosition(blockId: block.id, ownerId: parentId, position: position)
+        return BlockInfo(block: block, blockPosition: blockPosition)
+    }
+    
     static func todoList(parentId:String,properties:BlockTodoListProperty = BlockTodoListProperty(),position:Double) -> BlockInfo {
         var block = Block()
         block.type = .todo_list
@@ -51,13 +61,6 @@ struct Block {
         
         let blockPosition = BlockPosition(blockId: block.id, ownerId: parent, position: position)
         return BlockInfo(block: block, blockPosition: blockPosition)
-    }
-    
-    static func bookmark(parent:String,properties:BlockBookmarkProperty) -> Block {
-        var block = Block()
-        block.type = .bookmark
-        block.properties = properties
-        return block
     }
     
     static func board(parent:String = "",title:String,properties:BlockBoardProperty,position:Double) -> BlockInfo {
@@ -163,7 +166,8 @@ struct BlockBoardProperty: Codable {
 
 struct BlockBookmarkProperty: Codable {
     var title:String = ""
-    var cover:String = ""
+//    var cover:String = ""
+    var coverProperty:BlockImageProperty? =  nil
     var link:String = ""
     var description:String = ""
     var canonicalUrl:String = ""

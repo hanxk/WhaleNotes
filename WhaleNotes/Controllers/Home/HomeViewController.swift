@@ -171,9 +171,9 @@ extension HomeViewController {
         items.append(generateSpace())
         items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
         items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"link",action: .text))
+        items.append(generateUIBarButtonItem(systemName:"link",action: .bookmark))
         items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 18))
+        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 16))
         
         toolbar.tintColor = .iconColor
         toolbar.items = items

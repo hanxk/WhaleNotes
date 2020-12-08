@@ -11,6 +11,7 @@ target 'WhaleNotes' do
   pod 'ContextMenu'
   pod 'NewPopMenu', '~> 2.0'
   pod "TLPhotoPicker"
+  pod 'SwiftSoup'
   pod 'RxSwift', '~> 5'
   pod 'RxCocoa', '~> 5'
   pod 'MBProgressHUD', '~> 1.2.0'
@@ -23,8 +24,8 @@ target 'WhaleNotes' do
 #  pod 'SQLite.swift', '~> 0.12.0'
   pod 'JXPhotoBrowser', '~> 3.0'
   pod 'Toast-Swift', '~> 5.0.1'
-  pod 'SwiftLinkPreview', '~> 3.1.0'
+  pod 'SwiftLinkPreview', '~> 3.2.0'
   pod 'FloatingPanel'
-  pod 'QuickTableViewController'
+#  pod 'QuickTableViewController'
   # Pods for WhaleNotes
 end

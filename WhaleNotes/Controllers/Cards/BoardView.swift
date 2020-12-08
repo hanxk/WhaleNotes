@@ -15,6 +15,7 @@ import RxSwift
 import Photos
 import ContextMenu
 import JXPhotoBrowser
+import SwiftSoup
 
 import SwiftLinkPreview
 import FloatingPanel
@@ -338,8 +339,8 @@ extension BoardView {
             self.controller?.present(vc, animated: true)
             break
         case .bookmark:
-            self.controller?.showAlertTextField(title: "添加链接",placeholder: "example.com", positiveBtnText: "添加", callbackPositive: { _ in
-                //                self.fetchBookmarkFromUrl(url: $0)
+            self.controller?.showAlertTextField(title: "添加链接",text: "https://youtu.be/L1Oc2jhd1aE",placeholder: "example.com", positiveBtnText: "添加", callbackPositive: { text in
+                self.fetchBookmarkFromUrl(urlStr: text)
             })
             break
         }
@@ -441,52 +442,140 @@ extension BoardView {
 }
 //
 ////MARK: 超链接处理
-//extension NotesView {
+extension BoardView {
+    
+    private func fetchHTMLMeta(urlStr:String,callback: @escaping (HTMLMeta?)->Void)  {
+        var request = URLRequest(url: URL(string: urlStr)!)
+        request.httpMethod = "GET"
+        let session = URLSession.init(configuration: URLSessionConfiguration.default)
+        session.dataTask(with: request) { [weak self] data,response,error in
+            if let data = data,let contents = String(data: data, encoding: .utf8) {
+               let meta = self?.extractHTMLMeta(html: contents)
+                DispatchQueue.main.async {
+                   callback(meta)
+                }
+//                if contents != "^~~~~~~~" {
+//                   print(contents)
 //
-//    private func fetchBookmarkFromUrl(url:String) {
+//                }
+            }else {
+                DispatchQueue.main.async {
+                   callback(nil)
+                }
+            }
+        }.resume()
+    }
+    
+    private func extractHTMLMeta(html:String) -> HTMLMeta? {
+        do {
+            let doc: Document = try SwiftSoup.parseBodyFragment(html)
+            let title = try doc.select("meta[property='og:title']").attr("content")
+            let image = try doc.select("meta[property='og:image']").attr("content")
+            let description = try doc.select("meta[property='og:description']").attr("content")
+            let siteName = try doc.select("meta[property='og:site_name']").attr("content")
+            let finalUrl = try doc.select("meta[property='og:final_url']").attr("content")
+//                let type = try doc.select("meta[property='og:type']").attr("content")
+            
+            let meta = HTMLMeta(title: title, description: description, image: image, siteName: siteName, url: finalUrl)
+            return meta
+
+        } catch {
+            print("error")
+            return nil
+        }
+    }
+    
+    private func extract(myURL:URL) {
+//        fetchHTMLContent()
+//        let html = try! String(contentsOf: myURL, encoding: .utf8)
+//        let link =  myURL.absoluteString
+//        let host = myURL.host ?? ""
+//            do {
+//                let doc: Document = try SwiftSoup.parseBodyFragment(html)
+//                var title = try doc.select("meta[property='og:title']").attr("content")
+//                let image = try doc.select("meta[property='og:image']").attr("content")
+//                let description = try doc.select("meta[property='og:description']").attr("content")
+//                if title.isEmpty {
+//                    let siteName = try doc.select("meta[property='og:site_name']").attr("content")
+//                    title = siteName
+//                }
+////                let type = try doc.select("meta[property='og:type']").attr("content")
+//
+//                let properties = BlockBookmarkProperty(title:title,link:link,description: description,canonicalUrl: host)
+//                self.createBookmarkBlock(prop:properties,cover: image)
+//
+//            } catch Exception.Error( _, let message) {
+//                let properties = BlockBookmarkProperty(title:"",link:link,description: "",canonicalUrl:host)
+//                self.createBookmarkBlock(prop:properties)
+//                print("Message: \(message)")
+//            } catch {
+//                print("error")
+//            }
+    }
+
+    private func fetchBookmarkFromUrl(urlStr:String) {
+        self.controller?.showHud()
+        self.fetchHTMLMeta(urlStr:urlStr) { [weak self] meta in
+            guard let self  =  self  else  {   return  }
+            self.controller?.hideHUD()
+            self.createBookmarkBlock(urlStr: urlStr, meta: meta)
+        }
+        
 //        let links = SwiftLinkPreview(session: .shared, workQueue: SwiftLinkPreview.defaultWorkQueue, responseQueue: DispatchQueue.main, disableInMemoryCache: true,cacheInvalidationTimeout: 0, cacheCleanupInterval: 0)
-//        links.preview(url,
-//                onSuccess: { result in
-//                    let title = result.title ?? ""
-//                    let description = result.description ?? ""
-//                    let cover = result.image ?? ""
-//                    let finalUrl = result.finalUrl?.absoluteURL.absoluteString ?? url
-//                    let canonicalUrl = result.canonicalUrl ?? ""
 //
-//                    let properties = BlockBookmarkProperty(title:title,cover: cover, link:finalUrl,description: description, canonicalUrl: canonicalUrl)
-//                    self.createBookmarkBlock(properties)
+//        self.controller?.showHud()
+//        links.preview(urlStr,
+//                onSuccess: {[weak self] resp in
+//                    guard let self = self else { return }
+//                    let title = resp.title ?? ""
+//                    let description = resp.description ?? ""
+//                    let finalUrl = resp.finalUrl?.absoluteURL.absoluteString ?? urlStr
+//                    let canonicalUrl = resp.canonicalUrl ?? ""
+//
+//                    let properties = BlockBookmarkProperty(title:title,link:finalUrl,description: description, canonicalUrl: canonicalUrl)
+//                    self.createBookmarkBlock(prop:properties,cover: resp.image ?? "")
+//                    self.controller?.hideHUD()
 //                },
-//                onError: { error in print("\(error)")})
-//    }
-//
-//    private func createBookmarkBlock(_ properties:BlockBookmarkProperty) {
-//
-//        func handleBookmark(_ properties:BlockBookmarkProperty) {
-//            let noteBlock = Block.newNoteBlock()
-//            let bookmarkBlock = Block.newBookmarkBlock(parent: noteBlock.id, properties: properties)
-//            self.createNewNote(noteBlock: noteBlock, childBlock: bookmarkBlock)
-//        }
-//
-//        if properties.cover.isEmpty {
-//            handleBookmark(properties)
-//            return
-//        }
-//
-//        var newImageInfo = properties
-//        // 保存图片到本地
-////        NoteRepo.shared.saveImage(url: newImageInfo.cover)
-////            .subscribe {
-////                newImageInfo.cover = $0
-////                handleBookmark(newImageInfo)
-////            } onError: {
-////                Logger.error($0)
-////            }
-////            .disposed(by: disposeBag)
-//    }
-//
-//}
-//
-//
+//                onError: { error in
+//                    print("\(error)")
+//                    self.controller?.hideHUD()
+//                })
+    }
+
+    private func createBookmarkBlock(urlStr:String,meta:HTMLMeta?) {
+        
+        let title = meta?.title ?? ""
+        let description = meta?.description ?? ""
+//        let finalUrl = meta?.url ?? urlStr
+        let canonicalUrl = URL(string: urlStr)?.host ?? ""
+        var property = BlockBookmarkProperty(title:title,link:urlStr,description: description, canonicalUrl: canonicalUrl)
+        
+        let cover = meta?.image ?? ""
+        
+        
+        func handleBookmark(coverProperty:BlockBookmarkProperty) {
+            let bookmark = Block.bookmark(parentId: board.id, properties: coverProperty, position: generatePosition())
+            self.createBlockInfo(blockInfo: bookmark)
+        }
+        
+        if cover.isEmpty {
+            handleBookmark(coverProperty: property)
+            return
+        }
+        
+        BlockRepo.shared.saveImage2Local(urlStr: cover)
+            .subscribe {
+                property.coverProperty = $0
+                handleBookmark(coverProperty: property)
+            } onError: {
+                Logger.error($0)
+            }
+            .disposed(by: disposeBag)
+    }
+
+}
+
+
 extension BoardView: TLPhotosPickerViewControllerDelegate {
     func shouldDismissPhotoPicker(withTLPHAssets: [TLPHAsset]) -> Bool {
         self.handlePicker(images: withTLPHAssets)

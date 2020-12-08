@@ -249,6 +249,9 @@ extension CardEditorViewController {
                  self.tryResignResponder()
             }
             return todoListView
+        case .bookmark:
+            let bookmarkView = BookmarkView(block: blockInfo)
+            return bookmarkView
         default:
             return BaseCardEditorView(frame: .zero)
         }

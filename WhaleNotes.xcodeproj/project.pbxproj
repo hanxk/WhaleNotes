@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		072F6FF56795E2A22DB4EFBA /* Pods_WhaleNotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */; };
+		180256B6257F8DE900BF5804 /* HTMLMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180256B5257F8DE900BF5804 /* HTMLMeta.swift */; };
 		18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */; };
 		18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */; };
 		181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E3248B1F6600B34E20 /* TitleBlockCell.swift */; };
@@ -106,6 +107,7 @@
 		18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BCA59724E8165800612889 /* BoardsRepo.swift */; };
 		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
 		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
+		18CA46E92576536500F1D609 /* BookmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CA46E82576536500F1D609 /* BookmarkView.swift */; };
 		18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CED671249F9259009181E0 /* TrashHeaderNode.swift */; };
 		18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D1BEA724BED44900817D02 /* BaseRepo.swift */; };
 		18DCC91C24EA70E2000B4BF1 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DCC91B24EA70E2000B4BF1 /* BoardView.swift */; };
@@ -159,10 +161,12 @@
 		18F57C32256E29B600834DB5 /* UITextView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C31256E29B600834DB5 /* UITextView+Ex.swift */; };
 		18F57C35256FD70800834DB5 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C34256FD70800834DB5 /* NoteEditorView.swift */; };
 		18F57C38256FD78300834DB5 /* RemarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C37256FD78300834DB5 /* RemarkViewController.swift */; };
+		18F57C3B2571FF2000834DB5 /* BookmarkCellProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F57C3A2571FF2000834DB5 /* BookmarkCellProvider.swift */; };
 		18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		180256B5257F8DE900BF5804 /* HTMLMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLMeta.swift; sourceTree = "<group>"; };
 		18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutInfo.swift; sourceTree = "<group>"; };
 		181D63E3248B1F6600B34E20 /* TitleBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TitleBlockCell.swift; path = WhaleNotes/Controllers/Editor/Cells/TitleBlockCell.swift; sourceTree = SOURCE_ROOT; };
@@ -262,6 +266,7 @@
 		18BCA59724E8165800612889 /* BoardsRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardsRepo.swift; sourceTree = "<group>"; };
 		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
 		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
+		18CA46E82576536500F1D609 /* BookmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkView.swift; sourceTree = "<group>"; };
 		18CED671249F9259009181E0 /* TrashHeaderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashHeaderNode.swift; sourceTree = "<group>"; };
 		18D1BEA724BED44900817D02 /* BaseRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRepo.swift; sourceTree = "<group>"; };
 		18DCC91B24EA70E2000B4BF1 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
@@ -317,6 +322,7 @@
 		18F57C31256E29B600834DB5 /* UITextView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Ex.swift"; sourceTree = "<group>"; };
 		18F57C34256FD70800834DB5 /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
 		18F57C37256FD78300834DB5 /* RemarkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemarkViewController.swift; sourceTree = "<group>"; };
+		18F57C3A2571FF2000834DB5 /* BookmarkCellProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCellProvider.swift; sourceTree = "<group>"; };
 		18FF328F2496094B00609C66 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhaleNotes.debug.xcconfig"; path = "Target Support Files/Pods-WhaleNotes/Pods-WhaleNotes.debug.xcconfig"; sourceTree = "<group>"; };
 		940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhaleNotes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -335,6 +341,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		180256B4257F8DCA00BF5804 /* HTMLParser */ = {
+			isa = PBXGroup;
+			children = (
+				180256B5257F8DE900BF5804 /* HTMLMeta.swift */,
+			);
+			path = HTMLParser;
+			sourceTree = "<group>";
+		};
 		181D63E5248B980700B34E20 /* SideMenu */ = {
 			isa = PBXGroup;
 			children = (
@@ -523,6 +537,7 @@
 				1859BCB024EA7A0D0089CB1B /* NoteView.swift */,
 				18F3723E24EAD1B600AC2532 /* BaseCardEditorView.swift */,
 				1848ABD024ED1C3800BFE0DF /* ImageBlockView.swift */,
+				18CA46E82576536500F1D609 /* BookmarkView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -555,6 +570,7 @@
 		1865AEF1244C5D8F0006B48D /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				180256B4257F8DCA00BF5804 /* HTMLParser */,
 				1848ABCE24ED1ACF00BFE0DF /* ImageZoomView.swift */,
 				186DDE842495FD6700A4C63C /* PhotoViewer */,
 				1879E6F1248F81270014F3A7 /* AlertVC */,
@@ -935,6 +951,7 @@
 				182F358F24D10F5200E88657 /* NoteCellProvider.swift */,
 				182F359124D10F8A00E88657 /* ImageCellProvider.swift */,
 				1848ABD624EEBAEE00BFE0DF /* TodoCellProvider.swift */,
+				18F57C3A2571FF2000834DB5 /* BookmarkCellProvider.swift */,
 			);
 			path = Prodivder;
 			sourceTree = "<group>";
@@ -1163,6 +1180,7 @@
 				18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */,
 				18E7BF83248C8B6400B8AEC1 /* MyTextField.swift in Sources */,
 				1890290A245E82720017814A /* UIImage+Ex.swift in Sources */,
+				180256B6257F8DE900BF5804 /* HTMLMeta.swift in Sources */,
 				1859302E24BA950400D1352A /* SQLiteDatabase.swift in Sources */,
 				18E7BF7D248BCA9900B8AEC1 /* UIView+Border.swift in Sources */,
 				1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */,
@@ -1180,6 +1198,7 @@
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
 				18F57C28256D464300834DB5 /* CardSettingViewController.swift in Sources */,
+				18CA46E92576536500F1D609 /* BookmarkView.swift in Sources */,
 				18F3A07224CD5D9900C023EA /* NoteColorCircleCell.swift in Sources */,
 				1870041D24C9A09A00AE784C /* BaseToolbar.swift in Sources */,
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
@@ -1214,6 +1233,7 @@
 				182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */,
 				18E7BF93248C9C5000B8AEC1 /* BoardCategoryViewController.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
+				18F57C3B2571FF2000834DB5 /* BookmarkCellProvider.swift in Sources */,
 				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */,

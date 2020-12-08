@@ -51,6 +51,7 @@ class CardCellNode: ASCellNode {
             $0.shadowOpacity = 1
             $0.shadowRadius = BoardViewConstants.cellShadowSize
             $0.shadowOffset = CGSize(width: 0, height: 0)
+//            $0.clipsToBounds = true
 //            $0.shadowOffset = CGSize(width: 1, height: 2)
         }
         self.addSubnode(cardbackground)
@@ -78,6 +79,8 @@ class CardCellNode: ASCellNode {
             return ImageCellProvider(imageBlock: block)
         case .todo_list:
             return TodoCellProvider(todoBlock: block)
+        case .bookmark:
+            return BookmarkCellProvider(bookmarkBlock: block)
         default:
             fatalError("Unexpected block type \(block.type.rawValue)")
         }

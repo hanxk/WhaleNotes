@@ -195,6 +195,11 @@ enum BlockInfoAction {
     case updateForPosition(position:BlockPosition)
 }
 
+//MARK: bookmark block
+extension BlockRepo {
+    
+}
+
 //MARK: image block
 extension BlockRepo {
     
@@ -238,7 +243,7 @@ extension BlockRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    private func saveImages(images:[TLPHAsset],ownerId:String) ->  Observable<[BlockImageProperty]> {
+    func saveImages(images:[TLPHAsset],ownerId:String) ->  Observable<[BlockImageProperty]> {
         Observable.from(images)
             .map { return ($0.uuidName,$0.fullResolutionImage?.fixedOrientation())}
             .filter { $0.1 != nil}
@@ -258,7 +263,7 @@ extension BlockRepo {
             .asObservable()
     }
     
-    private func saveImage(image: UIImage) -> Observable<BlockImageProperty> {
+    func saveImage(image: UIImage) -> Observable<BlockImageProperty> {
         return Observable<UIImage>.just(image)
             .map({(image)  -> BlockImageProperty in
                 let imageName = UUID().uuidString+".jpg"
@@ -270,6 +275,42 @@ extension BlockRepo {
                     }
                 }
                 throw DBError(message: "createImageBlocks error")
+            })
+    }
+    
+    
+    func saveImage2Local(image: UIImage) -> Observable<BlockImageProperty> {
+        return Observable<UIImage>.just(image)
+            .map({(image)  -> BlockImageProperty in
+                let imageName = UUID().uuidString+".jpg"
+                if let rightImage = image.fixedOrientation() {
+                    let success = ImageUtil.sharedInstance.saveImage(imageName:imageName,image:rightImage )
+                    if success {
+                        let pro = BlockImageProperty(url: imageName, width: Float(image.size.width), height: Float(image.size.height))
+                        return pro
+                    }
+                }
+                throw DBError(message: "createImageBlocks error")
+            })
+    }
+
+    func saveImage2Local(urlStr:String) -> Observable<BlockImageProperty> {
+        self.fetchImageFromUrl(urlStr)
+            .flatMap { image -> Observable<BlockImageProperty> in
+                guard let image = image else { return Observable.empty()}
+                return self.saveImage2Local(image:image)
+            }
+    }
+    
+    func fetchImageFromUrl(_ urlStr:String) -> Observable<UIImage?> {
+        return Observable<String>.just(urlStr)
+            .map({(urlStr)  -> UIImage? in
+                if let url = URL(string: urlStr),
+                   let data = try? Data(contentsOf: url),
+                   let image = UIImage(data: data) {
+                    return image
+                }
+                return nil
             })
     }
 }
