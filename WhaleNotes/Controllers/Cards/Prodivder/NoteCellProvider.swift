@@ -55,10 +55,10 @@ class NoteCellProvider:CellProvider {
     
     func attach(cell:ASCellNode) {
         if noteBlock.title.isNotEmpty {
-            let titleNode = ASTextNode()
-            titleNode.attributedText = getTitleLabelAttributes(text: noteBlock.title)
-            cell.addSubnode(titleNode)
-                      self.titleNode = titleNode
+//            let titleNode = ASTextNode()
+//            titleNode.attributedText = getTitleLabelAttributes(text: noteBlock.title)
+//            cell.addSubnode(titleNode)
+//                      self.titleNode = titleNode
         }
         
         if let textProperties = noteBlock.noteProperties {
@@ -116,7 +116,7 @@ extension NoteCellProvider {
         
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 15),
+            .font: UIFont.systemFont(ofSize: 16),
             .foregroundColor: UIColor.cardText,
             .paragraphStyle:paragraphStyle
         ]

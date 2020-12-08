@@ -193,7 +193,7 @@ extension UIColor {
         get {
             //            return UIColor(named: "PrimaryText")!
             //                 UIColor.init(hexString: "#333333")
-            UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#202020")
         }
     }
     
