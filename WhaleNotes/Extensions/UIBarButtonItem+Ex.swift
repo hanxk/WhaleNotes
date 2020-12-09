@@ -15,5 +15,28 @@ extension UIBarButtonItem {
         return (value(forKey: "view") as? UIView)
     }
 
+
+    static func menuButtonWithHeight(_ target: Any?, action: Selector,imageName: String,width:CGFloat=24,height:CGFloat = 24) -> UIBarButtonItem {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName:imageName), for: .normal)
+        button.addTarget(target, action: action, for: .touchUpInside)
+        button.backgroundColor = .blue
+
+        let menuBarItem = UIBarButtonItem(customView: button)
+        menuBarItem.customView?.translatesAutoresizingMaskIntoConstraints = false
+        menuBarItem.customView?.heightAnchor.constraint(equalToConstant: height).isActive = true
+        menuBarItem.customView?.widthAnchor.constraint(equalToConstant: width).isActive = true
+
+        return menuBarItem
+    }
+    
+    static func customViewWithHeight(_ customView:UIView,width:CGFloat = 24,height:CGFloat = 24) -> UIBarButtonItem {
+        let menuBarItem = UIBarButtonItem(customView: customView)
+        menuBarItem.customView?.translatesAutoresizingMaskIntoConstraints = false
+        menuBarItem.customView?.heightAnchor.constraint(equalToConstant: height).isActive = true
+        menuBarItem.customView?.widthAnchor.constraint(equalToConstant: width).isActive = true
+
+        return menuBarItem
+    }
 }
 

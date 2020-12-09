@@ -21,7 +21,7 @@ class HomeTitleView:UIView {
         let spacing:CGFloat = 3
         
         $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16,weight: .medium)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 20,weight: .bold)
         $0.setImageTitleSpace(3)
         
         $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: arrowSpacing)
@@ -32,8 +32,8 @@ class HomeTitleView:UIView {
     var isEnabled:Bool = true {
         didSet {
 //            button.isEnabled = isEnabled
-            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: (isEnabled ? arrowSpacing : 0))
-            arrowImageView.isHidden = !isEnabled
+//            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: (isEnabled ? arrowSpacing : 0))
+//            arrowImageView.isHidden = !isEnabled
         }
     }
     
@@ -49,7 +49,7 @@ class HomeTitleView:UIView {
     
     
     func setTitle(_ title:String,emoji:String) {
-        guard let emojiImage = emoji.emojiToImage(fontSize: 15) else { return }
+        guard let emojiImage = emoji.emojiToImage(fontSize: 22) else { return }
         button.setTitle(title, for: .normal)
         button.setImage(emojiImage, for: .normal)
     }
@@ -61,7 +61,6 @@ class HomeTitleView:UIView {
     
     private func setupUI() {
         self.addSubview(button)
-        self.addSubview(arrowImageView)
         
         button.snp.makeConstraints {
             $0.leading.equalToSuperview()
@@ -69,11 +68,12 @@ class HomeTitleView:UIView {
             $0.height.equalToSuperview()
         }
         
-        arrowImageView.snp.makeConstraints {
-            $0.trailing.equalToSuperview()
-            $0.width.equalTo(arrowWidth)
-            $0.centerY.equalToSuperview()
-        }
+//        self.addSubview(arrowImageView)
+//        arrowImageView.snp.makeConstraints {
+//            $0.trailing.equalToSuperview()
+//            $0.width.equalTo(arrowWidth)
+//            $0.centerY.equalToSuperview()
+//        }
     }
     
     @objc func buttonTapped() {

@@ -21,7 +21,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    static let toolbarHeight:CGFloat = 54
+    static let toolbarHeight:CGFloat = 120
     
     private var contentView:UIView?
     private var sideMenuItemType:SideMenuItem! {
@@ -42,15 +42,25 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
             
         $0.scrollEdgeAppearance = barAppearance
         $0.standardAppearance.shadowColor = nil
+//        $0.prefersLargeTitles = true
     }
     
     let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
         $0.tintColor = .iconColor
-//            $0.barTintColor = UIColor(hexString: "#EBECEF")
         $0.isTranslucent = false
-        
-//            $0.clipsToBounds = true
     }
+  
+    override var title: String? {
+        didSet {
+            navBar.topItem?.title = title
+        }
+    }
+//    var title2:String = "" {
+//        didset {
+//
+//            navBar.topItem?.title = title2
+//        }
+//    }
     
     
     private var containerView:UIView = UIView()
@@ -109,11 +119,6 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         }
     }
     
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-////        self.navigationController?.navigationBar.barTintColor = .bg
-//    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
     }
@@ -165,19 +170,48 @@ extension HomeViewController {
     
     private func setupBoardToolbar() {
         var items = [UIBarButtonItem]()
-        items.append(generateUIBarButtonItem(systemName:"camera",action: .camera))
-        items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle",action: .image))
-        items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
-        items.append(generateSpace())
-        items.append(generateUIBarButtonItem(systemName:"link",action: .bookmark))
-        items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 16))
+        
+        let menuImg = UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor)
+        let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(toggleSideMenu))
+        items.append(item)
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        items.append(space)
+        
+        
+        let searchItem = UIBarButtonItem(image:UIImage(systemName: "magnifyingglass") , style: .plain, target: self, action: #selector(handleShowSearchbar))
+        items.append(searchItem)
+        
+//        items.append(generateUIBarButtonItem(systemName:"camera",action: .camera))
+//        items.append(generateSpace())
+//        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle",action: .image))
+//        items.append(generateSpace())
+//        items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
+//        items.append(generateSpace())
+//        items.append(generateUIBarButtonItem(systemName:"link",action: .bookmark))
+//        items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
+//        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 16))
         
         toolbar.tintColor = .iconColor
         toolbar.items = items
     }
+    
+    
+    @objc func toggleSideMenu () {
+        if let vc = SideMenuManager.default.leftMenuNavigationController {
+            present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    
+    @objc func handleShowSearchbar() {
+        let vc = SearchViewController()
+        vc.boardsMap = sideMenuViewController.boardsMap
+        let navVC = MyNavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+//        navVC.modalTransitionStyle = .crossDissolve
+        self.navigationController?.present(navVC, animated: true, completion: nil)
+    }
+    
     
     private func setupTrashToolbar() {
         var items = [UIBarButtonItem]()
@@ -231,8 +265,10 @@ extension HomeViewController {
     private func handleBoardUpdated(board:BlockInfo) {
         self.sideMenuItemType = SideMenuItem.board(board: board)
         let properties = board.blockBoardProperties!
-        titleButton.setTitle(board.title,emoji: properties.icon)
+        self.title = board.title
         
+//        navBar.topItem?.title = board.title
+//        navItem.title = board.title
     }
     
     private func handleBoardDeleted(board:BlockInfo) {
@@ -279,8 +315,7 @@ extension HomeViewController {
         if let blockBoardProperties = board.blockBoardProperties,
            blockBoardProperties.type == .user
         {
-            
-            titleButton.setTitle(board.title,emoji: blockBoardProperties.icon)
+            self.title = blockBoardProperties.icon + board.title
         }
         
     }
@@ -289,12 +324,10 @@ extension HomeViewController {
         switch systemMenu {
         case .board(let board):
             self.setupBoardView(board:board)
-            if let blockBoardProperties = board.blockBoardProperties {
-                self.titleButton.setTitle(board.title, icon:systemMenu.iconImage)
-            }
+            self.title = board.title
             break
         case .trash:
-            self.titleButton.setTitle(systemMenu.title, icon:systemMenu.iconImage)
+            self.title = systemMenu.title
             self.setupTrashView()
         }
     }
@@ -329,6 +362,7 @@ extension HomeViewController:UINavigationBarDelegate{
         self.view.addSubview(navBar)
         navBar.snp.makeConstraints {
             $0.width.equalToSuperview()
+//            $0.height.equalTo(HomeViewController.toolbarHeight)
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
         }
         self.navigationController?.navigationBar.isHidden = true
@@ -340,76 +374,33 @@ extension HomeViewController:UINavigationBarDelegate{
         let navItem = UINavigationItem()
         navBar.items = [navItem]
         
-        let button =  UIButton().then {
-            $0.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-            $0.contentHorizontalAlignment = .leading
-            $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
-            $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
-        }
+//        let button =  UIButton().then {
+//            $0.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+//            $0.contentHorizontalAlignment = .leading
+//            $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
+//            $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
+//        }
+//        titleButton.backgroundColor = .blue
+//        let barButton = UIBarButtonItem(customView: titleButton)
+//        navItem.leftBarButtonItem = barButton
 //        button.backgroundColor = .red
-        let barButton = UIBarButtonItem(customView: button)
+//        let barButton = UIBarButtonItem(customView: button)
         
-        let label = UILabel()
-        label.textColor = UIColor.white
-        label.text = "TCO_choose_reminder";
-        
-        
-//        let titleView2 =  UIBarButtonItem(customView: titleButton)
-        //        titleButton.backgroundColor = .red
-        
-        
-        navItem.leftBarButtonItems = [barButton]
-        navItem.titleView = titleButton
-        
-        if let titleView = self.navigationItem.titleView  {
-            titleView.snp.makeConstraints {
-                $0.centerX.equalToSuperview()
-                $0.height.equalToSuperview()
-            }
-        }
-        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
-        //        let imageSize:CGFloat = 38
-        //        let searchButton : UIButton = UIButton.init(type: .custom)
-        ////        searchButton.backgroundColor = .red
-        //        searchButton.setImage(UIImage(systemName: "magnifyingglass",withConfiguration: config), for: .normal)
-        //        searchButton.addTarget(self, action: #selector(handleShowSearchbar), for: .touchUpInside)
-        //        searchButton.frame = CGRect(x: 0, y: 0, width: imageSize, height: imageSize)
-        //        let searchButtonItem = UIBarButtonItem(customView: searchButton)
-        //
-        //
-        //        let menuButton : UIButton = UIButton.init(type: .custom)
-        //        menuButton.setImage(UIImage(systemName: "ellipsis.circle",withConfiguration: config), for: .normal)
-        //        menuButton.addTarget(self, action: #selector(handleShowSearchbar), for: .touchUpInside)
-        //        menuButton.frame = CGRect(x: 0, y: 0, width: imageSize, height: imageSize)
-        //        let menuButtonItem = UIBarButtonItem(customView: menuButton)
-        
-        let searchButtonItem =  UIBarButtonItem(image: UIImage(systemName: "magnifyingglass",withConfiguration: config), style: .plain, target: self, action: #selector(handleShowSearchbar))
-        //        let more =  UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: nil)
-        navItem.rightBarButtonItems = [searchButtonItem]
-    }
-    
-    @objc func toggleSideMenu () {
-        if let vc = SideMenuManager.default.leftMenuNavigationController {
-            present(vc, animated: true, completion: nil)
-        }
-    }
-    
-    
-    @objc func handleShowSearchbar() {
-        let vc = SearchViewController()
-        vc.boardsMap = sideMenuViewController.boardsMap
-//        vc.boards = boards
-        
-//        vc.callbackOpenBoard = { [weak self] boardBlock in
-//            self?.sideMenuViewController.setBoardSelected(boardBlock: boardBlock)
+//        let label = UILabel()
+//        label.textColor = UIColor.white
+//        label.text = "TCO_choose_reminder";
+//
+//        navItem.titleView = titleButton
+//
+//        if let titleView = self.navigationItem.titleView  {
+//            titleView.snp.makeConstraints {
+//                $0.left.equalToSuperview()
+//                $0.height.equalToSuperview()
+//            }
 //        }
-//        vc.callbackNoteEdited = { [weak self] editorMode in
-//            self?.handleEditorMode(editorMode)
-//        }
-        let navVC = MyNavigationController(rootViewController: vc)
-        navVC.modalPresentationStyle = .overFullScreen
-        navVC.modalTransitionStyle = .crossDissolve
-        self.navigationController?.present(navVC, animated: true, completion: nil)
+        let menuImg = UIImage(systemName: "ellipsis.circle")?.withTintColor(UIColor.iconColor)
+        let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(toolbarActionTapped(sender:)))
+        navItem.rightBarButtonItems = [item]
     }
     
     
