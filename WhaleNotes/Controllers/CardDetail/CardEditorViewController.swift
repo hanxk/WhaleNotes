@@ -96,7 +96,7 @@ class CardEditorViewController: UIViewController {
     private func setupKeyboard() {
         if !isNew { return }
         if let noteView = editorView as? NoteView {
-            noteView.textView.becomeFirstResponder()
+            noteView.noteEditor.textView.becomeFirstResponder()
             return
         }
         if let todoListView = editorView as? TodoBlockEditorView {

@@ -34,7 +34,7 @@ enum BoardViewConstants {
     
     static let cellShadowSize:CGFloat = 8
     
-    static let cornerRadius:CGFloat = 8
+    static let cornerRadius:CGFloat = 5
     
     static let waterfall_cellSpace: CGFloat = 0
     static let waterfall_cellHorizontalSpace: CGFloat = 8
@@ -149,7 +149,9 @@ class BoardView: UIView, UINavigationControllerDelegate {
 
 extension BoardView {
     func createNewNote() {
-        self.createBlockInfo(blockInfo: Block.note(title: "", parentId: board.id, position:generatePosition() ))
+        self.createBlockInfo(blockInfo: Block.note(title: "", parentId: board.id, position:generatePosition() ))  { [weak self] cardBlock in
+            self?.openEditorVC(cardBlock: cardBlock, isNew: true)
+        }
     }
     
     private func createTodoListBlock() {
@@ -164,20 +166,15 @@ extension BoardView {
         return position
     }
     
-    private func createBlockInfo(blockInfo:BlockInfo) {
+    private func createBlockInfo(blockInfo:BlockInfo,callback: ((BlockInfo)->Void)? = nil) {
         BlockRepo.shared.executeActions(actions: [BlockInfoAction.insert(blockInfo: blockInfo)])
             .subscribe {
-                self.handleCreateBlock(blockInfo)
+                self.insertBlockCell(block: blockInfo)
+                callback?(blockInfo)
             } onError: {
                 Logger.error($0)
             }
             .disposed(by: disposeBag)
-    }
-    
-    
-    private func handleCreateBlock(_ cardBlock:BlockInfo) {
-       self.openEditorVC(cardBlock: cardBlock, isNew: true)
-       self.insertBlockCell(block: cardBlock)
     }
 }
 

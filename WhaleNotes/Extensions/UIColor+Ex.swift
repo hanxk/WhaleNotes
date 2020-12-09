@@ -112,7 +112,7 @@ extension UIColor {
     open class var bg: UIColor {
         get {
             
-            return UIColor.init(hexString: "#f4f4f4")
+            return UIColor.init(hexString: "#f5f5f5")
         }
     }
     
@@ -191,17 +191,13 @@ extension UIColor {
     
     open class var cardText: UIColor {
         get {
-            //            return UIColor(named: "PrimaryText")!
-            //                 UIColor.init(hexString: "#333333")
-            UIColor.init(hexString: "#202020")
+            UIColor.init(hexString: "#333333")
         }
     }
     
     
     open class var cardTextSecondary: UIColor {
         get {
-            //            return UIColor(named: "PrimaryText")!
-            //                 UIColor.init(hexString: "#333333")
             UIColor.init(hexString: "#666666")
         }
     }
@@ -209,12 +205,7 @@ extension UIColor {
     
     open class var cardBorder: UIColor {
         get {
-            //            UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.08).cgColor
-//            return UIColor(red: 0.098, green: 0.086, blue: 0.114, alpha: 0.04)
-//            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.04)
-//            return UIColor(hexString: "#EDEDEF")
             return UIColor(hexString: "#E8E8E8")
-            //            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.06)
         }
     }
 }

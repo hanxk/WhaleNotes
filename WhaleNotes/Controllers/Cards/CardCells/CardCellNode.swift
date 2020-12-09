@@ -32,6 +32,7 @@ class CardCellNode: ASCellNode {
     
     var titleTextNote:ASTextNode?
 
+    let shadowOffsetY:CGFloat = 4
 
     required init(cardBlock:BlockInfo,board:BlockInfo? = nil) {
         super.init()
@@ -45,14 +46,11 @@ class CardCellNode: ASCellNode {
 
         let cardbackground = ASDisplayNode().then {
             $0.backgroundColor = .white
-            $0.cornerRadius = BoardViewConstants.cornerRadius
+            $0.cornerRadius = NoteCellConstants.cornerRadius
             $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.04).cgColor
-//            $0.shadowColor = UIColor(red: 0.729, green: 0.749, blue: 0.761, alpha: 0.1).cgColor
             $0.shadowOpacity = 1
             $0.shadowRadius = BoardViewConstants.cellShadowSize
-            $0.shadowOffset = CGSize(width: 0, height: 0)
-//            $0.clipsToBounds = true
-//            $0.shadowOffset = CGSize(width: 1, height: 2)
+            $0.shadowOffset = CGSize(width: 1, height: shadowOffsetY)
         }
         self.addSubnode(cardbackground)
         self.cardbackground = cardbackground
@@ -97,7 +95,7 @@ class CardCellNode: ASCellNode {
         }
         
         let padding = BoardViewConstants.cellShadowSize
-        let insets = UIEdgeInsets(top:padding, left: padding, bottom: padding, right: padding)
+        let insets = UIEdgeInsets(top:padding, left: padding, bottom: padding+shadowOffsetY, right: padding)
 
         if let titleTextNote = self.titleTextNote {
             let stackVLayout = ASStackLayoutSpec.vertical().then {

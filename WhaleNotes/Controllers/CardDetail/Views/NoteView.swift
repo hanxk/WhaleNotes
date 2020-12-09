@@ -18,7 +18,7 @@ class NoteView: BaseCardEditorView {
     }
     private var viewModel:CardEditorViewModel!
     
-    let textView = NoteEditorView(placeholder: "写点什么。。。")
+    let noteEditor = NoteEditorView(placeholder: "写点什么。。。")
     
     init(viewModel:CardEditorViewModel) {
         super.init(frame: .zero)
@@ -26,8 +26,8 @@ class NoteView: BaseCardEditorView {
         self.noteBlock = viewModel.blockInfo
         self.initializeUI()
         
-        textView.text = properties.text
-        textView.textEndEditing = { [weak self] text in
+        noteEditor.text = properties.text
+        noteEditor.textEndEditing = { [weak self] text in
             guard let self = self else { return }
             if self.properties.text != text {
                 self.properties.text = text
@@ -41,8 +41,8 @@ class NoteView: BaseCardEditorView {
     }
     
     private func initializeUI() {
-        addSubview(textView)
-        textView.snp.makeConstraints {
+        addSubview(noteEditor)
+        noteEditor.snp.makeConstraints {
             $0.width.height.equalToSuperview()
         }
     }

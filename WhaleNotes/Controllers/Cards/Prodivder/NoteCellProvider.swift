@@ -17,7 +17,7 @@ protocol CellProvider {
 
 enum NoteCellConstants {
     
-    static  let cornerRadius:CGFloat = 8
+    static  let cornerRadius:CGFloat = 7
     
     static let horizontalPadding: CGFloat = 12
     static let verticalPadding: CGFloat = 12
