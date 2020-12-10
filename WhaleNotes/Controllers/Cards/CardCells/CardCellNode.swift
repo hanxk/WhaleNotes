@@ -57,8 +57,7 @@ class CardCellNode: ASCellNode {
 
         self.cellProvider.attach(cell: self)
 
-        if (cardBlock.type != .note &&
-                cardBlock.type != .todo_list) && cardBlock.title.isNotEmpty {
+        if cardBlock.title.isNotEmpty {
             let titleTextNote = ASTextNode().then {
                 $0.attributedText = getBoardButtonAttributesText(text: cardBlock.title)
                 $0.maximumNumberOfLines = 2
@@ -101,6 +100,7 @@ class CardCellNode: ASCellNode {
             let stackVLayout = ASStackLayoutSpec.vertical().then {
                 $0.style.flexGrow = 1.0
                 $0.style.flexShrink = 1.0
+                $0.alignItems = .center
             }
             stackVLayout.spacing = 6
             stackVLayout.children =  [contentLayoutSpec,titleTextNote]

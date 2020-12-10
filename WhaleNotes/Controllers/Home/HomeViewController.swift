@@ -68,6 +68,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private let titleButton:HomeTitleView = HomeTitleView()
     
     
+    private let actionView:HomeActionView = HomeActionView()
+    
+    
     private lazy var sideMenuViewController = SideMenuViewController().then {
         $0.delegate = self
     }
@@ -158,14 +161,31 @@ extension HomeViewController {
     }
     
     private  func setupToolbar() {
-        self.view.addSubview(toolbar)
-        toolbar.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.left.equalToSuperview()
-            $0.right.equalToSuperview()
-//            $0.height.equalTo(HomeViewController.toolbarHeight)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
+//        self.view.addSubview(toolbar)
+//        toolbar.snp.makeConstraints {
+//            $0.width.equalToSuperview()
+//            $0.left.equalToSuperview()
+//            $0.right.equalToSuperview()
+////            $0.height.equalTo(HomeViewController.toolbarHeight)
+//            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
+//        }
+        
+        self.view.addSubview(actionView)
+        actionView.snp.makeConstraints {
+            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
+            $0.height.equalTo(HomeActionView.SizeConstants.height)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
         }
+        
+        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func noteButtonTapped() {
+        guard let boardView = self.contentView as? BoardView else{
+            return
+        }
+        boardView.openNoteEditor(type: MenuType.text)
     }
     
     private func setupBoardToolbar() {
@@ -208,7 +228,7 @@ extension HomeViewController {
         vc.boardsMap = sideMenuViewController.boardsMap
         let navVC = MyNavigationController(rootViewController: vc)
         navVC.modalPresentationStyle = .overFullScreen
-//        navVC.modalTransitionStyle = .crossDissolve
+        navVC.modalTransitionStyle = .crossDissolve
         self.navigationController?.present(navVC, animated: true, completion: nil)
     }
     
@@ -374,15 +394,15 @@ extension HomeViewController:UINavigationBarDelegate{
         let navItem = UINavigationItem()
         navBar.items = [navItem]
         
-//        let button =  UIButton().then {
-//            $0.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-//            $0.contentHorizontalAlignment = .leading
-//            $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
-//            $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
-//        }
+        let button =  UIButton().then {
+            $0.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+            $0.contentHorizontalAlignment = .leading
+            $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
+            $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
+        }
 //        titleButton.backgroundColor = .blue
-//        let barButton = UIBarButtonItem(customView: titleButton)
-//        navItem.leftBarButtonItem = barButton
+        let barButton = UIBarButtonItem(customView: button)
+        navItem.leftBarButtonItem = barButton
 //        button.backgroundColor = .red
 //        let barButton = UIBarButtonItem(customView: button)
         
@@ -398,8 +418,8 @@ extension HomeViewController:UINavigationBarDelegate{
 //                $0.height.equalToSuperview()
 //            }
 //        }
-        let menuImg = UIImage(systemName: "ellipsis.circle")?.withTintColor(UIColor.iconColor)
-        let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(toolbarActionTapped(sender:)))
+        let menuImg = UIImage(systemName: "magnifyingglass")?.withTintColor(UIColor.iconColor)
+        let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(handleShowSearchbar))
         navItem.rightBarButtonItems = [item]
     }
     

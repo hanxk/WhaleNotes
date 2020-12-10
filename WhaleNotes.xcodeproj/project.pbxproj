@@ -86,6 +86,7 @@
 		1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF19244EDF790006B48D /* UIView+Ex.swift */; };
 		1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF1B244F43D30006B48D /* UITableView+Ex.swift */; };
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
+		186A3389258102C80003E926 /* HomeActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A3388258102C80003E926 /* HomeActionView.swift */; };
 		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
 		186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */; };
 		1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1870041A24C99F2F00AE784C /* HomeToolbar.swift */; };
@@ -245,6 +246,7 @@
 		1865AF19244EDF790006B48D /* UIView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF1B244F43D30006B48D /* UITableView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
+		186A3388258102C80003E926 /* HomeActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeActionView.swift; sourceTree = "<group>"; };
 		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		1870041A24C99F2F00AE784C /* HomeToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeToolbar.swift; sourceTree = "<group>"; };
@@ -374,6 +376,7 @@
 			isa = PBXGroup;
 			children = (
 				181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */,
+				186A3388258102C80003E926 /* HomeActionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1233,6 +1236,7 @@
 				182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */,
 				18E7BF93248C9C5000B8AEC1 /* BoardCategoryViewController.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
+				186A3389258102C80003E926 /* HomeActionView.swift in Sources */,
 				18F57C3B2571FF2000834DB5 /* BookmarkCellProvider.swift in Sources */,
 				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
