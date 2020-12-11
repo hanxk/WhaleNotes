@@ -87,6 +87,16 @@
 		1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF1B244F43D30006B48D /* UITableView+Ex.swift */; };
 		1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AF20245018C30006B48D /* TodoBlockCell.swift */; };
 		186A3389258102C80003E926 /* HomeActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A3388258102C80003E926 /* HomeActionView.swift */; };
+		186A33F825831A570003E926 /* UIControlMenu+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33EE25831A570003E926 /* UIControlMenu+Helpers.swift */; };
+		186A33F925831A570003E926 /* UIControlMenu+TableViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33EF25831A570003E926 /* UIControlMenu+TableViewHelpers.swift */; };
+		186A33FA25831A570003E926 /* UIControlMenuAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33F125831A570003E926 /* UIControlMenuAction.swift */; };
+		186A33FB25831A570003E926 /* UIControlMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33F325831A570003E926 /* UIControlMenuController.swift */; };
+		186A33FC25831A570003E926 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33F425831A570003E926 /* MenuController.swift */; };
+		186A33FD25831A570003E926 /* UIControlMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33F625831A570003E926 /* UIControlMenuCell.swift */; };
+		186A33FE25831A570003E926 /* UIControlMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A33F725831A570003E926 /* UIControlMenuView.swift */; };
+		186A340325831B0F0003E926 /* Protocols+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A340125831B0E0003E926 /* Protocols+Helpers.swift */; };
+		186A340425831B0F0003E926 /* InteractiveModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A340225831B0E0003E926 /* InteractiveModal.swift */; };
+		186A3424258323310003E926 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A3423258323310003E926 /* Config.swift */; };
 		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
 		186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */; };
 		1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1870041A24C99F2F00AE784C /* HomeToolbar.swift */; };
@@ -247,6 +257,16 @@
 		1865AF1B244F43D30006B48D /* UITableView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Ex.swift"; sourceTree = "<group>"; };
 		1865AF20245018C30006B48D /* TodoBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoBlockCell.swift; sourceTree = "<group>"; };
 		186A3388258102C80003E926 /* HomeActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeActionView.swift; sourceTree = "<group>"; };
+		186A33EE25831A570003E926 /* UIControlMenu+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIControlMenu+Helpers.swift"; sourceTree = "<group>"; };
+		186A33EF25831A570003E926 /* UIControlMenu+TableViewHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIControlMenu+TableViewHelpers.swift"; sourceTree = "<group>"; };
+		186A33F125831A570003E926 /* UIControlMenuAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlMenuAction.swift; sourceTree = "<group>"; };
+		186A33F325831A570003E926 /* UIControlMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlMenuController.swift; sourceTree = "<group>"; };
+		186A33F425831A570003E926 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
+		186A33F625831A570003E926 /* UIControlMenuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlMenuCell.swift; sourceTree = "<group>"; };
+		186A33F725831A570003E926 /* UIControlMenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIControlMenuView.swift; sourceTree = "<group>"; };
+		186A340125831B0E0003E926 /* Protocols+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Protocols+Helpers.swift"; sourceTree = "<group>"; };
+		186A340225831B0E0003E926 /* InteractiveModal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveModal.swift; sourceTree = "<group>"; };
+		186A3423258323310003E926 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		1870041A24C99F2F00AE784C /* HomeToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeToolbar.swift; sourceTree = "<group>"; };
@@ -573,6 +593,7 @@
 		1865AEF1244C5D8F0006B48D /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				186A33EC25831A570003E926 /* MenuController */,
 				180256B4257F8DCA00BF5804 /* HTMLParser */,
 				1848ABCE24ED1ACF00BFE0DF /* ImageZoomView.swift */,
 				186DDE842495FD6700A4C63C /* PhotoViewer */,
@@ -644,6 +665,63 @@
 			children = (
 			);
 			path = Todo;
+			sourceTree = "<group>";
+		};
+		186A33EC25831A570003E926 /* MenuController */ = {
+			isa = PBXGroup;
+			children = (
+				186A340025831B0E0003E926 /* InteractiveModal */,
+				186A33ED25831A570003E926 /* Extensions+Helpers */,
+				186A33F025831A570003E926 /* Models */,
+				186A33F225831A570003E926 /* Controllers */,
+				186A33F525831A570003E926 /* Views */,
+			);
+			path = MenuController;
+			sourceTree = "<group>";
+		};
+		186A33ED25831A570003E926 /* Extensions+Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				186A33EE25831A570003E926 /* UIControlMenu+Helpers.swift */,
+				186A33EF25831A570003E926 /* UIControlMenu+TableViewHelpers.swift */,
+			);
+			path = "Extensions+Helpers";
+			sourceTree = "<group>";
+		};
+		186A33F025831A570003E926 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				186A33F125831A570003E926 /* UIControlMenuAction.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		186A33F225831A570003E926 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				186A33F325831A570003E926 /* UIControlMenuController.swift */,
+				186A33F425831A570003E926 /* MenuController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		186A33F525831A570003E926 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				186A33F625831A570003E926 /* UIControlMenuCell.swift */,
+				186A33F725831A570003E926 /* UIControlMenuView.swift */,
+				186A3423258323310003E926 /* Config.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		186A340025831B0E0003E926 /* InteractiveModal */ = {
+			isa = PBXGroup;
+			children = (
+				186A340125831B0E0003E926 /* Protocols+Helpers.swift */,
+				186A340225831B0E0003E926 /* InteractiveModal.swift */,
+			);
+			path = InteractiveModal;
 			sourceTree = "<group>";
 		};
 		186DDE7A249261C900A4C63C /* Trash */ = {
@@ -1165,6 +1243,7 @@
 				1859304C24BAAE2900D1352A /* JSONHelper.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
 				18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */,
+				186A33FD25831A570003E926 /* UIControlMenuCell.swift in Sources */,
 				18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */,
 				182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
@@ -1177,6 +1256,7 @@
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1859304424BAA00600D1352A /* BoardCategory.swift in Sources */,
 				18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */,
+				186A3424258323310003E926 /* Config.swift in Sources */,
 				18251C1A249B29C700484D23 /* NoteMenuViewController.swift in Sources */,
 				1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */,
 				1865AF21245018C30006B48D /* TodoBlockCell.swift in Sources */,
@@ -1196,6 +1276,7 @@
 				1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
+				186A33F825831A570003E926 /* UIControlMenu+Helpers.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
@@ -1207,6 +1288,7 @@
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				1859303224BA97C300D1352A /* DBManager.swift in Sources */,
+				186A33FA25831A570003E926 /* UIControlMenuAction.swift in Sources */,
 				182F359224D10F8A00E88657 /* ImageCellProvider.swift in Sources */,
 				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
@@ -1229,6 +1311,7 @@
 				18E7BF8E248C994800B8AEC1 /* TappedView.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */,
+				186A340425831B0F0003E926 /* InteractiveModal.swift in Sources */,
 				182BE8FE249A151000C85F8F /* ChooseBoardCell.swift in Sources */,
 				182BE903249A55C000C85F8F /* NoteDetailMenuCell.swift in Sources */,
 				1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */,
@@ -1241,6 +1324,7 @@
 				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */,
+				186A33F925831A570003E926 /* UIControlMenu+TableViewHelpers.swift in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
 				18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */,
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
@@ -1261,6 +1345,7 @@
 				18F57C35256FD70800834DB5 /* NoteEditorView.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */,
+				186A33FE25831A570003E926 /* UIControlMenuView.swift in Sources */,
 				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
@@ -1268,12 +1353,15 @@
 				18251C1C249B2F8D00484D23 /* NoteColorViewController.swift in Sources */,
 				1865AF1A244EDF790006B48D /* UIView+Ex.swift in Sources */,
 				18E9D6C324715112001E41A0 /* NoteCellNode.swift in Sources */,
+				186A340325831B0F0003E926 /* Protocols+Helpers.swift in Sources */,
 				1859BCB124EA7A0D0089CB1B /* NoteView.swift in Sources */,
 				183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */,
 				18E7BF91248C9B5E00B8AEC1 /* EmojiViewController.swift in Sources */,
 				188942AB246FDC20006173F8 /* NotesView.swift in Sources */,
 				18E9D6C124714ADA001E41A0 /* MosaicCollectionViewLayout.swift in Sources */,
+				186A33FC25831A570003E926 /* MenuController.swift in Sources */,
 				1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */,
+				186A33FB25831A570003E926 /* UIControlMenuController.swift in Sources */,
 				181D63E8248B98DC00B34E20 /* MenuSystemCell.swift in Sources */,
 				1847ADB524A1FB2A007B39EE /* BoardSettingButtonCell.swift in Sources */,
 				188328F624540FB40097A01D /* Logger.swift in Sources */,

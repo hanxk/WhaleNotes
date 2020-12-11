@@ -42,7 +42,6 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
             
         $0.scrollEdgeAppearance = barAppearance
         $0.standardAppearance.shadowColor = nil
-//        $0.prefersLargeTitles = true
     }
     
     let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
@@ -55,19 +54,10 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
             navBar.topItem?.title = title
         }
     }
-//    var title2:String = "" {
-//        didset {
-//
-//            navBar.topItem?.title = title2
-//        }
-//    }
-    
     
     private var containerView:UIView = UIView()
     
     private let titleButton:HomeTitleView = HomeTitleView()
-    
-    
     private let actionView:HomeActionView = HomeActionView()
     
     
@@ -86,6 +76,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.setupToolbar()
+        self.setupActionView()
+        
         self.extendedLayoutIncludesOpaqueBars = true
         self.view.backgroundColor = .bg
         
@@ -146,6 +138,47 @@ class Toolbar: UIToolbar {
         var size = super.sizeThatFits(size)
         size.height = height
         return size
+    }
+}
+
+//MARK: action float view
+extension HomeViewController {
+    
+    private  func setupActionView() {
+        self.view.addSubview(actionView)
+        actionView.snp.makeConstraints {
+            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
+            $0.height.equalTo(HomeActionView.SizeConstants.height)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
+        }
+        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
+        actionView.menuButton.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
+    }
+    
+   @objc func menuButtonTapped() {
+        let actions:[UIControlMenuAction] = [
+            UIControlMenuAction(title: "拍照", imageName:  "camera", handler: { _ in
+                self.handleAction(.camera)
+            }),
+            UIControlMenuAction(title: "照片", imageName: "photo.on.rectangle", handler: { _ in
+                self.handleAction(.image)
+            }),
+            UIControlMenuAction(title: "链接", imageName: "link", handler: { _ in
+                self.handleAction(.bookmark)
+            })
+        ]
+
+        let vc = MenuController(actions: actions)
+        vc.title = "添加"
+        self.present(vc, animated: true, completion: nil)
+    }
+    
+    func handleAction(_ type:MenuType)  {
+        guard let boardView = self.contentView as? BoardView else{
+            return
+        }
+        boardView.openNoteEditor(type: type)
     }
 }
 

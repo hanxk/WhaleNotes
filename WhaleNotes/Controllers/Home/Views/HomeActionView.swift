@@ -18,8 +18,8 @@ class HomeActionView:UIView {
     
     
     enum SizeConstants {
-        static let height:CGFloat = 48
-        static let menuButtonWidth:CGFloat = 54
+        static let height:CGFloat = 50
+        static let menuButtonWidth:CGFloat = 58
         static let adButtonWidth:CGFloat = 100
     }
     
