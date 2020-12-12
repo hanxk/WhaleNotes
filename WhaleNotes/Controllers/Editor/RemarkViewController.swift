@@ -11,7 +11,7 @@ import UIKit
 class RemarkViewController:UIViewController {
     
     var viewModel:CardEditorViewModel!
-    let editor = MDEditorView(placeholder: "写点什么")
+    let editor = MDEditorView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +23,7 @@ class RemarkViewController:UIViewController {
         }
         
         self.title =  "记笔记"
+        self.editor.placeholder = "写点什么"
         self.editor.text = viewModel.blockInfo.remark
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "取消 ", style: .plain, target: self, action: #selector(cancelButtonTapped))
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "保存", style: .done, target: self, action: #selector(doneButtonTapped))

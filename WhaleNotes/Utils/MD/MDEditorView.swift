@@ -25,6 +25,36 @@ class MDEditorView: UIView {
     }
     
     
+    lazy var placeholderLabel = UILabel().then {
+        $0.textColor = .placeholderText
+        $0.font = UIFont.systemFont(ofSize: 17)
+        
+    }
+    
+    var placeholder:String {
+        set {
+            let paragraphStyle = { () -> NSMutableParagraphStyle in
+                let paraStyle = NSMutableParagraphStyle()
+                paraStyle.maximumLineHeight = 23
+                paraStyle.minimumLineHeight = 23
+                paraStyle.lineSpacing = 3
+                return paraStyle
+            }()
+            
+            let myAttribute:[NSAttributedString.Key:Any] = [
+                .foregroundColor: UIColor.placeholderText,
+                .paragraphStyle : paragraphStyle
+            ]
+            let myAttrString = NSAttributedString(string: newValue, attributes: myAttribute)
+            placeholderLabel.attributedText = myAttrString
+        }
+        
+        get {
+            return placeholderLabel.text ?? ""
+        }
+    }
+    
+    
     let markdownRenderer = MarkdownRender.shared()
     
     var lastOffsetY: CGFloat = 0.0
@@ -75,18 +105,11 @@ class MDEditorView: UIView {
     var text:String{
         set {
             self.editView.text  =  newValue
-            placeholderLabel.isHidden = !text.isEmpty
         }
         get {
             return self.editView.text
         }
     }
-    
-    lazy var placeholderLabel = UILabel().then {
-        $0.textColor = .placeholderText
-        $0.font = UIFont.systemFont(ofSize: 17)
-    }
-    
     
     var shouldRender = false
     
@@ -111,12 +134,10 @@ class MDEditorView: UIView {
         }
     }
     
-    init(placeholder:String = "") {
+    init() {
         super.init(frame: .zero)
         self.initializeUI()
         editView.delegate = self
-        
-        placeholderLabel.text = placeholder
         
         editView.textContainerInset = textViewInset
         editView.viewController = self.controller
@@ -142,7 +163,7 @@ class MDEditorView: UIView {
         
         addSubview(placeholderLabel)
         placeholderLabel.snp.makeConstraints {
-            $0.leading.equalTo(editView.snp.leading).offset(textViewInset.left)
+            $0.leading.equalTo(editView.snp.leading).offset(textViewInset.left+3)
             $0.top.equalTo(editView.snp.top).offset(textViewInset.top)
         }
         
@@ -360,7 +381,7 @@ extension MDEditorView: UITextViewDelegate {
     }
     
     func textViewDidChange(_ textView: UITextView) {
-//        self.text = textView.text
+        placeholderLabel.isHidden = !text.isEmpty
         if editView.markedTextRange != nil {
             return
         }
