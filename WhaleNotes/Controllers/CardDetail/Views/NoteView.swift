@@ -18,7 +18,7 @@ class NoteView: BaseCardEditorView {
     }
     private var viewModel:CardEditorViewModel!
     
-    let noteEditor = NoteEditorView(placeholder: "写点什么。。。")
+    let noteEditor = MDEditorView(placeholder: "写点什么。。。")
     
     init(viewModel:CardEditorViewModel) {
         super.init(frame: .zero)

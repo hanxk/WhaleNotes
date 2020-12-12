@@ -19,7 +19,7 @@ class CardEditorViewController: UIViewController {
     var isNew = false
     
     
-    private lazy var navBar:UINavigationBar = UINavigationBar() .then{
+    private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = false
         $0.delegate = self
         let barAppearance =  UINavigationBarAppearance()
@@ -96,7 +96,7 @@ class CardEditorViewController: UIViewController {
     private func setupKeyboard() {
         if !isNew { return }
         if let noteView = editorView as? NoteView {
-            noteView.noteEditor.textView.becomeFirstResponder()
+            noteView.noteEditor.editView.becomeFirstResponder()
             return
         }
         if let todoListView = editorView as? TodoBlockEditorView {
@@ -119,8 +119,8 @@ extension CardEditorViewController:UINavigationBarDelegate{
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
         
-        self.view.addSubview(navBar)
-        navBar.snp.makeConstraints {
+        self.view.addSubview(myNavbar)
+        myNavbar.snp.makeConstraints {
             $0.width.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
         }
@@ -137,8 +137,8 @@ extension CardEditorViewController:UINavigationBarDelegate{
     private func setupNavgationBar() {
         
         let navItem = UINavigationItem()
-        navBar.items = [navItem]
-        navBar.tintColor = .iconColor
+        myNavbar.items = [navItem]
+        myNavbar.tintColor = .iconColor
         self.createBackBarButton(forNavigationItem: navItem)
         navItem.titleView = titleTextField
         

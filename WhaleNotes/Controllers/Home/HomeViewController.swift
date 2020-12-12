@@ -32,7 +32,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
             self.setupContentView()
         }
     }
-    private lazy var navBar:UINavigationBar = UINavigationBar() .then{
+    private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = true
         $0.delegate = self
         $0.tintColor = .iconColor
@@ -51,7 +51,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
   
     override var title: String? {
         didSet {
-            navBar.topItem?.title = title
+            myNavbar.topItem?.title = title
         }
     }
     
@@ -412,8 +412,8 @@ extension HomeViewController:UINavigationBarDelegate{
         containerView.snp.makeConstraints {
             $0.height.width.equalToSuperview()
         }
-        self.view.addSubview(navBar)
-        navBar.snp.makeConstraints {
+        self.view.addSubview(myNavbar)
+        myNavbar.snp.makeConstraints {
             $0.width.equalToSuperview()
 //            $0.height.equalTo(HomeViewController.toolbarHeight)
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
@@ -425,7 +425,7 @@ extension HomeViewController:UINavigationBarDelegate{
         self.setupUIFrame()
         
         let navItem = UINavigationItem()
-        navBar.items = [navItem]
+        myNavbar.items = [navItem]
         
         let button =  UIButton().then {
             $0.frame = CGRect(x: 0, y: 0, width: 44, height: 44)

@@ -11,7 +11,7 @@ import UIKit
 class RemarkViewController:UIViewController {
     
     var viewModel:CardEditorViewModel!
-    let editor = NoteEditorView(placeholder: "写点什么")
+    let editor = MDEditorView(placeholder: "写点什么")
     
     override func viewDidLoad() {
         super.viewDidLoad()
