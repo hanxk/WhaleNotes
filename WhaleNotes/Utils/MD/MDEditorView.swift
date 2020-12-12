@@ -344,16 +344,14 @@ extension MDEditorView: UITextViewDelegate {
 //                return true
 //            }
             
-            // old: 
-//            let lastLineCount = texts.last!.count
-//            let beginning = textView.beginningOfDocument
-//            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
-//                let to = textView.position(from: beginning, offset: range.location),
-//                let textRange = textView.textRange(from: from, to: to) else {
-//                return true
-//            }
-            guard let textRange = textView.text.range.toTextRange(textInput: textView) else { return true}
-            
+//            let lastLineCount = texts.last!.count   // emoji bug
+            let lastLineCount = texts.last!.utf16.count
+            let beginning = textView.beginningOfDocument
+            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
+                let to = textView.position(from: beginning, offset: range.location),
+                let textRange = textView.textRange(from: from, to: to) else {
+                return true
+            }
             let newText  =  newLine(texts.last!)
             textView.replace(textRange, withText: newText)
             return false
