@@ -340,16 +340,20 @@ extension MDEditorView: UITextViewDelegate {
             let nsString = textView.text! as NSString
             let nearText = nsString.substring(with: NSRange(location:begin, length: len))
             let texts = nearText.components(separatedBy: "\n")
-            if texts.count < 2 {
-                return true
-            }
-            let lastLineCount = texts.last!.count
-            let beginning = textView.beginningOfDocument
-            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
-                let to = textView.position(from: beginning, offset: range.location),
-                let textRange = textView.textRange(from: from, to: to) else {
-                return true
-            }
+//            if texts.count < 2 {
+//                return true
+//            }
+            
+            // old: 
+//            let lastLineCount = texts.last!.count
+//            let beginning = textView.beginningOfDocument
+//            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
+//                let to = textView.position(from: beginning, offset: range.location),
+//                let textRange = textView.textRange(from: from, to: to) else {
+//                return true
+//            }
+            guard let textRange = textView.text.range.toTextRange(textInput: textView) else { return true}
+            
             let newText  =  newLine(texts.last!)
             textView.replace(textRange, withText: newText)
             return false
@@ -367,6 +371,23 @@ extension MDEditorView: UITextViewDelegate {
         timer?.invalidate()
         timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight), userInfo: nil, repeats: false)
         _textWidth = 0
+    }
+}
+extension NSRange {
+    func toTextRange(textInput:UITextInput) -> UITextRange? {
+        if let rangeStart = textInput.position(from: textInput.beginningOfDocument, offset: location),
+            let rangeEnd = textInput.position(from: rangeStart, offset: length) {
+            return textInput.textRange(from: rangeStart, to: rangeEnd)
+        }
+        return nil
+    }
+}
+extension String {
+    /// Fixes the problem with `NSRange` to `Range` conversion
+    var range: NSRange {
+        let fromIndex = unicodeScalars.index(unicodeScalars.startIndex, offsetBy: 0)
+        let toIndex = unicodeScalars.index(fromIndex, offsetBy: count)
+        return NSRange(fromIndex..<toIndex, in: self)
     }
 }
 
