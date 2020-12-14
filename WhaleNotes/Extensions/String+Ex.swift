@@ -152,3 +152,51 @@ extension String {
     }
 }
 
+//MARK: 正则
+extension String {
+    
+    func match(pattern:String) -> Bool {
+        guard let regex = try? NSRegularExpression(pattern: pattern,
+                                                   options: .caseInsensitive) else { return false}
+        let matches = regex.matches(in: self,
+                    options: [],
+                    range: NSMakeRange(0, self.utf16.count))
+        return matches.count > 0
+    }
+    
+    func rangeFirst(pattern:String) -> String? {
+        if let range = self.range(of: pattern, options: .regularExpression) {
+            let value = self[range]
+            return String(value)
+        }
+        return nil
+    }
+}
+
+//MARK: replace
+extension String {
+  
+  public func replaceFirst(of pattern:String,
+                           with replacement:String) -> String {
+    if let range = self.range(of: pattern){
+      return self.replacingCharacters(in: range, with: replacement)
+    }else{
+      return self
+    }
+  }
+  
+  public func replaceAll(of pattern:String,
+                         with replacement:String,
+                         options: NSRegularExpression.Options = []) -> String{
+    do{
+      let regex = try NSRegularExpression(pattern: pattern, options: [])
+      let range = NSRange(0..<self.utf16.count)
+      return regex.stringByReplacingMatches(in: self, options: [],
+                                            range: range, withTemplate: replacement)
+    }catch{
+      NSLog("replaceAll error: \(error)")
+      return self
+    }
+  }
+  
+}

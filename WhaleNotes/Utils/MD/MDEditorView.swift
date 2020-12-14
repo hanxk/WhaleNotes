@@ -24,6 +24,7 @@ class MDEditorView: UIView {
         $0.textContainer.lineBreakMode = .byCharWrapping
     }
     
+    let toolbar = MDToolbar()
     
     lazy var placeholderLabel = UILabel().then {
         $0.textColor = .placeholderText
@@ -143,6 +144,8 @@ class MDEditorView: UIView {
         editView.viewController = self.controller
         editView.delegate = self
         
+        
+        self.setupToolbar()
         
         setupRx()
         
@@ -274,6 +277,97 @@ class MDEditorView: UIView {
             editView.text = text
             textViewDidChange(editView)
         }
+    }
+}
+
+//MARK: keyboard toolbar
+extension MDEditorView {
+    func setupToolbar() {
+        toolbar.frame =  CGRect(x: 0, y: 0, width: self.frame.width, height: 40)
+        toolbar.actionButtonTapped = {
+            self.handleActionType(actionType: $0)
+        }
+        editView.inputAccessoryView = toolbar
+    }
+    
+    func handleActionType(actionType:MDToolbar.ActionType) {
+        switch actionType {
+        case .keyboard:
+            self.editView.endEditing(true)
+        case .header:
+            self.handleHeader()
+        case .list:
+            self.handleList()
+        case .numList:
+            self.handleOList()
+        }
+    }
+    
+    func handleHeader() {
+        guard let textRange = self.editView.getCursorTextRange(),
+              let rangeText = self.editView.text(in: textRange)
+              else { return }
+        var newText = rangeText
+        
+        if newText.match(pattern: "^#+\\s") {
+            newText = "#"+newText
+        }else {
+            newText = "# "+newText
+        }
+        self.editView.replace(textRange, withText: newText)
+    }
+    
+    func handleList() {
+        guard let textRange = self.editView.getCursorTextRange(),
+              let rangeText = self.editView.text(in: textRange)
+              else { return }
+        var newText = rangeText
+        if newText.starts(with: "- ") {
+            newText = newText.replaceFirst(of: "- ", with: "")
+        }else {
+            newText = "- "+newText
+        }
+        self.editView.replace(textRange, withText: newText)
+    }
+    
+    func handleOList() {
+        guard let textRange = self.editView.getCursorTextRange(),
+              let rangeText = self.editView.text(in: textRange)
+              else { return }
+        
+//        var lastLineText =
+        var newText = rangeText
+        var numStr = ""
+        if newText.match(pattern: "^[1-9][0-9]*\\.(\\s?)") {
+            if let nStr = newText.rangeFirst(pattern: "^[1-9][0-9]*"),
+              let num = Int(nStr)  {
+                numStr  = String(num + 1)
+            }else  {
+              numStr = "1"
+            }
+        }else {
+            numStr = "1"
+        }
+        newText = numStr + ". " + newText
+        self.editView.replace(textRange, withText: newText)
+    }
+}
+
+extension UITextView {
+    func getLineString() -> String {
+        return (self.text! as NSString).substring(with: (self.text! as NSString).lineRange(for: self.selectedRange))
+    }
+    
+    func getCursorTextRange() -> UITextRange? {
+        guard let selectedRange = self.selectedTextRange else { return nil}
+        
+        let startOfLinePosition = self.tokenizer.position(from: selectedRange.start, toBoundary: .paragraph, inDirection: UITextDirection(rawValue: UITextStorageDirection.backward.rawValue))!
+        
+        let cursorPosition = self.offset(from: self.beginningOfDocument, to: selectedRange.start)
+        guard  let endPosition = self.position(from: self.beginningOfDocument, offset: cursorPosition) else { return nil}
+        
+        let textRange = self.textRange(from: startOfLinePosition, to: endPosition)
+        return textRange
     }
 }
 

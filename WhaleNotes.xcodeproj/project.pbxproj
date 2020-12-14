@@ -116,6 +116,7 @@
 		186A354825834E2E0003E926 /* html_blocks.c in Sources */ = {isa = PBXBuildFile; fileRef = 186A353E25834E2E0003E926 /* html_blocks.c */; };
 		186A354B25834FCD0003E926 /* Resources.zip in Resources */ = {isa = PBXBuildFile; fileRef = 186A354A25834FCD0003E926 /* Resources.zip */; };
 		186A3570258355BD0003E926 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A356F258355BD0003E926 /* TextView.swift */; };
+		186A35732584B1450003E926 /* MDToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A35722584B1450003E926 /* MDToolbar.swift */; };
 		186DDE7C249261D600A4C63C /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7B249261D600A4C63C /* TrashView.swift */; };
 		186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */; };
 		1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1870041A24C99F2F00AE784C /* HomeToolbar.swift */; };
@@ -316,6 +317,7 @@
 		186A353E25834E2E0003E926 /* html_blocks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = html_blocks.c; sourceTree = "<group>"; };
 		186A354A25834FCD0003E926 /* Resources.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Resources.zip; sourceTree = "<group>"; };
 		186A356F258355BD0003E926 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
+		186A35722584B1450003E926 /* MDToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDToolbar.swift; sourceTree = "<group>"; };
 		186DDE7B249261D600A4C63C /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
 		186DDE7D249323A900A4C63C /* GridCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		1870041A24C99F2F00AE784C /* HomeToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeToolbar.swift; sourceTree = "<group>"; };
@@ -785,6 +787,7 @@
 				186A351C25834BF00003E926 /* Theme.swift */,
 				186A351F25834C8B0003E926 /* Constant.swift */,
 				186A356F258355BD0003E926 /* TextView.swift */,
+				186A35722584B1450003E926 /* MDToolbar.swift */,
 			);
 			path = MD;
 			sourceTree = "<group>";
@@ -1368,6 +1371,7 @@
 				1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */,
 				18E7BF95248C9D2C00B8AEC1 /* EmojiRepo.swift in Sources */,
 				18F57C38256FD78300834DB5 /* RemarkViewController.swift in Sources */,
+				186A35732584B1450003E926 /* MDToolbar.swift in Sources */,
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1859304424BAA00600D1352A /* BoardCategory.swift in Sources */,
 				18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */,
