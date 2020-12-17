@@ -19,7 +19,7 @@ extension Date {
     
     var formattedYMDHM: String {
       let formatter = DateFormatter()
-      formatter.dateFormat = "yyyy年MM月dd日 HH:mm"
+      formatter.dateFormat = "yyyy-MM-dd HH:mm"
       return  formatter.string(from: self)
     }
   
@@ -98,11 +98,11 @@ extension Date {
       let timeStr =  formatter.string(from: self as Date)
       return "昨天 \(timeStr)"
     }
-    if isThisYear() {
-      formatter.dateFormat = "MM-dd"
-      return  formatter.string(from: self as Date)
-    }
-    formatter.dateFormat = "yyyy-MM-dd"
+//    if isThisYear() {
+//      formatter.dateFormat = "MM-dd"
+//      return  formatter.string(from: self as Date)
+//    }
+    formatter.dateFormat = "yyyy.MM.dd MM-dd"
     return  formatter.string(from: self as Date)
   }
   
@@ -245,4 +245,81 @@ extension Date {
         let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
         return Date(timeInterval: seconds, since: self)
     }
+}
+
+extension Date {
+//对时间的处理
+//传入的时间戳精确到毫秒
+  public func socialDateStr()->String{
+  
+      let myDate = self
+      
+      let fmt  = DateFormatter()
+      fmt.dateFormat = "yyyy-MM-dd HH:mm:ss"
+      fmt.locale = NSLocale(localeIdentifier: "en_US") as Locale?
+      //获得当前时间
+      let now = Date()
+      //计算时间差
+    let interval = now.secondsInBetweenDate(self)
+      // 处理小于一分钟的时间
+      if interval < 60 {
+          return "刚刚"
+      }
+      // 处理小于一小时的时间
+      if interval < 60 * 60 {
+          return "\(Int(interval / 60))分钟前"
+      }
+      // 处理小于一天的时间
+      if interval < 60 * 60 * 24 {
+          return "\(Int(interval / (60 * 60)))小时前"
+      }
+       // 处理昨天时间
+      let calendar = Calendar.current
+      if calendar.isDateInYesterday(myDate as Date) {
+          fmt.dateFormat = "昨天 HH:mm"
+          let timeStr  = fmt.string(from: myDate as Date)
+          return timeStr
+      }
+     //处理一年之内的时间
+      let cmp  = calendar.dateComponents([.year,.month,.day], from: myDate as Date, to: now)
+      if cmp.year! < 1 {
+          fmt.dateFormat = "MM-dd HH:mm"
+          let timeStr  = fmt.string(from: myDate as Date)
+          return timeStr
+      }
+      //超过一年的时间
+      fmt.dateFormat = "yyyy-MM-dd HH:mm"
+      let timeStr = fmt.string(from: myDate as Date)
+      return timeStr
+    }
+    
+    public func timePassedStr() -> String {
+        let date = Date()
+        let calendar = Calendar.autoupdatingCurrent
+        let components = (calendar as NSCalendar).components([.year, .month, .day, .hour, .minute, .second], from: self, to: date, options: [])
+        var str: String
+        
+        if components.year! >= 1 {
+            components.year == 1 ? (str = "year") : (str = "years")
+            return "\(components.year!) \(str) ago"
+        } else if components.month! >= 1 {
+            components.month == 1 ? (str = "month") : (str = "months")
+            return "\(components.month!) \(str) ago"
+        } else if components.day! >= 1 {
+            components.day == 1 ? (str = "day") : (str = "days")
+            return "\(components.day!) \(str) ago"
+        } else if components.hour! >= 1 {
+            components.hour == 1 ? (str = "hour") : (str = "hours")
+            return "\(components.hour!) \(str) ago"
+        } else if components.minute! >= 1 {
+            components.minute == 1 ? (str = "minute") : (str = "minutes")
+            return "\(components.minute!) \(str) ago"
+        } else if components.second! >= 1 {
+            components.second == 1 ? (str = "second") : (str = "seconds")
+            return "\(components.second!) \(str) ago"
+        } else {
+            return "Just now"
+        }
+    }
+    
 }

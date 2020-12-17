@@ -7,7 +7,6 @@ target 'WhaleNotes' do
   pod 'SideMenu'
   pod 'SnapKit', '~> 5.0.0'
   pod 'Then'
-  pod 'SwiftDate', '~> 5.0'
   pod 'ContextMenu'
   pod 'NewPopMenu', '~> 2.0'
   pod "TLPhotoPicker"
@@ -21,6 +20,7 @@ target 'WhaleNotes' do
   pod 'Texture', '>= 2.0'
   pod "SwiftCSV"
   pod 'sqlite3/json1'
+  pod 'SwiftDate', '~> 6.3'
 #  pod 'SQLite.swift', '~> 0.12.0'
   pod 'JXPhotoBrowser', '~> 3.0'
   pod 'Toast-Swift', '~> 5.0.1'

@@ -15,9 +15,14 @@ class ToolbarProvider:NoteCardProvider {
     var cardActionEmit: ((NoteCardAction) -> Void)?
 
     private lazy var dateNode :ASTextNode  = ASTextNode().then {
-        $0.attributedText = getDateLabelAttributes(text: "今天 10:00")
         $0.maximumNumberOfLines = 1
+        $0.attributedText = getDateLabelAttributes(text: noteInfo.note.createdAt.formatted3)
     }
+    var  noteInfo:NoteInfo!
+    init(noteInfo:NoteInfo) {
+        self.noteInfo = noteInfo
+    }
+    
     
     private var menuButtonNode :ASButtonNode!
     private var editButtonNode :ASButtonNode!

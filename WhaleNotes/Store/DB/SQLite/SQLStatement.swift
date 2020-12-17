@@ -103,7 +103,7 @@ extension SQLStatement {
                 return NSData(bytes: blob, length: Int(size))
             }
             return nil
-        case "REAL","TIMESTAMP", "DOUBLE", "DOUBLE PRECISION", "FLOAT", "NUMERIC", "DECIMAL(10,5)":
+        case "REAL","DOUBLE", "DOUBLE PRECISION", "FLOAT", "NUMERIC", "DECIMAL(10,5)","TIMESTAMP":
             if sqlite3_column_type(stmt, index) == SQLITE_NULL {
                 return nil
             }

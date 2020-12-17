@@ -12,31 +12,17 @@ import AsyncDisplayKit
 
 class NotesListView: UIView {
     
-    private var notes:[NoteInfo]  = [NoteInfo(note: Note(id: "asd", content: "哈哈哈哈", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd2", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd3",title: "这是一个标题", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd4", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd5", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd6", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd7", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd8", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd9", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd10", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date())),
-                                     NoteInfo(note: Note(id: "asd11", content: "人们越来越把互联网甚至云服务当成理所当然的基础设施，仿佛就像水和电一样，然后搭建了许多依赖它们的东西……但可靠性还是不够吧。在电不可靠的时候人们还能上备用电源，网断了有时候勉强还能靠移动网络，而云服务挂了那就完全没得用了吧", createdAt: Date(), updatedAt: Date()))
-    ]
+    private lazy var disposeBag = DisposeBag()
+    private var notes:[NoteInfo]  = []
     private var selectedNoteId:String?
     private lazy var tableView = ASTableNode().then {
         $0.delegate = self
         $0.dataSource = self
         $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
         $0.backgroundColor = .clear
-        
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
-        
         $0.view.keyboardDismissMode = .onDrag
-//        $0.showsVerticalScrollIndicator = false
-//        $0.register(NoteCardCell.self, forCellReuseIdentifier: NoteCardCell.className)
     }
     
     required init?(coder: NSCoder) {
@@ -51,6 +37,37 @@ class NotesListView: UIView {
         tableView.frame = self.frame
         tableView.backgroundColor = .bg
         self.addSubnode(tableView)
+        
+        self.loadData()
+    }
+    
+    private func loadData() {
+        NoteRepo.shared.getNotes()
+            .subscribe(onNext: { [weak self] notes in
+                if let self = self {
+                    self.notes = notes
+                    self.tableView.reloadData()
+                }
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func createNewNote() {
+        let noteInfo = NoteInfo(note: Note())
+        NoteRepo.shared.createNote(noteInfo)
+            .subscribe(onNext: { [weak self] noteInfo in
+                if let self = self {
+                    self.selectedNoteId = noteInfo.id
+                    self.notes.insert(noteInfo, at: 0)
+                    self.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+                }
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+        
     }
 }
 
@@ -71,11 +88,13 @@ extension NotesListView:ASTableDataSource {
             self?.handleCardAction(action,noteId: noteInfo.note.id)
         })
         node.textChanged {[weak node] (newText: String) in
-            
             UIView.performWithoutAnimation {
                 node?.setNeedsLayout()
                 print("哈哈哈r")
             }
+        }
+        node.textEdited {[weak self] text,editViewTag in
+            self?.handleEditText(text: text, editViewTag: editViewTag, noteId: noteInfo.note.id)
         }
         return node
     }
@@ -102,7 +121,7 @@ extension NotesListView:ASTableDataSource {
            rows.append(IndexPath(row: oldIndex, section: 0))
         }
         self.selectedNoteId = noteId
-        self.tableView.reloadRows(animated: false, rows: rows)
+        self.tableView.reloadRows(rows: rows)
     }
     
     private func handleSaveAction() {
@@ -110,8 +129,59 @@ extension NotesListView:ASTableDataSource {
         guard let selectedNoteId = self.selectedNoteId,
            let oldIndex =  self.notes.firstIndex(where: {$0.note.id == selectedNoteId}) else { return }
         
+//        let noteInfo = self.notes[oldIndex]
+//        if noteInfo.note.createdAt == noteInfo.note.updatedAt && noteInfo.isEmpty  {
+//            self.deleteNoteInfo(noteInfo: noteInfo)
+//        }
         self.selectedNoteId = nil
-        self.tableView.reloadRows(animated: false, rows: [IndexPath(row: oldIndex, section: 0)])
+        self.tableView.reloadRows(rows: [IndexPath(row: oldIndex, section: 0)])
+    }
+    
+    private func handleEditText(text:String,editViewTag:EditViewTag,noteId:String) {
+        guard var noteInfo = self.notes.first(where: { $0.id ==  noteId }) else { return }
+        switch editViewTag {
+        case .title:
+            noteInfo.note.title  = text
+        case .content:
+            noteInfo.note.content  = text
+        }
+        if noteInfo.note.createdAt == noteInfo.note.updatedAt && noteInfo.isEmpty  {
+            self.deleteNoteInfo(noteInfo: noteInfo)
+        }else {
+            self.updateNoteInfo(note: noteInfo.note)
+        }
+    }
+    
+    private func deleteNoteInfo(noteInfo:NoteInfo)  {
+        NoteRepo.shared.deleteNote(noteInfo)
+            .subscribe(onNext: { [weak self]  in
+                guard let self = self else { return }
+                guard let noteIndex = self.notes.firstIndex(where: { $0.id ==  noteInfo.id }) else { return }
+                self.notes.remove(at: noteIndex)
+                self.tableView.deleteRows(at: [IndexPath(row: noteIndex, section: 0)], with: .automatic)
+                
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    private func updateNoteInfo(note:Note)  {
+        NoteRepo.shared.updateNote(note)
+            .subscribe(onNext: { [weak self] note in
+                guard let self = self else { return }
+                guard let noteIndex = self.notes.firstIndex(where: { $0.id ==  note.id }) else { return }
+                var noteInfo  = self.notes[noteIndex]
+                noteInfo.note = note
+                
+                self.notes[noteIndex] = noteInfo
+                if self.selectedNoteId == nil{
+                    self.tableView.reloadRows(at: [IndexPath(row: noteIndex, section: 0)], with: .none)
+                }
+                
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -126,13 +196,14 @@ extension ASTableNode {
         }, completion: completion)
     }
 
-    func reloadSections(animated: Bool, sections: IndexSet, rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)? = nil) {
+    func reloadSections(animated: Bool = false, sections: IndexSet, rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)? = nil) {
         self.performBatch(animated: animated, updates: {
             self.reloadSections(sections, with: rowAnimation)
         }, completion: completion)
     }
 
-    func reloadRows(animated: Bool, rows: [IndexPath], rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)?  = nil) {
+    func reloadRows(rows: [IndexPath], rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)?  = nil) {
+        let animated = rowAnimation != .none
         self.performBatch(animated: animated, updates: {
             self.reloadRows(at: rows, with: rowAnimation)
         }, completion: completion)

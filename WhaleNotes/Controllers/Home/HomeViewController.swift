@@ -215,10 +215,10 @@ extension HomeViewController {
     }
     
     @objc func noteButtonTapped() {
-        guard let boardView = self.contentView as? BoardView else{
+        guard let boardView = self.contentView as? NotesListView else{
             return
         }
-        boardView.openNoteEditor(type: MenuType.text)
+        boardView.createNewNote()
     }
     
     private func setupBoardToolbar() {

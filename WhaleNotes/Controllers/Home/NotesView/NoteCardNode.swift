@@ -35,16 +35,42 @@ enum NoteCardAction: Int {
     case menu = 5
 }
 
+enum NoteCardMode: Int {
+    case normal = 0
+    case editing = 1
+    case new = 2
+}
+
+
+enum EditViewTag: Int {
+    case title = 1
+    case content = 2
+}
+
 class NoteCardNode: ASCellNode {
     
     private var noteInfo:NoteInfo!
     private var note:Note {
-        return noteInfo.note
+        get {
+            return noteInfo.note
+        }
+        set {
+            noteInfo.note = newValue
+        }
     }
     
     var isEditing = false
+    var mode:NoteCardMode = .normal
+    
+    var isNew:Bool {
+        return note.createdAt == note.updatedAt
+    }
+    
     private var textChanged: ((String) -> Void)?
-    private  var cardActionEmit: ((NoteCardAction) -> Void)?
+    private var cardActionEmit: ((NoteCardAction) -> Void)?
+    private var textEdited: ((String,EditViewTag) -> Void)?
+    
+    
     private var titleEditNode :ASEditableTextNode?
     private var contentEditNode :ASEditableTextNode?
     
@@ -89,7 +115,7 @@ class NoteCardNode: ASCellNode {
                 $0.typingAttributes = getTitleAttributesString()
                 $0.textView.isEditable = isEditing
                 $0.delegate = self
-                $0.textView.tag = 1
+                $0.textView.tag = EditViewTag.title.rawValue
             }
             self.addSubnode(titleNode)
             self.titleEditNode = titleNode
@@ -105,9 +131,17 @@ class NoteCardNode: ASCellNode {
                 $0.textView.isEditable = isEditing
                 $0.typingAttributes = getContentAttributesString()
                 $0.delegate = self
+                $0.textView.tag = EditViewTag.content.rawValue
             }
             self.addSubnode(contentNode)
             self.contentEditNode = contentNode
+            
+            if isNew { // 新建
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    // your code here
+                    contentNode.becomeFirstResponder()
+                }
+            }
         }
         
         self.cardActionEmit  = action
@@ -116,7 +150,7 @@ class NoteCardNode: ASCellNode {
             provider.cardActionEmit = self.cardActionEmit
             self.footerProvider = provider
         }else  {
-            let provider  = ToolbarProvider()
+            let provider  = ToolbarProvider(noteInfo: self.noteInfo)
             provider.cardActionEmit = self.cardActionEmit
             self.footerProvider = provider
         }
@@ -165,6 +199,9 @@ class NoteCardNode: ASCellNode {
     
     func cardActionEmit(action: @escaping (NoteCardAction) -> Void) {
         self.cardActionEmit = action
+    }
+    func textEdited(action: @escaping (String,EditViewTag) -> Void) {
+        self.textEdited = action
     }
 }
 
@@ -229,5 +266,23 @@ extension NoteCardNode: ASEditableTextNodeDelegate {
 //        }else {
 //            contentEditNode?.attributedText = getContentAttributes(text: text)
 //        }
+        if  editableTextNode.textView.tag == EditViewTag.title.rawValue {
+            note.title  = text
+        }else {
+            note.content  = text
+        }
+    }
+    
+    func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
+        let text = editableTextNode.textView.text ??  ""
+        guard let tag = EditViewTag(rawValue: editableTextNode.textView.tag)  else  { return }
+        self.textEdited?(text,tag)
+    }
+}
+
+
+extension NoteCardNode {
+    fileprivate func updateNote() {
+        
     }
 }
