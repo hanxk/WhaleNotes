@@ -17,6 +17,13 @@ open class BaseRepo {
         return DBManager.shared.blockDao
     }
     
+    var noteDao:NoteDao {
+        return DBManager.shared.noteDao
+    }
+    var tagDao:TagDao {
+        return DBManager.shared.tagDao
+    }
+    
     
     var blockPositionDao:BlockPositionDao {
         return DBManager.shared.blockPositionDao

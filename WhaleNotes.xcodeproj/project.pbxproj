@@ -35,6 +35,14 @@
 		18251C1A249B29C700484D23 /* NoteMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18251C19249B29C700484D23 /* NoteMenuViewController.swift */; };
 		18251C1C249B2F8D00484D23 /* NoteColorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18251C1B249B2F8D00484D23 /* NoteColorViewController.swift */; };
 		18251C20249B305300484D23 /* NoteColorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18251C1F249B305300484D23 /* NoteColorCell.swift */; };
+		18286B932587632000541526 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286B922587632000541526 /* Note.swift */; };
+		18286B962587636400541526 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286B952587636400541526 /* Tag.swift */; };
+		18286B99258763B900541526 /* NoteAndTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286B98258763B900541526 /* NoteAndTag.swift */; };
+		18286B9C258764CF00541526 /* NoteDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286B9B258764CF00541526 /* NoteDao.swift */; };
+		18286B9F2587658A00541526 /* NoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286B9E2587658A00541526 /* NoteInfo.swift */; };
+		18286BA2258766A700541526 /* TagDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286BA1258766A700541526 /* TagDao.swift */; };
+		18286BA5258769B000541526 /* NoteRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286BA4258769B000541526 /* NoteRepo.swift */; };
+		18286BA825876BED00541526 /* NotesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18286BA725876BED00541526 /* NotesListView.swift */; };
 		182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */; };
 		182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8EF24989C7400C85F8F /* TitleTextField.swift */; };
 		182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182BE8F22499F2FF00C85F8F /* BoardsCell.swift */; };
@@ -130,6 +138,9 @@
 		188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942A7246E845D006173F8 /* TodoGroupCell.swift */; };
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
+		1899EB44258772920003F4D6 /* NoteCardNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899EB43258772920003F4D6 /* NoteCardNode.swift */; };
+		1899EB4A258A24310003F4D6 /* ToolbarEditingProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899EB49258A24310003F4D6 /* ToolbarEditingProvider.swift */; };
+		1899EB4E258A25160003F4D6 /* ToolbarProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899EB4D258A25160003F4D6 /* ToolbarProvider.swift */; };
 		18A463F024EBD0E400D7EBD0 /* CardEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A463EF24EBD0E400D7EBD0 /* CardEditorViewModel.swift */; };
 		18A9C53F24AC363B0025E0EB /* CreateBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */; };
 		18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */; };
@@ -224,6 +235,14 @@
 		18251C19249B29C700484D23 /* NoteMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteMenuViewController.swift; sourceTree = "<group>"; };
 		18251C1B249B2F8D00484D23 /* NoteColorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteColorViewController.swift; sourceTree = "<group>"; };
 		18251C1F249B305300484D23 /* NoteColorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteColorCell.swift; sourceTree = "<group>"; };
+		18286B922587632000541526 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		18286B952587636400541526 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		18286B98258763B900541526 /* NoteAndTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAndTag.swift; sourceTree = "<group>"; };
+		18286B9B258764CF00541526 /* NoteDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDao.swift; sourceTree = "<group>"; };
+		18286B9E2587658A00541526 /* NoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInfo.swift; sourceTree = "<group>"; };
+		18286BA1258766A700541526 /* TagDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagDao.swift; sourceTree = "<group>"; };
+		18286BA4258769B000541526 /* NoteRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepo.swift; sourceTree = "<group>"; };
+		18286BA725876BED00541526 /* NotesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesListView.swift; sourceTree = "<group>"; };
 		182B0D51245FCEC800C6DC70 /* TodoFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoFooterView.swift; sourceTree = "<group>"; };
 		182BE8EF24989C7400C85F8F /* TitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleTextField.swift; sourceTree = "<group>"; };
 		182BE8F22499F2FF00C85F8F /* BoardsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardsCell.swift; sourceTree = "<group>"; };
@@ -331,6 +350,9 @@
 		188942A7246E845D006173F8 /* TodoGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroupCell.swift; sourceTree = "<group>"; };
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
+		1899EB43258772920003F4D6 /* NoteCardNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCardNode.swift; sourceTree = "<group>"; };
+		1899EB49258A24310003F4D6 /* ToolbarEditingProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarEditingProvider.swift; sourceTree = "<group>"; };
+		1899EB4D258A25160003F4D6 /* ToolbarProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarProvider.swift; sourceTree = "<group>"; };
 		18A463EF24EBD0E400D7EBD0 /* CardEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorViewModel.swift; sourceTree = "<group>"; };
 		18A9C53E24AC363A0025E0EB /* CreateBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CreateBoardViewController.swift; path = ../../../../../../../../CreateBoardViewController.swift; sourceTree = "<group>"; };
 		18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+Ex.swift"; sourceTree = "<group>"; };
@@ -493,6 +515,28 @@
 				18F3A07124CD5D9900C023EA /* NoteColorCircleCell.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		18286B912587631000541526 /* New */ = {
+			isa = PBXGroup;
+			children = (
+				18286B922587632000541526 /* Note.swift */,
+				18286B952587636400541526 /* Tag.swift */,
+				18286B98258763B900541526 /* NoteAndTag.swift */,
+				18286B9E2587658A00541526 /* NoteInfo.swift */,
+			);
+			name = New;
+			sourceTree = "<group>";
+		};
+		18286BAA25876C1C00541526 /* NotesView */ = {
+			isa = PBXGroup;
+			children = (
+				1899EB50258A28C70003F4D6 /* Provider */,
+				1899EB412587724B0003F4D6 /* Cells */,
+				18286BA725876BED00541526 /* NotesListView.swift */,
+				1899EB43258772920003F4D6 /* NoteCardNode.swift */,
+			);
+			path = NotesView;
 			sourceTree = "<group>";
 		};
 		182BE8F12499F2E800C85F8F /* Boards */ = {
@@ -704,6 +748,7 @@
 		1865AF10244D4FBE0006B48D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				18286B912587631000541526 /* New */,
 				18FA5CCE24DE8FAA00E06642 /* DB */,
 				1859303D24BAA00600D1352A /* ImageFetchInfo.swift */,
 				18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */,
@@ -914,6 +959,22 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
+		1899EB412587724B0003F4D6 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		1899EB50258A28C70003F4D6 /* Provider */ = {
+			isa = PBXGroup;
+			children = (
+				1899EB49258A24310003F4D6 /* ToolbarEditingProvider.swift */,
+				1899EB4D258A25160003F4D6 /* ToolbarProvider.swift */,
+			);
+			name = Provider;
+			sourceTree = "<group>";
+		};
 		189D962D2486185C000E04C9 /* Repos */ = {
 			isa = PBXGroup;
 			children = (
@@ -921,6 +982,7 @@
 				1859304F24BAD35C00D1352A /* BlockRepo.swift */,
 				18D1BEA724BED44900817D02 /* BaseRepo.swift */,
 				18BCA59724E8165800612889 /* BoardsRepo.swift */,
+				18286BA4258769B000541526 /* NoteRepo.swift */,
 			);
 			path = Repos;
 			sourceTree = "<group>";
@@ -991,6 +1053,8 @@
 			children = (
 				18E6E676247BBDBF00D598C5 /* BlockDao.swift */,
 				18C6379724BC1091007E01B9 /* BlockPositionDao.swift */,
+				18286B9B258764CF00541526 /* NoteDao.swift */,
+				18286BA1258766A700541526 /* TagDao.swift */,
 			);
 			path = Dao;
 			sourceTree = "<group>";
@@ -1115,6 +1179,7 @@
 		18E956892449AAC7003755BF /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				18286BAA25876C1C00541526 /* NotesView */,
 				181F17D2249E0E8B00F8C5B8 /* Views */,
 				18E9568B2449AC45003755BF /* HomeViewController.swift */,
 				18E6E665247A88CC00D598C5 /* MyNavigationController.swift */,
@@ -1340,7 +1405,9 @@
 				18E9D6BF2470D985001E41A0 /* String+Ex.swift in Sources */,
 				18F57C2C256D493F00834DB5 /* FormInputCell.swift in Sources */,
 				1865AF1C244F43D30006B48D /* UITableView+Ex.swift in Sources */,
+				18286B99258763B900541526 /* NoteAndTag.swift in Sources */,
 				18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */,
+				18286BA5258769B000541526 /* NoteRepo.swift in Sources */,
 				18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */,
 				18251C16249AE9F000484D23 /* NoteDateView.swift in Sources */,
 				188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */,
@@ -1348,6 +1415,7 @@
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
 				1848ABCF24ED1ACF00BFE0DF /* ImageZoomView.swift in Sources */,
+				18286B932587632000541526 /* Note.swift in Sources */,
 				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
@@ -1368,6 +1436,7 @@
 				18E7BF8C248C94F300B8AEC1 /* IconLabel.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
 				18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */,
+				1899EB44258772920003F4D6 /* NoteCardNode.swift in Sources */,
 				1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */,
 				18E7BF95248C9D2C00B8AEC1 /* EmojiRepo.swift in Sources */,
 				18F57C38256FD78300834DB5 /* RemarkViewController.swift in Sources */,
@@ -1390,8 +1459,10 @@
 				18DCC91F24EA744B000B4BF1 /* CardCellNode.swift in Sources */,
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
 				18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */,
+				1899EB4E258A25160003F4D6 /* ToolbarProvider.swift in Sources */,
 				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
 				18DCC91C24EA70E2000B4BF1 /* BoardView.swift in Sources */,
+				18286BA825876BED00541526 /* NotesListView.swift in Sources */,
 				186A352525834D300003E926 /* NSData+MD5.m in Sources */,
 				1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
@@ -1408,6 +1479,7 @@
 				1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */,
 				18E7BF77248BAB9D00B8AEC1 /* MenuHeaderView.swift in Sources */,
 				1859303224BA97C300D1352A /* DBManager.swift in Sources */,
+				1899EB4A258A24310003F4D6 /* ToolbarEditingProvider.swift in Sources */,
 				186A33FA25831A570003E926 /* UIControlMenuAction.swift in Sources */,
 				186A34F4258349130003E926 /* HighlightManager.swift in Sources */,
 				182F359224D10F8A00E88657 /* ImageCellProvider.swift in Sources */,
@@ -1429,6 +1501,7 @@
 				188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */,
 				18ECA6A4245D6CFE00E8CE14 /* UIImageView+Ex.swift in Sources */,
 				18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */,
+				18286B9F2587658A00541526 /* NoteInfo.swift in Sources */,
 				18E6E666247A88CC00D598C5 /* MyNavigationController.swift in Sources */,
 				18E7BF8E248C994800B8AEC1 /* TappedView.swift in Sources */,
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
@@ -1446,8 +1519,10 @@
 				186A3389258102C80003E926 /* HomeActionView.swift in Sources */,
 				18F57C3B2571FF2000834DB5 /* BookmarkCellProvider.swift in Sources */,
 				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
+				18286B962587636400541526 /* Tag.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */,
+				18286BA2258766A700541526 /* TagDao.swift in Sources */,
 				186A33F925831A570003E926 /* UIControlMenu+TableViewHelpers.swift in Sources */,
 				186A352A25834E200003E926 /* MarkdownRender.m in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
@@ -1476,6 +1551,7 @@
 				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
+				18286B9C258764CF00541526 /* NoteDao.swift in Sources */,
 				186A354225834E2E0003E926 /* escape.c in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
 				18251C1C249B2F8D00484D23 /* NoteColorViewController.swift in Sources */,

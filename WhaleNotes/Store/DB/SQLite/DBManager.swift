@@ -16,6 +16,10 @@ class DBManager: NSObject {
     private(set) var blockDao:BlockDao!
     private(set) var blockPositionDao:BlockPositionDao!
     
+    
+    private(set) var noteDao:NoteDao!
+    private(set) var tagDao:TagDao!
+    
     var db:SQLiteDatabase {
         return _db
     }
@@ -37,6 +41,12 @@ class DBManager: NSObject {
     private func setupTable() throws {
         try db.createTable(table: Block.self)
         try db.createTable(table: BlockPosition.self)
+        
+        try db.createTable(table: Note.self)
+        try db.createTable(table: Tag.self)
+        
+        self.noteDao = NoteDao(dbCon: db)
+        self.tagDao = TagDao(dbCon: db)
         
         self.blockDao = BlockDao(dbCon: db)
         self.blockPositionDao = BlockPositionDao(dbCon: db)

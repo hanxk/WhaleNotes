@@ -333,21 +333,34 @@ extension HomeViewController {
     
     func setupContentView() {
         
-        guard let sideMenuItemType = self.sideMenuItemType else { return }
+//        guard let sideMenuItemType = self.sideMenuItemType else { return }
+//
+//        switch sideMenuItemType {
+//        case .board(let board):
+//            titleButton.isEnabled = true
+//            self.setupBoardView(board:board)
+//            break
+//        case .system(let systemMenu):
+//            if case .trash = systemMenu {
+//                titleButton.isEnabled = false
+//            }else {
+//                titleButton.isEnabled = true
+//            }
+//            self.setupSystemMenu(systemMenu: systemMenu)
+//            break
+//        }
+        if let oldView =  self.contentView {
+            oldView.removeFromSuperview()
+        }
+        let topPadding = self.topbarHeight
+        let height:CGFloat = self.view.frame.height - topPadding
         
-        switch sideMenuItemType {
-        case .board(let board):
-            titleButton.isEnabled = true
-            self.setupBoardView(board:board)
-            break
-        case .system(let systemMenu):
-            if case .trash = systemMenu {
-                titleButton.isEnabled = false
-            }else {
-                titleButton.isEnabled = true
-            }
-            self.setupSystemMenu(systemMenu: systemMenu)
-            break
+        let notesView = NotesListView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height))
+        self.contentView = notesView
+        
+        self.containerView.addSubview(notesView)
+        notesView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
     

@@ -43,7 +43,7 @@ class CardCellNode: ASCellNode {
 
         self.cellProvider = self.generateCellProvider(block: cardBlock)
 
-
+        
         let cardbackground = ASDisplayNode().then {
             $0.backgroundColor = .white
             $0.cornerRadius = NoteCellConstants.cornerRadius

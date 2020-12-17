@@ -11,7 +11,7 @@ import UIKit
 extension UIColor {
     open class var brand: UIColor {
         get {
-            return UIColor(named: "Brand")!
+            return UIColor(hexString: "#0087FE")!
         }
     }
     
@@ -109,12 +109,6 @@ extension UIColor {
 extension UIColor {
     
     // OLD: #EFEFEF E8EAED
-    open class var bg: UIColor {
-        get {
-            
-            return UIColor.init(hexString: "#f5f5f5")
-        }
-    }
     
     open class var sidemenuBg: UIColor {
         get {
@@ -188,6 +182,12 @@ extension UIColor {
 
 extension UIColor {
     
+    open class var bg: UIColor {
+        get {
+            
+            return UIColor.init(hexString: "#F8F8F8")
+        }
+    }
     
     open class var cardText: UIColor {
         get {
@@ -198,7 +198,7 @@ extension UIColor {
     
     open class var cardTextSecondary: UIColor {
         get {
-            UIColor.init(hexString: "#666666")
+            UIColor.init(hexString: "#6F6F6F")
         }
     }
     

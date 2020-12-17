@@ -18,7 +18,7 @@ target 'WhaleNotes' do
   pod 'Kingfisher', '~> 5.0'
   pod 'DeepDiff'
   pod 'CHTCollectionViewWaterfallLayout/Swift'
-  pod "Texture"
+  pod 'Texture', '>= 2.0'
   pod "SwiftCSV"
   pod 'sqlite3/json1'
 #  pod 'SQLite.swift', '~> 0.12.0'

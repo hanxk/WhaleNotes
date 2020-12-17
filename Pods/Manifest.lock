@@ -86,7 +86,7 @@ DEPENDENCIES:
   - SwiftDate (~> 5.0)
   - SwiftLinkPreview (~> 3.2.0)
   - SwiftSoup
-  - Texture
+  - Texture (>= 2.0)
   - Then
   - TLPhotoPicker
   - Toast-Swift (~> 5.0.1)
@@ -162,6 +162,6 @@ SPEC CHECKSUMS:
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   Zip: 414f59909701fda9a84ab774ebe0f5449b1082cc
 
-PODFILE CHECKSUM: 637a824f994b488368ea3f038c319ffa6bd06808
+PODFILE CHECKSUM: 944c7e1374b25c3f891ad76f5e597c7cce97e7df
 
 COCOAPODS: 1.9.1
