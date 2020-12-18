@@ -22,9 +22,9 @@ enum StyleConfig {
     static let insetV:CGFloat = 12
     static let cornerRadius:CGFloat = 8
     
-    static let footerHeight:CGFloat = 44
+    static let footerHeight:CGFloat = 48
     
-    static let iconTintColor  = UIColor(hexString: "#6F6F6F")
+    static let iconTintColor  = UIColor(hexString: "#A4A4A4")
 }
 
 enum NoteCardAction: Int {
@@ -110,7 +110,7 @@ class NoteCardNode: ASCellNode {
             let titleNode = ASEditableTextNode().then {
                 $0.placeholderEnabled  = isEditing
                 $0.attributedText = NSMutableAttributedString(string: note.title, attributes: getTitleAttributes())
-                $0.attributedPlaceholderText = getPlaceholderAttributes(text: "标题")
+                $0.attributedPlaceholderText = getTitlePlaceHolderAttributesString()
                 $0.scrollEnabled = false
                 $0.typingAttributes = getTitleAttributesString()
                 $0.textView.isEditable = isEditing
@@ -125,7 +125,7 @@ class NoteCardNode: ASCellNode {
         if isEditing || note.content.isNotEmpty {
             let contentNode = ASEditableTextNode().then {
                 $0.placeholderEnabled  = isEditing
-                $0.attributedPlaceholderText = getPlaceholderAttributes(text: "写点什么吧。。。")
+                $0.attributedPlaceholderText = getContentPlaceholderAttributes()
                 $0.attributedText =  NSMutableAttributedString(string: note.content, attributes: getContentAttributes())
                 $0.scrollEnabled = false
                 $0.textView.isEditable = isEditing
@@ -208,14 +208,18 @@ class NoteCardNode: ASCellNode {
 extension NoteCardNode {
     
     func getTitleAttributesString() -> [String: Any] {
-        
         return Dictionary(uniqueKeysWithValues:
                             getTitleAttributes().map { key, value in (key.rawValue, value) })
     }
     
+    func getTitlePlaceHolderAttributesString() -> NSAttributedString {
+        var titleAttr = getTitleAttributes()
+        titleAttr[.foregroundColor] = UIColor.lightGray
+        return NSMutableAttributedString(string: "标题", attributes: titleAttr)
+    }
+    
 
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
-        
         let font =  UIFont.systemFont(ofSize: 18, weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byWordWrapping;
@@ -248,12 +252,10 @@ extension NoteCardNode {
     }
     
     
-    func getPlaceholderAttributes(text: String) -> NSAttributedString {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 16, weight: .regular),
-            .foregroundColor: UIColor.lightGray,
-        ]
-        return NSMutableAttributedString(string: text, attributes: attributes)
+    func getContentPlaceholderAttributes() -> NSAttributedString {
+        var contentAttr = getContentAttributes()
+        contentAttr[.foregroundColor] = UIColor.lightGray
+        return NSMutableAttributedString(string: "写点什么", attributes: contentAttr)
     }
 }
 

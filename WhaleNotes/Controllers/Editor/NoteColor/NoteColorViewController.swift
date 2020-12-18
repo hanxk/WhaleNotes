@@ -17,7 +17,7 @@ class NoteColorViewController: UIViewController {
         let contentVC = NoteColorViewController()
         let fpc = FloatingPanelController()
 //        fpc.delegate = contentVC
-        fpc.isRemovalInteractionEnabled = true
+//        fpc.isRemovalInteractionEnabled = true
         fpc.backdropView.dismissalTapGestureRecognizer.isEnabled = true
 //        fpc.surfaceView.cornerRadius = 8
 //        fpc.surfaceView.shadowHidden = false
@@ -152,18 +152,28 @@ extension NoteColorViewController: UICollectionViewDelegateFlowLayout {
 //}
 //
 //fileprivate class MyFloatingPanelLayout: FloatingPanelLayout {
+//    var position: FloatingPanelPosition
+//
+//    var initialState: FloatingPanelState
+//
+////    var position: FloatingPanelPosition
+////
+////    var initialState: FloatingPanelState
+//
+//    var anchors: [FloatingPanelState : FloatingPanelLayoutAnchoring]
+//
 //    public var initialPosition: FloatingPanelPosition {
-//        return .tip
+//        return .bottom
 //    }
 //
 //    public var supportedPositions: Set<FloatingPanelPosition> {
-//        return [.tip]
+//        return [.bottom]
 //    }
 //    public func insetFor(position: FloatingPanelPosition) -> CGFloat? {
 //        switch position {
-//            case .full: return 16.0 // A top inset from safe area
-//            case .half: return 216.0 // A bottom inset from the safe area
-//            case .tip: return 144.0 // A bottom inset from the safe area
+//        case .top: return 16.0 // A top inset from safe area
+//        case .bottom: return 216.0 // A bottom inset from the safe area
+////            case .tip: return 144.0 // A bottom inset from the safe area
 //            default: return nil // Or `case .hidden: return nil`
 //        }
 //    }
@@ -174,20 +184,20 @@ extension NoteColorViewController: UICollectionViewDelegateFlowLayout {
 //}
 
 
-
+//
 extension NoteColorViewController: UIViewControllerTransitioningDelegate {
     func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         let height = generatePopHeight()
         let config =  BottomPresentationConfig(height: height)
         return BottomPresentationController(presentedViewController: presented, presenting: presenting,config:config)
     }
-    
+
     func generatePopHeight() -> CGFloat {
         let noOfRows = 1
         let flowLayout = self.flowLayout
         let totalSpace = flowLayout.sectionInset.top + flowLayout.sectionInset.bottom
                         + (flowLayout.minimumLineSpacing * CGFloat(noOfRows - 1))
-        
+
         let itemSize = self.generateItemSize()
         return  itemSize.height * CGFloat(noOfRows) + totalSpace + self.topbarHeight
     }

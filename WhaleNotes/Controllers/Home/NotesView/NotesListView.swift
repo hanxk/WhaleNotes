@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import AsyncDisplayKit
+import FloatingPanel
 
 class NotesListView: UIView {
     
@@ -23,6 +24,13 @@ class NotesListView: UIView {
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .onDrag
+    }
+    
+    enum MenuAction:Int {
+        case edit =  1
+        case trash =  2
+        case share =  3
+        case copy =  4
     }
     
     required init?(coder: NSCoder) {
@@ -98,20 +106,6 @@ extension NotesListView:ASTableDataSource {
         }
         return node
     }
-    
-    func  handleCardAction(_  action: NoteCardAction,noteId:String) {
-        switch action {
-        case .edit:
-            self.handleEditAction(noteId: noteId)
-            break
-        case .save:
-            self.handleSaveAction()
-            break
-        default:
-            break
-        }
-    }
-    
     private func handleEditAction(noteId:String) {
         guard let newIndex =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
         
@@ -207,5 +201,53 @@ extension ASTableNode {
         self.performBatch(animated: animated, updates: {
             self.reloadRows(at: rows, with: rowAnimation)
         }, completion: completion)
+    }
+}
+
+//MARK: card action
+extension NotesListView {
+    func  handleCardAction(_  action: NoteCardAction,noteId:String) {
+        switch action {
+        case .edit:
+            self.handleEditAction(noteId: noteId)
+            break
+        case .save:
+            self.handleSaveAction()
+            break
+        case .menu:
+            self.handleMenuAction(noteId:noteId)
+            break
+        default:
+            break
+        }
+    }
+    
+    fileprivate func handleMenuAction(noteId:String) {
+        let menuRows = [
+            PopMenuRow(icon: "pencil", title: "编辑",tag:MenuAction.edit.rawValue),
+            PopMenuRow(icon: "trash", title: "移到废纸篓",tag:MenuAction.trash.rawValue),
+            PopMenuRow(icon: "square.and.arrow.up", title: "分享",tag:MenuAction.share.rawValue),
+            PopMenuRow(icon: "doc.on.doc", title: "复制",tag:MenuAction.copy.rawValue)
+        ]
+        let menuVC = PopMenuController(menuRows: menuRows)
+        menuVC.rowSelected = {[weak self] menuRow in
+            self?.handleMenuRowSelected(menuRow:menuRow,noteId: noteId)
+        }
+        menuVC.showModal(vc: self.controller!)
+    }
+    
+}
+
+
+//MARK: card menu action
+extension NotesListView {
+    fileprivate func handleMenuRowSelected(menuRow:PopMenuRow,noteId:String) {
+        guard let menuAcion = MenuAction(rawValue: menuRow.tag) else { return }
+        switch menuAcion {
+        case .edit:
+            self.handleEditAction(noteId: noteId)
+        default:
+            break
+        }
     }
 }

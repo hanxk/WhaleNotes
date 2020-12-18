@@ -31,12 +31,26 @@ extension ToolbarEditingProvider {
     
     func attach(cell: ASCellNode) {
         
-        tagButtonNode = self.generateIconButton(imgName:"tag",cardAction: .tag)
-        photoButtonNode = self.generateIconButton(imgName:"photo",cardAction: .save)
+        tagButtonNode = generateIconButton(imgName: "tag", cardAction: .tag)
+        
+        photoButtonNode = generateIconButton(imgName: "photo", cardAction: .save)
         
         cell.addSubnode(tagButtonNode)
         cell.addSubnode(photoButtonNode)
         cell.addSubnode(saveButtonNode)
+    }
+    
+    func generateIconButton(imgName:String,cardAction:NoteCardAction) -> ASButtonNode {
+       let button = ASButtonNode().then {
+        let image = UIImage(systemName: imgName,pointSize: 16)?.withRenderingMode(.alwaysTemplate)
+            $0.setImage(image, for: .normal)
+            $0.tintColor = UIColor(hexString: "#6F6F6F")
+            $0.style.minWidth = ASDimensionMakeWithPoints(28)
+            $0.style.minHeight = ASDimensionMakeWithPoints(StyleConfig.footerHeight)
+            $0.view.tag = cardAction.rawValue
+        }
+        button.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
+        return button
     }
     
     func layout(constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -63,18 +77,6 @@ extension ToolbarEditingProvider {
         return footerLayout
     }
 
-    func generateIconButton(imgName:String,cardAction:NoteCardAction) -> ASButtonNode {
-       let button = ASButtonNode().then {
-            let image = UIImage(systemName: imgName)?.withRenderingMode(.alwaysTemplate)
-            $0.setImage(image, for: .normal)
-            $0.tintColor = StyleConfig.iconTintColor
-            $0.style.minWidth = ASDimensionMakeWithPoints(24)
-            $0.style.minHeight = ASDimensionMakeWithPoints(StyleConfig.footerHeight)
-            $0.view.tag = cardAction.rawValue
-        }
-        button.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
-        return button
-    }
     
     @objc func actionButtonTapped(sender:ASButtonNode) {
         guard  let action = NoteCardAction(rawValue: sender.view.tag) else { return }

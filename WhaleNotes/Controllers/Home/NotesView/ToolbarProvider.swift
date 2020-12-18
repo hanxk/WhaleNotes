@@ -27,16 +27,15 @@ class ToolbarProvider:NoteCardProvider {
     private var menuButtonNode :ASButtonNode!
     private var editButtonNode :ASButtonNode!
     
-    func generateIconButton(imgName:String,cardAction:NoteCardAction) -> ASButtonNode {
+    class func generateIconButton(imgName:String,cardAction:NoteCardAction) -> ASButtonNode {
        let button = ASButtonNode().then {
-            let image = UIImage(systemName: imgName)?.withRenderingMode(.alwaysTemplate)
+        let image = UIImage(systemName: imgName,pointSize: 15)?.withRenderingMode(.alwaysTemplate)
             $0.setImage(image, for: .normal)
             $0.tintColor = StyleConfig.iconTintColor
-            $0.style.minWidth = ASDimensionMakeWithPoints(24)
+            $0.style.minWidth = ASDimensionMakeWithPoints(26)
             $0.style.minHeight = ASDimensionMakeWithPoints(StyleConfig.footerHeight)
             $0.view.tag = cardAction.rawValue
         }
-        button.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
         return button
     }
     
@@ -50,8 +49,11 @@ extension  ToolbarProvider {
     
     func attach(cell: ASCellNode) {
         
-        menuButtonNode = generateIconButton(imgName: "ellipsis", cardAction: .menu)
-        editButtonNode = generateIconButton(imgName: "pencil", cardAction: .edit)
+        menuButtonNode = ToolbarProvider.generateIconButton(imgName: "ellipsis", cardAction: .menu)
+        menuButtonNode.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
+        
+        editButtonNode = ToolbarProvider.generateIconButton(imgName: "pencil", cardAction: .edit)
+        editButtonNode.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
         
         cell.addSubnode(dateNode)
         cell.addSubnode(menuButtonNode)
@@ -70,7 +72,7 @@ extension  ToolbarProvider {
         let rightLayoutSpec = ASStackLayoutSpec.horizontal().then {
             $0.spacing = 10
         }
-        rightLayoutSpec.children = [menuButtonNode,editButtonNode]
+        rightLayoutSpec.children = [menuButtonNode]
         
         footerLayout.children = [dateNode,rightLayoutSpec]
         return footerLayout

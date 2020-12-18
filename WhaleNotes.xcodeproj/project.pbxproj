@@ -68,6 +68,8 @@
 		1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1848ABD624EEBAEE00BFE0DF /* TodoCellProvider.swift */; };
 		1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1849490D24596E26001B61C3 /* ImagesUtil.swift */; };
 		18494931245AB416001B61C3 /* UIViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18494930245AB416001B61C3 /* UIViewController+Ex.swift */; };
+		184BE518258C83F9001429DD /* PopMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184BE517258C83F9001429DD /* PopMenuController.swift */; };
+		184BE51C258C8437001429DD /* PopMenuRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184BE51B258C8437001429DD /* PopMenuRow.swift */; };
 		1859302C24BA94E900D1352A /* SQLStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859302B24BA94E900D1352A /* SQLStatement.swift */; };
 		1859302E24BA950400D1352A /* SQLiteDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859302D24BA950400D1352A /* SQLiteDatabase.swift */; };
 		1859303024BA952800D1352A /* SQLite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859302F24BA952800D1352A /* SQLite.swift */; };
@@ -269,6 +271,8 @@
 		1849490D24596E26001B61C3 /* ImagesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesUtil.swift; sourceTree = "<group>"; };
 		1849491F245A8B81001B61C3 /* WhaleNotes-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhaleNotes-bridge.h"; sourceTree = "<group>"; };
 		18494930245AB416001B61C3 /* UIViewController+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Ex.swift"; sourceTree = "<group>"; };
+		184BE517258C83F9001429DD /* PopMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopMenuController.swift; sourceTree = "<group>"; };
+		184BE51B258C8437001429DD /* PopMenuRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopMenuRow.swift; sourceTree = "<group>"; };
 		1859302B24BA94E900D1352A /* SQLStatement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLStatement.swift; sourceTree = "<group>"; };
 		1859302D24BA950400D1352A /* SQLiteDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteDatabase.swift; sourceTree = "<group>"; };
 		1859302F24BA952800D1352A /* SQLite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLite.swift; sourceTree = "<group>"; };
@@ -627,6 +631,15 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
+		184BE520258C8933001429DD /* PopMenu */ = {
+			isa = PBXGroup;
+			children = (
+				184BE517258C83F9001429DD /* PopMenuController.swift */,
+				184BE51B258C8437001429DD /* PopMenuRow.swift */,
+			);
+			path = PopMenu;
+			sourceTree = "<group>";
+		};
 		1859302A24BA946100D1352A /* SQLite */ = {
 			isa = PBXGroup;
 			children = (
@@ -688,6 +701,7 @@
 		1865AEF1244C5D8F0006B48D /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				184BE520258C8933001429DD /* PopMenu */,
 				186A34F2258349090003E926 /* MD */,
 				186A33EC25831A570003E926 /* MenuController */,
 				180256B4257F8DCA00BF5804 /* HTMLParser */,
@@ -1432,6 +1446,7 @@
 				18FF32902496094B00609C66 /* PhotoViewerViewController.swift in Sources */,
 				182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */,
 				186A354725834E2E0003E926 /* hoedown_html_patch.c in Sources */,
+				184BE518258C83F9001429DD /* PopMenuController.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
 				18E7BF8C248C94F300B8AEC1 /* IconLabel.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
@@ -1551,6 +1566,7 @@
 				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,
 				186DDE7E249323A900A4C63C /* GridCollectionLayoutDelegate.swift in Sources */,
 				18E7BF80248BD50500B8AEC1 /* BoardEditAlertViewController.swift in Sources */,
+				184BE51C258C8437001429DD /* PopMenuRow.swift in Sources */,
 				18286B9C258764CF00541526 /* NoteDao.swift in Sources */,
 				186A354225834E2E0003E926 /* escape.c in Sources */,
 				1849490E24596E26001B61C3 /* ImagesUtil.swift in Sources */,
