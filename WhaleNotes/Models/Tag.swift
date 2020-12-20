@@ -10,11 +10,25 @@ import Foundation
 
 struct Tag {
     var id:String = UUID.init().uuidString
-    var icon:String = ""
     var title:String = ""
-    var parent:String? = nil
-    var createdAt:Date = Date()
-    var updatedAt:Date = Date()
+    var icon:String = ""
+    var createdAt:Date!
+    var updatedAt:Date!
+    
+    
+    init() {
+        let date =  Date()
+        self.createdAt = date
+        self.updatedAt = date
+    }
+    
+    init(id:String,title:String,icon:String,createdAt:Date,updatedAt:Date) {
+        self.id = id
+        self.icon = icon
+        self.title = title
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
 }
 
 extension Tag:SQLTable {
@@ -22,10 +36,10 @@ extension Tag:SQLTable {
         return  """
                 CREATE TABLE IF NOT EXISTS "tag" (
                   "id" TEXT PRIMARY KEY NOT NULL,
-                  "icon" TEXT NOT NULL,
                   "title" TEXT NOT NULL,
-                  "parent" TEXT,
-                  FOREIGN KEY("parent") REFERENCES tag(id)
+                  "icon" TEXT NOT NULL,
+                  "created_at" TIMESTAMP,
+                  "updated_at" TIMESTAMP
                 );
         """
     }

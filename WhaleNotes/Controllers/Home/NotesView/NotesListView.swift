@@ -15,6 +15,7 @@ class NotesListView: UIView {
     
     private lazy var disposeBag = DisposeBag()
     private var notes:[NoteInfo]  = []
+    private var tagTitleWidthCache:[String:CGFloat] = [:]
     private var selectedNoteId:String?
     private lazy var tableView = ASTableNode().then {
         $0.delegate = self
@@ -92,7 +93,8 @@ extension NotesListView:ASTableDataSource {
         
         let noteInfo = self.notes[indexPath.row]
         let isEditing = noteInfo.note.id == (selectedNoteId ?? "")
-        let node = NoteCardNode(noteInfo:noteInfo, isEditing: isEditing,action: { [weak self] action in
+        let tagTitlesWidth  = getTagsTitleWidth(tags: noteInfo.tags)
+        let node = NoteCardNode(noteInfo:noteInfo, tagTitlesWidth: tagTitlesWidth, isEditing: isEditing,action: { [weak self] action in
             self?.handleCardAction(action,noteId: noteInfo.note.id)
         })
         node.textChanged {[weak node] (newText: String) in
@@ -116,6 +118,17 @@ extension NotesListView:ASTableDataSource {
         }
         self.selectedNoteId = noteId
         self.tableView.reloadRows(rows: rows)
+    }
+    
+    private func getTagsTitleWidth(tags:[Tag]) ->   [CGFloat]  {
+        return  tags.map{
+            if let  tagTitleWidth = self.tagTitleWidthCache[$0.title] {
+                return tagTitleWidth
+            }
+            let w  = $0.title.width(withHeight: TagConfig.tagHeight, font: TagConfig.tagFont)
+            self.tagTitleWidthCache[$0.title] = w
+            return w
+        }
     }
     
     private func handleSaveAction() {
@@ -210,13 +223,12 @@ extension NotesListView {
         switch action {
         case .edit:
             self.handleEditAction(noteId: noteId)
-            break
         case .save:
             self.handleSaveAction()
-            break
         case .menu:
             self.handleMenuAction(noteId:noteId)
-            break
+        case .tag:
+            self.handleTagAction(noteId:noteId)
         default:
             break
         }
@@ -236,6 +248,21 @@ extension NotesListView {
         menuVC.showModal(vc: self.controller!)
     }
     
+    fileprivate func handleTagAction(noteId:String) {
+        guard let noteInfo = self.notes.first(where: { $0.id ==  noteId }) else { return }
+        let tag = ChooseTagViewController()
+        tag.noteInfo = noteInfo
+        tag.tagsChanged = { [weak self]  noteInfo in
+            self?.updateNoteInfoDataSource(newNoteInfo: noteInfo)
+        }
+        self.controller?.present(UINavigationController(rootViewController: tag), animated: true, completion: nil)
+    }
+    
+    fileprivate func updateNoteInfoDataSource(newNoteInfo:NoteInfo) {
+        guard let newIndex =  self.notes.firstIndex(where: {$0.note.id == newNoteInfo.id}) else { return }
+        self.notes[newIndex] = newNoteInfo
+        self.tableView.reloadRows(at: [IndexPath(row: newIndex, section: 0)], with: .none)
+    }
 }
 
 

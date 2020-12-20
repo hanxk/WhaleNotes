@@ -185,20 +185,25 @@ extension UIColor {
     open class var bg: UIColor {
         get {
             
-            return UIColor.init(hexString: "#F8F8F8")
+            return UIColor.init(hexString: "#f9f9f9")
         }
     }
     
+    open class var cardTitle: UIColor {
+        get {
+            UIColor.init(hexString: "#37352F")
+        }
+    }
     open class var cardText: UIColor {
         get {
-            UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#37352F")
         }
     }
     
     
     open class var cardTextSecondary: UIColor {
         get {
-            UIColor.init(hexString: "#6F6F6F")
+            UIColor.init(hexString: "#777777")
         }
     }
     
@@ -206,6 +211,13 @@ extension UIColor {
     open class var cardBorder: UIColor {
         get {
             return UIColor(hexString: "#E8E8E8")
+        }
+    }
+    
+    
+    open class var cellSelectedColor: UIColor {
+        get {
+            UIColor.init(hexString: "#EFEFEF")
         }
     }
 }

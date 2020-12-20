@@ -19,6 +19,7 @@ class DBManager: NSObject {
     
     private(set) var noteDao:NoteDao!
     private(set) var tagDao:TagDao!
+    private(set) var noteTagDao:NoteTagDao!
     
     var db:SQLiteDatabase {
         return _db
@@ -44,12 +45,14 @@ class DBManager: NSObject {
         
         try db.createTable(table: Note.self)
         try db.createTable(table: Tag.self)
+        try db.createTable(table: NoteTag.self)
         
         self.noteDao = NoteDao(dbCon: db)
         self.tagDao = TagDao(dbCon: db)
         
         self.blockDao = BlockDao(dbCon: db)
         self.blockPositionDao = BlockPositionDao(dbCon: db)
+        self.noteTagDao = NoteTagDao(dbCon: db)
     }
     
 }

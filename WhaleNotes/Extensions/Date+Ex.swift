@@ -102,7 +102,7 @@ extension Date {
 //      formatter.dateFormat = "MM-dd"
 //      return  formatter.string(from: self as Date)
 //    }
-    formatter.dateFormat = "yyyy.MM.dd MM-dd"
+    formatter.dateFormat = "yyyy.MM.dd HH:mm"
     return  formatter.string(from: self as Date)
   }
   

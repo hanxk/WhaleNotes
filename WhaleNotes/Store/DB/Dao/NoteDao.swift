@@ -29,6 +29,13 @@ extension NoteDao {
         return extract(rows: rows)
     }
     
+    func query(id:String) throws -> Note?  {
+        let selectSQL = "select * from note where id = ?"
+        let rows = try db.query(selectSQL,args:id)
+        if rows.count == 0 { return nil}
+        return extract(row: rows[0])
+    }
+    
     func update( _ note:Note) throws {
         let updateSQL = "update note set title = ?,content = ?,updated_at=strftime('%s', 'now') where id = ?"
         try db.execute(updateSQL, args: note.title,note.content,note.id)
@@ -37,6 +44,11 @@ extension NoteDao {
     func delete( _ id:String) throws {
         let delSQL = "delete from note where id = ?"
         try db.execute(delSQL, args: id)
+    }
+    
+    func updateUpdatedAt(id:String,updatedAt:Date) throws {
+        let updateSQL = "update note set updated_at=? where id = ?"
+        try db.execute(updateSQL, args: updatedAt.timeIntervalSince1970,id)
     }
 }
 
@@ -50,9 +62,9 @@ extension NoteDao {
         return notes
     }
     
-    fileprivate func extract(row: Row) -> NoteInfo {
+    fileprivate func extract(row: Row) -> Note {
         let note = extractNote(from: row)
-        return NoteInfo(note: note, tags: [])
+        return note
     }
     
     fileprivate func extractNote(from row: Row) -> Note {

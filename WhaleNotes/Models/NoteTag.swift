@@ -7,17 +7,15 @@
 //
 
 import Foundation
-struct NoteAndTag {
-    var id:String = UUID.init().uuidString
+struct NoteTag {
     var noteId:String = ""
     var tagId:String = ""
 }
 
-extension NoteAndTag:SQLTable {
+extension NoteTag:SQLTable {
     static var createStatement: String {
         return  """
                 CREATE TABLE IF NOT EXISTS "note_tag" (
-                  "id" TEXT PRIMARY KEY NOT NULL,
                   "note_id" TEXT NOT NULL,
                   "tag_id" TEXT NOT NULL,
                   UNIQUE("note_id","tag_id"),

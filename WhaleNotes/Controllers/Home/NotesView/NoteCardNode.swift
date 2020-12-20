@@ -58,6 +58,7 @@ class NoteCardNode: ASCellNode {
             noteInfo.note = newValue
         }
     }
+    private var tagTitlesWidth:[CGFloat] = []
     
     var isEditing = false
     var mode:NoteCardMode = .normal
@@ -76,6 +77,10 @@ class NoteCardNode: ASCellNode {
     
     private var footerProvider:NoteCardProvider!
     
+    private var tagsProvider:NoteCardProvider?
+    
+    
+    
     let shadowOffsetY:CGFloat = 4
     private lazy var  cardbackground = ASDisplayNode().then {
         $0.backgroundColor = .white
@@ -83,13 +88,13 @@ class NoteCardNode: ASCellNode {
         
         
         if isEditing  {
-            $0.shadowColor = UIColor(red: 0.169, green: 0.161, blue: 0.18, alpha: 0.14).cgColor
+            $0.shadowColor = UIColor(red: 0.169, green: 0.161, blue: 0.18, alpha: 0.09).cgColor
             $0.shadowOpacity = 1
-            $0.shadowRadius = 6
-            $0.shadowOffset = CGSize(width: 0, height: 0)
+            $0.shadowRadius = 8
+            $0.shadowOffset = CGSize(width: 2, height: 2)
             
             $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.16).cgColor
+            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
         }
         
         //        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03).cgColor
@@ -99,10 +104,11 @@ class NoteCardNode: ASCellNode {
     }
     
     
-    init(noteInfo:NoteInfo,isEditing:Bool = false,action: @escaping (NoteCardAction) -> Void) {
+    init(noteInfo:NoteInfo,tagTitlesWidth:[CGFloat],isEditing:Bool = false,action: @escaping (NoteCardAction) -> Void) {
         super.init()
         self.isEditing = isEditing
         self.noteInfo = noteInfo
+        self.tagTitlesWidth = tagTitlesWidth
         self.addSubnode(cardbackground)
         
         // 标题
@@ -128,6 +134,7 @@ class NoteCardNode: ASCellNode {
                 $0.attributedPlaceholderText = getContentPlaceholderAttributes()
                 $0.attributedText =  NSMutableAttributedString(string: note.content, attributes: getContentAttributes())
                 $0.scrollEnabled = false
+                $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
                 $0.textView.isEditable = isEditing
                 $0.typingAttributes = getContentAttributesString()
                 $0.delegate = self
@@ -145,6 +152,15 @@ class NoteCardNode: ASCellNode {
         }
         
         self.cardActionEmit  = action
+        
+        // 标签
+        if noteInfo.tags.count > 0 {
+            let tagsProvider = NoteTagsProvider(noteInfo: noteInfo, tagsSize: tagTitlesWidth)
+            self.tagsProvider = tagsProvider
+            tagsProvider.attach(cell: self)
+        }
+        
+        // footer
         if isEditing {
             let provider  = ToolbarEditingProvider()
             provider.cardActionEmit = self.cardActionEmit
@@ -168,7 +184,7 @@ class NoteCardNode: ASCellNode {
         let vContentLayout = ASStackLayoutSpec.vertical().then {
             $0.style.flexGrow = 1.0
             $0.style.flexShrink = 1.0
-            $0.spacing = 4
+            $0.spacing = 8
         }
         if let titleEditNode = self.titleEditNode {
             vContentLayout.children?.append(titleEditNode)
@@ -177,11 +193,26 @@ class NoteCardNode: ASCellNode {
             vContentLayout.children?.append(contentEditNode)
         }
         
+        // tags
+        if let tagsProvider = self.tagsProvider {
+            let maxWidth = constrainedSize.max.width - StyleConfig.insetH*2 - StyleConfig.padding*2
+            let cs = ASSizeRange(min: .zero, max: CGSize(width: maxWidth, height: 100))
+            let tagsLayout = tagsProvider.layout(constrainedSize: cs)
+            vContentLayout.children?.append(tagsLayout)
+        }
+        
+        let vRootLayout = ASStackLayoutSpec.vertical().then {
+            $0.style.flexGrow = 1.0
+            $0.style.flexShrink = 1.0
+            $0.spacing = 0
+        }
+        
         // footer
         let footerLayout = self.footerProvider.layout(constrainedSize: constrainedSize)
-        vContentLayout.children?.append(footerLayout)
+        vRootLayout.children = [vContentLayout,footerLayout]
         
-        let vLayoutInsetSpec = ASInsetLayoutSpec(insets: vinsets, child: vContentLayout)
+        
+        let vLayoutInsetSpec = ASInsetLayoutSpec(insets: vinsets, child: vRootLayout)
         
         
         let bgLayoutSpec:ASLayoutSpec =  ASBackgroundLayoutSpec(child: vLayoutInsetSpec, background: cardbackground).then {
@@ -222,12 +253,13 @@ extension NoteCardNode {
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
         let font =  UIFont.systemFont(ofSize: 18, weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.lineBreakMode = .byWordWrapping;
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .paragraphStyle: paragraphStyle,
-            .foregroundColor:UIColor.cardText,
+            .foregroundColor:UIColor.cardTitle
         ]
         return attributes
     }
@@ -235,7 +267,7 @@ extension NoteCardNode {
     func getContentAttributes() -> [NSAttributedString.Key: Any] {
         let font =  UIFont.systemFont(ofSize: 16, weight: .regular)
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.14
+        paragraphStyle.lineHeightMultiple = 1.3
         paragraphStyle.lineBreakMode = .byWordWrapping;
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
