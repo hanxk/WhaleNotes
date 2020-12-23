@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AsyncDisplayKit
 
 extension UITableView {
 
@@ -30,6 +31,44 @@ extension UITableView {
     
     
     func reloadRowsWithoutAnim(at indexPaths: [IndexPath]) {
-        self.reloadRows(at: indexPaths, with: .none)
+        UIView.performWithoutAnimation {
+            let loc = self.contentOffset
+            self.reloadRows(at: indexPaths, with: .none)
+            self.contentOffset = loc
+        }
+    }
+}
+
+
+extension ASTableNode {
+    func reloadData(animated: Bool) {
+        self.reloadData(animated: animated, completion: nil)
+    }
+
+    func reloadData(animated: Bool, completion: ((Bool) -> Void)? = nil) {
+        self.performBatch(animated: animated, updates: {
+            self.reloadData()
+        }, completion: completion)
+    }
+
+    func reloadSections(animated: Bool = false, sections: IndexSet, rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)? = nil) {
+        self.performBatch(animated: animated, updates: {
+            self.reloadSections(sections, with: rowAnimation)
+        }, completion: completion)
+    }
+
+    func reloadRows(rows: [IndexPath], rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)?  = nil) {
+        let animated = rowAnimation != .none
+        self.performBatch(animated: animated, updates: {
+            self.reloadRows(at: rows, with: rowAnimation)
+        }, completion: completion)
+    }
+    
+    func reloadRowsWithoutAnim(at indexPaths: [IndexPath]) {
+        UIView.performWithoutAnimation {
+            let loc = self.contentOffset
+            self.reloadRows(at: indexPaths, with: .none)
+            self.contentOffset = loc
+        }
     }
 }

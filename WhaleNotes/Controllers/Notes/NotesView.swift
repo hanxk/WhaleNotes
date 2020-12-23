@@ -439,19 +439,46 @@ extension NotesView {
     }
     
     static func  makeFloatButton() -> UIButton {
-        let btn = UIButton()
+        let btn = ActionButton()
         btn.contentMode = .center
+        btn.adjustsImageWhenHighlighted = false
         let layer0 = btn.layer
-        layer0.shadowColor = UIColor.black.withAlphaComponent(0.2).cgColor
+        
+        layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.4).cgColor
         layer0.shadowOpacity = 1
         layer0.shadowRadius = 4
-        layer0.shadowOffset = CGSize(width: 0, height: 2)
-        layer0.cornerRadius = FloatButtonConstants.btnSize / 2
-        layer0.backgroundColor = UIColor(red: 0.278, green: 0.627, blue: 0.957, alpha: 1).cgColor
+        layer0.shadowOffset = CGSize(width: 2, height: 2)
         return btn
     }
     
 }
+extension UIColor {
+//    func darker() -> UIColor {
+//
+//        var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
+//
+//        let p:CGFloat = 0.3
+//
+//        if self.getRed(&r, green: &g, blue: &b, alpha: &a){
+//            return UIColor(red: max(r - p, 0.0), green: max(g - p, 0.0), blue: max(b - p, 0.0), alpha: a)
+//        }
+//
+//        return UIColor()
+//    }
+//
+//    func lighter() -> UIColor {
+//
+//        var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
+//
+//        if self.getRed(&r, green: &g, blue: &b, alpha: &a){
+//            return UIColor(red: min(r + 0.2, 1.0), green: min(g + 0.2, 1.0), blue: min(b + 0.2, 1.0), alpha: a)
+//        }
+//
+//        return UIColor()
+//    }
+}
+
+
 
 //MARK: 创建 note
 extension NotesView {

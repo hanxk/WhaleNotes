@@ -97,6 +97,16 @@ extension NoteRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
+    func getValidTags() -> Observable<[Tag]> {
+        return Observable<[Tag]>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> [Tag] in
+                let tags = try self.tagDao.queryValids()
+                return tags
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
     func searchTags(_ keyword: String) -> Observable<[Tag]> {
         return Observable<[Tag]>.create {  observer -> Disposable in

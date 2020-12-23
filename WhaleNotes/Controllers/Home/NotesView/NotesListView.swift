@@ -49,8 +49,10 @@ class NotesListView: UIView {
         
     }
     
+    private var noteTag:Tag? = nil
     
     func loadData(tag:Tag? = nil) {
+        self.noteTag = tag
         let tagId = tag?.id ?? ""
         NoteRepo.shared.getNotes(tag: tagId)
             .subscribe(onNext: { [weak self] notes in
@@ -183,7 +185,7 @@ extension NotesListView:ASTableDataSource {
                 
                 self.notes[noteIndex] = noteInfo
                 if self.selectedNoteId == nil{
-                    self.tableView.reloadRows(at: [IndexPath(row: noteIndex, section: 0)], with: .none)
+                    self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: noteIndex, section: 0)])
                 }
                 
             }, onError: {
@@ -193,30 +195,6 @@ extension NotesListView:ASTableDataSource {
     }
 }
 
-extension ASTableNode {
-    func reloadData(animated: Bool) {
-        self.reloadData(animated: animated, completion: nil)
-    }
-
-    func reloadData(animated: Bool, completion: ((Bool) -> Void)? = nil) {
-        self.performBatch(animated: animated, updates: {
-            self.reloadData()
-        }, completion: completion)
-    }
-
-    func reloadSections(animated: Bool = false, sections: IndexSet, rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)? = nil) {
-        self.performBatch(animated: animated, updates: {
-            self.reloadSections(sections, with: rowAnimation)
-        }, completion: completion)
-    }
-
-    func reloadRows(rows: [IndexPath], rowAnimation: UITableView.RowAnimation = .none, completion: ((Bool) -> Void)?  = nil) {
-        let animated = rowAnimation != .none
-        self.performBatch(animated: animated, updates: {
-            self.reloadRows(at: rows, with: rowAnimation)
-        }, completion: completion)
-    }
-}
 
 //MARK: card action
 extension NotesListView {
@@ -261,8 +239,20 @@ extension NotesListView {
     
     fileprivate func updateNoteInfoDataSource(newNoteInfo:NoteInfo) {
         guard let newIndex =  self.notes.firstIndex(where: {$0.note.id == newNoteInfo.id}) else { return }
+        let newIndexPath = IndexPath(row: newIndex, section: 0)
+        
+        // 通知sidemenu 更新
+        
+        if let tag = self.noteTag {
+            let isTagDeleted = !newNoteInfo.tags.contains{$0.id == tag.id}
+            if isTagDeleted {// tag 被移除
+                self.notes.remove(at: newIndex)
+                self.tableView.deleteRows(at: [newIndexPath], with: .none)
+                return
+            }
+        }
         self.notes[newIndex] = newNoteInfo
-        self.tableView.reloadRows(at: [IndexPath(row: newIndex, section: 0)], with: .none)
+        self.tableView.reloadRowsWithoutAnim(at: [newIndexPath])
     }
 }
 

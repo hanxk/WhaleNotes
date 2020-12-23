@@ -187,7 +187,7 @@ class SideMenuViewController: UIViewController {
     }
     
     private func loadTags() {
-        NoteRepo.shared.getTags()
+        NoteRepo.shared.getValidTags()
             .subscribe(onNext: { [weak self] tags in
                 self?.setupData(tags: tags)
             }, onError: {
@@ -310,7 +310,6 @@ extension SideMenuViewController {
             insertIndexs.append(IndexPath(row: row, section: 1))
         }
         
-        
         // 处理cell选中
         if self.selectedIndexPath.section == 1 && index < self.selectedIndexPath.row   {
             // 更新 selected index
@@ -336,12 +335,10 @@ extension SideMenuViewController {
         }
         self.visibleTagIds.removeSubrange(start..<(start+childCount))
         
-        
-       
-        
-        // 处理cell选中
         let rootIndexPath = IndexPath(row: index, section: 1)
+        
         if delIndexs.contains(self.selectedIndexPath) {
+            // 处理cell选中
             setSelectedIndexPath(rootIndexPath, isPreventClose: true)
         }else if self.selectedIndexPath.section == 1 && index < self.selectedIndexPath.row   {
             // 更新 selected index

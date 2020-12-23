@@ -31,6 +31,18 @@ extension TagDao {
         return extract(rows: rows)
     }
     
+    
+    func queryValids() throws -> [Tag]  {
+//        let selectSQL = """
+//                            SELECT * FROM (
+//                                    select * from tag where id in (select tag_id from note_tag)
+//                               )
+//                            order by title
+//                            """
+//        let rows = try db.query(selectSQL)
+        return try query()
+    }
+    
     func queryByTag(tagId:String = "") throws -> [(String,Tag)]  {
       let selectSQL  = """
                         SELECT tag.*,n_t.note_id FROM (

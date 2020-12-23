@@ -141,6 +141,7 @@
 		188328F624540FB40097A01D /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F524540FB40097A01D /* Logger.swift */; };
 		188942A8246E845D006173F8 /* TodoGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942A7246E845D006173F8 /* TodoGroupCell.swift */; };
 		188942AB246FDC20006173F8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188942AA246FDC1F006173F8 /* NotesView.swift */; };
+		188BD3FD2592E6A30050D896 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188BD3FC2592E6A30050D896 /* ActionButton.swift */; };
 		1890290A245E82720017814A /* UIImage+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18902909245E82720017814A /* UIImage+Ex.swift */; };
 		1899EB44258772920003F4D6 /* NoteCardNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899EB43258772920003F4D6 /* NoteCardNode.swift */; };
 		1899EB4A258A24310003F4D6 /* ToolbarEditingProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1899EB49258A24310003F4D6 /* ToolbarEditingProvider.swift */; };
@@ -362,6 +363,7 @@
 		188328F524540FB40097A01D /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		188942A7246E845D006173F8 /* TodoGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroupCell.swift; sourceTree = "<group>"; };
 		188942AA246FDC1F006173F8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		188BD3FC2592E6A30050D896 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		18902909245E82720017814A /* UIImage+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Ex.swift"; sourceTree = "<group>"; };
 		1899EB43258772920003F4D6 /* NoteCardNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCardNode.swift; sourceTree = "<group>"; };
 		1899EB49258A24310003F4D6 /* ToolbarEditingProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarEditingProvider.swift; sourceTree = "<group>"; };
@@ -738,6 +740,7 @@
 				182BE8F6249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift */,
 				1859304B24BAAE2900D1352A /* JSONHelper.swift */,
 				18F3D50E24E8C6EE000E94F7 /* EventManager.swift */,
+				188BD3FC2592E6A30050D896 /* ActionButton.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1554,6 +1557,7 @@
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,
 				1865AF16244DCB850006B48D /* TextBlockCell.swift in Sources */,
 				1848ABD124ED1C3800BFE0DF /* ImageBlockView.swift in Sources */,
+				188BD3FD2592E6A30050D896 /* ActionButton.swift in Sources */,
 				1865AF12244D63700006B48D /* Ditionary+Ex.swift in Sources */,
 				18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */,
 				1859BCB324EA812B0089CB1B /* BoardActionView.swift in Sources */,

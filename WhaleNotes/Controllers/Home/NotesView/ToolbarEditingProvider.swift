@@ -18,13 +18,26 @@ class ToolbarEditingProvider:NoteCardProvider {
     private lazy var saveButtonNode :ASButtonNode  = ASButtonNode().then {
         $0.backgroundColor = .brand
         $0.setTitle("完成", with: UIFont.systemFont(ofSize: 14), with: .white, for: .normal)
-//        $0.cornerRadius = 100
-        $0.cornerRadius = 12
+        $0.cornerRadius = 6
         $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
         $0.style.height = ASDimensionMakeWithPoints(30)
         $0.view.tag = NoteCardAction.save.rawValue
         $0.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
     }
+    
+//    private lazy var saveButtonNode = ASDisplayNode { () -> UIButton in
+//          let button = ActionButton()
+//        button.setTitle("完成", for: .normal)
+//          button.backgroundColor = UIColor.brand
+//        button.frame = CGRect(x: 0, y: 0, width: 54, height: 30)
+//        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
+//          button.cornerRadius = 4
+//          button.setTitleColor(UIColor.red, for: .normal)
+//          button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+//        button.tag = NoteCardAction.save.rawValue
+//        button.addTarget(self, action: #selector(self.actionButtonTapped), for: .touchUpInside)
+//          return button
+//      }
 }
 
 extension ToolbarEditingProvider {
@@ -35,6 +48,7 @@ extension ToolbarEditingProvider {
         
         photoButtonNode = generateIconButton(imgName: "photo", cardAction: .save)
         
+        saveButtonNode.style.height = ASDimensionMakeWithPoints(30)
         cell.addSubnode(tagButtonNode)
         cell.addSubnode(photoButtonNode)
         cell.addSubnode(saveButtonNode)

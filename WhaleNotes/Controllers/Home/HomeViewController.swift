@@ -76,7 +76,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.setupToolbar()
-        self.setupActionView()
+        self.settupNewNoteButton()
+//        self.setupActionView()
         
         self.extendedLayoutIncludesOpaqueBars = true
         self.view.backgroundColor = .bg
@@ -144,17 +145,17 @@ class Toolbar: UIToolbar {
 //MARK: action float view
 extension HomeViewController {
     
-    private  func setupActionView() {
-        self.view.addSubview(actionView)
-        actionView.snp.makeConstraints {
-            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
-            $0.height.equalTo(HomeActionView.SizeConstants.height)
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
-        }
-        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
-        actionView.menuButton.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
-    }
+//    private  func setupActionView() {
+//        self.view.addSubview(actionView)
+//        actionView.snp.makeConstraints {
+//            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
+//            $0.height.equalTo(HomeActionView.SizeConstants.height)
+//            $0.centerX.equalToSuperview()
+//            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
+//        }
+//        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
+//        actionView.menuButton.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
+//    }
     
    @objc func menuButtonTapped() {
         let actions:[UIControlMenuAction] = [
@@ -203,22 +204,14 @@ extension HomeViewController {
 //            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
 //        }
         
-        self.view.addSubview(actionView)
-        actionView.snp.makeConstraints {
-            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
-            $0.height.equalTo(HomeActionView.SizeConstants.height)
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
-        }
-        
-        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
-    }
-    
-    @objc func noteButtonTapped() {
-        guard let boardView = self.contentView as? NotesListView else{
-            return
-        }
-        boardView.createNewNote()
+//        self.view.addSubview(actionView)
+//        actionView.snp.makeConstraints {
+//            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
+//            $0.height.equalTo(HomeActionView.SizeConstants.height)
+//            $0.centerX.equalToSuperview()
+//            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
+//        }
+//        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
     }
     
     private func setupBoardToolbar() {
@@ -361,7 +354,7 @@ extension HomeViewController {
             }
             self.contentView = tagListView
         }
-        tagListView.loadData(tag: tag)
+        tagListView.loadData(tag:tag)
     }
     
     
@@ -548,5 +541,32 @@ extension HomeViewController: SideMenuNavigationControllerDelegate {
     
     func sideMenuDidDisappear(menu: SideMenuNavigationController, animated: Bool) {
         print("SideMenu Disappeared! (animated: \(animated))")
+    }
+}
+
+//MARK: float button
+extension HomeViewController  {
+    func settupNewNoteButton()  {
+        let btnNewNote = NotesView.makeFloatButton().then {
+            $0.backgroundColor = .brand
+            $0.tintColor = .white
+            $0.layer.cornerRadius = FloatButtonConstants.btnSize / 2
+            $0.setImage( UIImage(systemName: "plus", pointSize: 22, weight: .medium), for: .normal)
+//            $0.setImage( UIImage(systemName: "square.and.pencil", pointSize: FloatButtonConstants.iconSize, weight: .light), for: .normal)
+            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
+        }
+        self.view.addSubview(btnNewNote)
+        btnNewNote.snp.makeConstraints { (make) -> Void in
+            make.width.height.equalTo(FloatButtonConstants.btnSize)
+            make.bottom.equalTo(self.view).offset(-FloatButtonConstants.bottom)
+            make.trailing.equalTo(self.view).offset(-FloatButtonConstants.trailing)
+        }
+    }
+    
+    @objc func btnNewNoteTapped()   {
+        guard let boardView = self.contentView as? NotesListView else{
+            return
+        }
+        boardView.createNewNote()
     }
 }

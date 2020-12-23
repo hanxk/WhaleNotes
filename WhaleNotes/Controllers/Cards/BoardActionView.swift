@@ -11,8 +11,8 @@ import SnapKit
 
 enum FloatButtonConstants {
     static let btnSize:CGFloat = 54
-    static let trailing:CGFloat = 14
-    static let bottom:CGFloat = 14
+    static let trailing:CGFloat = 16
+    static let bottom:CGFloat = 26
     static let iconSize:CGFloat = 20
 }
 
