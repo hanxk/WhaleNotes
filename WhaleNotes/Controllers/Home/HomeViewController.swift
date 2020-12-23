@@ -24,14 +24,14 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     static let toolbarHeight:CGFloat = 120
     
     private var contentView:UIView?
-    private var sideMenuItemType:SideMenuItem! {
-        didSet {
-            if oldValue == sideMenuItemType {
-                return
-            }
-            self.setupContentView()
-        }
-    }
+//    private var sideMenuItem:SideMenuItem! {
+//        didSet {
+//            if oldValue == sideMenuItem {
+//                return
+//            }
+//            self.setupContentView()
+//        }
+//    }
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = true
         $0.delegate = self
@@ -97,18 +97,18 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         }
         
         titleButton.callbackTapped = {
-            switch self.sideMenuItemType {
-            case .board(let board):
-                openBoardSetting(board: board)
-                break
-            case .system(let menuInfo):
-                if case .board(let board) = menuInfo {
-                    openBoardSetting(board: board)
-                }
-                break
-            case .none:
-                break
-            }
+//            switch self.sideMenuItemType {
+//            case .board(let board):
+//                openBoardSetting(board: board)
+//                break
+//            case .system(let menuInfo):
+//                if case .board(let board) = menuInfo {
+//                    openBoardSetting(board: board)
+//                }
+//                break
+//            case .none:
+//                break
+//            }
             
             
         }
@@ -257,12 +257,12 @@ extension HomeViewController {
     
     
     @objc func handleShowSearchbar() {
-        let vc = SearchViewController()
-        vc.boardsMap = sideMenuViewController.boardsMap
-        let navVC = MyNavigationController(rootViewController: vc)
-        navVC.modalPresentationStyle = .overFullScreen
-        navVC.modalTransitionStyle = .crossDissolve
-        self.navigationController?.present(navVC, animated: true, completion: nil)
+//        let vc = SearchViewController()
+//        vc.boardsMap = sideMenuViewController.boardsMap
+//        let navVC = MyNavigationController(rootViewController: vc)
+//        navVC.modalPresentationStyle = .overFullScreen
+//        navVC.modalTransitionStyle = .crossDissolve
+//        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
     
     
@@ -316,9 +316,9 @@ extension HomeViewController {
 //MARK: board edited
 extension HomeViewController {
     private func handleBoardUpdated(board:BlockInfo) {
-        self.sideMenuItemType = SideMenuItem.board(board: board)
-        let properties = board.blockBoardProperties!
-        self.title = board.title
+//        self.sideMenuItemType = SideMenuItem.board(board: board)
+//        let properties = board.blockBoardProperties!
+//        self.title = board.title
         
 //        navBar.topItem?.title = board.title
 //        navItem.title = board.title
@@ -331,90 +331,57 @@ extension HomeViewController {
 //MARK: content view
 extension HomeViewController {
     
-    func setupContentView() {
-        
-//        guard let sideMenuItemType = self.sideMenuItemType else { return }
-//
-//        switch sideMenuItemType {
-//        case .board(let board):
-//            titleButton.isEnabled = true
-//            self.setupBoardView(board:board)
-//            break
-//        case .system(let systemMenu):
-//            if case .trash = systemMenu {
-//                titleButton.isEnabled = false
-//            }else {
-//                titleButton.isEnabled = true
-//            }
-//            self.setupSystemMenu(systemMenu: systemMenu)
-//            break
-//        }
-        if let oldView =  self.contentView {
-            oldView.removeFromSuperview()
-        }
-        let topPadding = self.topbarHeight
-        let height:CGFloat = self.view.frame.height - topPadding
-        
-        let notesView = NotesListView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height))
-        self.contentView = notesView
-        
-        self.containerView.addSubview(notesView)
-        notesView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+    func setupContentView(tag:Tag) {
+        titleButton.setTitle(tag.title, icon: nil)
+        self.setupTagListView(tag: tag)
     }
     
-    func setupBoardView(board:BlockInfo) {
-        if let oldView =  self.contentView {
-            oldView.removeFromSuperview()
-        }
-        let topPadding = self.topbarHeight
-        let height:CGFloat = self.view.frame.height - topPadding
-        let boardView = BoardView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height),board: board)
-        self.contentView = boardView
-        self.setupBoardToolbar()
-    
-        self.containerView.addSubview(boardView)
-        boardView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        if let blockBoardProperties = board.blockBoardProperties,
-           blockBoardProperties.type == .user
-        {
-            self.title = blockBoardProperties.icon + board.title
-        }
-        
-    }
-    
-    func setupSystemMenu(systemMenu: MenuSystemItem) {
+    func setupContentView(systemMenu:SystemMenuItem) {
+        titleButton.setTitle(systemMenu.title, icon: nil)
         switch systemMenu {
-        case .board(let board):
-            self.setupBoardView(board:board)
-            self.title = board.title
+        case .all:
+            self.setupTagListView()
             break
         case .trash:
-            self.title = systemMenu.title
-            self.setupTrashView()
+            break
         }
     }
     
-    func setupTrashView() {
-        if let oldView =  self.contentView {
-            oldView.removeFromSuperview()
+    func setupTagListView(tag:Tag? = nil) {
+        let tagListView:NotesListView
+        if let contentView =  self.contentView as? NotesListView {
+            tagListView = contentView
+        }else {
+            let topPadding = self.topbarHeight
+            let height:CGFloat = self.view.frame.height - topPadding
+            tagListView = NotesListView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height))
+            self.containerView.addSubview(tagListView)
+            tagListView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            self.contentView = tagListView
         }
-        
-        let topPadding = self.topbarHeight
-        let height:CGFloat = self.view.frame.height - topPadding
-        let trashView = TrashView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height),boardsMap:
-                                    sideMenuViewController.boardsMap)
-        self.contentView = trashView
-        self.containerView.addSubview(trashView)
-        trashView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        self.setupTrashToolbar()
+        tagListView.loadData(tag: tag)
     }
+    
+    
+//    func setupTrashView() {
+//        if let oldView =  self.contentView {
+//            oldView.removeFromSuperview()
+//        }
+//
+//        let topPadding = self.topbarHeight
+//        let height:CGFloat = self.view.frame.height - topPadding
+//        let trashView = TrashView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height),boardsMap:
+//                                    sideMenuViewController.boardsMap)
+//        self.contentView = trashView
+//        self.containerView.addSubview(trashView)
+//        trashView.snp.makeConstraints { make in
+//            make.edges.equalToSuperview()
+//        }
+//
+//        self.setupTrashToolbar()
+//    }
 }
 
 //MARK: nav bar
@@ -456,7 +423,7 @@ extension HomeViewController:UINavigationBarDelegate{
 //        label.textColor = UIColor.white
 //        label.text = "TCO_choose_reminder";
 //
-//        navItem.titleView = titleButton
+        navItem.titleView = titleButton
 //
 //        if let titleView = self.navigationItem.titleView  {
 //            titleView.snp.makeConstraints {
@@ -543,11 +510,11 @@ extension HomeViewController {
         let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
         leftMenuNavigationController.leftSide = true
         leftMenuNavigationController.sideMenuDelegate = self
-        
+
         SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
         SideMenuManager.default.leftMenuNavigationController?.settings = settings
-        
-        
+
+
         if let navigationController = navigationController {
             SideMenuManager.default.addPanGestureToPresent(toView: navigationController.navigationBar)
             SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: self.view,forMenu: .left)
@@ -555,26 +522,16 @@ extension HomeViewController {
     }
 }
 
-extension HomeViewController:SideMenuViewControllerDelegate {
-    
-    func sideMenuItemSelected(menuItemType: SideMenuItem) {
-        self.sideMenuItemType = menuItemType
-        SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
+extension HomeViewController: SideMenuViewControllerDelegate {
+    func sideMenuItemSelected(sideMenuItem: SystemMenuItem) {
+        self.setupContentView(systemMenu: sideMenuItem)
     }
-    //    func sideMenuSystemItemSelected(menuSystem: MenuSystemItem) {
-    //        self.title = menuSystem.title
-    //        self.dismissSideMenu()
-    //    }
-    //
-    //    func sideMenuBoardItemSelected(board: Board) {
-    //        self.title = board.title
-    //        self.dismissSideMenu()
-    //    }
     
-    func dismissSideMenu() {
-        
+    func sideMenuItemSelected(tag: Tag) {
+        self.setupContentView(tag: tag)
     }
 }
+
 
 extension HomeViewController: SideMenuNavigationControllerDelegate {
     func sideMenuWillAppear(menu: SideMenuNavigationController, animated: Bool) {

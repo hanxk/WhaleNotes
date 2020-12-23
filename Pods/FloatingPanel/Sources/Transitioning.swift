@@ -61,7 +61,7 @@ class PresentationController: UIPresentationController {
         addFloatingPanel()
 
         // Forward touch events to the presenting view controller
-        (fpc.view as? PassThroughView)?.eventForwardingView = presentingViewController.view
+        (fpc.view as? PassthroughView)?.eventForwardingView = presentingViewController.view
     }
 
     @objc func handleBackdrop(tapGesture: UITapGestureRecognizer) {
@@ -86,8 +86,7 @@ class ModalPresentTransition: NSObject, UIViewControllerAnimatedTransitioning {
             let fpc = transitionContext?.viewController(forKey: .to) as? FloatingPanelController
         else { fatalError()}
 
-        let animator = fpc.delegate?.floatingPanel?(fpc, animatorForPresentingTo: fpc.layout.initialState)
-            ?? FloatingPanelDefaultBehavior().addPanelAnimator(fpc, to: fpc.layout.initialState)
+        let animator = fpc.animatorForPresenting(to: fpc.layout.initialState)
         return TimeInterval(animator.duration)
     }
 
@@ -108,8 +107,7 @@ class ModalDismissTransition: NSObject, UIViewControllerAnimatedTransitioning {
             let fpc = transitionContext?.viewController(forKey: .from) as? FloatingPanelController
         else { fatalError()}
 
-        let animator = fpc.delegate?.floatingPanel?(fpc, animatorForDismissingWith: .zero)
-            ?? FloatingPanelDefaultBehavior().removePanelAnimator(fpc, from: fpc.state, with: .zero)
+        let animator = fpc.animatorForDismissing(with: .zero)
         return TimeInterval(animator.duration)
     }
 

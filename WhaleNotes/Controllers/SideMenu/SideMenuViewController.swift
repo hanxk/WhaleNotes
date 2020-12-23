@@ -8,111 +8,100 @@
 
 import UIKit
 import RxSwift
+import SideMenu
 
 enum SideMenuCellContants {
-    static let iconWidth:CGFloat = 34
+    static let iconWidth:CGFloat = 24
     static let cellPadding = 20
     static let highlightColor =  UIColor(hexString: "#EFEFEF")
     
-    static let selectedPadding = 14
+    static let selectedPadding = 10
+    static  let titlePaddingRight = 8
 }
 
 protocol SideMenuViewControllerDelegate: AnyObject {
-    func sideMenuItemSelected(menuItemType:SideMenuItem)
+    func sideMenuItemSelected(sideMenuItem:SystemMenuItem)
+    func sideMenuItemSelected(tag:Tag)
 }
 
-enum SideMenuItem:Equatable {
+enum SystemMenuItem:Equatable {
+    case all(icon:String,title:String)
+    case trash(icon:String,title:String)
     
-    case system(menuInfo:MenuSystemItem)
-    case board(board:BlockInfo)
-    
-    static func == (lhs: SideMenuItem, rhs: SideMenuItem) -> Bool {
-        switch (lhs,rhs)  {
-        case (.system(let lmenu),.system(let rmenu) ):
-            return  lmenu == rmenu
-        case (.system,.board):
-            return false
-        case (.board(let board),.board(let board2)):
-            return board.id == board2.id
-        case (.board,.system):
-            return false
+    var title:String {
+        switch self {
+        case .all(_,let title):
+            return title
+        case .trash(_,let title):
+            return title
         }
+    }
+    var icon:String {
+        switch self {
+        case .all(let icon,_):
+            return icon
+        case .trash(let icon,_):
+            return icon
+        }
+    }
+    
+    static func == (lhs: SystemMenuItem, rhs: SystemMenuItem) -> Bool {
+        return lhs.title == rhs.title
     }
 }
 
-//enum SelectedMenuItem {
-//    case trash
-//    case board(boardId:String)
+
+//enum SideMenuItem:Equatable {
+//    case system(item:SystemMenuItem)
+//    case tag(tag:Tag,childCount:Int)
 //
-//
-//    var boardId:String {
-//        switch self {
-//        case .trash:
-//            return "trash"
-//        case .board(let boardId):
-//            return boardId
+//    static func == (lhs: SideMenuItem, rhs: SideMenuItem) -> Bool {
+//        switch (lhs,rhs)  {
+//        case (.system(let lmenu),.system(let rmenu) ):
+//            return  lmenu == rmenu
+//        case (.system,.tag):
+//            return false
+//        case (.tag(let lTag,_) ,.tag(let rTag,_)):
+//            return lTag.id == rTag.id
+//        case (.tag, .system):
+//            return false
 //        }
 //    }
 //}
 
+enum SectionItem {
+    case system
+    case tag
+    
+    var cellIdentifier:String {
+        switch self {
+        case .system:
+            return "system"
+        case .tag:
+            return "tag"
+        }
+    }
+}
+
 class SideMenuViewController: UIViewController {
-    private var sections:[MenuSectionType] = []
-    
-    private var trashMenuItem = MenuSystemItem.trash(icon: "trash", title: "废纸篓")
-    private var selectedItemId:String! {
-        didSet {
-            delegate?.sideMenuItemSelected(menuItemType: getSideMenuItem())
-        }
-    }
-    
-    private func getSideMenuItem() -> SideMenuItem {
-        if self.selectedItemId == self.collectBoard.id {
-            return SideMenuItem.system(menuInfo: MenuSystemItem.board(board: self.collectBoard))
-        }
-        
-        if self.selectedItemId == SysMenuItemId.trash {
-            return SideMenuItem.system(menuInfo:trashMenuItem)
-        }
-        
-        let board = self.userBoards.first(where: {$0.id == self.selectedItemId})!
-        return SideMenuItem.board(board: board)
-    }
-    
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
         didSet {
-            self.loadBoards()
+            self.loadTags()
             self.registerEvent()
-        }
-    }
-    
-    private(set) var collectBoard:BlockInfo!
-    private(set) var boardsMap:[String:BlockInfo] = [:]
-    
-    
-    private(set) var userBoards:[BlockInfo]! {
-        didSet {
-            var boards:[BlockInfo] = []
-            boards.append(contentsOf: userBoards)
-            boards.append(collectBoard)
-            boardsMap = Dictionary(uniqueKeysWithValues: boards.map { ($0.id, $0) })
         }
     }
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
         $0.separatorColor = .clear
-        $0.register(MenuSystemCell.self, forCellReuseIdentifier:CellReuseIdentifier.system.rawValue)
-        $0.register(MenuBoardCell.self, forCellReuseIdentifier:CellReuseIdentifier.board.rawValue)
-        
         $0.separatorColor = .clear
         $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 64, right: 0)
         
+        $0.register(SideMenuCell.self, forCellReuseIdentifier:"SideMenuCell")
+        
         $0.delegate = self
         $0.dataSource = self
-        
-        $0.dragInteractionEnabled = true
-        $0.dragDelegate = self
-        
+        $0.rowHeight  = 44
         $0.showsVerticalScrollIndicator = false
         $0.sectionHeaderHeight = CGFloat.leastNormalMagnitude
         $0.sectionFooterHeight = CGFloat.leastNormalMagnitude
@@ -120,6 +109,50 @@ class SideMenuViewController: UIViewController {
         $0.dragInteractionEnabled = true
     }
     
+    var sectionItems:[SectionItem] =  []
+    var sysMenuItems:[SystemMenuItem] = []
+    var tagsMap:[String:Tag] = [:]  {
+        didSet {
+            self.tagChildCountMap = Dictionary(uniqueKeysWithValues:
+                                                tagsMap.map { key, value in (key, getChildCount(tag: value)) })
+        }
+    }
+    
+    // 控制显示
+    var visibleTagIds:[String] = []
+    var totalTagIds:[String] = []  {
+        didSet {
+            var expandTags:[String] = []
+            findExpandTag(tagIds: self.totalTagIds, expandTags: &expandTags, index: 0)
+            self.visibleTagIds = expandTags
+        }
+    }
+    
+    var tagChildCountMap:[String:Int] = [:]
+    
+    var selectedIndexPath:IndexPath!
+    
+    func setSelectedIndexPath(_ indexPath:IndexPath,isPreventClose:Bool=false) {
+        
+        if  !isPreventClose {
+           SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
+        }
+       
+        if self.selectedIndexPath == indexPath { return }
+        self.selectedIndexPath  = indexPath
+        
+        let sectionType =  self.sectionItems[selectedIndexPath.section]
+        switch sectionType {
+        case .system:
+            self.delegate?.sideMenuItemSelected(sideMenuItem: self.sysMenuItems[selectedIndexPath.row])
+        case  .tag:
+            self.delegate?.sideMenuItemSelected(tag: self.getTag(index: selectedIndexPath.row))
+        }
+    }
+    
+    func getTag(index:Int) -> Tag {
+        return self.tagsMap[self.visibleTagIds[index]]!
+    }
     
     static func generateCellSelectedView() ->UIView {
         return UIView().then {
@@ -138,6 +171,10 @@ class SideMenuViewController: UIViewController {
         
     }
     
+    func  isTagExpand(tagId:String)-> Bool {
+       return TagExpandCache.shared.get(key: tagId) != nil
+    }
+    
     private func setupUI() {
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
@@ -147,39 +184,40 @@ class SideMenuViewController: UIViewController {
         }
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.view.backgroundColor = .sidemenuBg
-        self.setupToolbar()
     }
     
-    private func loadBoards() {
-        BoardsRepo.shared.getBoards()
-            .subscribe {
-                self.setupData(boards: $0)
-            } onError: { error in
-                print(error)
-            }
+    private func loadTags() {
+        NoteRepo.shared.getTags()
+            .subscribe(onNext: { [weak self] tags in
+                self?.setupData(tags: tags)
+            }, onError: {
+                Logger.error($0)
+            })
             .disposed(by: disposeBag)
     }
     
-    private func setupData(boards:[BlockInfo]) {
-        
-        guard let collectBoard =  boards.first(where: {$0.blockBoardProperties!.type == .collect}) else { return }
-        self.collectBoard = collectBoard
-        self.userBoards =  boards.filter({ $0.blockBoardProperties!.type == .user}).sorted(by: {$0.position < $1.position})
-        
-        // 默认展示收集板
-        self.selectedItemId = collectBoard.id
-        
-        let systemMenuItems =  [
-            MenuSystemItem.board(board: collectBoard),
-            trashMenuItem
+    private func setupData(tags:[Tag]) {
+        self.sysMenuItems = [SystemMenuItem.all(icon: "doc.text", title: "全部"),
+                           SystemMenuItem.trash(icon: "trash", title: "废纸篓")
         ]
-        sections.removeAll()
         
-        self.sections.append(MenuSectionType.system(items: systemMenuItems))
-        self.sections.append(MenuSectionType.boards)
+        self.tagsMap = Dictionary(uniqueKeysWithValues: tags.map { ($0.id, $0)})
+        self.totalTagIds = tags.map{$0.id}
+        
+        self.sectionItems = [
+            SectionItem.system,
+            SectionItem.tag,
+        ]
+        
+        setSelectedIndexPath(IndexPath(row: 0, section: 0))
+        self.tableView.reloadData()
     }
     deinit {
         self.unRegisterEvent()
+    }
+    
+    private func getChildCount(tag:Tag)->Int {
+        return self.tagsMap.filter{ $0.value.title.starts(with: tag.title+"/") }.count
     }
 }
 
@@ -194,21 +232,17 @@ extension SideMenuViewController {
     }
     
     @objc private func handleBoardCreated(notification: Notification) {
-        guard let board = notification.object as? BlockInfo else { return }
-        self.userBoards.insert(board, at: 0)
-        self.tableView.performBatchUpdates({
-            self.tableView.insertRows(at: [IndexPath(row: 0, section: 1)], with: .none)
-        }, completion: nil)
+        
     }
 }
 
 extension SideMenuViewController:UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch sections[section] {
-        case .system(let items):
-            return items.count
-        case .boards:
-            return self.userBoards.count
+        switch sectionItems[section] {
+        case .system:
+            return self.sysMenuItems.count
+        case .tag:
+            return self.visibleTagIds.count
         }
     }
     
@@ -220,66 +254,175 @@ extension SideMenuViewController:UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return self.sections.count
+        return self.sectionItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let sectionType = self.sections[indexPath.section]
-        let cell = tableView.dequeueReusableCell(withIdentifier: getCellIdentifier(sectionType: sectionType, indexPath: indexPath))!
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SideMenuCell", for: indexPath) as! SideMenuCell
+        let sectionType =  self.sectionItems[indexPath.section]
         switch sectionType {
-        case .system(let items):
-            let sysCell = cell as! MenuSystemCell
-            sysCell.menuSysItem = items[indexPath.row]
-            sysCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
-        case .boards:
-            let board = self.userBoards[indexPath.row]
-            let boardCell = cell as! MenuBoardCell
-            boardCell.cellIsSelected = isSideMenuSelected(indexPath: indexPath)
-            boardCell.board = board
+        case .system:
+            cell.bindSysMenuItem(self.sysMenuItems[indexPath.row])
+        case  .tag:
+            let tag = self.tagsMap[self.visibleTagIds[indexPath.row]]!
+            let childCount = self.tagChildCountMap[tag.id] ?? 0
+            cell.bindTag(tag, childCount:childCount, isExpand: isTagExpand(tagId: tag.id))
+            cell.arrowButtonTapAction  = {
+                self.toggleTagExpand(tagId: tag.id)
+            }
         }
+        cell.cellIsSelected = self.selectedIndexPath == indexPath
         return cell
     }
     
-    private func getCellIdentifier(sectionType:MenuSectionType,indexPath:IndexPath) -> String {
-        switch sectionType {
-        case .system:
-            return CellReuseIdentifier.system.rawValue
-        case .boards:
-            return CellReuseIdentifier.board.rawValue
+    
+}
+
+//MARK: 折叠展开
+extension SideMenuViewController {
+    
+    private func toggleTagExpand(tagId:String) {
+        guard let tag = self.tagsMap[tagId] else { return }
+        if isTagExpand(tagId: tagId) {
+            TagExpandCache.shared.remove(key: tagId)
+            self.handleTagCollasp(tagId: tag.id)
+        }else {
+            TagExpandCache.shared.set(key: tagId, value: tagId)
+            self.handleTagExpand(tag: tag)
         }
     }
     
-    private func isSideMenuSelected(indexPath: IndexPath) -> Bool {
-        return getItemId(indexPath: indexPath) == self.selectedItemId
-     }
-    
-    private func getItemId(indexPath:IndexPath) -> String {
-        let sectionType = self.sections[indexPath.section]
-        switch sectionType {
-        case .system(let items):
-           return  items[indexPath.row].id
-        case .boards:
-            return self.userBoards[indexPath.row].id
+    private func handleTagExpand(tag:Tag) {
+        guard let index = self.visibleTagIds.firstIndex(where: {$0 == tag.id}) else {  return }
+       
+        // 处理数据源
+        let childIds = findExpandTagByTag(tagIds: self.totalTagIds, rootTagId: tag.id)
+        
+        let childCount = childIds.count
+        if childCount  == 0 { return }
+        
+        let start  = index + 1
+        self.visibleTagIds.insert(contentsOf: childIds, at: start)
+        
+        var insertIndexs:[IndexPath] = []
+        for childIndex in (0...childCount-1) {
+            let row = start + childIndex
+            insertIndexs.append(IndexPath(row: row, section: 1))
         }
-    }
-    
-    private func setSelected(indexPath:IndexPath) {
-       let oldSelectedIndex = getOldSelectedIndexPath()
-        self.selectedItemId = getItemId(indexPath: indexPath)
+        
+        
+        // 处理cell选中
+        if self.selectedIndexPath.section == 1 && index < self.selectedIndexPath.row   {
+            // 更新 selected index
+            let newSelectedIndexPath =  IndexPath(row: self.selectedIndexPath.row+insertIndexs.count, section: self.selectedIndexPath.section)
+            setSelectedIndexPath(newSelectedIndexPath, isPreventClose: true)
+        }
+        
         self.tableView.performBatchUpdates({
-            self.tableView.reloadRows(at: [oldSelectedIndex,indexPath], with: .none)
-        }, completion: nil)
+            self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 1)])
+            self.tableView.insertRows(at: insertIndexs, with: .none)
+        })
     }
     
-    private func getOldSelectedIndexPath() -> IndexPath {
-        if selectedItemId == self.collectBoard.id {
-            return IndexPath(row: 0, section: 0)
+    private func handleTagCollasp(tagId:String) {
+        guard let index = self.visibleTagIds.firstIndex(where: {$0 == tagId}) else {  return }
+        let childCount = self.findVisibleChildTags(tagId: tagId).count
+        
+        var delIndexs:[IndexPath] = []
+        let start  = index + 1
+        for childIndex in (0...childCount-1) {
+            let row = start + childIndex
+            delIndexs.append(IndexPath(row: row, section: 1))
         }
-        if selectedItemId == SysMenuItemId.trash {
-            return IndexPath(row: 1, section:0)
+        self.visibleTagIds.removeSubrange(start..<(start+childCount))
+        
+        
+       
+        
+        // 处理cell选中
+        let rootIndexPath = IndexPath(row: index, section: 1)
+        if delIndexs.contains(self.selectedIndexPath) {
+            setSelectedIndexPath(rootIndexPath, isPreventClose: true)
+        }else if self.selectedIndexPath.section == 1 && index < self.selectedIndexPath.row   {
+            // 更新 selected index
+            let newSelectedIndexPath =  IndexPath(row: self.selectedIndexPath.row-delIndexs.count, section: self.selectedIndexPath.section)
+            setSelectedIndexPath(newSelectedIndexPath, isPreventClose: true)
         }
-        let row = self.userBoards.firstIndex(where: {$0.id == selectedItemId})!
-        return IndexPath(row: row, section:1)
+        
+        self.tableView.performBatchUpdates({
+            self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 1)])
+            self.tableView.deleteRows(at: delIndexs, with: .none)
+        })
+    }
+    
+    
+    
+    private func findVisibleChildTags(tagId:String) -> [String] {
+       let childCount = tagChildCountMap[tagId]
+        if childCount   == 0 {
+            return  []
+        }
+        let tag = tagsMap[tagId]!
+        return self.visibleTagIds.filter{tagsMap[$0]!.title.starts(with: tag.title+"/")}
+    }
+    
+    private func findExpandTagByTag(tagIds:[String],rootTagId:String)-> [String] {
+        
+        var expandTags:[String] =  []
+        let childCount = tagChildCountMap[rootTagId]
+        if childCount == 0 {
+            return expandTags
+        }
+        guard let index = tagIds.firstIndex(of: rootTagId)  else  { return []}
+        
+        let rootTitle = tagsMap[tagIds[index]]!.title
+        var start =  index+1
+        
+        while start  <  tagIds.count  {
+            let tag = tagsMap[tagIds[start]]!
+            if !tag.title.starts(with: rootTitle+"/"){ //root
+                break
+            }
+            expandTags.append(tag.id)
+            let  childCount  = self.tagChildCountMap[tag.id] ?? 0
+            if !isTagExpand(tagId: tag.id) &&  childCount >  0  {  //  已折叠,跳过这个节点 下的子节点
+                start += childCount
+            }
+            start += 1
+        }
+        return expandTags
+    }
+    
+    private func findExpandTag(tagIds:[String],expandTags:inout [String],index:Int) {
+        if index  > tagIds.count -  1 { return}
+        let tagId = tagIds[index]
+        let childCount = tagChildCountMap[tagId] ??  0
+        
+        expandTags.append(tagId)
+        if childCount == 0{
+            return findExpandTag(tagIds: tagIds, expandTags: &expandTags, index: index+1)
+        }
+        if !isTagExpand(tagId: tagId) {  //  已折叠
+          return findExpandTag(tagIds: tagIds, expandTags: &expandTags, index: index+1+childCount)
+        }
+        
+        let rootTitle = tagsMap[tagIds[index]]!.title
+        
+        var start =  index+1
+        for i in (start...(tagIds.count-1)){
+            let tag = tagsMap[tagIds[i]]!
+            
+            if !tag.title.starts(with: rootTitle+"/"){ //root
+                break
+            }
+            let childCount = tagChildCountMap[tagId] ?? 0
+            if childCount>0 { //root
+                break
+            }
+            expandTags.append(tag.id)
+            start += 1
+        }
+        findExpandTag(tagIds: tagIds,expandTags:&expandTags,index: start)
     }
     
 }
@@ -289,188 +432,12 @@ extension SideMenuViewController:UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.setSelected(indexPath: indexPath)
     }
-    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
-        
-        if proposedDestinationIndexPath.section == 0 {
-            return IndexPath(row: 0, section: sourceIndexPath.section)
-        }
-         return proposedDestinationIndexPath
-     }
-     
-    
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        
-        let fromSection = sourceIndexPath.section
-        
-        let fromRow = sourceIndexPath.row
-        let toRow = destinationIndexPath.row
-        
-        swapRowInSameSection(section: fromSection, fromRow: fromRow, toRow: toRow)
-    }
-    
-    func calcNewPosition(fromRow:Int,toRow:Int) -> Double {
-        if toRow == userBoards.count - 1 {
-            return userBoards[userBoards.count-1].position + 65536
-        }
-        if toRow == 0 {
-            return userBoards[0].position / 2
-        }
-        if fromRow < toRow {
-            return (userBoards[toRow].position + userBoards[toRow+1].position) / 2
-        }
-        return (userBoards[toRow].position + userBoards[toRow-1].position) / 2
-    }
-    
-    // 排序处理
-    func swapRowInSameSection(section: Int,fromRow: Int, toRow: Int) {
-        
-        let position = calcNewPosition(fromRow: fromRow, toRow: toRow)
-        
-        var blockInfo = self.userBoards[fromRow]
-        blockInfo.position = position
-        blockInfo.updatedAt = Date()
-        self.userBoards.remove(at: fromRow)
-        self.userBoards.insert(blockInfo, at: toRow)
-        
-        BlockRepo.shared.update(blockPosition: blockInfo.blockPosition)
-            .subscribe { _ in
-                
-            } onError: {
-                Logger.error($0)
-            }.disposed(by: disposeBag)
-//        self.userBoards.forEach {
-//            print("\($0.blockBoardProperties!.icon)  ----  \($0.position) ")
-//        }
-    }
-    
-}
-
-//MARK: Toolbar
-extension SideMenuViewController {
-    
-    private func setupToolbar() {
-        let imageSize:CGFloat = 18
-        let addBoard = self.generateUIBarButtonItem(title:"新建便签板",imageName: "plus.circle",imageSize: imageSize, action:  #selector(addBoardTapped))
-        let setting = self.generateUIBarButtonItem(imageName: "slider.horizontal.3",imageSize: imageSize, action:  #selector(settingTapped))
-        
-        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
-        toolbarItems = [addBoard,spacer,setting]
-        
-        if let toolbar = self.navigationController?.toolbar {
-            toolbar.tintColor = .iconColor
-            toolbar.barTintColor =  .sidemenuBg
-            toolbar.layer.borderColor = UIColor.init(hexString: "#f1f1f1").cgColor
-            toolbar.clipsToBounds = true
-        }
-        navigationController?.setToolbarHidden(false, animated: false)
-    }
-    
-    @objc func addBoardTapped (sender:UIBarButtonItem) {
-        //        let items = [
-        //            ContextMenuItem(label: "添加便签板", icon: "plus.rectangle",tag: 1),
-        //            ContextMenuItem(label: "添加分类", icon: "folder.badge.plus",tag:2)
-        //        ]
-        //        ContextMenuViewController.show(sourceView:sender.view!, sourceVC: self, items: items) { [weak self] menuItem, vc  in
-        //            vc.dismiss(animated: true, completion: nil)
-        //            guard let self = self,let flag = menuItem.tag as? Int else { return}
-        //            if flag == 1 {
-        //                self.openCreateBoardVC(parent: self.boardGroupBlock)
-        //            }else {
-        //                self.showCategoryInputAlert()
-        //            }
-        //        }
-        self.openCreateBoardVC()
-    }
-    private func openCreateBoardVC() {
-        let vc = CreateBoardViewController()
-//        vc.callbackPositive = {emoji,title in
-////            self.createBoard(emoji: emoji, title: title, parent: parent)
-//        }
-        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-    }
-    
-    @objc func settingTapped () {
-        
-    }
-    
-}
-
-
-// drag and drop
-extension SideMenuViewController: UITableViewDragDelegate, UITableViewDropDelegate  {
-    
-    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        return []
-    }
-    
-    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
-        
-    }
-}
-
-
-enum MenuSectionType {
-    case system(items: [MenuSystemItem])
-    case boards
-}
-
-
-enum SysMenuItemId {
-    static let trash = "trash"
-}
-
-fileprivate enum CellReuseIdentifier: String {
-    case system = "system"
-    case board = "boards"
-}
-
-enum MenuSystemItem:Equatable {
-    case board(board: BlockInfo)
-    case trash(icon:String,title:String)
-    
-    static func == (lhs: MenuSystemItem, rhs: MenuSystemItem) -> Bool {
-        switch (lhs,rhs)  {
-        case (.board(let lmenu),.board(let rmenu) ):
-            return  lmenu.id == rmenu.id
-        case (.board,.trash):
-            return false
-        case (.trash,.trash):
-            return true
-        case (.trash(icon:  _, title:  _), .board(board: _)):
-            return false
-        }
-    }
-    
-    var icon:String {
-        switch self {
-        case .board(let board):
-            return board.blockBoardProperties?.icon ?? ""
-        case .trash(let icon,_):
-            return icon
-        }
-    }
-    
-    var iconImage:UIImage? {
-        return UIImage(systemName: icon, pointSize: 15, weight: .regular)
-    }
-    
-    var title:String {
-        switch self {
-        case .board(let board):
-            return board.title
-        case .trash(_,let title):
-            return title
-        }
+    private func setSelected(indexPath: IndexPath)   {
+        let oldIndexPath = self.selectedIndexPath!
+        self.setSelectedIndexPath(indexPath)
+        self.tableView.reloadRowsWithoutAnim(at: [oldIndexPath,indexPath])
     }
     
     
-    var id:String {
-        switch self {
-        case .board(let board):
-            return board.id
-        case .trash:
-            return SysMenuItemId.trash
-        }
-    }
     
 }

@@ -29,6 +29,7 @@ target 'WhaleNotes' do
   pod 'EZSwiftExtensions', :git => 'https://github.com/goktugyil/EZSwiftExtensions.git', :branch => 'ceeyang-Swift5.0' #For Swift 2.3
   pod 'Zip'
   pod 'Alamofire', '~> 5.2'
+  pod 'Cache'
 #  pod 'EZSwiftExtensions'
 #  pod 'QuickTableViewController'
   # Pods for WhaleNotes

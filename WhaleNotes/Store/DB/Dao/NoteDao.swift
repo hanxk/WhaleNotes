@@ -23,11 +23,18 @@ extension NoteDao {
         try db.execute(insertSQL, args: note.id,note.title,note.content,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
     }
     
+    func query(tagId:String) throws -> [Note]  {
+        let selectSQL = "select * from note where id in (select note_id from note_tag where tag_id = ?) order by created_at desc"
+        let rows = try db.query(selectSQL,args: tagId)
+        return extract(rows: rows)
+    }
+    
     func query() throws -> [Note]  {
-        let selectSQL = "select * from note order by created_at desc"
+        let selectSQL = "select * from note  order by created_at desc"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
     }
+    
     
     func query(id:String) throws -> Note?  {
         let selectSQL = "select * from note where id = ?"

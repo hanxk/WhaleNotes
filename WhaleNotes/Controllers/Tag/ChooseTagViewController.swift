@@ -77,11 +77,14 @@ class ChooseTagViewController: UITableViewController {
         NoteRepo.shared.searchTags(searchText)
             .subscribe(onNext: { [weak self] tags in
                 if let self = self {
-                    self.tags = tags
-                    let isSearchEmpty = self.searchText.isNotEmpty && tags.isEmpty
-                    if isSearchEmpty {
-                        self.tags.append(self.emptyTag)
+                    self.tags.removeAll()
+                    if self.searchText.isNotEmpty  {
+                        let isExistsSameText = tags.contains(where: {$0.title == self.searchText})
+                        if !isExistsSameText {
+                            self.tags.append(self.emptyTag)
+                        }
                     }
+                    self.tags.append(contentsOf: tags)
                     self.tableView.reloadData()
                 }
             }, onError: {
@@ -147,18 +150,19 @@ extension ChooseTagViewController {
         let tag = self.tags[indexPath.row]
         let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "").then {
             var tagIcon:String = ""
-            if isSearchEmpty {
+            if tag.title.isEmpty {
                 $0.textLabel?.text = "创建\"\(self.searchText)\""
                 $0.imageView?.tintColor = .brand
                 tagIcon = "plus"
             }else {
                 $0.textLabel?.text = tag.title
-                $0.imageView?.tintColor = .iconColor
-                tagIcon = "grid"
+                $0.imageView?.tintColor = .primaryText
+                tagIcon = ConstantsUI.tagDefaultImageName
             }
             let isSelected = self.selectedTags.contains{$0.id == tag.id}
             $0.accessoryType = isSelected ? .checkmark : .none
             $0.imageView?.image = UIImage(systemName: tagIcon)?.withRenderingMode(.alwaysTemplate)
+            $0.textLabel?.textColor = .primaryText
             
         }
         return  cell
@@ -169,34 +173,30 @@ extension ChooseTagViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if isSearchEmpty {//创建tag
+        let tag = self.tags[indexPath.row]
+        if tag.title.isEmpty  {//创建新的tag
             self.handleCreateNewTag(tagText: self.searchText)
-        }else  {// 选择
-            self.handleTagSelected(indexPath: indexPath)
+            return
         }
-        
+        self.handleTagSelected(tag,indexPath: indexPath)
     }
     func handleCreateNewTag(tagText:String) {
         var tag = Tag()
         tag.title = tagText
-        NoteRepo.shared.createTag(tag)
-            .subscribe(onNext: { [weak self]  in
-                guard let self = self else { return }
-                self.searchController.searchBar.text = ""
-                self.searchText =  ""
-            }, onError: {
-                Logger.error($0)
-            })
-            .disposed(by: disposeBag)
+        self.createNewTag(tag: tag) {
+            self.searchController.searchBar.text = ""
+            self.searchText =  ""
+        }
     }
     
-    func handleTagSelected(indexPath: IndexPath) {
-        let tag = self.tags[indexPath.row]
+    func handleTagSelected(_ tag:Tag,indexPath:IndexPath) {
         let isSelected = self.selectedTags.contains{$0.id == tag.id}
         if isSelected {
             self.deleteNoteTag(tag: tag, indexPath: indexPath)
         }else {
-            self.createNoteTag(tag: tag, indexPath: indexPath)
+            self.createNoteTag(tag: tag) {
+                self.tableView.reloadRowsWithoutAnim(at: [indexPath])
+            }
         }
     }
     
@@ -212,12 +212,27 @@ extension ChooseTagViewController {
             .disposed(by: disposeBag)
     }
     
-    func createNoteTag(tag:Tag,indexPath: IndexPath) {
+    
+    func createNewTag(tag:Tag,callback:@escaping ()->Void) {
+        NoteRepo.shared.createTag(tag, note: self.noteInfo.note)
+            .subscribe(onNext: { [weak self] note  in
+                guard let self = self else { return }
+                self.updateSelectedTagDataSource(note: self.noteInfo.note, tag: tag)
+                callback()
+                callback()
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    
+    func createNoteTag(tag:Tag,callback:@escaping ()->Void) {
         NoteRepo.shared.createNoteTag(note: self.noteInfo.note, tagId: tag.id)
             .subscribe(onNext: { [weak self] note  in
                 guard let self = self else { return }
                 self.updateSelectedTagDataSource(note: note, tag: tag)
-                self.tableView.reloadRows(at: [indexPath], with: .none)
+                callback()
             }, onError: {
                 Logger.error($0)
             })

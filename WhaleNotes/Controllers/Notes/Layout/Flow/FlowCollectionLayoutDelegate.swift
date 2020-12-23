@@ -65,7 +65,7 @@ extension FlowCollectionLayoutDelegate:ASCollectionLayoutDelegate {
                 let sizeRange = _sizeRangeForItem(cellNode: element.node, indexPath: indexPath, layoutWidth: layoutWidth, layoutInfo: layoutInfo)
                 let itemSize = element.node.layoutThatFits(sizeRange).size
                 
-                let itemWidth = itemSize.width
+                let itemWidth =  itemSize.width
                 if x != insets.left {
                     x += layoutInfo.spacing
                 }

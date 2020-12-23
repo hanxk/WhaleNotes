@@ -47,11 +47,12 @@ class NotesListView: UIView {
         tableView.backgroundColor = .bg
         self.addSubnode(tableView)
         
-        self.loadData()
     }
     
-    private func loadData() {
-        NoteRepo.shared.getNotes()
+    
+    func loadData(tag:Tag? = nil) {
+        let tagId = tag?.id ?? ""
+        NoteRepo.shared.getNotes(tag: tagId)
             .subscribe(onNext: { [weak self] notes in
                 if let self = self {
                     self.notes = notes

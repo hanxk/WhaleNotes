@@ -15,7 +15,7 @@ enum TagConfig   {
     static let spacingV:CGFloat = 6
     
     static let tagButtonPaddingH:CGFloat = 8
-    static let tagHeight:CGFloat = 20
+    static let tagHeight:CGFloat = 22
     
     
     static let tagFont:UIFont = UIFont.systemFont(ofSize: 13)
@@ -61,7 +61,7 @@ extension NoteTagsProvider {
     
     func layout(constrainedSize: ASSizeRange) -> ASLayoutSpec {
         
-        tagsCollectionNode.style.preferredSize   = CGSize(width: constrainedSize.max.width, height: calcHeight(constrainedSize: constrainedSize))
+        tagsCollectionNode.style.preferredSize = CGSize(width: constrainedSize.max.width, height: calcHeight(constrainedSize: constrainedSize))
         let vLayout =  ASStackLayoutSpec.vertical().then {
             $0.direction = .vertical
         }
@@ -81,7 +81,9 @@ extension NoteTagsProvider {
         var rowWidth:CGFloat = 0
         for tagTitleWith in self.tagsSize {
             
-            var tagNeedWidth = tagTitleWith + TagConfig.tagButtonPaddingH
+            let tw = tagTitleWith > rowValidWidth   ?  rowValidWidth - TagConfig.tagButtonPaddingH*2 : tagTitleWith
+            
+            var tagNeedWidth = tw + TagConfig.tagButtonPaddingH
             if  rowWidth != 0  {
                 tagNeedWidth  += TagConfig.spacingH
             }
@@ -130,20 +132,42 @@ class TagCellNode: ASCellNode  {
     
     private lazy var tagButtonNode :ASButtonNode  = ASButtonNode().then {
         $0.backgroundColor = UIColor(r: 206, g: 205, b: 202, a: 0.5)
-        $0.setTitle(tag.title, with: TagConfig.tagFont, with: UIColor(hexString: "#37352f"), for: .normal)
         $0.cornerRadius = TagConfig.tagHeight/2
         $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         $0.style.height = ASDimensionMakeWithPoints(TagConfig.tagHeight)
+        $0.clipsToBounds  = true
     }
     
     init(tag:Tag) {
         super.init()
         self.tag = tag
+        var title = tag.title  //"22/636:7:76373727727272662626626266272772727627266262"
+        tagButtonNode.setAttributedTitle(NSMutableAttributedString(string: title, attributes: getTagTitleAttributes()), for: .normal)
         self.addSubnode(tagButtonNode)
     }
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        return  ASInsetLayoutSpec(insets: .zero, child: tagButtonNode)
+        let footerLayout = ASStackLayoutSpec.horizontal().then {
+            $0.style.flexGrow = 1.0
+            $0.style.flexShrink = 1.0
+        }
+//        tagButtonNode.style.width =  ASDimensionMakeWithPoints(constrainedSize.max.width)
+//        tagButtonNode.style.maxWidth =  ASDimensionMakeWithPoints(constrainedSize.max.width)
+        footerLayout.child  = tagButtonNode
+        return  footerLayout
+    }
+    
+    func getTagTitleAttributes() -> [NSAttributedString.Key: Any] {
+        let font =  TagConfig.tagFont
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = .byTruncatingMiddle;
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraphStyle,
+            .foregroundColor:UIColor(hexString: "#37352f")
+        ]
+        return attributes
     }
     
 }

@@ -68,11 +68,8 @@ class Core: NSObject, UIGestureRecognizerDelegate {
         backdropView.backgroundColor = .black
         backdropView.alpha = 0.0
 
-        self.layoutAdapter = LayoutAdapter(vc: vc,
-                                           surfaceView: surfaceView,
-                                           backdropView: backdropView,
-                                           layout: layout)
-        self.behaviorAdapter = BehaviorAdapter(vc: vc, behavior: behavior)
+        layoutAdapter = LayoutAdapter(vc: vc, layout: layout)
+        behaviorAdapter = BehaviorAdapter(vc: vc, behavior: behavior)
 
         panGestureRecognizer = FloatingPanelPanGestureRecognizer()
 
@@ -123,12 +120,10 @@ class Core: NSObject, UIGestureRecognizerDelegate {
             let animator: UIViewPropertyAnimator
             switch (from, to) {
             case (.hidden, let to):
-                animator = vc.delegate?.floatingPanel?(vc, animatorForPresentingTo: to)
-                    ?? FloatingPanelDefaultBehavior().addPanelAnimator(vc, to: to)
+                animator = vc.animatorForPresenting(to: to)
             case (let from, .hidden):
                 let animationVector = CGVector(dx: abs(removalVector.dx), dy: abs(removalVector.dy))
-                animator = vc.delegate?.floatingPanel?(vc, animatorForDismissingWith: .zero)
-                    ?? FloatingPanelDefaultBehavior().removePanelAnimator(vc, from: from, with: animationVector)
+                animator = vc.animatorForDismissing(with: animationVector)
             default:
                 move(to: to, with: 0) {
                     self.moveAnimator = nil

@@ -19,7 +19,7 @@ extension UIColor {
     open class var primaryText: UIColor {
         get {
             //  2b292e          return UIColor(named: "PrimaryText")!
-            UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#37352F")
         }
     }
     open class var primaryText2: UIColor {
@@ -112,18 +112,20 @@ extension UIColor {
     
     open class var sidemenuBg: UIColor {
         get {
-            return UIColor.init(hexString: "#FFFFFF")
+            return .bg
+//            return .red
         }
     }
     open class var sidemenuSelectedBg: UIColor {
         get {
-            return UIColor.init(hexString: "#E8E8E8")
+            return UIColor.init(hexString: "#DAEDFE")
         }
     }
     
     open class var sidemenuText: UIColor {
         get {
-            return UIColor.init(hexString: "#202020")
+//            return UIColor.init(hexString: "#202020")
+            return UIColor.cardText
         }
     }
     
@@ -185,7 +187,7 @@ extension UIColor {
     open class var bg: UIColor {
         get {
             
-            return UIColor.init(hexString: "#f9f9f9")
+            return UIColor.init(hexString: "#f8f8f8")
         }
     }
     
@@ -195,8 +197,8 @@ extension UIColor {
         }
     }
     open class var cardText: UIColor {
-        get {
-            UIColor.init(hexString: "#37352F")
+        get {//37352F
+            UIColor.init(hexString: "#333333")
         }
     }
     

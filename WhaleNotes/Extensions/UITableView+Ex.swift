@@ -28,4 +28,8 @@ extension UITableView {
         }
     }
     
+    
+    func reloadRowsWithoutAnim(at indexPaths: [IndexPath]) {
+        self.reloadRows(at: indexPaths, with: .none)
+    }
 }

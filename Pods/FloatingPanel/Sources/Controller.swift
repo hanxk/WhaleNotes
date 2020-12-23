@@ -274,7 +274,7 @@ open class FloatingPanelController: UIViewController {
     open override func loadView() {
         assert(self.storyboard == nil, "Storyboard isn't supported")
 
-        let view = PassThroughView()
+        let view = PassthroughView()
         view.backgroundColor = .clear
 
         backdropView.frame = view.bounds
@@ -598,6 +598,14 @@ open class FloatingPanelController: UIViewController {
         }
     }
 
+    // MARK: - Accessibility
+
+    open override func accessibilityPerformEscape() -> Bool {
+        guard isRemovalInteractionEnabled else { return false }
+        dismiss(animated: true, completion: nil)
+        return true
+    }
+
     // MARK: - Utilities
 
     /// Updates the layout object from the delegate and lays out the views managed
@@ -640,6 +648,27 @@ extension FloatingPanelController {
         guard self.view.window != nil else { return }
         #endif
         delegate?.floatingPanelDidMove?(self)
+    }
+
+    func animatorForPresenting(to: FloatingPanelState) -> UIViewPropertyAnimator {
+        if let animator = delegate?.floatingPanel?(self, animatorForPresentingTo: to) {
+            return animator
+        }
+        let timingParameters = UISpringTimingParameters(decelerationRate: UIScrollView.DecelerationRate.fast.rawValue,
+                                                       frequencyResponse: 0.25)
+        return UIViewPropertyAnimator(duration: 0.0,
+                                      timingParameters: timingParameters)
+    }
+
+    func animatorForDismissing(with velocity: CGVector) -> UIViewPropertyAnimator {
+        if let animator = delegate?.floatingPanel?(self, animatorForDismissingWith: velocity) {
+            return animator
+        }
+        let timingParameters = UISpringTimingParameters(decelerationRate: UIScrollView.DecelerationRate.fast.rawValue,
+                                                       frequencyResponse: 0.25,
+                                                       initialVelocity: velocity)
+        return UIViewPropertyAnimator(duration: 0.0,
+                                      timingParameters: timingParameters)
     }
 }
 
