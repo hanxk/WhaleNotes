@@ -19,12 +19,16 @@ class MDEditorViewProvider: NSObject, NoteCardProvider {
     private var mdHelper:MDHelper!
     
     private lazy  var  editorView = ASEditableTextNode().then {
-        $0.placeholderEnabled  = isEditing
+        $0.placeholderEnabled  = false
 //        $0.attributedPlaceholderText = getContentPlaceholderAttributes()
 //            $0.attributedText =  NSMutableAttributedString(string: note.content, attributes: getContentAttributes())
         $0.scrollEnabled = false
         $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
-        $0.textView.isEditable = isEditing
+        $0.textView.isEditable = false
+        $0.textView.isSelectable = false
+        $0.textView.selectedTextRange = nil
+        $0.textView.isUserInteractionEnabled = false
+        $0.isUserInteractionEnabled   =  false
 //        $0.typingAttributes = getContentAttributesString()
         $0.delegate = self
     }

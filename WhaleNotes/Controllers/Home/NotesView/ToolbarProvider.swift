@@ -82,7 +82,7 @@ extension  ToolbarProvider {
     
     func getDateLabelAttributes(text: String) -> NSAttributedString {
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
+            .font: UIFont.systemFont(ofSize: 13, weight: .regular),
             .foregroundColor: UIColor(hexString: "#888888"),
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)

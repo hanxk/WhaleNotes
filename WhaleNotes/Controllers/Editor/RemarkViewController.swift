@@ -16,7 +16,6 @@ class RemarkViewController:UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-       
         self.view.addSubview(editor)
         self.editor.snp.makeConstraints {
             $0.width.height.equalToSuperview()

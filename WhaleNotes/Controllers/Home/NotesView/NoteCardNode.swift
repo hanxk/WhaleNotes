@@ -125,6 +125,7 @@ class NoteCardNode: ASCellNode {
                 $0.scrollEnabled = false
                 $0.typingAttributes = getTitleAttributesString()
                 $0.textView.isEditable = isEditing
+                $0.isUserInteractionEnabled =  isEditing
                 $0.delegate = self
                 $0.textView.tag = EditViewTag.title.rawValue
             }
@@ -143,6 +144,7 @@ class NoteCardNode: ASCellNode {
                 $0.textView.isEditable = isEditing
 //                $0.typingAttributes = getContentAttributesString()
                 $0.delegate = self
+                $0.isUserInteractionEnabled =  isEditing
                 $0.textView.tag = EditViewTag.content.rawValue
             }
             self.addSubnode(contentNode)

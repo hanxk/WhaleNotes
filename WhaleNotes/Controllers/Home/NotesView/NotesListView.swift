@@ -22,7 +22,6 @@ class NotesListView: UIView {
         $0.dataSource = self
         $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
         $0.backgroundColor = .clear
-        $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .onDrag
     }
@@ -70,21 +69,57 @@ class NotesListView: UIView {
         let noteInfo = NoteInfo(note: Note())
         NoteRepo.shared.createNote(noteInfo)
             .subscribe(onNext: { [weak self] noteInfo in
-                if let self = self {
-                    self.selectedNoteId = noteInfo.id
-                    self.notes.insert(noteInfo, at: 0)
-                    self.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-                }
+                self?.handleNoteInfoCreated(noteInfo: noteInfo)
             }, onError: {
                 Logger.error($0)
             })
             .disposed(by: disposeBag)
         
     }
+    
+    func handleNoteInfoCreated(noteInfo:NoteInfo) {
+        
+        let visibleRows = self.tableView.indexPathsForVisibleRows()
+        
+        self.notes.insert(noteInfo, at: 0)
+        let indexPath:IndexPath = IndexPath(row: 0, section: 0)
+        
+        let needScroll2Top = visibleRows.count > 0 && visibleRows[0].row > indexPath.row
+        
+        self.tableView.insertRows(at: [indexPath], with: .automatic)
+        if needScroll2Top {
+           self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
+        }
+        self.openEditorVC(noteInfo:noteInfo)
+    }
+    
+    func openEditorVC(noteInfo:NoteInfo) {
+       let editorVC = MDEditorViewController()
+        editorVC.noteInfo = noteInfo
+        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
+            self?.handleNoteInfoUpdated(noteInfo)
+        }
+       self.controller?.navigationController?.pushViewController(editorVC, animated: true)
+    }
+}
+
+extension NotesListView {
+    func handleNoteInfoUpdated(_ noteInfo:NoteInfo) {
+        self.updateNoteInfo(noteInfo: noteInfo)
+    }
+    
+    func updateNoteInfo(noteInfo:NoteInfo) {
+        guard let index = self.notes.firstIndex(where: {$0.id == noteInfo.id}) else { return }
+        self.notes[index] = noteInfo
+        self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 0)])
+    }
 }
 
 extension NotesListView:ASTableDelegate {
-    
+    func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
+        let noteInfo = self.notes[indexPath.row]
+        self.openEditorVC(noteInfo: noteInfo)
+    }
 }
 
 extension NotesListView:ASTableDataSource {

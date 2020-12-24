@@ -48,6 +48,16 @@ extension NoteDao {
         try db.execute(updateSQL, args: note.title,note.content,note.id)
     }
     
+    func updateContent( _ content:String,noteId:String,updatedAt:Date) throws {
+        let updateSQL = "update note set  content = ?,updated_at=? where id = ?"
+        try db.execute(updateSQL, args: content,updatedAt.timeIntervalSince1970,noteId)
+    }
+    
+    func updateTitle( _ title:String,noteId:String,updatedAt:Date) throws {
+        let updateSQL = "update note set  title = ?,updated_at=? where id = ?"
+        try db.execute(updateSQL, args: title,updatedAt.timeIntervalSince1970,noteId)
+    }
+    
     func delete( _ id:String) throws {
         let delSQL = "delete from note where id = ?"
         try db.execute(delSQL, args: id)

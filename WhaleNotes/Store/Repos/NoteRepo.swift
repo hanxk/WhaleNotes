@@ -74,6 +74,36 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    
+    func updateNoteTitle(_ note:Note,newTitle:String) -> Observable<Note> {
+        return Observable<Note>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Note in
+                var newNote = note
+                newNote.title = newTitle
+                newNote.updatedAt = Date()
+                try self.noteDao.updateTitle(newTitle, noteId: note.id,updatedAt: newNote.updatedAt)
+                return newNote
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func updateNoteContent(_ note:Note,newContent:String) -> Observable<Note> {
+        return Observable<Note>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Note in
+                var newNote = note
+                newNote.content  = newContent
+                newNote.updatedAt = Date()
+                try self.noteDao.updateContent(newContent, noteId: note.id,updatedAt: newNote.updatedAt)
+                return newNote
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
     func deleteNote(_ noteInfo:NoteInfo) -> Observable<Void> {
         return Observable<Void>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Void in

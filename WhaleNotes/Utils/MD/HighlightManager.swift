@@ -172,12 +172,7 @@ struct MarkdownHighlightManager {
 //        }else {
 //            validRange = NSRange(location:0, length: len)
 //        }
-        
-        let nomarlColor = Configure.shared.theme.value == .black ? rgb(160,160,160) : rgb(54,54,64)
- 
-        text.setAttributes([.font : HighlightStyle.normalFont,
-                              .paragraphStyle : paragraphStyle,
-                              .foregroundColor : nomarlColor], range: validRange)
+        text.setAttributes(getTextStyleAttributes(), range: validRange)
         
         syntaxArray.forEach { (syntax) in
             syntax.expression.enumerateMatches(in: text.string, options: .reportCompletion, range: validRange, using: { (match, _, _) in
@@ -186,6 +181,13 @@ struct MarkdownHighlightManager {
                 }
             })
         }
+    }
+    
+    func getTextStyleAttributes() -> [NSAttributedString.Key : Any] {
+        let nomarlColor = Configure.shared.theme.value == .black ? rgb(160,160,160) : rgb(54,54,64)
+        return [.font : HighlightStyle.normalFont,
+                .paragraphStyle : paragraphStyle,
+                .foregroundColor : nomarlColor]
     }
     
 }
