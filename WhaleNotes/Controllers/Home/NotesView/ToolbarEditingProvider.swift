@@ -17,7 +17,7 @@ class ToolbarEditingProvider:NoteCardProvider {
     
     private lazy var saveButtonNode :ASButtonNode  = ASButtonNode().then {
         $0.backgroundColor = .brand
-        $0.setTitle("完成", with: UIFont.systemFont(ofSize: 14), with: .white, for: .normal)
+        $0.setTitle("完成", with: UIFont.systemFont(ofSize: 14,weight: .medium), with: .white, for: .normal)
         $0.cornerRadius = 6
         $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
         $0.style.height = ASDimensionMakeWithPoints(30)

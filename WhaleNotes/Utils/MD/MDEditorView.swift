@@ -369,6 +369,25 @@ extension UITextView {
         let textRange = self.textRange(from: startOfLinePosition, to: endPosition)
         return textRange
     }
+    
+    func getCursorTextNSRange() -> NSRange? {
+        guard let selectedRange = self.selectedTextRange else { return nil}
+        
+        let startOfLinePosition = self.tokenizer.position(from: selectedRange.start, toBoundary: .paragraph, inDirection: UITextDirection(rawValue: UITextStorageDirection.backward.rawValue))!
+        
+        let cursorPosition = self.offset(from: self.beginningOfDocument, to: selectedRange.start)
+        guard  let endPosition = self.position(from: self.beginningOfDocument, offset: cursorPosition) else { return nil}
+//        const NSInteger length = [textView offsetFromPosition:selectionStart toPosition:selectionEnd];
+
+//        guard  else {   return   }
+        let textRange = self.textRange(from: startOfLinePosition, to: endPosition)
+        let end =  self.offset(from: self.beginningOfDocument, to: selectedRange.end)
+//       let end = self.beginningOfDocument + cursorPosition
+//        let textRange = self.textRange(from: startOfLinePosition, to: endPosition)
+//        let range = NSRange(location: startOfLinePosition, length: endPosition)
+//        return
+        return NSRange(location: cursorPosition-1, length: end)
+    }
 }
 
 extension MDEditorView {
@@ -508,7 +527,7 @@ extension MDEditorView {
     
     @objc func highlight() {
         if editView.text.count < 5000 {
-            highlightmanager.highlight(editView.textStorage,visibleRange: nil)
+//            highlightmanager.highlight(editView.textStorage,visibleRange: nil)
         } else if let range = self.visibleRange {
             highlightmanager.highlight(editView.textStorage,visibleRange: range)
         }

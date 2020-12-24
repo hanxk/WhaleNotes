@@ -558,7 +558,7 @@ extension HomeViewController  {
         self.view.addSubview(btnNewNote)
         btnNewNote.snp.makeConstraints { (make) -> Void in
             make.width.height.equalTo(FloatButtonConstants.btnSize)
-            make.bottom.equalTo(self.view).offset(-FloatButtonConstants.bottom)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
             make.trailing.equalTo(self.view).offset(-FloatButtonConstants.trailing)
         }
     }

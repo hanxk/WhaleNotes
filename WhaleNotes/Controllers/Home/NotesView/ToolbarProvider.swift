@@ -29,12 +29,13 @@ class ToolbarProvider:NoteCardProvider {
     
     class func generateIconButton(imgName:String,cardAction:NoteCardAction) -> ASButtonNode {
        let button = ASButtonNode().then {
-        let image = UIImage(systemName: imgName,pointSize: 15)?.withRenderingMode(.alwaysTemplate)
+        let image = UIImage(systemName: imgName,pointSize: 14)?.withRenderingMode(.alwaysTemplate)
             $0.setImage(image, for: .normal)
             $0.tintColor = UIColor(hexString: "#6f6f6f")
             $0.style.minWidth = ASDimensionMakeWithPoints(26)
             $0.style.minHeight = ASDimensionMakeWithPoints(StyleConfig.footerHeight)
             $0.view.tag = cardAction.rawValue
+//        $0.backgroundColor = .red
         }
         return button
     }
@@ -81,8 +82,8 @@ extension  ToolbarProvider {
     
     func getDateLabelAttributes(text: String) -> NSAttributedString {
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13, weight: .regular),
-            .foregroundColor: UIColor.cardTextSecondary,
+            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
+            .foregroundColor: UIColor(hexString: "#888888"),
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)
     }

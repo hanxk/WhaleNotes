@@ -72,6 +72,7 @@ class NoteCardNode: ASCellNode {
     private var textEdited: ((String,EditViewTag) -> Void)?
     
     
+    var timer2: Timer? = nil
     private var titleEditNode :ASEditableTextNode?
     private var contentEditNode :ASEditableTextNode?
     
@@ -79,7 +80,11 @@ class NoteCardNode: ASCellNode {
     
     private var tagsProvider:NoteCardProvider?
     
+    private let toolbar = MDToolbar()
     
+    private var mdHelper:MDHelper?
+    
+    var highlightmanager = MarkdownHighlightManager()
     
     let shadowOffsetY:CGFloat = 4
     private lazy var  cardbackground = ASDisplayNode().then {
@@ -131,17 +136,23 @@ class NoteCardNode: ASCellNode {
         if isEditing || note.content.isNotEmpty {
             let contentNode = ASEditableTextNode().then {
                 $0.placeholderEnabled  = isEditing
-                $0.attributedPlaceholderText = getContentPlaceholderAttributes()
+//                $0.attributedPlaceholderText = getContentPlaceholderAttributes()
                 $0.attributedText =  NSMutableAttributedString(string: note.content, attributes: getContentAttributes())
                 $0.scrollEnabled = false
-                $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
+//                $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
                 $0.textView.isEditable = isEditing
-                $0.typingAttributes = getContentAttributesString()
+//                $0.typingAttributes = getContentAttributesString()
                 $0.delegate = self
                 $0.textView.tag = EditViewTag.content.rawValue
             }
             self.addSubnode(contentNode)
             self.contentEditNode = contentNode
+            
+            
+            let mdHelper = MDHelper(editView: contentNode.textView)
+            self.mdHelper = mdHelper
+//            mdHelper.loadText(note.content)
+            highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
             
             if isNew { // 新建
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -265,15 +276,27 @@ extension NoteCardNode {
     }
     
     func getContentAttributes() -> [NSAttributedString.Key: Any] {
+        
         let font =  UIFont.systemFont(ofSize: 16, weight: .regular)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.3
-        paragraphStyle.lineBreakMode = .byWordWrapping;
+        
+        let paragraphStyle = { () -> NSMutableParagraphStyle in
+            let paraStyle = NSMutableParagraphStyle()
+            paraStyle.maximumLineHeight = 23
+            paraStyle.minimumLineHeight = 23
+            paraStyle.lineSpacing = 3
+            return paraStyle
+        }()
+        
+        
+//        let paragraphStyle = NSMutableParagraphStyle()
+//        paragraphStyle.lineHeightMultiple = 1.3
+//        paragraphStyle.lineBreakMode = .byWordWrapping;
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .paragraphStyle: paragraphStyle,
             .foregroundColor:UIColor.cardText,
         ]
+    
         return attributes
     }
     
@@ -293,18 +316,52 @@ extension NoteCardNode {
 
 extension NoteCardNode: ASEditableTextNodeDelegate {
     func editableTextNodeDidUpdateText(_ editableTextNode: ASEditableTextNode) {
-        let text = editableTextNode.textView.text ??  ""
-        self.textChanged?(text)
+        let textView = editableTextNode.textView
+        let newText = textView.text ??  ""
+        
+//        mdHelper?.textViewDidChange(editableTextNode.textView)
 //        if  editableTextNode.textView.tag == 1 {
 //            titleEditNode?.attributedText = getTitleAttributes(text: text)
 //        }else {
 //            contentEditNode?.attributedText = getContentAttributes(text: text)
 //        }
         if  editableTextNode.textView.tag == EditViewTag.title.rawValue {
-            note.title  = text
-        }else {
-            note.content  = text
+            note.title  = newText
+            return
         }
+        
+        //  找到最后一行尝试去 highlight
+        
+        //1. 先找到光标所在行
+        if let selectedRange = textView.selectedTextRange {
+            let cursorPosition = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
+            print("\(cursorPosition)")
+        }
+        
+        guard let textRange = textView.getCursorTextRange()
+              else { return }
+        let start = textView.offset(from: textView.beginningOfDocument, to: textRange.start)
+        let end = textView.offset(from: textView.beginningOfDocument, to: textRange.end)
+        
+        let range = NSRange(location: start, length: end-start)
+//        let oldLength = note.content.length
+//
+//        var start  =  oldLength > 0 ? oldLength : oldLength
+//
+//        let newLength = newText.length
+//        var len  = abs(oldLength - newLength)
+//        if len == 0  {
+//            start  -= 1
+//            len = 1
+//            print(newText)
+//        }
+//        let visibleRange =  NSMakeRange(start, len)
+//        note.content  = newText
+//        highlightmanager.highlight(editableTextNode.textView.textStorage,visibleRange: visibleRange)
+        
+        timer2?.invalidate()
+        timer2 = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight(sender:)), userInfo: range, repeats: false)
+//        _textWidth = 0
     }
     
     func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
@@ -312,11 +369,108 @@ extension NoteCardNode: ASEditableTextNodeDelegate {
         guard let tag = EditViewTag(rawValue: editableTextNode.textView.tag)  else  { return }
         self.textEdited?(text,tag)
     }
+    
+    func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+//       return self.mdHelper?.textView(editableTextNode.textView, shouldChangeTextIn: range, replacementText: text) ?? false
+        let textView = editableTextNode.textView
+        if text == "\n" {
+            let begin = max(range.location - 100, 0)
+            let len = range.location - begin
+            let nsString = textView.text! as NSString
+            let nearText = nsString.substring(with: NSRange(location:begin, length: len))
+            let texts = nearText.components(separatedBy: "\n")
+//            if texts.count < 2 {
+//                return true
+//            }
+            
+//            let lastLineCount = texts.last!.count   // emoji bug
+//            let lastLineCount = texts.last!.utf16.count
+//            let beginning = textView.beginningOfDocument
+//            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
+//                let to = textView.position(from: beginning, offset: range.location),
+//                let textRange = textView.textRange(from: from, to: to) else {
+//                return true
+//            }
+            let newText  =  newLine2(texts.last!)
+            if  newText == "\n" {
+                return  true
+            }
+//            textView.replace(textRange, withText: newText)
+            let from = textView.text.count
+            textView.insertText(newText)
+            let to = textView.text.count
+            
+//            let textRange = textView.textRange(from: from, to: to)
+            
+            return false
+        }
+        return true
+    }
+    
+    @objc func highlight(sender: Timer) {
+        let range = sender.userInfo as! NSRange
+        highlightmanager.highlight(contentEditNode!.textView.textStorage,visibleRange: range)
+        self.textChanged?(self.contentEditNode!.textView.text)
+    }
+    
+    func newLine2(_ last: String) -> String {
+        if last.hasPrefix("- [x] ") {
+            return "\n- [x] "
+        }
+        if last.hasPrefix("- [ ] ") {
+            return "\n- [ ] "
+        }
+        if let str = last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ") {
+            if last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) +[\\S]+") == nil {
+                return "\n"
+            }
+            guard let range = str.firstMatchRange("[0-9]+") else { return "\n" + str }
+            let num = str.substring(with: range).toInt() ?? 0
+            return "\n" + str.replacingCharacters(in: range, with: "\(num+1)")
+        }
+        if let str = last.firstMatch("^( {4}|\\t)+") {
+            return "\n" + str
+        }
+        return "\n"
+    }
+    
+    
+    func newLine(_ last: String) -> String {
+        if last.hasPrefix("- [x] ") {
+            return last + "\n- [x] "
+        }
+        if last.hasPrefix("- [ ] ") {
+            return last + "\n- [ ] "
+        }
+        if let str = last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ") {
+            if last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) +[\\S]+") == nil {
+                return "\n"
+            }
+            guard let range = str.firstMatchRange("[0-9]+") else { return last + "\n" + str }
+            let num = str.substring(with: range).toInt() ?? 0
+            return last + "\n" + str.replacingCharacters(in: range, with: "\(num+1)")
+        }
+        if let str = last.firstMatch("^( {4}|\\t)+") {
+            return last + "\n" + str
+        }
+        return last + "\n"
+    }
 }
 
 
 extension NoteCardNode {
     fileprivate func updateNote() {
         
+    }
+}
+
+extension NoteCardNode {
+    func setupToolbar() {
+        toolbar.frame =  CGRect(x: 0, y: 0, width: self.frame.width, height: 40)
+//        toolbar.actionButtonTapped = {
+//            self.handleActionType(actionType: $0)
+//        }
+//        editView.inputAccessoryView = toolbar
+        self.contentEditNode?.textView.inputAccessoryView = toolbar
     }
 }
