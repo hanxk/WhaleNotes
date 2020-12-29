@@ -184,7 +184,7 @@ struct MarkdownHighlightManager {
     }
     
     func getTextStyleAttributes() -> [NSAttributedString.Key : Any] {
-        let nomarlColor = Configure.shared.theme.value == .black ? rgb(160,160,160) : rgb(54,54,64)
+        let nomarlColor = Configure.shared.theme.value == Theme.black ? rgb(160,160,160) : rgb(54,54,64)
         return [.font : HighlightStyle.normalFont,
                 .paragraphStyle : paragraphStyle,
                 .foregroundColor : nomarlColor]

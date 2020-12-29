@@ -163,6 +163,18 @@
 		18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */; };
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
 		18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BCA59724E8165800612889 /* BoardsRepo.swift */; };
+		18C1322B2599C02600D1529B /* TextUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132192599C02600D1529B /* TextUtils.swift */; };
+		18C1322C2599C02600D1529B /* HighlighterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321A2599C02600D1529B /* HighlighterType.swift */; };
+		18C1322D2599C02600D1529B /* MarkdownAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321B2599C02600D1529B /* MarkdownAttributes.swift */; };
+		18C132302599C02600D1529B /* MarkdownListHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */; };
+		18C132322599C02600D1529B /* MarkdownTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132202599C02600D1529B /* MarkdownTextStorage.swift */; };
+		18C132332599C02600D1529B /* HighlighterTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132212599C02600D1529B /* HighlighterTextStorage.swift */; };
+		18C132342599C02600D1529B /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132222599C02600D1529B /* MarkdownTextView.swift */; };
+		18C132352599C02600D1529B /* MarkdownHeaderHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132242599C02600D1529B /* MarkdownHeaderHighlighter.swift */; };
+		18C132362599C02600D1529B /* TextUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132252599C02600D1529B /* TextUtilities.swift */; };
+		18C132382599C02600D1529B /* MDKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132272599C02600D1529B /* MDKeyboardView.swift */; };
+		18C1323E2599C5D000D1529B /* MDEditorSimpleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1323D2599C5D000D1529B /* MDEditorSimpleViewController.swift */; };
+		18C132422599DC1B00D1529B /* MarkdownOrderListHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132412599DC1B00D1529B /* MarkdownOrderListHighlighter.swift */; };
 		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
 		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
 		18CA46E92576536500F1D609 /* BookmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CA46E82576536500F1D609 /* BookmarkView.swift */; };
@@ -392,6 +404,19 @@
 		18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
 		18BCA59724E8165800612889 /* BoardsRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardsRepo.swift; sourceTree = "<group>"; };
+		18C132192599C02600D1529B /* TextUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextUtils.swift; sourceTree = "<group>"; };
+		18C1321A2599C02600D1529B /* HighlighterType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HighlighterType.swift; sourceTree = "<group>"; };
+		18C1321B2599C02600D1529B /* MarkdownAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownAttributes.swift; sourceTree = "<group>"; };
+		18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownListHighlighter.swift; sourceTree = "<group>"; };
+		18C132202599C02600D1529B /* MarkdownTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownTextStorage.swift; sourceTree = "<group>"; };
+		18C132212599C02600D1529B /* HighlighterTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HighlighterTextStorage.swift; sourceTree = "<group>"; };
+		18C132222599C02600D1529B /* MarkdownTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
+		18C132232599C02600D1529B /* MarkdownTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkdownTextView.h; sourceTree = "<group>"; };
+		18C132242599C02600D1529B /* MarkdownHeaderHighlighter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownHeaderHighlighter.swift; sourceTree = "<group>"; };
+		18C132252599C02600D1529B /* TextUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextUtilities.swift; sourceTree = "<group>"; };
+		18C132272599C02600D1529B /* MDKeyboardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDKeyboardView.swift; sourceTree = "<group>"; };
+		18C1323D2599C5D000D1529B /* MDEditorSimpleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorSimpleViewController.swift; sourceTree = "<group>"; };
+		18C132412599DC1B00D1529B /* MarkdownOrderListHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownOrderListHighlighter.swift; sourceTree = "<group>"; };
 		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
 		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
 		18CA46E82576536500F1D609 /* BookmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkView.swift; sourceTree = "<group>"; };
@@ -740,6 +765,7 @@
 		1865AEF1244C5D8F0006B48D /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				18C132172599C02600D1529B /* MarkdownTextView */,
 				1816364F2591E17E004F7108 /* Cache */,
 				184BE520258C8933001429DD /* PopMenu */,
 				186A34F2258349090003E926 /* MD */,
@@ -1023,6 +1049,7 @@
 			children = (
 				188BD40925946D3A0050D896 /* MDEditorViewController.swift */,
 				188BD416259488D30050D896 /* NoteInfoViewModel.swift */,
+				18C1323D2599C5D000D1529B /* MDEditorSimpleViewController.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -1096,6 +1123,49 @@
 			children = (
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		18C132172599C02600D1529B /* MarkdownTextView */ = {
+			isa = PBXGroup;
+			children = (
+				18C132472599DCDD00D1529B /* Utils */,
+				18C132452599DC9900D1529B /* Core */,
+				18C132442599DC7F00D1529B /* Highlighter */,
+			);
+			path = MarkdownTextView;
+			sourceTree = "<group>";
+		};
+		18C132442599DC7F00D1529B /* Highlighter */ = {
+			isa = PBXGroup;
+			children = (
+				18C1321B2599C02600D1529B /* MarkdownAttributes.swift */,
+				18C1321A2599C02600D1529B /* HighlighterType.swift */,
+				18C132412599DC1B00D1529B /* MarkdownOrderListHighlighter.swift */,
+				18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */,
+				18C132242599C02600D1529B /* MarkdownHeaderHighlighter.swift */,
+			);
+			path = Highlighter;
+			sourceTree = "<group>";
+		};
+		18C132452599DC9900D1529B /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				18C132232599C02600D1529B /* MarkdownTextView.h */,
+				18C132222599C02600D1529B /* MarkdownTextView.swift */,
+				18C132202599C02600D1529B /* MarkdownTextStorage.swift */,
+				18C132212599C02600D1529B /* HighlighterTextStorage.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		18C132472599DCDD00D1529B /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				18C132192599C02600D1529B /* TextUtils.swift */,
+				18C132252599C02600D1529B /* TextUtilities.swift */,
+				18C132272599C02600D1529B /* MDKeyboardView.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		18CED670249F73EE009181E0 /* Cells */ = {
@@ -1516,6 +1586,7 @@
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
 				1848ABCF24ED1ACF00BFE0DF /* ImageZoomView.swift in Sources */,
 				18286B932587632000541526 /* Note.swift in Sources */,
+				18C132322599C02600D1529B /* MarkdownTextStorage.swift in Sources */,
 				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
@@ -1534,10 +1605,12 @@
 				182BE8F024989C7400C85F8F /* TitleTextField.swift in Sources */,
 				186A354725834E2E0003E926 /* hoedown_html_patch.c in Sources */,
 				184BE518258C83F9001429DD /* PopMenuController.swift in Sources */,
+				18C1323E2599C5D000D1529B /* MDEditorSimpleViewController.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
 				18E7BF8C248C94F300B8AEC1 /* IconLabel.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
 				18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */,
+				18C1322D2599C02600D1529B /* MarkdownAttributes.swift in Sources */,
 				1899EB44258772920003F4D6 /* NoteCardNode.swift in Sources */,
 				1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */,
 				18E7BF95248C9D2C00B8AEC1 /* EmojiRepo.swift in Sources */,
@@ -1547,6 +1620,7 @@
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1859304424BAA00600D1352A /* BoardCategory.swift in Sources */,
 				18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */,
+				18C132352599C02600D1529B /* MarkdownHeaderHighlighter.swift in Sources */,
 				186A3424258323310003E926 /* Config.swift in Sources */,
 				18251C1A249B29C700484D23 /* NoteMenuViewController.swift in Sources */,
 				1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */,
@@ -1557,10 +1631,12 @@
 				180256B6257F8DE900BF5804 /* HTMLMeta.swift in Sources */,
 				1859302E24BA950400D1352A /* SQLiteDatabase.swift in Sources */,
 				18E7BF7D248BCA9900B8AEC1 /* UIView+Border.swift in Sources */,
+				18C132422599DC1B00D1529B /* MarkdownOrderListHighlighter.swift in Sources */,
 				1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */,
 				18E9568D2449AC45003755BF /* HomeViewController.swift in Sources */,
 				18DCC91F24EA744B000B4BF1 /* CardCellNode.swift in Sources */,
 				18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */,
+				18C132342599C02600D1529B /* MarkdownTextView.swift in Sources */,
 				18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */,
 				1899EB4E258A25160003F4D6 /* ToolbarProvider.swift in Sources */,
 				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
@@ -1572,6 +1648,7 @@
 				188BD403259311FD0050D896 /* MDEditorViewProvider.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
+				18C1322C2599C02600D1529B /* HighlighterType.swift in Sources */,
 				186A33F825831A570003E926 /* UIControlMenu+Helpers.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
@@ -1593,6 +1670,7 @@
 				1870041B24C99F2F00AE784C /* HomeToolbar.swift in Sources */,
 				1859303F24BAA00600D1352A /* BoardCategoryInfo.swift in Sources */,
 				182B0D52245FCEC800C6DC70 /* TodoFooterView.swift in Sources */,
+				18C132302599C02600D1529B /* MarkdownListHighlighter.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,
 				1865AF16244DCB850006B48D /* TextBlockCell.swift in Sources */,
 				1848ABD124ED1C3800BFE0DF /* ImageBlockView.swift in Sources */,
@@ -1614,6 +1692,7 @@
 				18E956712449A3F0003755BF /* AppDelegate.swift in Sources */,
 				186A354825834E2E0003E926 /* html_blocks.c in Sources */,
 				181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */,
+				18C1322B2599C02600D1529B /* TextUtils.swift in Sources */,
 				186A340425831B0F0003E926 /* InteractiveModal.swift in Sources */,
 				182BE8FE249A151000C85F8F /* ChooseBoardCell.swift in Sources */,
 				188BD41425946FE10050D896 /* NoteContentCellNode.swift in Sources */,
@@ -1638,6 +1717,7 @@
 				186A352A25834E200003E926 /* MarkdownRender.m in Sources */,
 				18E956912449B135003755BF /* SceneDelegate.swift in Sources */,
 				18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */,
+				18C132382599C02600D1529B /* MDKeyboardView.swift in Sources */,
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
 				186D61872590906E006307A0 /* Constants.swift in Sources */,
 				181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */,
@@ -1654,10 +1734,12 @@
 				1859303424BA9E3500D1352A /* Board.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
 				18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */,
+				18C132362599C02600D1529B /* TextUtilities.swift in Sources */,
 				181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */,
 				18F57C35256FD70800834DB5 /* MDEditorView.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				186A34F8258349550003E926 /* Configure.swift in Sources */,
+				18C132332599C02600D1529B /* HighlighterTextStorage.swift in Sources */,
 				1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */,
 				186A33FE25831A570003E926 /* UIControlMenuView.swift in Sources */,
 				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,

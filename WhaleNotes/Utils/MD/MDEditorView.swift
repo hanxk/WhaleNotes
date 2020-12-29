@@ -354,9 +354,6 @@ extension MDEditorView {
 }
 
 extension UITextView {
-    func getLineString() -> String {
-        return (self.text! as NSString).substring(with: (self.text! as NSString).lineRange(for: self.selectedRange))
-    }
     
     func getCursorTextRange() -> UITextRange? {
         guard let selectedRange = self.selectedTextRange else { return nil}

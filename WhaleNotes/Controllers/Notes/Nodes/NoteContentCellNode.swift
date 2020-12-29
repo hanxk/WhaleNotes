@@ -37,11 +37,17 @@ class NoteContentCellNode:ASCellNode {
 //        contentNode.attributedText = NSMutableAttributedString(string: title, attributes: getTitleAttributes())
         self.addSubnode(contentNode)
         
-        let mdHelper = MDHelper(editView: contentNode.textView)
-        self.mdHelper = mdHelper
+//        let mdHelper = MDHelper(editView: contentNode.textView)
+//        self.mdHelper = mdHelper
 //        mdHelper.loadText(content)
         self.contentNode.attributedText = NSMutableAttributedString(string: title, attributes: getContentAttributes())
-        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
+        
+//        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
+//        self.textChanged?(self.contentNode.textView.text)
+        
+        timer2?.invalidate()
+        timer2 = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight(sender:)), userInfo: nil, repeats: false)
+//        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
     }
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -127,7 +133,7 @@ extension NoteContentCellNode: ASEditableTextNodeDelegate {
     }
     
     @objc func highlight(sender: Timer) {
-        let range = sender.userInfo as! NSRange
+        let range = sender.userInfo as? NSRange
         highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: range)
         self.textChanged?(self.contentNode.textView.text)
     }

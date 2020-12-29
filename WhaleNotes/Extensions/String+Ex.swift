@@ -220,4 +220,72 @@ extension String {
         let endIndex = index(from: r.upperBound)
         return String(self[startIndex..<endIndex])
     }
+    
+    static func getSymbolRange(text: String) ->Range<String.Index>?  {
+        let matchRange = text.range(of: #"(?:(?:[*+-])[ ])"#,
+                                       options: .regularExpression) //.utf16Offset(in: self)
+        return matchRange
+    }
+    
+    func range(of regex:String) -> NSRange? {
+        guard let matchRange = self.range(of: regex,
+                                          options: .regularExpression) else { return nil } //.utf16Offset(in: self)
+        let loc =  matchRange.lowerBound.utf16Offset(in: self)
+        let len =  matchRange.upperBound.utf16Offset(in: self)
+        return NSMakeRange(loc, len)
+    }
+}
+
+
+extension String {
+    
+    var isValidFileName: Bool {
+        let pattern = "^[^\\.\\*\\:/]+$"
+        let predicate = NSPredicate(format: "SELF MATCHES %@", pattern)
+        return predicate.evaluate(with: self)
+    }
+    
+    static var unique: String {
+        let time = Date().timeIntervalSince1970
+        return time.toString
+    }
+    
+    func firstMatch(_ exp: String) -> String? {
+        guard let range = firstMatchRange(exp) else { return nil }
+        return substring(with: range)
+    }
+    
+    func firstMatchRange(_ exp: String) -> NSRange? {
+        guard let exp = try? NSRegularExpression(pattern: exp, options: .anchorsMatchLines) else { return nil }
+        
+        guard let range = exp.firstMatch(in: self, options: .reportCompletion, range: NSRange(startIndex..., in: self))?.range else { return nil }
+        if range.location == NSNotFound {
+            return nil
+        }
+        return range
+    }
+    
+    func matchsCount(_ exp: String) -> Int {
+        guard let exp = try? NSRegularExpression(pattern: exp, options: .caseInsensitive) else { return 0 }
+        return exp.matches(in: self, options: .reportCompletion, range: NSRange(startIndex..., in: self)).count
+    }
+    
+    func substring(with nsRange: NSRange) -> String {
+        let str = self as NSString
+        return str.substring(with: nsRange)
+    }
+    
+    func replacingCharacters(in nsRange: NSRange, with newString: String) -> String {
+        let str = self as NSString
+        return str.replacingCharacters(in: nsRange, with: newString)
+    }
+    
+    
+    func firstIntIndex(of member:String.Element) -> Int {
+        return self.firstIndex(of: member)?.utf16Offset(in: self)  ?? -1
+    }
+    
+    func lastIntIndex(of member:String.Element) -> Int {
+        return self.lastIndex(of: member)?.utf16Offset(in: self)  ?? -1
+    }
 }

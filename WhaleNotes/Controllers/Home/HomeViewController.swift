@@ -68,6 +68,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setup()
+        
+        let editorVC = MDEditorSimpleViewController()
+        self.navigationController?.pushViewController(editorVC, animated: true)
     }
     
     
