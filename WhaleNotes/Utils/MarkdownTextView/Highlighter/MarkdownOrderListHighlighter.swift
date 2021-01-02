@@ -68,9 +68,9 @@ extension MarkdownOrderListHighlighter {
     
     func handleOrderListInput(textStorage:MarkdownTextStorage,lineText: String,inputText:String,range:NSRange, offset: Int) {
         
-        let isNumOnly = lineText.firstIntIndex(of: ".") == lineText.count - 2
+        let isNumOnly = lineText.firstIntIndex(of: ".") == lineText.utf16Count - 2
         if isNumOnly {//最后一行,并且只有一个符号
-            let replaceRange = NSMakeRange(range.location-lineText.count, lineText.count+1)
+            let replaceRange = NSMakeRange(range.location-lineText.utf16Count, lineText.utf16Count+1)
             textStorage.replaceCharactersInRange(replaceRange, withString: "", selectedRangeLocationMove: -1)
             
             let cursorPos = replaceRange.location
@@ -82,7 +82,7 @@ extension MarkdownOrderListHighlighter {
         let prefix = "\(numPrefix). "
         let newText = ENTER_KEY+prefix
         let newRange = NSMakeRange(range.location, 1)
-        let move = newText.count-1
+        let move = newText.count - 1
         textStorage.replaceCharactersInRange(newRange, withString: newText,selectedRangeLocationMove: move)
         
         //更新其它行

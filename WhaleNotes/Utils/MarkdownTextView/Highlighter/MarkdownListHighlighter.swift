@@ -59,7 +59,7 @@ private func listItemRegexWithMarkerPattern(pattern: String) -> NSRegularExpress
     return regexFromPattern(pattern: "^(?:[ ]{0,3}(?:\(pattern))[ \t]+)(.*)")
     
     //v [*+-]  ^(?:[ ]{0,3}(?:[*+-])[ \t]+)(.+)  - \\[( |x)\\] .*
-//    return regexFromPattern(pattern: "- \\[( |x)\\] .*")
+//    return regexFromPattern(pattern: "- \\[( |x)\\] .*")  
     
 }
 

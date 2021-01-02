@@ -140,12 +140,12 @@ extension MDEditorViewController {
             self.updateInputTitle(titleCelleNode.title)
             return
         }
-        if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
-           contentCelleNode.contentNode.isFirstResponder()
-           {
-            self.updateInputContent(contentCelleNode.content)
-            return
-        }
+//        if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
+//           contentCelleNode.contentNode.isFirstResponder()
+//           {
+//            self.updateInputContent(contentCelleNode.content)
+//            return
+//        }
     }
 //    private func tryResignResponder() {
 //        if !isKeyboardShow  { return }
@@ -202,7 +202,7 @@ extension MDEditorViewController {
             return
         }
         if let contentCell = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as? NoteContentCellNode {
-            contentCell.contentNode.becomeFirstResponder()
+//            contentCell.contentNode.becomeFirstResponder()
         }
     }
 }
@@ -315,7 +315,7 @@ extension MDEditorViewController:ASTableDataSource {
     
     func jump2ContentFirstWord() {
         if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode {
-            contentCelleNode.contentNode.becomeFirstResponder()
+//            contentCelleNode.contentNode.becomeFirstResponder()
 //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
 //                // your code here
 //                contentCelleNode.contentNode.selectedRange = NSMakeRange(0, 0)

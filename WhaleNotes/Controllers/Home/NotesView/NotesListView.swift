@@ -94,12 +94,12 @@ class NotesListView: UIView {
     }
     
     func openEditorVC(noteInfo:NoteInfo) {
-//       let editorVC = MDEditorViewController()
-//        editorVC.noteInfo = noteInfo
-//        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
-//            self?.handleNoteInfoUpdated(noteInfo)
-//        }
-       let editorVC = MDEditorSimpleViewController()
+       let editorVC = NoteEditorViewController()
+        editorVC.noteInfo = noteInfo
+        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
+            self?.handleNoteInfoUpdated(noteInfo)
+        }
+//       let editorVC = MDEditorSimpleViewController()
        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }
 }

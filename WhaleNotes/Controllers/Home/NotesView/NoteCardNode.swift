@@ -93,14 +93,18 @@ class NoteCardNode: ASCellNode {
         
         
         if isEditing  {
-            $0.shadowColor = UIColor(red: 0.169, green: 0.161, blue: 0.18, alpha: 0.09).cgColor
+            $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.7).cgColor
             $0.shadowOpacity = 1
-            $0.shadowRadius = 8
-            $0.shadowOffset = CGSize(width: 2, height: 2)
+            $0.shadowRadius = 4
+            $0.shadowOffset = .zero
             
-            $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
+//            $0.layer.borderWidth = 1
+//            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
         }
+        $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.6).cgColor
+        $0.shadowOpacity = 1
+        $0.shadowRadius = 6
+        $0.shadowOffset = .zero
         
         //        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03).cgColor
         //        $0.shadowRadius = 5
@@ -266,26 +270,25 @@ extension NoteCardNode {
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
         let font =  UIFont.systemFont(ofSize: 18, weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.2
+        paragraphStyle.lineHeightMultiple = 1.1
         paragraphStyle.lineBreakMode = .byWordWrapping;
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .paragraphStyle: paragraphStyle,
-            .foregroundColor:UIColor.cardTitle
+            .foregroundColor:UIColor.cardText
         ]
         return attributes
     }
     
     func getContentAttributes() -> [NSAttributedString.Key: Any] {
         
-        let font =  UIFont.systemFont(ofSize: 16, weight: .regular)
+        let font =  UIFont.systemFont(ofSize: 15, weight: .regular)
         
         let paragraphStyle = { () -> NSMutableParagraphStyle in
             let paraStyle = NSMutableParagraphStyle()
-            paraStyle.maximumLineHeight = 23
-            paraStyle.minimumLineHeight = 23
-            paraStyle.lineSpacing = 3
+            paraStyle.lineHeightMultiple = 1.2
+            paraStyle.lineBreakMode = .byWordWrapping;
             return paraStyle
         }()
         

@@ -187,7 +187,8 @@ extension UIColor {
     open class var bg: UIColor {
         get {
             
-            return UIColor.init(hexString: "#f8f8f8")
+//            return UIColor.init(hexString: "#f8f8f8")
+            return UIColor.init(hexString: "#fafafa")
         }
     }
     
@@ -198,7 +199,7 @@ extension UIColor {
     }
     open class var cardText: UIColor {
         get {//37352F
-            UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#37352F")
         }
     }
     

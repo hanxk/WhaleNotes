@@ -10,15 +10,31 @@ import AsyncDisplayKit
 
 
 class NoteContentCellNode:ASCellNode {
-    lazy var contentNode = ASEditableTextNode().then {
-        $0.textContainerInset = UIEdgeInsets(top: 6, left: MDEditorConfig.paddingH, bottom: 0, right: MDEditorConfig.paddingH)
-        $0.scrollEnabled = false
-        $0.placeholderEnabled = true
-        $0.typingAttributes = getContentAttributesString()
-        $0.attributedPlaceholderText = getContentPlaceHolderAttributesString()
-        $0.delegate = self
-        $0.textView.tag = EditViewTag.content.rawValue
+//    lazy var contentNode = ASEditableTextNode().then {
+//        $0.textContainerInset = UIEdgeInsets(top: 6, left: MDEditorConfig.paddingH, bottom: 0, right: MDEditorConfig.paddingH)
+//        $0.scrollEnabled = false
+//        $0.placeholderEnabled = true
+//        $0.typingAttributes = getContentAttributesString()
+//        $0.attributedPlaceholderText = getContentPlaceHolderAttributesString()
+//        $0.delegate = self
+//        $0.textView.tag = EditViewTag.content.rawValue
+//    }
+    
+    
+    var textViewH:CGFloat = 100
+    
+    lazy var textView = MarkdownTextView(frame: .zero).then {
+        $0.isScrollEnabled = false
+        $0.delegate =  self
+        $0.backgroundColor  = .red
     }
+    
+    lazy var textNode = ASDisplayNode { () -> UIView in
+        
+        return self.textView
+    }
+    
+    
     private(set) var content:String  = ""
     
     //md
@@ -35,24 +51,30 @@ class NoteContentCellNode:ASCellNode {
         super.init()
         self.content = title
 //        contentNode.attributedText = NSMutableAttributedString(string: title, attributes: getTitleAttributes())
-        self.addSubnode(contentNode)
+//        self.addSubnode(contentNode)
         
+        self.addSubnode(textNode)
+        self.backgroundColor =  .blue
 //        let mdHelper = MDHelper(editView: contentNode.textView)
 //        self.mdHelper = mdHelper
 //        mdHelper.loadText(content)
-        self.contentNode.attributedText = NSMutableAttributedString(string: title, attributes: getContentAttributes())
+        self.textView.attributedText = NSMutableAttributedString(string: title, attributes: getContentAttributes())
         
 //        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
-//        self.textChanged?(self.contentNode.textView.text)
+        self.textChanged?(title)
         
-        timer2?.invalidate()
-        timer2 = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight(sender:)), userInfo: nil, repeats: false)
+//        timer2?.invalidate()
+//        timer2 = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight(sender:)), userInfo: nil, repeats: false)
 //        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
     }
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         let insets = UIEdgeInsets(top:0, left: 0, bottom: 0, right: 0)
-        return  ASInsetLayoutSpec(insets: insets, child: contentNode)
+        textNode.style.width = ASDimensionMake(constrainedSize.max.width)
+        textNode.style.height = ASDimensionMake(textViewH+10)
+//        adjustUITextViewHeight(arg: textView)
+        
+        return  ASInsetLayoutSpec(insets: insets, child: textNode)
     }
     
     
@@ -61,6 +83,12 @@ class NoteContentCellNode:ASCellNode {
     }
     func textDidFinishEditing(action: @escaping (String) -> Void) {
         self.textDidFinishEditing = action
+    }
+    
+    func adjustUITextViewHeight(arg : UITextView)
+    {
+        arg.translatesAutoresizingMaskIntoConstraints = true
+        arg.sizeToFit()
     }
 }
 
@@ -134,8 +162,8 @@ extension NoteContentCellNode: ASEditableTextNodeDelegate {
     
     @objc func highlight(sender: Timer) {
         let range = sender.userInfo as? NSRange
-        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: range)
-        self.textChanged?(self.contentNode.textView.text)
+//        highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: range)
+//        self.textChanged?(self.contentNode.textView.text)
     }
     
     func newLine2(_ last: String) -> String {
@@ -199,5 +227,19 @@ extension NoteContentCellNode {
 
     private func getContentAttributes() -> [NSAttributedString.Key: Any] {
         return highlightmanager.getTextStyleAttributes()
+    }
+}
+
+extension NoteContentCellNode:UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        
+        let fixedWidth = textView.frame.size.width
+//           textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+//           let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+//
+//        self.textViewH = newSize.height
+//        print(self.textViewH)
+        self.textViewH  += 40
+        self.textChanged?(textView.text)
     }
 }

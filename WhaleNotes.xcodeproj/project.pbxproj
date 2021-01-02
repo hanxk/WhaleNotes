@@ -56,6 +56,8 @@
 		183B00F1258CB5D300A52BDC /* NoteTagDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183B00F0258CB5D300A52BDC /* NoteTagDao.swift */; };
 		183FFA9D246952EB00FDA179 /* ContextMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */; };
 		183FFAA02469535500FDA179 /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183FFA9F2469535500FDA179 /* ContextMenuCell.swift */; };
+		18437E38259D962C004A4D17 /* MDBulletListHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18437E37259D962C004A4D17 /* MDBulletListHighlighter.swift */; };
+		18437E3B259DA369004A4D17 /* MyLayoutManger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18437E3A259DA369004A4D17 /* MyLayoutManger.swift */; };
 		1847ADA924A091D3007B39EE /* PhotoPageIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */; };
 		1847ADAC24A1EE49007B39EE /* BoardSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADAB24A1EE49007B39EE /* BoardSettingViewController.swift */; };
 		1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847ADAE24A1F1B5007B39EE /* BoardSettingItemCell.swift */; };
@@ -168,13 +170,15 @@
 		18C1322D2599C02600D1529B /* MarkdownAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321B2599C02600D1529B /* MarkdownAttributes.swift */; };
 		18C132302599C02600D1529B /* MarkdownListHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */; };
 		18C132322599C02600D1529B /* MarkdownTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132202599C02600D1529B /* MarkdownTextStorage.swift */; };
-		18C132332599C02600D1529B /* HighlighterTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132212599C02600D1529B /* HighlighterTextStorage.swift */; };
 		18C132342599C02600D1529B /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132222599C02600D1529B /* MarkdownTextView.swift */; };
-		18C132352599C02600D1529B /* MarkdownHeaderHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132242599C02600D1529B /* MarkdownHeaderHighlighter.swift */; };
+		18C132352599C02600D1529B /* MDHeaderHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132242599C02600D1529B /* MDHeaderHighlighter.swift */; };
 		18C132362599C02600D1529B /* TextUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132252599C02600D1529B /* TextUtilities.swift */; };
 		18C132382599C02600D1529B /* MDKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132272599C02600D1529B /* MDKeyboardView.swift */; };
 		18C1323E2599C5D000D1529B /* MDEditorSimpleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1323D2599C5D000D1529B /* MDEditorSimpleViewController.swift */; };
 		18C132422599DC1B00D1529B /* MarkdownOrderListHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132412599DC1B00D1529B /* MarkdownOrderListHighlighter.swift */; };
+		18C13253259B413B00D1529B /* NoteEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C13252259B413B00D1529B /* NoteEditorViewController.swift */; };
+		18C13256259B48CB00D1529B /* NoteTitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C13255259B48CB00D1529B /* NoteTitleCell.swift */; };
+		18C13259259B4AFA00D1529B /* NoteContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C13258259B4AFA00D1529B /* NoteContentCell.swift */; };
 		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
 		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
 		18CA46E92576536500F1D609 /* BookmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CA46E82576536500F1D609 /* BookmarkView.swift */; };
@@ -285,6 +289,8 @@
 		183B00F0258CB5D300A52BDC /* NoteTagDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTagDao.swift; sourceTree = "<group>"; };
 		183FFA9C246952EB00FDA179 /* ContextMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuViewController.swift; sourceTree = "<group>"; };
 		183FFA9F2469535500FDA179 /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
+		18437E37259D962C004A4D17 /* MDBulletListHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDBulletListHighlighter.swift; sourceTree = "<group>"; };
+		18437E3A259DA369004A4D17 /* MyLayoutManger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyLayoutManger.swift; sourceTree = "<group>"; };
 		1847ADA824A091D3007B39EE /* PhotoPageIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPageIndicatorView.swift; sourceTree = "<group>"; };
 		1847ADAB24A1EE49007B39EE /* BoardSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingViewController.swift; sourceTree = "<group>"; };
 		1847ADAE24A1F1B5007B39EE /* BoardSettingItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSettingItemCell.swift; sourceTree = "<group>"; };
@@ -409,14 +415,16 @@
 		18C1321B2599C02600D1529B /* MarkdownAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownAttributes.swift; sourceTree = "<group>"; };
 		18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownListHighlighter.swift; sourceTree = "<group>"; };
 		18C132202599C02600D1529B /* MarkdownTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownTextStorage.swift; sourceTree = "<group>"; };
-		18C132212599C02600D1529B /* HighlighterTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HighlighterTextStorage.swift; sourceTree = "<group>"; };
 		18C132222599C02600D1529B /* MarkdownTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		18C132232599C02600D1529B /* MarkdownTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkdownTextView.h; sourceTree = "<group>"; };
-		18C132242599C02600D1529B /* MarkdownHeaderHighlighter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownHeaderHighlighter.swift; sourceTree = "<group>"; };
+		18C132242599C02600D1529B /* MDHeaderHighlighter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDHeaderHighlighter.swift; sourceTree = "<group>"; };
 		18C132252599C02600D1529B /* TextUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextUtilities.swift; sourceTree = "<group>"; };
 		18C132272599C02600D1529B /* MDKeyboardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDKeyboardView.swift; sourceTree = "<group>"; };
 		18C1323D2599C5D000D1529B /* MDEditorSimpleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorSimpleViewController.swift; sourceTree = "<group>"; };
 		18C132412599DC1B00D1529B /* MarkdownOrderListHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownOrderListHighlighter.swift; sourceTree = "<group>"; };
+		18C13252259B413B00D1529B /* NoteEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorViewController.swift; sourceTree = "<group>"; };
+		18C13255259B48CB00D1529B /* NoteTitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTitleCell.swift; sourceTree = "<group>"; };
+		18C13258259B4AFA00D1529B /* NoteContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteContentCell.swift; sourceTree = "<group>"; };
 		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
 		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
 		18CA46E82576536500F1D609 /* BookmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkView.swift; sourceTree = "<group>"; };
@@ -1032,6 +1040,7 @@
 				186DDE7F249323AE00A4C63C /* Layout */,
 				188942AC24702A2B006173F8 /* Cells */,
 				188942AA246FDC1F006173F8 /* NotesView.swift */,
+				18C13252259B413B00D1529B /* NoteEditorViewController.swift */,
 			);
 			path = Notes;
 			sourceTree = "<group>";
@@ -1040,6 +1049,8 @@
 			isa = PBXGroup;
 			children = (
 				18E9D6C224715112001E41A0 /* NoteCellNode.swift */,
+				18C13258259B4AFA00D1529B /* NoteContentCell.swift */,
+				18C13255259B48CB00D1529B /* NoteTitleCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -1142,7 +1153,8 @@
 				18C1321A2599C02600D1529B /* HighlighterType.swift */,
 				18C132412599DC1B00D1529B /* MarkdownOrderListHighlighter.swift */,
 				18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */,
-				18C132242599C02600D1529B /* MarkdownHeaderHighlighter.swift */,
+				18C132242599C02600D1529B /* MDHeaderHighlighter.swift */,
+				18437E37259D962C004A4D17 /* MDBulletListHighlighter.swift */,
 			);
 			path = Highlighter;
 			sourceTree = "<group>";
@@ -1153,7 +1165,7 @@
 				18C132232599C02600D1529B /* MarkdownTextView.h */,
 				18C132222599C02600D1529B /* MarkdownTextView.swift */,
 				18C132202599C02600D1529B /* MarkdownTextStorage.swift */,
-				18C132212599C02600D1529B /* HighlighterTextStorage.swift */,
+				18437E3A259DA369004A4D17 /* MyLayoutManger.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -1620,7 +1632,7 @@
 				188328F2245320740097A01D /* ImageCell.swift in Sources */,
 				1859304424BAA00600D1352A /* BoardCategory.swift in Sources */,
 				18A9C54124AD8FC40025E0EB /* UICollectionView+Ex.swift in Sources */,
-				18C132352599C02600D1529B /* MarkdownHeaderHighlighter.swift in Sources */,
+				18C132352599C02600D1529B /* MDHeaderHighlighter.swift in Sources */,
 				186A3424258323310003E926 /* Config.swift in Sources */,
 				18251C1A249B29C700484D23 /* NoteMenuViewController.swift in Sources */,
 				1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */,
@@ -1641,10 +1653,13 @@
 				1899EB4E258A25160003F4D6 /* ToolbarProvider.swift in Sources */,
 				1847ADB324A1F9BC007B39EE /* BoardSettingTitleCell.swift in Sources */,
 				18DCC91C24EA70E2000B4BF1 /* BoardView.swift in Sources */,
+				18C13259259B4AFA00D1529B /* NoteContentCell.swift in Sources */,
 				18286BA825876BED00541526 /* NotesListView.swift in Sources */,
 				186A352525834D300003E926 /* NSData+MD5.m in Sources */,
+				18437E3B259DA369004A4D17 /* MyLayoutManger.swift in Sources */,
 				189E6C0F2590888E002DE0C8 /* SideMenuCell.swift in Sources */,
 				1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */,
+				18C13256259B48CB00D1529B /* NoteTitleCell.swift in Sources */,
 				188BD403259311FD0050D896 /* MDEditorViewProvider.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
@@ -1693,6 +1708,7 @@
 				186A354825834E2E0003E926 /* html_blocks.c in Sources */,
 				181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */,
 				18C1322B2599C02600D1529B /* TextUtils.swift in Sources */,
+				18437E38259D962C004A4D17 /* MDBulletListHighlighter.swift in Sources */,
 				186A340425831B0F0003E926 /* InteractiveModal.swift in Sources */,
 				182BE8FE249A151000C85F8F /* ChooseBoardCell.swift in Sources */,
 				188BD41425946FE10050D896 /* NoteContentCellNode.swift in Sources */,
@@ -1702,6 +1718,7 @@
 				18E7BF9E248CC67700B8AEC1 /* EmojiCollectionCell.swift in Sources */,
 				188BD40025930AFC0050D896 /* MDHelper.swift in Sources */,
 				182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */,
+				18C13253259B413B00D1529B /* NoteEditorViewController.swift in Sources */,
 				18E7BF93248C9C5000B8AEC1 /* BoardCategoryViewController.swift in Sources */,
 				189E6BF9258EF2B3002DE0C8 /* FlowCollectionLayoutDelegate.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
@@ -1739,7 +1756,6 @@
 				18F57C35256FD70800834DB5 /* MDEditorView.swift in Sources */,
 				1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */,
 				186A34F8258349550003E926 /* Configure.swift in Sources */,
-				18C132332599C02600D1529B /* HighlighterTextStorage.swift in Sources */,
 				1848ABD724EEBAEE00BFE0DF /* TodoCellProvider.swift in Sources */,
 				186A33FE25831A570003E926 /* UIControlMenuView.swift in Sources */,
 				18F57C24256D149F00834DB5 /* MyPopViewController.swift in Sources */,

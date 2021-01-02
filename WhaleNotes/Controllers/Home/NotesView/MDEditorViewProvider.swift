@@ -59,9 +59,9 @@ class MDEditorViewProvider: NSObject, NoteCardProvider {
     
     
     func getContentAttributes() -> [NSAttributedString.Key: Any] {
-        let font =  UIFont.systemFont(ofSize: 16, weight: .regular)
+        let font =  UIFont.systemFont(ofSize: 15, weight: .regular)
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.3
+        paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.lineBreakMode = .byWordWrapping;
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,

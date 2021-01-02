@@ -9,17 +9,16 @@ import UIKit
 
 let paragraphStyle = { () -> NSMutableParagraphStyle in
     let paraStyle = NSMutableParagraphStyle()
-    paraStyle.maximumLineHeight = 23
-    paraStyle.minimumLineHeight = 23
-    paraStyle.lineSpacing = 3
+    paraStyle.lineHeightMultiple = 1.2
     return paraStyle
 }()
 
 class HighlightStyle {
-    static var boldFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(Configure.shared.fontSize.value), weight: UIFont.Weight.medium)
-    static var normalFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(Configure.shared.fontSize.value), weight: UIFont.Weight.regular)
+    static var boldFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(16), weight: UIFont.Weight.medium)
+    static var normalFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(16), weight: UIFont.Weight.regular)
     
-    var textColor: UIColor = Configure.shared.theme.value == .black ? rgb(200,200,190) : rgb(54,54,64)
+//    var textColor: UIColor = Configure.shared.theme.value == .black ? rgb(200,200,190) : rgb(54,54,64)
+    var textColor: UIColor = UIColor.primaryText
     var backgroundColor: UIColor = .clear
     var italic: Bool = false
     var bold: Bool = false
@@ -59,21 +58,26 @@ struct MarkdownHighlightManager {
     let syntaxArray: [Syntax] = [
         Syntax("^#{1,6} .*", .anchorsMatchLines) {
             $0.bold = true
-            $0.textColor = Configure.shared.theme.value == .black ? rgb(240,240,240) : .black
+//            $0.textColor = Configure.shared.theme.value == .black ? rgb(240,240,240) : .black
+            $0.textColor = .primaryText
         },//header
         Syntax("^.*\\n={2,}$", .anchorsMatchLines) {
             $0.bold = true
-            $0.textColor = Configure.shared.theme.value == .black ? rgb(240,240,240) : rgb(89,89,184)
+//            $0.textColor = Configure.shared.theme.value == .black ? rgb(240,240,240) : rgb(89,89,184)
+            $0.textColor = .primaryText
         },//Title1
         Syntax("^.*\\n-{2,}$", .anchorsMatchLines) {
             $0.bold = true
-            $0.textColor = Configure.shared.theme.value == .black ? rgb(240,240,240) : rgb(89,89,184)
+//            $0.textColor = Configure.shared.theme.value == .black ? rgb(240,240,240) : rgb(89,89,184)
+            $0.textColor = .primaryText
         },//Title2
         Syntax("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ", .anchorsMatchLines){
-            $0.textColor = rgb(236,90,103)
+//            $0.textColor = rgb(236,90,103)
+            $0.textColor = .primaryText
         },//Lists
         Syntax("- \\[( |x)\\] .*",.anchorsMatchLines){
-            $0.textColor = rgb(6,82,120)
+//            $0.textColor = rgb(6,82,120)
+            $0.textColor = .primaryText
         },//TodoList
 //        Syntax("(\\[.+\\]\\([^\\)]+\\))|(<.+>)") {
 //            $0.textColor = rgb(66,110,179)

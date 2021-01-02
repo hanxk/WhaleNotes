@@ -28,6 +28,10 @@ extension String {
     var isWhiteHex: Bool {
         return  self.lowercased() == "#ffffff"
     }
+    
+    var utf16Count:Int {
+        return self.utf16.count
+    }
 }
 
 extension NSAttributedString {
@@ -202,7 +206,13 @@ extension String {
 }
 extension String {
     func index(from: Int) -> Index {
-        return self.index(startIndex, offsetBy: from)
+        
+        
+//        let fromB2 = String.Index(utf16Offset: , in: self)
+//        let toB2 = String.Index(utf16Offset: from, in: self)
+//        
+        return String.Index(utf16Offset: from, in: self)
+//        return self.index(startIndex, offsetBy: from)
     }
 
     func substring(from: Int) -> String {

@@ -12,96 +12,103 @@ import UIKit
 /**
 *  Text storage with support for highlighting Markdown.
 */
-public class MarkdownTextStorage: HighlighterTextStorage {
-    private let attributes: MarkdownAttributes
+public class MarkdownTextStorage: NSTextStorage {
     
-    lazy var listHighlighter =  MarkdownListHighlighter(markerPattern: "[*+-]", attributes: attributes.unorderedListAttributes, itemAttributes: attributes.unorderedListItemAttributes)
     
-    lazy var orderListHighlighter = MarkdownOrderListHighlighter(markerPattern: "\\d+[.]", attributes: attributes.orderedListAttributes, itemAttributes: attributes.orderedListItemAttributes)
+    let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
     
+    let bulletHightlighter = MDBulletListHighlighter()
+    
+    private var mdHighlighters:[MDHighlighterType] = []
+    
+    private  let backingStore:NSMutableAttributedString
+    var textView: UITextView!{
+        didSet {
+            
+            let wholeRange = NSRange(location: 0, length: (self.string as NSString).length)
+//            setAttributes(defaultAttributes, range: wholeRange)
+            
+            self.beginEditing()
+            self.applyStylesToRange(searchRange: wholeRange)
+            self.edited(.editedAttributes, range: wholeRange, changeInLength: 0)
+            self.endEditing()
+        }
+    }
+    private var defaultAttributes: TextAttributes = MarkdownAttributes.mdDefaultAttributes
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     public override init() {
-        self.attributes = MarkdownAttributes()
+        backingStore = NSMutableAttributedString(string: "", attributes: defaultAttributes)
         super.init()
-        commonInit()
-        
-        if let headerAttributes = attributes.headerAttributes {
-            addHighlighter(highlighter: MarkdownHeaderHighlighter(attributes: headerAttributes))
-        }
-        addHighlighter(highlighter: listHighlighter)
-        addHighlighter(highlighter: orderListHighlighter)
+        mdHighlighters.append(headerHightlighter)
     }
     
-    required public init?(coder aDecoder: NSCoder) {
-        attributes = MarkdownAttributes()
-        super.init(coder: aDecoder)
-        commonInit()
+    public override var string: String {
+        return backingStore.string
     }
     
-    private func commonInit() {
-        defaultAttributes = attributes.defaultAttributes
+    public override func attributes(
+      at location: Int,
+      effectiveRange range: NSRangePointer?
+    ) -> [NSAttributedString.Key: Any] {
+      let attr = backingStore.attributes(at: location, effectiveRange: range)
+     return attr
+    }
+    
+    
+    public override func replaceCharacters(in range: NSRange, with str: String) {
+        print("replaceCharacters: \(str)")
+      beginEditing()
+      backingStore.replaceCharacters(in: range, with:str)
+      edited(.editedCharacters, range: range,
+             changeInLength: str.utf16Count - range.length)
+      endEditing()
+    }
+      
+    public override func setAttributes(_ attrs: [NSAttributedString.Key: Any]?, range: NSRange) {
+      guard range.upperBound <= string.utf16Count else { return }
+      beginEditing()
+      backingStore.setAttributes(attrs, range: range)
+      edited(.editedAttributes, range: range, changeInLength: 0)
+      endEditing()
+    }
+    
+    public override func processEditing() {
+        performReplacementsForRange(changedRange: editedRange)
+        super.processEditing()
+    }
+    
+    func performReplacementsForRange(changedRange: NSRange) {
+        let lineRange = getCurrentLineRange(changedRange: changedRange)
+        applyStylesToRange(searchRange: lineRange)
+    }
+    
+    func applyStylesToRange(searchRange: NSRange) {
+      setAttributes(defaultAttributes, range: searchRange)
+      for highlighter in mdHighlighters {
+        highlighter.highlight(storage: self, searchRange: searchRange)
+      }
+    }
+
+    
+    private func editedAll(actions: NSTextStorage.EditActions) {
+        edited(actions, range: NSRange(location: 0, length: backingStore.length), changeInLength: 0)
     }
     
 }
 
-
-
-
-//LIST OR ORDERLIST
-extension MarkdownTextStorage {
-    override func enterKetInput(range:NSRange,inputText:String,lineText: String, offset: Int) {
-//        print("all string:\(string)")
-        if listHighlighter.match(text: lineText) { // 输入的是list
-            self.handleListInput(lineText: lineText,inputText:inputText, range: range, offset: offset)
-            return
-        }
-        if orderListHighlighter.match(text: lineText) { // 输入的是 order list
-//            self.handleOrderListInput(lineText: lineText,inputText:inputText, range: range, offset: offset)
-//            print("all string------>:\(string)")
-            self.orderListHighlighter.handleOrderListInput(textStorage: self, lineText: lineText, inputText: inputText, range: range, offset: offset)
-            return
-        }
-    }
-    
-    
-    private func handleListInput(lineText: String,inputText:String,range:NSRange, offset: Int) {
-        let match = lineText.range(of: #"(?:[ ]{0,3}(?:[*+-])[ ])"#,
-                                       options: .regularExpression)
-        let isNumOnly = match == (lineText.startIndex..<lineText.endIndex)
-        if isNumOnly {//最后一行,并且只有一个符号
-            let replaceRange = NSMakeRange(range.location-lineText.count, lineText.count+1)
-            replaceCharactersInRange(replaceRange, withString: "", selectedRangeLocationMove: -1)
-            return
-        }
-        
-        let matchRange = lineText.range(of: #"(?:(?:[*+-])[ ])"#,
-                                       options: .regularExpression)! //.utf16Offset(in: self)
-        let index =  matchRange.lowerBound.utf16Offset(in: lineText)
-        let extraSpace = lineText.substring(to:index )
-        
-        let prefix = lineText.substring(with:(index..<(index+2)))
-        let newText = "\n"+extraSpace+prefix
-        let newRange = NSMakeRange(range.location, 1)
-        replaceCharactersInRange(newRange, withString: newText,selectedRangeLocationMove: newText.count-1)
-    }
-    
-
+struct MarkdownHighlighter {
+    var pattern:String
+    var attributes:TextAttributes
 }
-
-
-
-
-extension MarkdownTextStorage {
-    
-}
-
-
-
 
 extension MarkdownTextStorage {
     func replaceCharactersInRange(_ replaceRange: NSRange, withString str: String, selectedRangeLocationMove: Int) {
           if textView.undoManager!.isUndoing {
               textView.selectedRange = NSMakeRange(textView.selectedRange.location - selectedRangeLocationMove, 0)
-              replaceCharactersInRange(NSMakeRange(replaceRange.location, str.count), withString: "")
+              replaceCharactersInRange(NSMakeRange(replaceRange.location, str.utf16Count), withString: "")
           } else {
             replaceCharactersInRange(replaceRange, withString: str)
             textView.selectedRange = NSMakeRange(replaceRange.location + selectedRangeLocationMove, 0)
@@ -110,3 +117,39 @@ extension MarkdownTextStorage {
 }
 
 
+
+extension NSMutableAttributedString {
+
+    func replaceCharactersInRange(_ range: NSRange, withString str: String) {
+        if isSafeRange(range) {
+            replaceCharacters(in: range, with: str)
+        }
+    }
+
+    func isSafeRange(_ range: NSRange) -> Bool {
+        if range.location < 0 {
+            return false
+        }
+        let maxLength = range.location + range.length
+        return maxLength <= string.utf16Count
+    }
+}
+
+extension MarkdownTextStorage {
+    private func tryGenerateNewLine(range: NSRange)  -> String {
+        
+        return ""
+    }
+    
+}
+
+extension MarkdownTextStorage {
+    private func getCurrentLineRange(changedRange:NSRange) -> NSRange {
+        let str = NSString(string: backingStore.string).lineRange(for: NSMakeRange(changedRange.location, 0))
+        var extendedRange = NSUnionRange(changedRange,str)
+        
+        let str2 = NSString(string: backingStore.string).lineRange(for: NSMakeRange(NSMaxRange(changedRange), 0))
+        extendedRange = NSUnionRange(changedRange,str2)
+        return extendedRange
+    }
+}

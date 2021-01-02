@@ -17,4 +17,13 @@ public protocol HighlighterType {
     *  Highlights the text in `attributedString`
     */
     func highlightAttributedString(attributedString: NSMutableAttributedString)
+    
+}
+
+public protocol MDHighlighterType {
+//    var patternRegex:NSRegularExpression { get }
+//    var itemAttributes:TextAttributes { get }
+//    var attributes:TextAttributes { get }
+    
+    func highlight(storage:MarkdownTextStorage,searchRange:NSRange)
 }

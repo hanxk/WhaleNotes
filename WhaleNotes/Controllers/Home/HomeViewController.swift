@@ -69,8 +69,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         super.viewDidLoad()
         self.setup()
         
-        let editorVC = MDEditorSimpleViewController()
-        self.navigationController?.pushViewController(editorVC, animated: true)
+//        let editorVC = MDEditorSimpleViewController()
+//        self.navigationController?.pushViewController(editorVC, animated: true)
     }
     
     

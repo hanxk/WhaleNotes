@@ -25,9 +25,9 @@ class TextUtils {
         let endStr  = string.substring(from: location)
         var end = endStr.firstIntIndex(of: "\n")
         if end ==  -1 {
-            end = string.count
+            end = string.utf16Count
         }else {
-            end = string.count - endStr.count +  end
+            end = string.utf16Count - endStr.utf16Count +  end
         }
 //        if end > string.count {
 //            end = string.count
