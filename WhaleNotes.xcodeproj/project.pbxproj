@@ -138,6 +138,7 @@
 		1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */; };
 		1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */; };
 		1879E6F3248F815B0014F3A7 /* TextFieldAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */; };
+		187CBE6425A00E6A00D86719 /* MDNumListHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187CBE6325A00E6800D86719 /* MDNumListHighlighter.swift */; };
 		188328F024531F530097A01D /* AttachmentsBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328EF24531F530097A01D /* AttachmentsBlockCell.swift */; };
 		188328F2245320740097A01D /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F1245320740097A01D /* ImageCell.swift */; };
 		188328F624540FB40097A01D /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188328F524540FB40097A01D /* Logger.swift */; };
@@ -383,6 +384,7 @@
 		1879E6EB248E455D0014F3A7 /* BaseAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6EF248F7E640014F3A7 /* MessageAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertViewController.swift; sourceTree = "<group>"; };
 		1879E6F2248F815B0014F3A7 /* TextFieldAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldAlertViewController.swift; sourceTree = "<group>"; };
+		187CBE6325A00E6800D86719 /* MDNumListHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDNumListHighlighter.swift; sourceTree = "<group>"; };
 		188328EF24531F530097A01D /* AttachmentsBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsBlockCell.swift; sourceTree = "<group>"; };
 		188328F1245320740097A01D /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		188328F524540FB40097A01D /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -1155,6 +1157,7 @@
 				18C1321E2599C02600D1529B /* MarkdownListHighlighter.swift */,
 				18C132242599C02600D1529B /* MDHeaderHighlighter.swift */,
 				18437E37259D962C004A4D17 /* MDBulletListHighlighter.swift */,
+				187CBE6325A00E6800D86719 /* MDNumListHighlighter.swift */,
 			);
 			path = Highlighter;
 			sourceTree = "<group>";
@@ -1668,6 +1671,7 @@
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,
+				187CBE6425A00E6A00D86719 /* MDNumListHighlighter.swift in Sources */,
 				18E7BF86248C8DE000B8AEC1 /* BoardSettingItemView.swift in Sources */,
 				18F57C28256D464300834DB5 /* CardSettingViewController.swift in Sources */,
 				18CA46E92576536500F1D609 /* BookmarkView.swift in Sources */,

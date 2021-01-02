@@ -18,6 +18,7 @@ public class MarkdownTextStorage: NSTextStorage {
     let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
     
     let bulletHightlighter = MDBulletListHighlighter()
+    let numListHightlighter = MDNumListHighlighter()
     
     private var mdHighlighters:[MDHighlighterType] = []
     
