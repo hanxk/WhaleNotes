@@ -43,7 +43,9 @@ public final class MDNumListHighlighter: MDHighlighterType {
     func matchSymbol(text:String,lineRange:NSRange) -> (NSRange)? {
         if let match = regex.firstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: lineRange) {
             if match.range.location != NSNotFound {
-                return match.range(at: 1)
+                var range = match.range(at: 1)
+//                range.length += 1
+                return range
             }
         }
         return nil

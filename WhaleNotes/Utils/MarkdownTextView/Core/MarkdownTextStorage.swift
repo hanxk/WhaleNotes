@@ -8,7 +8,7 @@
 
 import UIKit
 
- let ENTER_KEY = "\n"
+let ENTER_KEY:Character = "\n"
 /**
 *  Text storage with support for highlighting Markdown.
 */

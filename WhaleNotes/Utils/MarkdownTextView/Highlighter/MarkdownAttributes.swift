@@ -97,6 +97,12 @@ public struct MarkdownAttributes {
         let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
         return fontWithTraits(traits: .traitBold, font: font)
     }()
+    static let headerFont2: UIFont = {
+       let headerFont = UIFont.preferredFont(forTextStyle: .headline)
+        let size:CGFloat = 20
+       let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
+       return fontWithTraits(traits: .traitBold, font: font)
+   }()
     
     public var codeBlockAttributes: TextAttributes? = [
         .font: MarkdownAttributes.MonospaceFont

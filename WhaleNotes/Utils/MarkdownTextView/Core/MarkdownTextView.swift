@@ -69,7 +69,7 @@ extension MarkdownTextView:UITextViewDelegate {
         if text == "\n" {
             let lineRange  = getSelectedLineRange()
             let line = (textView.text as NSString).substring(with: lineRange)
-            
+           
             // 匹配
             if let numSymbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
                 let leadingText =  getLineLeadingText(line: line)
@@ -103,19 +103,40 @@ extension MarkdownTextView:UITextViewDelegate {
 
 //MARK: 处理回车键
 extension MarkdownTextView {
+    
+    func isOnlySymbol(lineRange:NSRange,symbolRange:NSRange,leadingText:String) -> Bool {
+        let line = self.text.substring(with: lineRange)
+        let enterKeyCount   =   line.last  ==   ENTER_KEY ? 1 : 0
+        return (lineRange.length - leadingText.count - enterKeyCount) ==  symbolRange.length
+    }
+    
     func handleBulletList(lineRange:NSRange,symbolRange:NSRange,leadingText:String)  {
+        let isOnlySymbol = self.isOnlySymbol(lineRange: lineRange, symbolRange: symbolRange,leadingText:leadingText)
+        if isOnlySymbol {
+           replaceAndMoveSelected(range: NSMakeRange(lineRange.location+leadingText.count, symbolRange.length), replace: "")
+           return
+        }
         let symbol = self.text.substring(with: symbolRange.location..<(symbolRange.location + symbolRange.length))
-        let symbolStr = "\n\(symbol)"
+        let symbolStr = "\n\(leadingText+symbol)"
         self.insertText(symbolStr)
     }
     
     func handleNumberList(lineRange:NSRange,symbolRange:NSRange,leadingText:String)  {
-        var num = self.text.substring(with: symbolRange.location..<(symbolRange.location + symbolRange.length - 1)).toInt() ?? 0
-        num += 1
-        let symbolStr = "\n\(leadingText)\(num). "
-        self.insertText(symbolStr)
+        var num =  0
+        var loc =  0
+        let isOnlySymbol = self.isOnlySymbol(lineRange: lineRange, symbolRange: symbolRange,leadingText:leadingText)
+        if isOnlySymbol {//删除
+            replaceAndMoveSelected(range: NSMakeRange(lineRange.location+leadingText.count, symbolRange.length), replace: "")
+            
+            loc = lineRange.upperBound - symbolRange.length
+        }else {
+            num = self.text.substring(with: symbolRange.location..<(symbolRange.location + symbolRange.length - 1)).toInt() ?? 0
+            num += 1
+            let symbolStr = "\n\(leadingText)\(num). "
+            self.insertText(symbolStr)
+            loc = getSelectedLineRange().upperBound
+        }
         
-        let loc = lineRange.upperBound+symbolStr.count
         self.tryUpdateBelowLinesNum(newBeginNum: num+1, loc: loc, lineLeadingText: leadingText)
     }
     
@@ -126,6 +147,15 @@ extension MarkdownTextView {
         }
         let leadingText = line.substring(to: leadingLength)
         return  leadingText
+    }
+    
+    func replaceAndMoveSelected(range:NSRange,replace:String) {
+
+        let move = range.length - replace.length
+
+        let newSelected = self.selectedRange.location-move
+        self.textStorage.replaceCharacters(in: range, with: replace)
+        self.selectedRange = NSMakeRange(newSelected, 0)
     }
 }
 
@@ -152,9 +182,8 @@ extension MarkdownTextView:MDKeyboarActionDelegate {
         
         if let bulletSymbolRange = mdTextStorage.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange){
             // 移除 symbol
-            let newSelected = self.selectedRange.location-bulletSymbolRange.length
-            self.textStorage.replaceCharacters(in: NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length), with: "")
-            self.selectedRange = NSMakeRange(newSelected, 0)
+            replaceAndMoveSelected(range: NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length), replace: "")
+            
         } else{
             
             let symbolStr = "- "
@@ -163,20 +192,17 @@ extension MarkdownTextView:MDKeyboarActionDelegate {
             if let numSymbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {// 是
                 
                 let move = abs(numSymbolRange.length - symbolStr.count)
-                let newSelected = self.selectedRange.location-move
-                self.textStorage.replaceCharacters(in: NSMakeRange(lineRange.location, numSymbolRange.length), with: symbolStr)
-                self.selectedRange = NSMakeRange(newSelected,0)
+                
+                
+                replaceAndMoveSelected(range: NSMakeRange(lineRange.location, numSymbolRange.length), replace: symbolStr)
+                
                 
                 self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound - move, lineLeadingText: lineLeadingText)
                 
                 return
             }
             
-            let start = lineRange.lowerBound
-            let newSelected = self.selectedRange.location + symbolStr.length
-            // 添加
-            self.textStorage.replaceCharacters(in: NSMakeRange(start, 0), with: symbolStr)
-            self.selectedRange = NSMakeRange(newSelected, 0)
+            replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound, 0), replace: symbolStr)
         }
     }
     
@@ -197,11 +223,7 @@ extension MarkdownTextView {
             //当前行是索引,移除 num
             let length = symbolRange.length
             
-            
-            let newSelected = self.selectedRange.location-length
-            
-            self.textStorage.replaceCharacters(in: NSMakeRange(symbolRange.location, length), with: "")
-            self.selectedRange = NSMakeRange(newSelected, 0)
+            replaceAndMoveSelected(range: NSMakeRange(symbolRange.location, length), replace: "")
             
             self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound-length, lineLeadingText: leadingText)
             return
@@ -227,10 +249,8 @@ extension MarkdownTextView {
         }
         
         let changedCount = symbolStr.count - count
-        let newSelected = self.selectedRange.location+changedCount
         
-        self.textStorage.replaceCharacters(in: NSMakeRange(start, count), with: symbolStr)
-        self.selectedRange = NSMakeRange(newSelected, 0)
+        replaceAndMoveSelected(range: NSMakeRange(start, count), replace: symbolStr)
         
         self.tryUpdateBelowLinesNum(newBeginNum: num+1, loc: lineRange.upperBound+changedCount, lineLeadingText: leadingText)
     }
@@ -238,7 +258,7 @@ extension MarkdownTextView {
     func getRightPreLineNumAndPending(lineRange:NSRange,lineLeadingText: String) -> (Int,String)?  {
         if lineRange.location == 0 { return nil }
         let preText = self.text.substring(to: lineRange.location-1) // -1 是过滤掉回车
-        let lines = Array(preText.components(separatedBy: ENTER_KEY).reversed())
+        let lines = Array(preText.components(separatedBy: ENTER_KEY.toString).reversed())
         for line in lines {
             guard let symbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
                 break
@@ -273,7 +293,7 @@ extension MarkdownTextView {
     
     func tryUpdateBelowLinesNum(newBeginNum:Int,loc:Int,lineLeadingText:String)  {
         let otherText = self.text.substring(from: loc)
-        let lines = otherText.components(separatedBy: ENTER_KEY)
+        let lines = otherText.components(separatedBy: ENTER_KEY.toString)
         
         var lineNum = newBeginNum
         var newLoc = loc
@@ -295,7 +315,7 @@ extension MarkdownTextView {
             if lineNum == 10 {
                 print("")
             }
-            let symbolStr = "\(lineNum). "
+            let symbolStr = "\(leadingText)\(lineNum). "
             self.textStorage.replaceCharacters(in: NSMakeRange(newLoc, symbolRange.length), with: symbolStr)
             
             // 更新后新的行
@@ -312,6 +332,40 @@ extension MarkdownTextView {
         return (text as NSString).lineRange(for: self.selectedRange)
     }
     
+    
+//    func getSelectedRangeWithoutEnter()  -> NSRange {
+//        let loc = self.selectedRange.location
+//
+//        let start = text.substring(to: loc).lastIntIndex(of: ENTER_KEY) + 1
+//        let endStr  = text.substring(from: loc)
+//
+//        var end = endStr.firstIntIndex(of: ENTER_KEY)
+//        if end ==  -1 {
+//            end = text.utf16Count
+//        }else {
+//            end = text.utf16Count - endStr.utf16Count +  end
+//        }
+//
+//        return NSMakeRange(start, end-start)
+//    }
+    
+//    class func getLineRange(_ string: String, location: Int) -> NSRange {
+////        var end = location
+//
+//        let start = string.substring(to: location).lastIntIndex(of: "\n") + 1
+//
+//        let endStr  = string.substring(from: location)
+//        var end = endStr.firstIntIndex(of: "\n")
+//        if end ==  -1 {
+//            end = string.utf16Count
+//        }else {
+//            end = string.utf16Count - endStr.utf16Count +  end
+//        }
+////        if end > string.count {
+////            end = string.count
+////        }
+//        return (start..<end)
+//    }
     func getSelectedLine() -> String {
         return (text as NSString).substring(with: getSelectedLineRange())
     }

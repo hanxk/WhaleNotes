@@ -34,7 +34,7 @@ class TextUtils {
 //        }
         return (start..<end)
     }
-    
+   
 
     class func startOffset(_ string: String, location: Int) -> (String, Int) {
         
