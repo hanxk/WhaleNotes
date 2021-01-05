@@ -16,7 +16,7 @@ class SQLStatement {
         self.stmt = statement
     }
     
-    func run() throws -> Int32{
+    func run() throws{
         defer {
             sqlite3_finalize(stmt)
         }
@@ -25,8 +25,8 @@ class SQLStatement {
             let errorMessage = String(cString: sqlite3_errmsg(stmt))
             throw SQLiteError.Step(message: errorMessage)
         }
-        return sqlite3_changes(stmt)
     }
+    
     
     func query() throws -> [Row]  {
         defer {

@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import SideMenu
+import DeepDiff
 
 enum SideMenuCellContants {
     static let iconWidth:CGFloat = 24
@@ -87,10 +88,15 @@ class SideMenuViewController: UIViewController {
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
         didSet {
-            self.loadTags()
+            self.loadTags {[weak self] tags in
+                self?.setupData(tags: tags)
+                self?.setSelectedIndexPath(IndexPath(row: 0, section: 0))
+            }
             self.registerEvent()
         }
     }
+    
+    var needRefresh = false
     
     private lazy var tableView = UITableView(frame: .zero, style: .grouped).then {
         $0.separatorColor = .clear
@@ -109,28 +115,36 @@ class SideMenuViewController: UIViewController {
         $0.dragInteractionEnabled = true
     }
     
-    var sectionItems:[SectionItem] =  []
-    var sysMenuItems:[SystemMenuItem] = []
-    var tagsMap:[String:Tag] = [:]  {
+    var tags:[Tag]  = [] {
         didSet {
+            self.tagsMap = Dictionary(uniqueKeysWithValues: tags.map { ($0.id, $0)})
             self.tagChildCountMap = Dictionary(uniqueKeysWithValues:
                                                 tagsMap.map { key, value in (key, getChildCount(tag: value)) })
+            
+//            self.visibleTagIds = self.tags.filter {
+//                isTagExpand(tagId: $0.id)
+//            }.map  {
+//                return $0.id
+//            }
+//            self.visibleTagIds = expandTags
         }
     }
-    
+    var tagsMap:[String:Tag] = [:]
     // 控制显示
     var visibleTagIds:[String] = []
-    var totalTagIds:[String] = []  {
-        didSet {
-            var expandTags:[String] = []
-            findExpandTag(tagIds: self.totalTagIds, expandTags: &expandTags, index: 0)
-            self.visibleTagIds = expandTags
-        }
-    }
-    
     var tagChildCountMap:[String:Int] = [:]
     
+    var sectionItems:[SectionItem] =  []
+    var sysMenuItems:[SystemMenuItem] = []
+    
+    
     var selectedIndexPath:IndexPath!
+    
+    func getVisibleTagIds() -> [String] {
+        var expandTags:[String] = []
+        findExpandTag(expandTags: &expandTags, index: 0)
+        return  expandTags
+    }
     
     func setSelectedIndexPath(_ indexPath:IndexPath,isPreventClose:Bool=false) {
         
@@ -167,8 +181,32 @@ class SideMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        self.tableView.reloadData()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if needRefresh  {
+            needRefresh = false
+            self.refreshTags()
+        }
+    }
+    
+    private func refreshTags() {
+        self.loadTags { [weak self]newTags in
+            guard let self = self else { return }
+            let oldTagIds = self.visibleTagIds
+            self.tags = newTags
+            let newTagIds = self.getVisibleTagIds()
+            // 刷新tag
+            let changes = diff(old:oldTagIds, new: newTagIds)
+            
+            UIView.performWithoutAnimation {
+                self.tableView.reload(changes: changes,section: 1) {
+                    self.visibleTagIds = newTagIds
+                }
+            }
+        }
     }
     
     func  isTagExpand(tagId:String)-> Bool {
@@ -186,10 +224,10 @@ class SideMenuViewController: UIViewController {
         self.view.backgroundColor = .sidemenuBg
     }
     
-    private func loadTags() {
+    private func loadTags(callback:@escaping ([Tag])->Void) {
         NoteRepo.shared.getValidTags()
             .subscribe(onNext: { [weak self] tags in
-                self?.setupData(tags: tags)
+                callback(tags)
             }, onError: {
                 Logger.error($0)
             })
@@ -201,17 +239,24 @@ class SideMenuViewController: UIViewController {
                            SystemMenuItem.trash(icon: "trash", title: "废纸篓")
         ]
         
-        self.tagsMap = Dictionary(uniqueKeysWithValues: tags.map { ($0.id, $0)})
-        self.totalTagIds = tags.map{$0.id}
+        
+            self.tags = tags
+        
+        self.visibleTagIds = getVisibleTagIds()
         
         self.sectionItems = [
             SectionItem.system,
             SectionItem.tag,
         ]
         
-        setSelectedIndexPath(IndexPath(row: 0, section: 0))
         self.tableView.reloadData()
     }
+    
+    private func setupTags(tags:[Tag]) {
+//        var tags:[Tag]  = []
+//        self.totalTagIds = tags.map{$0.id}
+    }
+    
     deinit {
         self.unRegisterEvent()
     }
@@ -224,15 +269,19 @@ class SideMenuViewController: UIViewController {
 //MARK: Event
 extension SideMenuViewController {
     private func registerEvent() {
-        EventManager.shared.addObserver(observer: self, selector: #selector(handleBoardCreated), name: .My_BoardCreated)
+        EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_CHANGED)
     }
     
     private func unRegisterEvent() {
         EventManager.shared.removeObserver(observer: self)
     }
     
-    @objc private func handleBoardCreated(notification: Notification) {
-        
+    @objc private func handleTagChanged(notification: Notification) {
+        print("tag changed")
+        self.needRefresh = true
+//        self.loadTags {[weak self] in
+//           print("刷新完成")
+//        }
     }
 }
 
@@ -296,7 +345,7 @@ extension SideMenuViewController {
         guard let index = self.visibleTagIds.firstIndex(where: {$0 == tag.id}) else {  return }
        
         // 处理数据源
-        let childIds = findExpandTagByTag(tagIds: self.totalTagIds, rootTagId: tag.id)
+        let childIds = findExpandTagByTag(rootTagId: tag.id)
         
         let childCount = childIds.count
         if childCount  == 0 { return }
@@ -363,20 +412,21 @@ extension SideMenuViewController {
         return self.visibleTagIds.filter{tagsMap[$0]!.title.starts(with: tag.title+"/")}
     }
     
-    private func findExpandTagByTag(tagIds:[String],rootTagId:String)-> [String] {
+    private func findExpandTagByTag(rootTagId:String)-> [String] {
         
         var expandTags:[String] =  []
         let childCount = tagChildCountMap[rootTagId]
         if childCount == 0 {
             return expandTags
         }
-        guard let index = tagIds.firstIndex(of: rootTagId)  else  { return []}
+       
+        guard let index =  self.tags.firstIndex(where: {$0.id == rootTagId})  else  { return []}
         
-        let rootTitle = tagsMap[tagIds[index]]!.title
+        let rootTitle = self.tags[index].title
         var start =  index+1
         
-        while start  <  tagIds.count  {
-            let tag = tagsMap[tagIds[start]]!
+        while start  <  self.tags.count  {
+            let tag = self.tags[start]
             if !tag.title.starts(with: rootTitle+"/"){ //root
                 break
             }
@@ -390,24 +440,24 @@ extension SideMenuViewController {
         return expandTags
     }
     
-    private func findExpandTag(tagIds:[String],expandTags:inout [String],index:Int) {
-        if index  > tagIds.count -  1 { return}
-        let tagId = tagIds[index]
+    private func findExpandTag(expandTags:inout [String],index:Int) {
+        if index  > self.tags.count -  1 { return}
+        let tagId =  self.tags[index].id
         let childCount = tagChildCountMap[tagId] ??  0
         
         expandTags.append(tagId)
         if childCount == 0{
-            return findExpandTag(tagIds: tagIds, expandTags: &expandTags, index: index+1)
+            return findExpandTag(expandTags: &expandTags, index: index+1)
         }
         if !isTagExpand(tagId: tagId) {  //  已折叠
-          return findExpandTag(tagIds: tagIds, expandTags: &expandTags, index: index+1+childCount)
+          return findExpandTag(expandTags: &expandTags, index: index+1+childCount)
         }
         
-        let rootTitle = tagsMap[tagIds[index]]!.title
+        let rootTitle =  self.tags[index].title
         
         var start =  index+1
-        for i in (start...(tagIds.count-1)){
-            let tag = tagsMap[tagIds[i]]!
+        for i in (start...(self.tags.count-1)){
+            let tag = self.tags[i]
             
             if !tag.title.starts(with: rootTitle+"/"){ //root
                 break
@@ -419,7 +469,7 @@ extension SideMenuViewController {
             expandTags.append(tag.id)
             start += 1
         }
-        findExpandTag(tagIds: tagIds,expandTags:&expandTags,index: start)
+        findExpandTag(expandTags:&expandTags,index: start)
     }
     
 }

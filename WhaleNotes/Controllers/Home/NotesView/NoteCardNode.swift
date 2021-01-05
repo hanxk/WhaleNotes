@@ -171,11 +171,11 @@ class NoteCardNode: ASCellNode {
         self.cardActionEmit  = action
         
         // 标签
-        if noteInfo.tags.count > 0 {
-            let tagsProvider = NoteTagsProvider(noteInfo: noteInfo, tagsSize: tagTitlesWidth)
-            self.tagsProvider = tagsProvider
-            tagsProvider.attach(cell: self)
-        }
+//        if noteInfo.tags.count > 0 {
+//            let tagsProvider = NoteTagsProvider(noteInfo: noteInfo, tagsSize: tagTitlesWidth)
+//            self.tagsProvider = tagsProvider
+//            tagsProvider.attach(cell: self)
+//        }
         
         // footer
         if isEditing {
@@ -287,7 +287,7 @@ extension NoteCardNode {
         
         let paragraphStyle = { () -> NSMutableParagraphStyle in
             let paraStyle = NSMutableParagraphStyle()
-            paraStyle.lineHeightMultiple = 1.2
+            paraStyle.lineHeightMultiple = 1.3
             paraStyle.lineBreakMode = .byWordWrapping;
             return paraStyle
         }()

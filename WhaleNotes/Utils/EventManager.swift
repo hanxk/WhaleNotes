@@ -29,6 +29,6 @@ class EventManager {
 
 
 extension Notification.Name {
-    static let My_BoardCreated
-                = NSNotification.Name("My_BoardCreated")
+    static let Tag_CHANGED
+                = NSNotification.Name("Tag_CHANGED")
 }

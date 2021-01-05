@@ -188,8 +188,11 @@ extension NoteEditorViewController {
             contentCellNode.textChanged {[weak self] (newText: String) in
                 self?.refreshTableNode()
             }
-            contentCellNode.textDidFinishEditing {[weak self] (newText: String) in
-                self?.updateInputContent(newText)
+            let textView = contentCellNode.textView
+            contentCellNode.textDidFinishEditing {[weak self,weak textView] (newText: String) in
+                if let self = self,let textView = textView {
+                   self.updateInputContent(newText,textView:textView)
+                }
             }
             return  contentCellNode
         }
@@ -206,9 +209,49 @@ extension NoteEditorViewController {
         }
     }
     
-    private func updateInputContent(_ content:String) {
+    private func updateInputContent(_ content:String,textView:MarkdownTextView) {
         if self.noteInfo.note.content == content{ return }
-         self.model.updateNoteContent(content: content)
+        let noteTagTitles = self.noteInfo.tags
+        
+        let tagTitles = self.extractTags(tagRegex: textView.mdTextStorage.tagHightlighter.regex, text: content)
+        
+        let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
+        if isEqual {
+            self.model.updateNoteContent(content: content)
+            return
+        }
+        // 提取标签并更新
+        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
+        
+        
+        // 通知侧边栏刷新
+        EventManager.shared.post(name: .Tag_CHANGED)
+    }
+    
+    private func extractTags(tagRegex:NSRegularExpression,text:String) -> [String]  {
+        var tags:[String] = []
+        tagRegex.enumerateMatches(in: text,range:NSMakeRange(0, text.length)) {
+            match, flags, stop in
+            if  let  match = match {
+                let  tagRange = match.range(at: 1)
+                tags.append(text.substring(with: tagRange))
+            }
+        }
+        
+        var tagTitles:[String] = []
+        for title in tags {
+            //新增 parent tag
+            let parentTitles = title.components(separatedBy: "/").dropLast()
+            var pTitle = ""
+            for (index,title) in parentTitles.enumerated() {
+                if index > 0 { pTitle += "/" }
+                pTitle += title
+                tagTitles.append(pTitle)
+            }
+            tagTitles.append(title)
+        }
+        tagTitles = tagTitles.sorted { $0 < $1 }
+        return tagTitles
     }
     
     private func updateInputTitle(_ title:String) {

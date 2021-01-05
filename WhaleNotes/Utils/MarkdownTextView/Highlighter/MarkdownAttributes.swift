@@ -120,6 +120,12 @@ public struct MarkdownAttributes {
         .font:UIFont.preferredFont(forTextStyle: .body),
     ]
     
+    public var tagAttributes: TextAttributes? = [
+        .font:UIFont.preferredFont(forTextStyle: .body),
+        .foregroundColor: UIColor.brand
+    ]
+    
+    
     public var orderedListItemAttributes: TextAttributes? = [
         .font:UIFont.preferredFont(forTextStyle: .body),
     ]

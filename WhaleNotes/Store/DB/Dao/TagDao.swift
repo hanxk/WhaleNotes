@@ -21,26 +21,45 @@ class TagDao {
 
 extension TagDao {
     func insert( _ tag:Tag) throws {
-        let insertSQL = "insert into tag(id,title,icon,created_at,updated_at) values(?,?,?,?,?)"
+        let insertSQL = "INSERT INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
         try db.execute(insertSQL, args: tag.id,tag.title,tag.icon,tag.createdAt.timeIntervalSince1970,tag.updatedAt.timeIntervalSince1970)
+//        return db.changes
     }
     
     func query() throws -> [Tag]  {
-        let selectSQL = "select * from tag order by title"
+        let selectSQL = "SELECT * FROM tag ORDER BY title"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
     }
     
+    func queryByTitle(title:String) throws -> Tag? {
+        let selectSQL = "SELECT * FROM tag WHERE title = ?"
+        let rows = try db.query(selectSQL,args: title)
+        if rows.count == 0 { return nil}
+        return extract(row: rows[0])
+    }
+    
+    func queryByTitles(_ titles:[String]) throws -> [Tag] {
+//        let titlePara = titles.joined(separator: ",")
+        
+        
+        let titlePara = "\"" + titles.joined(separator: "\",\"") + "\""
+        
+//        let titlePara = \""  + titles.joined(separator: "\",\"") + \""
+        let selectSQL = "SELECT * FROM tag WHERE title in (\(titlePara))"
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
     
     func queryValids() throws -> [Tag]  {
-//        let selectSQL = """
-//                            SELECT * FROM (
-//                                    select * from tag where id in (select tag_id from note_tag)
-//                               )
-//                            order by title
-//                            """
-//        let rows = try db.query(selectSQL)
-        return try query()
+        let selectSQL = """
+                            SELECT * FROM (
+                                    select * from tag where id in (select tag_id from note_tag)
+                               )
+                            order by title
+                            """
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
     }
     
     func queryByTag(tagId:String = "") throws -> [(String,Tag)]  {

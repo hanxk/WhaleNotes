@@ -76,4 +76,16 @@ class NoteInfoViewModel {
             })
             .disposed(by: disposeBag)
     }
+    
+    func updateNoteContentAndTags(content:String,tagTitles:[String])  {
+        NoteRepo.shared.updateNoteContentAndTags(self.noteInfo, newContent: content, tagTitles: tagTitles)
+            .subscribe(onNext: { [weak self] noteInfo in
+                guard let self = self else { return }
+                self.noteInfo = noteInfo
+                self.noteInfoPub.onNext(.updated(noteInfo: noteInfo))
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
 }

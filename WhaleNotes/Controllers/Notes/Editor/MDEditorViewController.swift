@@ -294,7 +294,7 @@ extension MDEditorViewController:ASTableDataSource {
     
     private func updateInputContent(_ content:String) {
         if self.noteInfo.note.content == content{ return }
-         self.model.updateNoteContent(content: content)
+//         self.model.updateNoteContent(content: content)
     }
     
     private func updateInputTitle(_ title:String) {

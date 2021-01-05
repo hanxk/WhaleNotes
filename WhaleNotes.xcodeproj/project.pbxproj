@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		072F6FF56795E2A22DB4EFBA /* Pods_WhaleNotes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */; };
+		18006F7525A1BEAD00DA4AAA /* MDTagHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18006F7425A1BEAD00DA4AAA /* MDTagHighlighter.swift */; };
 		180256B6257F8DE900BF5804 /* HTMLMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180256B5257F8DE900BF5804 /* HTMLMeta.swift */; };
 		18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */; };
 		18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */; };
@@ -242,6 +243,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		18006F7425A1BEAD00DA4AAA /* MDTagHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDTagHighlighter.swift; sourceTree = "<group>"; };
 		180256B5257F8DE900BF5804 /* HTMLMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLMeta.swift; sourceTree = "<group>"; };
 		18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutInfo.swift; sourceTree = "<group>"; };
@@ -1158,6 +1160,7 @@
 				18C132242599C02600D1529B /* MDHeaderHighlighter.swift */,
 				18437E37259D962C004A4D17 /* MDBulletListHighlighter.swift */,
 				187CBE6325A00E6800D86719 /* MDNumListHighlighter.swift */,
+				18006F7425A1BEAD00DA4AAA /* MDTagHighlighter.swift */,
 			);
 			path = Highlighter;
 			sourceTree = "<group>";
@@ -1683,6 +1686,7 @@
 				1899EB4A258A24310003F4D6 /* ToolbarEditingProvider.swift in Sources */,
 				186A33FA25831A570003E926 /* UIControlMenuAction.swift in Sources */,
 				186A34F4258349130003E926 /* HighlightManager.swift in Sources */,
+				18006F7525A1BEAD00DA4AAA /* MDTagHighlighter.swift in Sources */,
 				182F359224D10F8A00E88657 /* ImageCellProvider.swift in Sources */,
 				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,

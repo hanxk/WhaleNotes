@@ -16,11 +16,12 @@ public class MarkdownTextStorage: NSTextStorage {
     
     
     let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
+    let tagHightlighter = MDTagHighlighter()
     
     let bulletHightlighter = MDBulletListHighlighter()
     let numListHightlighter = MDNumListHighlighter()
     
-    private var mdHighlighters:[MDHighlighterType] = []
+    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter]
     
     private  let backingStore:NSMutableAttributedString
     var textView: UITextView!{
@@ -43,7 +44,8 @@ public class MarkdownTextStorage: NSTextStorage {
     public override init() {
         backingStore = NSMutableAttributedString(string: "", attributes: defaultAttributes)
         super.init()
-        mdHighlighters.append(headerHightlighter)
+        
+//        mdHighlighters.append(headerHightlighter)
     }
     
     public override var string: String {

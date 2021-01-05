@@ -106,10 +106,11 @@ extension SQLiteDatabase {
     
     func execute(_ sql:String,args:Any...) throws  {
         let stmt = try self.prepare(sql: sql, args: args)
-        let rows = try stmt.run()
-        if isUserSQL(sql) {
-//            print("受影响的行数：\(rows)")
-        }
+        try stmt.run()
+    }
+    
+    var changes:Int {
+        return Int(sqlite3_changes(dbPointer))
     }
     
     func query(_ sql:String,args:Any...) throws -> [Row]  {
