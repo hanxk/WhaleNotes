@@ -16,12 +16,15 @@ public class MarkdownTextStorage: NSTextStorage {
     
     
     let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
+    
     let tagHightlighter = MDTagHighlighter()
+    let linkHightlighter = MDLinkHighlighter()
+    
     
     let bulletHightlighter = MDBulletListHighlighter()
     let numListHightlighter = MDNumListHighlighter()
     
-    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter]
+    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter,linkHightlighter]
     
     private  let backingStore:NSMutableAttributedString
     var textView: UITextView!{

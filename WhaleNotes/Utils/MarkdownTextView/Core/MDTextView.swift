@@ -9,14 +9,16 @@
 import UIKit
 
 protocol MarkdownTextViewDelegate {
-    func textViewDidChange(_ textView: MarkdownTextView)
-    func textViewDidEndEditing(_ textView: MarkdownTextView)
+    func textViewDidChange(_ textView: MDTextView)
+    func textViewDidEndEditing(_ textView: MDTextView)
+    func textViewTagTapped(_ textView: MDTextView,tag:String)
+    func textViewLinkTapped(_ textView: MDTextView,link:String)
 }
 
 /**
-*  Text view with support for highlighting Markdown syntax.
-*/
-public class MarkdownTextView: UITextView {
+ *  Text view with support for highlighting Markdown syntax.
+ */
+public class MDTextView: UITextView {
     
     var editorDelegate:MarkdownTextViewDelegate?
     
@@ -43,16 +45,31 @@ public class MarkdownTextView: UITextView {
         
         layoutManager.delegate = self
         
+        self.configure()
         self.delegate = self
         
 //        self.backgroundColor = .red
+        
+        //        self.text = "https://stackoverflow.com/questions/20507664/detect-data-in-uitextview-in-uitableviewcell"
+        //        self.backgroundColor = .red
         
         let keyboardView = MDKeyboardView()
         keyboardView.delegate = self
         
         self.inputAccessoryView = keyboardView
     }
-
+    
+    private var tempTime:Int64  = 0
+    
+    func configure() {
+        self.autocorrectionType = .no
+        //        isScrollEnabled = false
+        //        isEditable = false
+        //        isUserInteractionEnabled = true
+        //        isSelectable = true
+        //        dataDetectorTypes = .link
+    }
+    
     required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -62,13 +79,13 @@ public class MarkdownTextView: UITextView {
 
 
 //MARK:  UITextViewDelegate
-extension MarkdownTextView:UITextViewDelegate {
+extension MDTextView:UITextViewDelegate {
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             let lineRange  = getSelectedLineRange()
             let line = (textView.text as NSString).substring(with: lineRange)
-           
+            
             // 匹配
             if let numSymbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
                 let leadingText =  getLineLeadingText(line: line)
@@ -98,10 +115,16 @@ extension MarkdownTextView:UITextViewDelegate {
     public func textViewDidEndEditing(_ textView: UITextView) {
         editorDelegate?.textViewDidEndEditing(self)
     }
+    
+    
+    public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        UIApplication.shared.open(URL)
+        return false
+    }
 }
 
 //MARK: 处理回车键
-extension MarkdownTextView {
+extension MDTextView {
     
     func isOnlySymbol(lineRange:NSRange,symbolRange:NSRange,leadingText:String) -> Bool {
         let line = self.text.substring(with: lineRange)
@@ -112,8 +135,8 @@ extension MarkdownTextView {
     func handleBulletList(lineRange:NSRange,symbolRange:NSRange,leadingText:String)  {
         let isOnlySymbol = self.isOnlySymbol(lineRange: lineRange, symbolRange: symbolRange,leadingText:leadingText)
         if isOnlySymbol {
-           replaceAndMoveSelected(range: NSMakeRange(lineRange.location+leadingText.count, symbolRange.length), replace: "")
-           return
+            replaceAndMoveSelected(range: NSMakeRange(lineRange.location+leadingText.count, symbolRange.length), replace: "")
+            return
         }
         let symbol = self.text.substring(with: symbolRange.location..<(symbolRange.location + symbolRange.length))
         let symbolStr = "\n\(leadingText+symbol)"
@@ -149,9 +172,9 @@ extension MarkdownTextView {
     }
     
     func replaceAndMoveSelected(range:NSRange,replace:String) {
-
+        
         let move = range.length - replace.length
-
+        
         let newSelected = self.selectedRange.location-move
         self.textStorage.replaceCharacters(in: range, with: replace)
         self.selectedRange = NSMakeRange(newSelected, 0)
@@ -160,7 +183,7 @@ extension MarkdownTextView {
 
 
 //MARK: 键盘 
-extension MarkdownTextView:MDKeyboarActionDelegate {
+extension MDTextView:MDKeyboarActionDelegate {
     func listButtonTapped() {
         self.changeCurrentLine2List()
     }
@@ -210,7 +233,7 @@ extension MarkdownTextView:MDKeyboarActionDelegate {
 }
 
 //MARK: number list
-extension MarkdownTextView {
+extension MDTextView {
     
     func changeCurrentLine2OrderList() {
         let lineRange  = getSelectedLineRange()
@@ -284,7 +307,7 @@ extension MarkdownTextView {
     func getSymbolNum() -> Int {
         guard let preLineRange = getSelectedPreLineRange(),
               let symbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: self.text, lineRange: preLineRange)
-              else { return 1}
+        else { return 1}
         let index = symbolRange.upperBound - 1
         let num = (self.text.substring(with: symbolRange.location..<index) as NSString).integerValue
         return num + 1
@@ -326,45 +349,45 @@ extension MarkdownTextView {
     
 }
 
-extension MarkdownTextView {
+extension MDTextView {
     func getSelectedLineRange() -> NSRange {
         return (text as NSString).lineRange(for: self.selectedRange)
     }
     
     
-//    func getSelectedRangeWithoutEnter()  -> NSRange {
-//        let loc = self.selectedRange.location
-//
-//        let start = text.substring(to: loc).lastIntIndex(of: ENTER_KEY) + 1
-//        let endStr  = text.substring(from: loc)
-//
-//        var end = endStr.firstIntIndex(of: ENTER_KEY)
-//        if end ==  -1 {
-//            end = text.utf16Count
-//        }else {
-//            end = text.utf16Count - endStr.utf16Count +  end
-//        }
-//
-//        return NSMakeRange(start, end-start)
-//    }
+    //    func getSelectedRangeWithoutEnter()  -> NSRange {
+    //        let loc = self.selectedRange.location
+    //
+    //        let start = text.substring(to: loc).lastIntIndex(of: ENTER_KEY) + 1
+    //        let endStr  = text.substring(from: loc)
+    //
+    //        var end = endStr.firstIntIndex(of: ENTER_KEY)
+    //        if end ==  -1 {
+    //            end = text.utf16Count
+    //        }else {
+    //            end = text.utf16Count - endStr.utf16Count +  end
+    //        }
+    //
+    //        return NSMakeRange(start, end-start)
+    //    }
     
-//    class func getLineRange(_ string: String, location: Int) -> NSRange {
-////        var end = location
-//
-//        let start = string.substring(to: location).lastIntIndex(of: "\n") + 1
-//
-//        let endStr  = string.substring(from: location)
-//        var end = endStr.firstIntIndex(of: "\n")
-//        if end ==  -1 {
-//            end = string.utf16Count
-//        }else {
-//            end = string.utf16Count - endStr.utf16Count +  end
-//        }
-////        if end > string.count {
-////            end = string.count
-////        }
-//        return (start..<end)
-//    }
+    //    class func getLineRange(_ string: String, location: Int) -> NSRange {
+    ////        var end = location
+    //
+    //        let start = string.substring(to: location).lastIntIndex(of: "\n") + 1
+    //
+    //        let endStr  = string.substring(from: location)
+    //        var end = endStr.firstIntIndex(of: "\n")
+    //        if end ==  -1 {
+    //            end = string.utf16Count
+    //        }else {
+    //            end = string.utf16Count - endStr.utf16Count +  end
+    //        }
+    ////        if end > string.count {
+    ////            end = string.count
+    ////        }
+    //        return (start..<end)
+    //    }
     func getSelectedLine() -> String {
         return (text as NSString).substring(with: getSelectedLineRange())
     }
@@ -382,46 +405,110 @@ extension MarkdownTextView {
 
 extension  String {
     func leadingWhiteSpaceAndTabRange() -> NSRange? {
-//        regex.firstMatch(in: testString, options: [], range: range) != nil
+        //        regex.firstMatch(in: testString, options: [], range: range) != nil
         let range = self.range(of: "^[ \t]+")
         return range
     }
 }
 
-extension MarkdownTextView:NSLayoutManagerDelegate {
-//    public func layoutManager(_ layoutManager: NSLayoutManager, shouldSetLineFragmentRect lineFragmentRect: UnsafeMutablePointer<CGRect>, lineFragmentUsedRect: UnsafeMutablePointer<CGRect>, baselineOffset: UnsafeMutablePointer<CGFloat>, in textContainer: NSTextContainer, forGlyphRange glyphRange: NSRange) -> Bool {
-//        
-////        var baseline: CGFloat = (lineFragmentRect.pointee.height - biggestLineHeight) / 2
-////        baseline += biggestLineHeight
-////        baseline -= biggestDescender
-////        baseline = min(max(baseline, 0), lineFragmentRect.pointee.height)
-//        
-//        
-//        let a =  ((lineHeightMultiple - 1）* defaultFont.lineheight - defaultFont.descender）/（3 - lineHe）
-//
-//
-//        baselineOffset.pointee = floor(baseline)
-//
-//        return false
-//        
-//    }
+extension MDTextView:NSLayoutManagerDelegate {
+    //    public func layoutManager(_ layoutManager: NSLayoutManager, shouldSetLineFragmentRect lineFragmentRect: UnsafeMutablePointer<CGRect>, lineFragmentUsedRect: UnsafeMutablePointer<CGRect>, baselineOffset: UnsafeMutablePointer<CGFloat>, in textContainer: NSTextContainer, forGlyphRange glyphRange: NSRange) -> Bool {
+    //
+    ////        var baseline: CGFloat = (lineFragmentRect.pointee.height - biggestLineHeight) / 2
+    ////        baseline += biggestLineHeight
+    ////        baseline -= biggestDescender
+    ////        baseline = min(max(baseline, 0), lineFragmentRect.pointee.height)
+    //
+    //
+    //        let a =  ((lineHeightMultiple - 1）* defaultFont.lineheight - defaultFont.descender）/（3 - lineHe）
+    //
+    //
+    //        baselineOffset.pointee = floor(baseline)
+    //
+    //        return false
+    //
+    //    }
+    
+    func checkTapeable()  -> Bool {
+        let newTime = Date().currentTimeMillis()
+        if newTime - tempTime < 300 {
+            return false
+        }
+        tempTime = newTime
+        return true
+    }
     
     public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-           // location of the tap
-           var location = point
-           location.x -= self.textContainerInset.left
-           location.y -= self.textContainerInset.top
-           
-           // find the character that's been tapped
-           let characterIndex = self.layoutManager.characterIndex(for: location, in: self.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-           if characterIndex < self.textStorage.length {
-               // if the character is a link, handle the tap as UITextView normally would
-            if (self.textStorage.attribute(NSAttributedString.Key.link, at: characterIndex, effectiveRange: nil) != nil) {
-                   return nil
-               }
-           }
-           
-           // otherwise return nil so the tap goes on to the next receiver
-           return self
-       }
+
+        let glyphIndex = self.layoutManager.glyphIndex(for: point, in: self.textContainer)
+
+        //Ensure the glyphIndex actually matches the point and isn't just the closest glyph to the point
+        let glyphRect = self.layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: self.textContainer)
+
+        if glyphIndex < self.textStorage.length,
+            glyphRect.contains(point),
+            self.textStorage.attribute(NSAttributedString.Key.link, at: glyphIndex, effectiveRange: nil) != nil {
+            
+            let last = self.text.substring(with:glyphIndex..<(glyphIndex+1))
+            if last == "\n" {
+                print("回车")
+                return self
+            }
+            if !checkTapeable(){ return nil }
+            let newText = clipText(characterIndex: glyphIndex)
+            if  newText.first == "#" {
+                if let range = self.mdTextStorage.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
+                    let tag = newText.substring(with: range)
+                    self.editorDelegate?.textViewTagTapped(self, tag: tag)
+                    print(tag)
+                    return nil
+                }
+            }else {
+                if let range = self.mdTextStorage.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
+                    var link = newText.substring(with: range).lowercased()
+                    if !link.starts(with: "http") {
+                        link = "http://\(link)"
+                    }
+                    print(link)
+                    self.editorDelegate?.textViewLinkTapped(self, link: link)
+                    return nil
+                }
+            }
+        }
+        return self
+    }
+    
+    func extractTag(characterIndex:Int) -> String? {
+        let str = self.text.substring(to: characterIndex)
+        let tagStart = str.lastIntIndex(of: "#")
+        if tagStart == -1  { return nil}
+        let newText  = self.text.substring(from: tagStart)
+        
+        guard let range = self.mdTextStorage.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
+        let tag = newText.substring(with: range)
+        return tag
+    }
+    
+    
+    func extractLink(characterIndex:Int) -> String? {
+        let str = self.text.substring(to: characterIndex)
+        let start = str.lastIndex { $0 == "\n" || $0 == "\t" || $0 == " "}?.utf16Offset(in: str) ?? 0
+        
+        let newText  = self.text.substring(from: start)
+        
+        guard let range = self.mdTextStorage.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
+        let link = newText.substring(with: range)
+        return link
+    }
+    
+    
+    func clipText(characterIndex:Int) -> String {
+        let str = self.text.substring(to: characterIndex)
+        let start = str.lastIndex { $0 == "\n" || $0 == "\t" || $0 == " "}?.utf16Offset(in: str) ?? -1
+        
+        let newText = self.text.substring(from: start+1)
+        return newText
+    }
+    
+    
 }

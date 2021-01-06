@@ -1,18 +1,18 @@
 //
-//  MDTagHighlighter.swift
+//  MDLinkHighlighter.swift
 //  WhaleNotes
 //
-//  Created by hanxk on 2021/1/3.
+//  Created by hanxk on 2021/1/6.
 //  Copyright © 2021 hanxk. All rights reserved.
 //
 
 import Foundation
 
-public final class MDTagHighlighter: MDHighlighterType {
+public final class MDLinkHighlighter: MDHighlighterType {
     
     let regex:NSRegularExpression
     private let attributes:TextAttributes
-    private let regexStr = "(?:^|\\s)(?:#)(\\S+)(?:$|(?=\\s?))"
+    private let regexStr = #"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"#
     //(?:^|(?<=\\s+))(?:#)(\\S+)(?=\\s+)"
     init() {
         self.regex = regexFromPattern(pattern: regexStr)
@@ -25,13 +25,13 @@ public final class MDTagHighlighter: MDHighlighterType {
             match, flags, stop in
             if  let  match = match {
                 storage.addAttribute(.link, value: attributes, range: match.range(at: 0))
-//                storage.addAttributes(attributes, range: match.range)
             }
         }
     }
     
     func firstMatch(text:String,searchRange:NSRange) -> NSRange?  {
+        
         guard let range = self.regex.firstMatch(in: text, options: [], range: searchRange) else { return nil }
-        return range.range(at: 1)
+        return range.range(at: 0)
     }
 }

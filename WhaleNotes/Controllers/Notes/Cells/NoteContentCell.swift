@@ -8,16 +8,17 @@
 import UIKit
 class NoteContentCell: UITableViewCell {
     
-    lazy var textView = MarkdownTextView(frame: .zero).then {
+    lazy var textView = MDTextView(frame: .zero).then {
         $0.isScrollEnabled = false
         $0.editorDelegate = self
-        $0.textContainerInset = UIEdgeInsets(top: 0, left: EditorViewController.space, bottom: 0, right: EditorViewController.space)
+        $0.textContainerInset = UIEdgeInsets(top: 0, left: EditorViewController.space, bottom: 20, right: EditorViewController.space)
         $0.textContainer.lineFragmentPadding = 0
     }
     
     private var textChanged: ((String) -> Void)?
     private var textDidFinishEditing: ((String) -> Void)?
     private var textEnterkeyInput: (() -> Void)?
+    private var tagTapped: ((String) -> Void)?
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -49,14 +50,25 @@ class NoteContentCell: UITableViewCell {
     func textEnterkeyInput(action: @escaping () -> Void) {
         self.textEnterkeyInput = action
     }
+    func tagTapped(action: @escaping (String) -> Void) {
+        self.tagTapped = action
+    }
 }
 
 extension NoteContentCell: MarkdownTextViewDelegate {
-    func textViewDidChange(_ textView: MarkdownTextView) {
+    func textViewDidChange(_ textView: MDTextView) {
         self.textChanged?(textView.text)
     }
     
-    func textViewDidEndEditing(_ textView: MarkdownTextView) {
+    func textViewDidEndEditing(_ textView: MDTextView) {
         self.textDidFinishEditing?(textView.text)
+    }
+    func textViewTagTapped(_ textView: MDTextView, tag: String) {
+        
+    }
+    func textViewLinkTapped(_ textView: MDTextView, link: String) {
+        if let url = URL(string: link) {
+            UIApplication.shared.open(url)
+        }
     }
 }

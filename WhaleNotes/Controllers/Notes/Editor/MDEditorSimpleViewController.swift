@@ -12,7 +12,7 @@ class MDEditorSimpleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let textView = MarkdownTextView(frame: .zero)
+        let textView = MDTextView(frame: .zero)
         self.view.addSubview(textView)
         textView.snp.makeConstraints {
             $0.width.height.equalToSuperview()

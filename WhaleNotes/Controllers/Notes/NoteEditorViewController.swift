@@ -194,11 +194,19 @@ extension NoteEditorViewController {
                    self.updateInputContent(newText,textView:textView)
                 }
             }
-            return  contentCellNode
+            contentCellNode.tagTapped {[weak self] (tag: String) in
+                self?.handleTagTapped(tag:tag)
+            }
+            return contentCellNode
         }
         
     }
     
+    private func handleTagTapped(tag:String) {
+        let isContains = self.noteInfo.tags.contains(where: { $0.title == tag })
+        if isContains { return }
+        
+    }
     
     private func refreshTableNode() {
         DispatchQueue.main.async {
@@ -209,7 +217,7 @@ extension NoteEditorViewController {
         }
     }
     
-    private func updateInputContent(_ content:String,textView:MarkdownTextView) {
+    private func updateInputContent(_ content:String,textView:MDTextView) {
         if self.noteInfo.note.content == content{ return }
         let noteTagTitles = self.noteInfo.tags
         

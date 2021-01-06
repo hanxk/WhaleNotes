@@ -210,6 +210,11 @@ extension Date {
     }
   
 }
+extension Date {
+    func currentTimeMillis() -> Int64 {
+        return Int64(self.timeIntervalSince1970 * 1000)
+    }
+}
 
 extension Int64 {
   func intToDate(timeInterval:Int64)->Date {

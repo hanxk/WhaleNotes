@@ -23,7 +23,7 @@ class NoteContentCellNode:ASCellNode {
     
     var textViewH:CGFloat = 100
     
-    lazy var textView = MarkdownTextView(frame: .zero).then {
+    lazy var textView = MDTextView(frame: .zero).then {
         $0.isScrollEnabled = false
         $0.delegate =  self
         $0.backgroundColor  = .red
