@@ -54,6 +54,9 @@ extension NoteRepo {
         return Observable<NoteInfo>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> NoteInfo in
                 try self.noteDao.insert(noteInfo.note)
+                for tag in noteInfo.tags {
+                    try self.noteTagDao.insert(NoteTag(noteId: noteInfo.id, tagId: tag.id))
+                }
                 return noteInfo
             }
         }

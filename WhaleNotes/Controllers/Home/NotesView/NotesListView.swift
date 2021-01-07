@@ -66,7 +66,11 @@ class NotesListView: UIView {
     }
     
     func createNewNote() {
-        let noteInfo = NoteInfo(note: Note())
+        var noteInfo = NoteInfo(note: Note())
+        if let tag = self.noteTag {
+           noteInfo.note.content = "#\(tag.title)"
+           noteInfo.tags = [tag]
+        }
         NoteRepo.shared.createNote(noteInfo)
             .subscribe(onNext: { [weak self] noteInfo in
                 self?.handleNoteInfoCreated(noteInfo: noteInfo)
@@ -90,22 +94,30 @@ class NotesListView: UIView {
         if needScroll2Top {
            self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
         }
-        self.openEditorVC(noteInfo:noteInfo)
+        self.openEditorVC(noteInfo:noteInfo,isNewCreated: true)
     }
     
-    func openEditorVC(noteInfo:NoteInfo) {
+    func openEditorVC(noteInfo:NoteInfo,isNewCreated:Bool = false) {
        let editorVC = NoteEditorViewController()
         editorVC.noteInfo = noteInfo
+        editorVC.isNewCreated = isNewCreated
         editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
             self?.handleNoteInfoUpdated(noteInfo)
         }
-//       let editorVC = MDEditorSimpleViewController()
        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }
 }
 
 extension NotesListView {
     func handleNoteInfoUpdated(_ noteInfo:NoteInfo) {
+        
+        // 检查tag
+        if let tag = self.noteTag,
+           noteInfo.tags.contains(where: {$0.id == tag.id}) == false
+           {
+            self.deleteNoteInfoFromDataSource(noteInfo: noteInfo)
+            return
+        }
         self.updateNoteInfo(noteInfo: noteInfo)
     }
     
@@ -113,6 +125,11 @@ extension NotesListView {
         guard let index = self.notes.firstIndex(where: {$0.id == noteInfo.id}) else { return }
         self.notes[index] = noteInfo
         self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 0)])
+    }
+    func deleteNoteInfoFromDataSource(noteInfo:NoteInfo) {
+        guard let noteIndex = self.notes.firstIndex(where: { $0.id ==  noteInfo.id }) else { return }
+        self.notes.remove(at: noteIndex)
+        self.tableView.deleteRows(at: [IndexPath(row: noteIndex, section: 0)], with: .automatic)
     }
 }
 
@@ -201,10 +218,7 @@ extension NotesListView:ASTableDataSource {
     private func deleteNoteInfo(noteInfo:NoteInfo)  {
         NoteRepo.shared.deleteNote(noteInfo)
             .subscribe(onNext: { [weak self]  in
-                guard let self = self else { return }
-                guard let noteIndex = self.notes.firstIndex(where: { $0.id ==  noteInfo.id }) else { return }
-                self.notes.remove(at: noteIndex)
-                self.tableView.deleteRows(at: [IndexPath(row: noteIndex, section: 0)], with: .automatic)
+                self?.deleteNoteInfoFromDataSource(noteInfo: noteInfo)
                 
             }, onError: {
                 Logger.error($0)

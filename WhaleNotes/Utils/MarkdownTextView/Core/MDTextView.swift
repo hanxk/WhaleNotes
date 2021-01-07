@@ -444,8 +444,8 @@ extension MDTextView:NSLayoutManagerDelegate {
 
         //Ensure the glyphIndex actually matches the point and isn't just the closest glyph to the point
         let glyphRect = self.layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: self.textContainer)
-
-        if glyphIndex < self.textStorage.length,
+        print("glyphIndex: \(glyphIndex)")
+        if glyphIndex != 0 && glyphIndex < self.textStorage.length,
             glyphRect.contains(point),
             self.textStorage.attribute(NSAttributedString.Key.link, at: glyphIndex, effectiveRange: nil) != nil {
             
@@ -455,6 +455,7 @@ extension MDTextView:NSLayoutManagerDelegate {
                 return self
             }
             if !checkTapeable(){ return nil }
+
             let newText = clipText(characterIndex: glyphIndex)
             if  newText.first == "#" {
                 if let range = self.mdTextStorage.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {

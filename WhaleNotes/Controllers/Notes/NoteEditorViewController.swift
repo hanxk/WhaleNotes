@@ -18,6 +18,7 @@ class NoteEditorViewController: UITableViewController {
     
     private  var disposeBag = DisposeBag()
     var noteInfo:NoteInfo!
+    var isNewCreated = false
     private var model:NoteInfoViewModel!
     private var isNoteUpdated:Bool = false
     private var isKeyboardShow = false
@@ -77,7 +78,19 @@ class NoteEditorViewController: UITableViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDisappear), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if isNewCreated {
+            if let titleCell = self.getNoteTitleCell() {
+                titleCell.textView.becomeFirstResponder()
+            }
+        }
+    }
+    
     @objc func keyboardWillAppear() {
         //Do something here
         isKeyboardShow = true
@@ -269,7 +282,7 @@ extension NoteEditorViewController {
     
     func tryUpdateInputing() {
         if !isKeyboardShow { return }
-        if let titleCelle = self.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCell,
+        if let titleCelle = self.getNoteTitleCell(),
            titleCelle.textView.isFirstResponder
            {
             self.updateInputTitle(titleCelle.textView.text)
@@ -278,7 +291,18 @@ extension NoteEditorViewController {
     }
     
     func jump2ContentFirstWord() {
-
+        if let contentCell = getNoteContentCell()  {
+            contentCell.textView.becomeFirstResponder()
+            contentCell.textView.insertText("\n")
+            contentCell.textView.selectedRange = NSMakeRange(0, 0)
+        }
+    }
+    
+    private func getNoteContentCell() -> NoteContentCell? {
+        return self.tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCell
+    }
+    private func getNoteTitleCell() -> NoteTitleCell? {
+        return self.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCell
     }
 }
 
