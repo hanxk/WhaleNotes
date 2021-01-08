@@ -11,8 +11,10 @@ class NoteContentCell: UITableViewCell {
     lazy var textView = MDTextView(frame: .zero).then {
         $0.isScrollEnabled = false
         $0.editorDelegate = self
-        $0.textContainerInset = UIEdgeInsets(top: 0, left: EditorViewController.space, bottom: 20, right: EditorViewController.space)
+        $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
         $0.textContainer.lineFragmentPadding = 0
+        
+        $0.tintColor =  UIColor.link
     }
     
     private var textChanged: ((String) -> Void)?
@@ -31,9 +33,12 @@ class NoteContentCell: UITableViewCell {
     }
     
     func setupViews() {
+        
         contentView.addSubview(textView)
         textView.snp.makeConstraints { (make) in
-            make.width.height.equalToSuperview()
+            make.height.equalToSuperview()
+            make.leading.equalToSuperview().offset(EditorViewController.space)
+            make.trailing.equalToSuperview().offset(-EditorViewController.space)
         }
         textView.typingAttributes = MarkdownAttributes.mdDefaultAttributes
         self.selectionStyle = .none

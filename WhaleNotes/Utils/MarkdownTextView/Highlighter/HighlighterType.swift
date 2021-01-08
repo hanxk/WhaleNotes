@@ -25,5 +25,5 @@ public protocol MDHighlighterType {
 //    var itemAttributes:TextAttributes { get }
 //    var attributes:TextAttributes { get }
     
-    func highlight(storage:MarkdownTextStorage,searchRange:NSRange)
+    func highlight(storage:NSTextStorage,searchRange:NSRange)
 }

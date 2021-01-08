@@ -27,7 +27,7 @@ public struct MarkdownAttributes {
     
     static let mdDefaultAttributes:TextAttributes = [
         .font: defaultFont,
-            .foregroundColor: UIColor.primaryText,
+        .foregroundColor: UIColor.primaryText,
         .paragraphStyle: MarkdownAttributes.paragraphStyle
     ]
     
@@ -82,8 +82,8 @@ public struct MarkdownAttributes {
     public var headerAttributes: HeaderAttributes? = HeaderAttributes()
     
      static let MonospaceFont: UIFont = {
-        let bodyFont = UIFont.preferredFont(forTextStyle: .body)
-        let size = bodyFont.pointSize
+//        let bodyFont = UIFont.preferredFont(forTextStyle: .body)
+        let size:CGFloat = 16
 //        return bodyFont
         return UIFont(name:fontName,size: size)!
 //        return UIFont(name:"Courier",size: size)!
@@ -92,14 +92,14 @@ public struct MarkdownAttributes {
     
     
      static let headerFont: UIFont = {
-        let headerFont = UIFont.preferredFont(forTextStyle: .headline)
-        let size = headerFont.pointSize
-        let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
-        return fontWithTraits(traits: .traitBold, font: font)
+//        let headerFont = UIFont.preferredFont(forTextStyle: .headline)
+//        let size = headerFont.pointSize
+//        let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
+        return fontWithTraits(traits: .traitBold, font: defaultFont)
     }()
     static let headerFont2: UIFont = {
-       let headerFont = UIFont.preferredFont(forTextStyle: .headline)
-        let size:CGFloat = 20
+//        let headerFont = UIFont.preferredFont(forTextStyle: .headline)
+        let size:CGFloat =  20
        let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
        return fontWithTraits(traits: .traitBold, font: font)
    }()
@@ -121,8 +121,15 @@ public struct MarkdownAttributes {
     ]
     
     public var tagAttributes: TextAttributes? = [
-        .font:UIFont.preferredFont(forTextStyle: .body),
-        .foregroundColor: UIColor.brand
+        .font:defaultFont,
+//        .foregroundColor: UIColor(hexString: "#175199"), #175199
+//        .foregroundColor:UIColor.red,
+        NSAttributedString.Key.foregroundColor: UIColor.green,
+        NSAttributedString.Key.underlineColor: UIColor.lightGray,
+        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue
+//        .backgroundColor:UIColor(hexString: "#175199").withAlphaComponent(0.6)
+//        .foregroundColor: UIColor.white,
+//        .backgroundStyle:BackgroundStyle(color: .blue)
     ]
     
     

@@ -15,16 +15,17 @@ let ENTER_KEY:Character = "\n"
 public class MarkdownTextStorage: NSTextStorage {
     
     
-    let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
+//    let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
+//
+//    let tagHightlighter = MDTagHighlighter()
+//    let linkHightlighter = MDLinkHighlighter()
+//
+//    let bulletHightlighter = MDBulletListHighlighter()
+//    let numListHightlighter = MDNumListHighlighter()
     
-    let tagHightlighter = MDTagHighlighter()
-    let linkHightlighter = MDLinkHighlighter()
+//    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter,linkHightlighter]
     
-    
-    let bulletHightlighter = MDBulletListHighlighter()
-    let numListHightlighter = MDNumListHighlighter()
-    
-    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter,linkHightlighter]
+    let highlightManager = MDHighlightManager()
     
     private  let backingStore:NSMutableAttributedString
     var textView: UITextView!{
@@ -93,9 +94,7 @@ public class MarkdownTextStorage: NSTextStorage {
     
     func applyStylesToRange(searchRange: NSRange) {
       setAttributes(defaultAttributes, range: searchRange)
-      for highlighter in mdHighlighters {
-        highlighter.highlight(storage: self, searchRange: searchRange)
-      }
+      highlightManager.highlight(textStorage: self, range: searchRange)
     }
 
     

@@ -234,7 +234,7 @@ extension NoteEditorViewController {
         if self.noteInfo.note.content == content{ return }
         let noteTagTitles = self.noteInfo.tags
         
-        let tagTitles = self.extractTags(tagRegex: textView.mdTextStorage.tagHightlighter.regex, text: content)
+        let tagTitles = self.extractTags(tagRegex: textView.highlightManager.tagHightlighter.regex, text: content)
         
         let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
         if isEqual {

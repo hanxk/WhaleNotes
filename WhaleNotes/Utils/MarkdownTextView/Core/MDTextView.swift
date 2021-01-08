@@ -24,6 +24,10 @@ public class MDTextView: UITextView {
     
     let mdTextStorage = MarkdownTextStorage()
     
+    var highlightManager:MDHighlightManager {
+        return mdTextStorage.highlightManager
+    }
+    
     public init(frame: CGRect = .zero) {
         
         
@@ -87,13 +91,13 @@ extension MDTextView:UITextViewDelegate {
             let line = (textView.text as NSString).substring(with: lineRange)
             
             // 匹配
-            if let numSymbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
+            if let numSymbolRange = highlightManager.numListHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
                 let leadingText =  getLineLeadingText(line: line)
                 self.handleNumberList(lineRange: lineRange, symbolRange: numSymbolRange,leadingText:leadingText)
                 return false
             }
             
-            if let bulletSymbolRange = mdTextStorage.bulletHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
+            if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
                 let leadingText =  getLineLeadingText(line: line)
                 self.handleBulletList(lineRange: lineRange, symbolRange: bulletSymbolRange,leadingText:leadingText)
                 return false
@@ -202,7 +206,7 @@ extension MDTextView:MDKeyboarActionDelegate {
         
         let line = getSelectedLine()
         
-        if let bulletSymbolRange = mdTextStorage.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange){
+        if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange){
             // 移除 symbol
             replaceAndMoveSelected(range: NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length), replace: "")
             
@@ -211,7 +215,7 @@ extension MDTextView:MDKeyboarActionDelegate {
             let symbolStr = "- "
             let lineLeadingText = getLeadingText(line: line)
             
-            if let numSymbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {// 是
+            if let numSymbolRange = highlightManager.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {// 是
                 
                 let move = abs(numSymbolRange.length - symbolStr.count)
                 
@@ -241,7 +245,7 @@ extension MDTextView {
         
         let leadingText = getLeadingText(line: line)
         
-        if let symbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {
+        if let symbolRange = highlightManager.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {
             //当前行是索引,移除 num
             let length = symbolRange.length
             
@@ -262,7 +266,7 @@ extension MDTextView {
         var start = 0
         var count = 0
         
-        if let bulletSymbolRange = mdTextStorage.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange) {
+        if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange) {
             start = bulletSymbolRange.location
             count = bulletSymbolRange.length
         }else {
@@ -282,7 +286,7 @@ extension MDTextView {
         let preText = self.text.substring(to: lineRange.location-1) // -1 是过滤掉回车
         let lines = Array(preText.components(separatedBy: ENTER_KEY.toString).reversed())
         for line in lines {
-            guard let symbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
+            guard let symbolRange = highlightManager.numListHightlighter.matchSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
                 break
             }
             let leadingText = line.substring(with: 0..<(symbolRange.location))
@@ -306,7 +310,7 @@ extension MDTextView {
     
     func getSymbolNum() -> Int {
         guard let preLineRange = getSelectedPreLineRange(),
-              let symbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: self.text, lineRange: preLineRange)
+              let symbolRange = highlightManager.numListHightlighter.matchSymbol(text: self.text, lineRange: preLineRange)
         else { return 1}
         let index = symbolRange.upperBound - 1
         let num = (self.text.substring(with: symbolRange.location..<index) as NSString).integerValue
@@ -321,7 +325,7 @@ extension MDTextView {
         var newLoc = loc
         
         for line in lines  {
-            guard let symbolRange = mdTextStorage.numListHightlighter.matchSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
+            guard let symbolRange = highlightManager.numListHightlighter.matchSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
                 break
             }
             let leadingText = line.substring(with: 0..<(symbolRange.location))
@@ -458,14 +462,14 @@ extension MDTextView:NSLayoutManagerDelegate {
 
             let newText = clipText(characterIndex: glyphIndex)
             if  newText.first == "#" {
-                if let range = self.mdTextStorage.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
+                if let range = self.highlightManager.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
                     let tag = newText.substring(with: range)
                     self.editorDelegate?.textViewTagTapped(self, tag: tag)
                     print(tag)
                     return nil
                 }
             }else {
-                if let range = self.mdTextStorage.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
+                if let range = self.highlightManager.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
                     var link = newText.substring(with: range).lowercased()
                     if !link.starts(with: "http") {
                         link = "http://\(link)"
@@ -485,7 +489,7 @@ extension MDTextView:NSLayoutManagerDelegate {
         if tagStart == -1  { return nil}
         let newText  = self.text.substring(from: tagStart)
         
-        guard let range = self.mdTextStorage.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
+        guard let range = self.highlightManager.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
         let tag = newText.substring(with: range)
         return tag
     }
@@ -497,7 +501,7 @@ extension MDTextView:NSLayoutManagerDelegate {
         
         let newText  = self.text.substring(from: start)
         
-        guard let range = self.mdTextStorage.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
+        guard let range = self.highlightManager.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
         let link = newText.substring(with: range)
         return link
     }

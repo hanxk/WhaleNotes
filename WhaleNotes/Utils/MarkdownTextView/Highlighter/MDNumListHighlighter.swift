@@ -6,7 +6,7 @@
 //  Copyright © 2021 hanxk. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 public final class MDNumListHighlighter: MDHighlighterType {
     private let regex:NSRegularExpression
@@ -18,7 +18,7 @@ public final class MDNumListHighlighter: MDHighlighterType {
         self.attributes = MarkdownAttributes().orderedListAttributes!
     }
     
-    public func highlight(storage:MarkdownTextStorage,searchRange:NSRange) {
+    public func highlight(storage:NSTextStorage,searchRange:NSRange) {
         self.regex.enumerateMatches(in: storage.string, range: searchRange) {
             match, flags, stop in
             if  let  match = match {

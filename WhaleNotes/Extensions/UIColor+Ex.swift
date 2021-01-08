@@ -15,6 +15,11 @@ extension UIColor {
         }
     }
     
+    open class var link: UIColor {
+        get {
+            return UIColor(hexString: "#0077CC")!
+        }
+    }
     
     open class var primaryText: UIColor {
         get {

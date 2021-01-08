@@ -6,7 +6,7 @@
 //  Copyright © 2021 hanxk. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 public final class MDTagHighlighter: MDHighlighterType {
     
@@ -20,12 +20,15 @@ public final class MDTagHighlighter: MDHighlighterType {
     }
     
     
-    public func highlight(storage:MarkdownTextStorage,searchRange:NSRange) {
+    public func highlight(storage:NSTextStorage,searchRange:NSRange) {
         self.regex.enumerateMatches(in: storage.string, range: searchRange) {
             match, flags, stop in
             if  let  match = match {
+//                storage.addAttribute(.tagStyle,value: TagStyle(),range: match.range(at: 0))
+//                storage.addAttribute(.,value: TagStyle(),range: match.range(at: 0))
                 storage.addAttribute(.link, value: attributes, range: match.range(at: 0))
 //                storage.addAttributes(attributes, range: match.range)
+//                storage.addAttribute(., value: <#T##Any#>, range: <#T##NSRange#>)
             }
         }
     }

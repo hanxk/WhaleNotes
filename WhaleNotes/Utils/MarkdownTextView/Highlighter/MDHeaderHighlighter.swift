@@ -16,7 +16,7 @@ public final class MDHeaderHighlighter: MDHighlighterType {
         self.attributes = MarkdownAttributes.HeaderAttributes().attributesForHeaderLevel(level:1)!
     }
     
-    public func highlight(storage:MarkdownTextStorage,searchRange:NSRange) {
+    public func highlight(storage:NSTextStorage,searchRange:NSRange) {
         self.headerRegex.enumerateMatches(in: storage.string, range: searchRange) {
             match, flags, stop in
             if  let  match = match {

@@ -12,6 +12,7 @@
 		180256B6257F8DE900BF5804 /* HTMLMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180256B5257F8DE900BF5804 /* HTMLMeta.swift */; };
 		18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */; };
 		18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */; };
+		18119D4425A71A3600B65823 /* BackgroundStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18119D4325A71A3600B65823 /* BackgroundStyle.swift */; };
 		181636722591E239004F7108 /* TagExpandCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181636712591E238004F7108 /* TagExpandCache.swift */; };
 		181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E3248B1F6600B34E20 /* TitleBlockCell.swift */; };
 		181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */; };
@@ -189,6 +190,7 @@
 		18DCC91C24EA70E2000B4BF1 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DCC91B24EA70E2000B4BF1 /* BoardView.swift */; };
 		18DCC91F24EA744B000B4BF1 /* CardCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DCC91E24EA744B000B4BF1 /* CardCellNode.swift */; };
 		18E0521B25A5BDEE001E041C /* MDLinkHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E0521A25A5BDEE001E041C /* MDLinkHighlighter.swift */; };
+		18E0521E25A6EC30001E041C /* MDHighlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E0521D25A6EC30001E041C /* MDHighlightManager.swift */; };
 		18E6E65D2478067800D598C5 /* URL+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E65C2478067800D598C5 /* URL+Ex.swift */; };
 		18E6E6622478E2F400D598C5 /* Array+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E6612478E2F400D598C5 /* Array+Ex.swift */; };
 		18E6E664247A7F7400D598C5 /* UIBarButtonItem+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */; };
@@ -248,6 +250,7 @@
 		180256B5257F8DE900BF5804 /* HTMLMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLMeta.swift; sourceTree = "<group>"; };
 		18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutInfo.swift; sourceTree = "<group>"; };
+		18119D4325A71A3600B65823 /* BackgroundStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundStyle.swift; sourceTree = "<group>"; };
 		181636712591E238004F7108 /* TagExpandCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagExpandCache.swift; sourceTree = "<group>"; };
 		181D63E3248B1F6600B34E20 /* TitleBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TitleBlockCell.swift; path = WhaleNotes/Controllers/Editor/Cells/TitleBlockCell.swift; sourceTree = SOURCE_ROOT; };
 		181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBoardCell.swift; sourceTree = "<group>"; };
@@ -438,6 +441,7 @@
 		18DCC91B24EA70E2000B4BF1 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		18DCC91E24EA744B000B4BF1 /* CardCellNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCellNode.swift; sourceTree = "<group>"; };
 		18E0521A25A5BDEE001E041C /* MDLinkHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDLinkHighlighter.swift; sourceTree = "<group>"; };
+		18E0521D25A6EC30001E041C /* MDHighlightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDHighlightManager.swift; sourceTree = "<group>"; };
 		18E6E65C2478067800D598C5 /* URL+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Ex.swift"; sourceTree = "<group>"; };
 		18E6E6612478E2F400D598C5 /* Array+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ex.swift"; sourceTree = "<group>"; };
 		18E6E663247A7F7400D598C5 /* UIBarButtonItem+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Ex.swift"; sourceTree = "<group>"; };
@@ -1175,6 +1179,8 @@
 				18C132222599C02600D1529B /* MDTextView.swift */,
 				18C132202599C02600D1529B /* MarkdownTextStorage.swift */,
 				18437E3A259DA369004A4D17 /* MyLayoutManger.swift */,
+				18E0521D25A6EC30001E041C /* MDHighlightManager.swift */,
+				18119D4325A71A3600B65823 /* BackgroundStyle.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -1739,6 +1745,7 @@
 				1847ADAF24A1F1B5007B39EE /* BoardSettingItemCell.swift in Sources */,
 				18286B962587636400541526 /* Tag.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
+				18E0521E25A6EC30001E041C /* MDHighlightManager.swift in Sources */,
 				18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */,
 				18286BA2258766A700541526 /* TagDao.swift in Sources */,
 				188BD417259488D30050D896 /* NoteInfoViewModel.swift in Sources */,
@@ -1748,6 +1755,7 @@
 				18E7BF7B248BC7B900B8AEC1 /* UIButton+Ex.swift in Sources */,
 				18C132382599C02600D1529B /* MDKeyboardView.swift in Sources */,
 				18E7BF8A248C92CB00B8AEC1 /* UILabel+Ex.swift in Sources */,
+				18119D4425A71A3600B65823 /* BackgroundStyle.swift in Sources */,
 				186D61872590906E006307A0 /* Constants.swift in Sources */,
 				181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */,
 				181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */,
