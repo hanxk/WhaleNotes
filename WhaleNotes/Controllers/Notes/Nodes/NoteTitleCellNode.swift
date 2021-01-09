@@ -58,7 +58,7 @@ extension NoteTitleCellNode {
     
     func getTitlePlaceHolderAttributesString() -> NSAttributedString {
         var titleAttr = getTitleAttributes()
-        titleAttr[.foregroundColor] = UIColor.primaryText
+        titleAttr[.foregroundColor] = UIColor.lightGray
         return NSMutableAttributedString(string: "标题", attributes: titleAttr)
     }
     

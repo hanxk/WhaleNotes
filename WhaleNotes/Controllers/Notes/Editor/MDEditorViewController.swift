@@ -140,12 +140,12 @@ extension MDEditorViewController {
             self.updateInputTitle(titleCelleNode.title)
             return
         }
-//        if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
-//           contentCelleNode.contentNode.isFirstResponder()
-//           {
-//            self.updateInputContent(contentCelleNode.content)
-//            return
-//        }
+        if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
+           contentCelleNode.textNode.isFirstResponder()
+           {
+            self.updateInputContent(contentCelleNode.content)
+            return
+        }
     }
 //    private func tryResignResponder() {
 //        if !isKeyboardShow  { return }
@@ -202,7 +202,7 @@ extension MDEditorViewController {
             return
         }
         if let contentCell = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as? NoteContentCellNode {
-//            contentCell.contentNode.becomeFirstResponder()
+            contentCell.textNode.becomeFirstResponder()
         }
     }
 }
@@ -218,7 +218,7 @@ extension MDEditorViewController {
         let tagButton = generateUIBarButtonItem(imageName: "tag", action:  #selector(tagIconTapped))
         
         let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(menuIconTapped))
-        navItem.rightBarButtonItems = [menuButton,tagButton]
+        navItem.rightBarButtonItems = [menuButton]
     }
     
     func generateUIBarButtonItem(imageName:String,action:Selector)  ->  UIBarButtonItem {
@@ -294,7 +294,7 @@ extension MDEditorViewController:ASTableDataSource {
     
     private func updateInputContent(_ content:String) {
         if self.noteInfo.note.content == content{ return }
-//         self.model.updateNoteContent(content: content)
+         self.model.updateNoteContent(content: content)
     }
     
     private func updateInputTitle(_ title:String) {

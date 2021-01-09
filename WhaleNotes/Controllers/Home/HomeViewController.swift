@@ -490,7 +490,7 @@ extension HomeViewController {
         //        presentationStyle.presentingScaleFactor = CGFloat(presentingScaleFactorSlider.value)
         var settings = SideMenuSettings()
         settings.presentationStyle = presentationStyle
-        settings.menuWidth = view.frame.width - 52
+        settings.menuWidth = view.frame.width * 0.8
         settings.statusBarEndAlpha = 0
         //        let styles:[UIBlurEffect.Style?] = [nil, .dark, .light, .extraLight]
         //        settings.blurEffectStyle = styles[blurSegmentControl.selectedSegmentIndex

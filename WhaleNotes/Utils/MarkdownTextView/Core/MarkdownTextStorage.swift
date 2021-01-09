@@ -27,7 +27,7 @@ public class MarkdownTextStorage: NSTextStorage {
     
     let highlightManager = MDHighlightManager()
     
-    private  let backingStore:NSMutableAttributedString
+    private  var backingStore:NSMutableAttributedString!
     var textView: UITextView!{
         didSet {
             
@@ -40,16 +40,19 @@ public class MarkdownTextStorage: NSTextStorage {
             self.endEditing()
         }
     }
-    private var defaultAttributes: TextAttributes = MarkdownAttributes.mdDefaultAttributes
+//    private var defaultAttributes: TextAttributes = MarkdownAttributes.mdDefaultAttributes
+    var style:MDStyle!
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    convenience init(style:MDStyle) {
+        self.init()
+        self.style = style
+        backingStore = NSMutableAttributedString(string: "", attributes: style.mdDefaultAttributes)
+    }
     public override init() {
-        backingStore = NSMutableAttributedString(string: "", attributes: defaultAttributes)
         super.init()
-        
-//        mdHighlighters.append(headerHightlighter)
     }
     
     public override var string: String {
@@ -93,7 +96,7 @@ public class MarkdownTextStorage: NSTextStorage {
     }
     
     func applyStylesToRange(searchRange: NSRange) {
-      setAttributes(defaultAttributes, range: searchRange)
+      setAttributes(style.mdDefaultAttributes, range: searchRange)
       highlightManager.highlight(textStorage: self, range: searchRange)
     }
 

@@ -26,4 +26,5 @@ class MDHighlightManager {
           highlighter.highlight(storage: textStorage, searchRange: range)
         }
     }
+    
 }

@@ -98,9 +98,14 @@ class NotesListView: UIView {
     }
     
     func openEditorVC(noteInfo:NoteInfo,isNewCreated:Bool = false) {
-       let editorVC = NoteEditorViewController()
+//       let editorVC = NoteEditorViewController()
+//        editorVC.noteInfo = noteInfo
+//        editorVC.isNewCreated = isNewCreated
+//        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
+//            self?.handleNoteInfoUpdated(noteInfo)
+//        }
+       let editorVC  = MDEditorViewController()
         editorVC.noteInfo = noteInfo
-        editorVC.isNewCreated = isNewCreated
         editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
             self?.handleNoteInfoUpdated(noteInfo)
         }

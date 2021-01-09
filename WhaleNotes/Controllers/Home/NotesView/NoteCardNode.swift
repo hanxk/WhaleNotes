@@ -74,6 +74,8 @@ class NoteCardNode: ASCellNode {
     
     var timer2: Timer? = nil
     private var titleEditNode :ASEditableTextNode?
+    
+    private var mdTextViewWrapper:MDTextViewWapper?
     private var contentEditNode :ASEditableTextNode?
     
     private var footerProvider:NoteCardProvider!
@@ -98,10 +100,10 @@ class NoteCardNode: ASCellNode {
             $0.shadowRadius = 4
             $0.shadowOffset = .zero
             
-//            $0.layer.borderWidth = 1
-//            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
+            //            $0.layer.borderWidth = 1
+            //            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
         }
-        $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.6).cgColor
+        $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.5).cgColor
         $0.shadowOpacity = 1
         $0.shadowRadius = 6
         $0.shadowOffset = .zero
@@ -140,31 +142,50 @@ class NoteCardNode: ASCellNode {
         // 内容
         if isEditing || note.content.isNotEmpty {
             
+            
+            
+            
             let content = note.content.trimmingCharacters(in: .whitespacesAndNewlines)
-            let contentNode = ASEditableTextNode().then {
-                $0.placeholderEnabled  = isEditing
-//                $0.attributedPlaceholderText = getContentPlaceholderAttributes()
-                $0.attributedText =  NSMutableAttributedString(string: content, attributes: MarkdownAttributes.mdDefaultAttributes)
-                $0.scrollEnabled = false
-//                $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
-                $0.textView.isEditable = isEditing
-                $0.typingAttributes = getContentAttributesString()
-                $0.delegate = self
-                $0.isUserInteractionEnabled =  isEditing
-                $0.textView.tag = EditViewTag.content.rawValue
-                $0.tintColor =  UIColor.link
-            }
+            
+            let containerSize = CGSize.zero
+            
+            let style = MDStyle(fontSize: 15)
+            let textStorage =  MarkdownTextStorage(style: style)
+            let layoutManager = MyLayoutManger()
+            
+            let textKitComponents: ASTextKitComponents =
+                .init(textStorage: textStorage,
+                      textContainerSize: containerSize,
+                      layoutManager: layoutManager)
+            
+            let placeholderTextKit: ASTextKitComponents =
+                .init(attributedSeedString:  getContentPlaceholderAttributes(attrs: style.mdDefaultAttributes),
+                      textContainerSize: containerSize)
+            
+            
+            let contentNode = ASEditableTextNode.init(textKitComponents: textKitComponents,
+                                                      placeholderTextKitComponents: placeholderTextKit).then {
+                                                        $0.placeholderEnabled  = isEditing
+                                                        //                                $0.attributedPlaceholderText = getContentPlaceholderAttributes()
+                                                        $0.attributedText =  NSMutableAttributedString(string: content, attributes: style.mdDefaultAttributes)
+                                                        $0.scrollEnabled = false
+                                                        //                $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
+                                                        $0.textView.isEditable = isEditing
+                                                        $0.typingAttributes = Dictionary(uniqueKeysWithValues:
+                                                                                            style.mdDefaultAttributes.map { key, value in (key.rawValue, value) })
+                                                        $0.delegate = self
+                                                        $0.isUserInteractionEnabled =  isEditing
+                                                        $0.textView.tag = EditViewTag.content.rawValue
+                                                        $0.tintColor =  UIColor.link
+                                                        //                                                $0.backgroundColor = .red
+                                                      }
             self.addSubnode(contentNode)
             self.contentEditNode = contentNode
             
             
-            let mdHelper = MDHelper(editView: contentNode.textView)
-            self.mdHelper = mdHelper
-//            mdHelper.loadText(note.content)
-//            highlightmanager.highlight(contentNode.textView.textStorage,visibleRange: nil)
-            
-            let highManager = MDHighlightManager()
-            highManager.highlight(textStorage: contentNode.textView.textStorage, range: content.range)
+            let mdTextViewWrapper = MDTextViewWapper(textView: contentNode.textView)
+            mdTextViewWrapper.textviewTappedDelegate =  self
+            self.mdTextViewWrapper = mdTextViewWrapper
             
             
             if isNew { // 新建
@@ -178,11 +199,11 @@ class NoteCardNode: ASCellNode {
         self.cardActionEmit  = action
         
         // 标签
-//        if noteInfo.tags.count > 0 {
-//            let tagsProvider = NoteTagsProvider(noteInfo: noteInfo, tagsSize: tagTitlesWidth)
-//            self.tagsProvider = tagsProvider
-//            tagsProvider.attach(cell: self)
-//        }
+        //        if noteInfo.tags.count > 0 {
+        //            let tagsProvider = NoteTagsProvider(noteInfo: noteInfo, tagsSize: tagTitlesWidth)
+        //            self.tagsProvider = tagsProvider
+        //            tagsProvider.attach(cell: self)
+        //        }
         
         // footer
         if isEditing {
@@ -260,6 +281,24 @@ class NoteCardNode: ASCellNode {
     }
 }
 
+extension NoteCardNode:MDTextViewTappedDelegate {
+    func textViewTagTapped(_ textView: UITextView, tag: String) {
+        
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        
+        guard let contentNode = self.contentEditNode else {
+            return super.hitTest(point, with: event)
+        }
+        if let view = mdTextViewWrapper?.hitTest(self.convert(point, to: contentNode), with: event)
+        {
+            return view
+        }
+        return super.hitTest(point, with: event)
+    }
+}
+
 extension NoteCardNode {
     
     func getTitleAttributesString() -> [String: Any] {
@@ -273,7 +312,7 @@ extension NoteCardNode {
         return NSMutableAttributedString(string: "标题", attributes: titleAttr)
     }
     
-
+    
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
         let font =  UIFont.systemFont(ofSize: 19, weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
@@ -288,39 +327,16 @@ extension NoteCardNode {
         return attributes
     }
     
-    func getContentAttributes() -> [NSAttributedString.Key: Any] {
-        
-//        let font =  UIFont.systemFont(ofSize: 15, weight: .regular)
-//
-//        let paragraphStyle = { () -> NSMutableParagraphStyle in
-//            let paraStyle = NSMutableParagraphStyle()
-//            paraStyle.lineHeightMultiple = 1.3
-//            paraStyle.lineBreakMode = .byWordWrapping;
-//            return paraStyle
-//        }()
-        
-        
-//        let paragraphStyle = NSMutableParagraphStyle()
-//        paragraphStyle.lineHeightMultiple = 1.3
-//        paragraphStyle.lineBreakMode = .byWordWrapping;
-//        let attributes: [NSAttributedString.Key: Any] = [
-//            .font: font,
-//            .paragraphStyle: paragraphStyle,
-//            .foregroundColor:UIColor.cardText,
-//        ]
     
-        return MarkdownAttributes.mdDefaultAttributes
-    }
-    
-    func getContentAttributesString() -> [String: Any] {
+    func getContentAttributesString(attrs:[NSAttributedString.Key: Any]) -> [String: Any] {
         
         return Dictionary(uniqueKeysWithValues:
-                            getContentAttributes().map { key, value in (key.rawValue, value) })
+                            attrs.map { key, value in (key.rawValue, value) })
     }
     
     
-    func getContentPlaceholderAttributes() -> NSAttributedString {
-        var contentAttr = getContentAttributes()
+    func getContentPlaceholderAttributes(attrs:[NSAttributedString.Key: Any]) -> NSAttributedString {
+        var contentAttr = attrs
         contentAttr[.foregroundColor] = UIColor.lightGray
         return NSMutableAttributedString(string: "写点什么", attributes: contentAttr)
     }
@@ -330,10 +346,10 @@ extension NoteCardNode {
 extension NoteCardNode: ASEditableTextNodeDelegate {
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
-
-      // your action here
-
-       return true
+        
+        // your action here
+        
+        return true
     }
     
     
@@ -341,12 +357,12 @@ extension NoteCardNode: ASEditableTextNodeDelegate {
         let textView = editableTextNode.textView
         let newText = textView.text ??  ""
         
-//        mdHelper?.textViewDidChange(editableTextNode.textView)
-//        if  editableTextNode.textView.tag == 1 {
-//            titleEditNode?.attributedText = getTitleAttributes(text: text)
-//        }else {
-//            contentEditNode?.attributedText = getContentAttributes(text: text)
-//        }
+        //        mdHelper?.textViewDidChange(editableTextNode.textView)
+        //        if  editableTextNode.textView.tag == 1 {
+        //            titleEditNode?.attributedText = getTitleAttributes(text: text)
+        //        }else {
+        //            contentEditNode?.attributedText = getContentAttributes(text: text)
+        //        }
         if  editableTextNode.textView.tag == EditViewTag.title.rawValue {
             note.title  = newText
             return
@@ -361,29 +377,29 @@ extension NoteCardNode: ASEditableTextNodeDelegate {
         }
         
         guard let textRange = textView.getCursorTextRange()
-              else { return }
+        else { return }
         let start = textView.offset(from: textView.beginningOfDocument, to: textRange.start)
         let end = textView.offset(from: textView.beginningOfDocument, to: textRange.end)
         
         let range = NSRange(location: start, length: end-start)
-//        let oldLength = note.content.length
-//
-//        var start  =  oldLength > 0 ? oldLength : oldLength
-//
-//        let newLength = newText.length
-//        var len  = abs(oldLength - newLength)
-//        if len == 0  {
-//            start  -= 1
-//            len = 1
-//            print(newText)
-//        }
-//        let visibleRange =  NSMakeRange(start, len)
-//        note.content  = newText
-//        highlightmanager.highlight(editableTextNode.textView.textStorage,visibleRange: visibleRange)
+        //        let oldLength = note.content.length
+        //
+        //        var start  =  oldLength > 0 ? oldLength : oldLength
+        //
+        //        let newLength = newText.length
+        //        var len  = abs(oldLength - newLength)
+        //        if len == 0  {
+        //            start  -= 1
+        //            len = 1
+        //            print(newText)
+        //        }
+        //        let visibleRange =  NSMakeRange(start, len)
+        //        note.content  = newText
+        //        highlightmanager.highlight(editableTextNode.textView.textStorage,visibleRange: visibleRange)
         
         timer2?.invalidate()
         timer2 = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight(sender:)), userInfo: range, repeats: false)
-//        _textWidth = 0
+        //        _textWidth = 0
     }
     
     func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
@@ -395,7 +411,7 @@ extension NoteCardNode: ASEditableTextNodeDelegate {
     
     
     func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-//       return self.mdHelper?.textView(editableTextNode.textView, shouldChangeTextIn: range, replacementText: text) ?? false
+        //       return self.mdHelper?.textView(editableTextNode.textView, shouldChangeTextIn: range, replacementText: text) ?? false
         let textView = editableTextNode.textView
         if text == "\n" {
             let begin = max(range.location - 100, 0)
@@ -403,28 +419,28 @@ extension NoteCardNode: ASEditableTextNodeDelegate {
             let nsString = textView.text! as NSString
             let nearText = nsString.substring(with: NSRange(location:begin, length: len))
             let texts = nearText.components(separatedBy: "\n")
-//            if texts.count < 2 {
-//                return true
-//            }
+            //            if texts.count < 2 {
+            //                return true
+            //            }
             
-//            let lastLineCount = texts.last!.count   // emoji bug
-//            let lastLineCount = texts.last!.utf16.count
-//            let beginning = textView.beginningOfDocument
-//            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
-//                let to = textView.position(from: beginning, offset: range.location),
-//                let textRange = textView.textRange(from: from, to: to) else {
-//                return true
-//            }
+            //            let lastLineCount = texts.last!.count   // emoji bug
+            //            let lastLineCount = texts.last!.utf16.count
+            //            let beginning = textView.beginningOfDocument
+            //            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
+            //                let to = textView.position(from: beginning, offset: range.location),
+            //                let textRange = textView.textRange(from: from, to: to) else {
+            //                return true
+            //            }
             let newText  =  newLine2(texts.last!)
             if  newText == "\n" {
                 return  true
             }
-//            textView.replace(textRange, withText: newText)
+            //            textView.replace(textRange, withText: newText)
             let from = textView.text.count
             textView.insertText(newText)
             let to = textView.text.count
             
-//            let textRange = textView.textRange(from: from, to: to)
+            //            let textRange = textView.textRange(from: from, to: to)
             
             return false
         }
@@ -491,10 +507,10 @@ extension NoteCardNode {
 extension NoteCardNode {
     func setupToolbar() {
         toolbar.frame =  CGRect(x: 0, y: 0, width: self.frame.width, height: 40)
-//        toolbar.actionButtonTapped = {
-//            self.handleActionType(actionType: $0)
-//        }
-//        editView.inputAccessoryView = toolbar
+        //        toolbar.actionButtonTapped = {
+        //            self.handleActionType(actionType: $0)
+        //        }
+        //        editView.inputAccessoryView = toolbar
         self.contentEditNode?.textView.inputAccessoryView = toolbar
     }
 }

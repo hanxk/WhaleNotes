@@ -61,19 +61,11 @@ class NoteContentCell: UITableViewCell {
 }
 
 extension NoteContentCell: MarkdownTextViewDelegate {
-    func textViewDidChange(_ textView: MDTextView) {
+    func textViewDidChange(_ textView: UITextView) {
         self.textChanged?(textView.text)
     }
     
-    func textViewDidEndEditing(_ textView: MDTextView) {
+    func textViewDidEndEditing(_ textView: UITextView) {
         self.textDidFinishEditing?(textView.text)
-    }
-    func textViewTagTapped(_ textView: MDTextView, tag: String) {
-        
-    }
-    func textViewLinkTapped(_ textView: MDTextView, link: String) {
-        if let url = URL(string: link) {
-            UIApplication.shared.open(url)
-        }
     }
 }

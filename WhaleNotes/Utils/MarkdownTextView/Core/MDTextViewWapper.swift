@@ -1,137 +1,145 @@
 //
-//  MarkdownTextView.swift
-//  MarkdownTextView
+//  MDTextViewWapper.swift
+//  WhaleNotes
 //
-//  Created by Indragie on 4/29/15.
-//  Copyright (c) 2015 Indragie Karunaratne. All rights reserved.
+//  Created by hanxk on 2021/1/8.
+//  Copyright © 2021 hanxk. All rights reserved.
 //
 
 import UIKit
 
-protocol MarkdownTextViewDelegate {
-    func textViewDidChange(_ textView: UITextView)
-    func textViewDidEndEditing(_ textView: UITextView)
-//    func textViewTagTapped(_ textView: UITextView,tag:String)
-//    func textViewLinkTapped(_ textView: UITextView,link:String)
+protocol MDTextViewTappedDelegate {
+    func textViewTagTapped(_ textView: UITextView, tag: String)
+    func textViewLinkTapped(_ textView: UITextView, link: String)
 }
 
-
-
-
-/**
- *  Text view with support for highlighting Markdown syntax.
- */
-public class MDTextView: UITextView {
+extension MDTextViewTappedDelegate {
     
-    var editorDelegate:MarkdownTextViewDelegate?
+    func textViewLinkTapped(_ textView: UITextView, link: String) {
+        if let url = URL(string: link) {
+            UIApplication.shared.open(url)
+        }
+    }
+}
+
+class MDTextViewWapper: NSObject {
     
-    let mdTextStorage = MarkdownTextStorage()
+    var textStorage:MarkdownTextStorage!
     
     var highlightManager:MDHighlightManager {
-        return mdTextStorage.highlightManager
+        return textStorage.highlightManager
     }
     
-    public init(frame: CGRect = .zero) {
-        
-        
-        let containerSize = CGSize(width: windowWidth, height: CGFloat.greatestFiniteMagnitude)
-        
-        let textContainer = NSTextContainer(size: containerSize)
-        textContainer.widthTracksTextView = true
-        textContainer.lineBreakMode =  .byWordWrapping
-        
-        let layoutManager = MyLayoutManger()
-        layoutManager.addTextContainer(textContainer)
-        
-        mdTextStorage.addLayoutManager(layoutManager)
-        
-        super.init(frame: frame, textContainer: textContainer)
-        
-        mdTextStorage.textView = self
-        self.typingAttributes = MarkdownAttributes.mdDefaultAttributes
-        
-        layoutManager.delegate = self
-        
-        self.configure()
-        self.delegate = self
-        
-//        self.backgroundColor = .red
-        
-        //        self.text = "https://stackoverflow.com/questions/20507664/detect-data-in-uitextview-in-uitableviewcell"
-        //        self.backgroundColor = .red
-        
-        let keyboardView = MDKeyboardView()
-        keyboardView.delegate = self
-        
-        self.inputAccessoryView = keyboardView
+    weak var textView:UITextView?
+    var text:String {
+        return textView?.text ?? ""
     }
-    
     private var tempTime:Int64  = 0
+    var editorDelegate:MarkdownTextViewDelegate?
+    var textviewTappedDelegate:MDTextViewTappedDelegate?
     
-    func configure() {
-        self.autocorrectionType = .no
-        //        isScrollEnabled = false
-        //        isEditable = false
-        //        isUserInteractionEnabled = true
-        //        isSelectable = true
-        //        dataDetectorTypes = .link
+    var selectedRange:NSRange {
+        get { return self.textView?.selectedRange ?? NSMakeRange(0, 0)
+        }
+        set {
+            self.textView?.selectedRange = newValue
+        }
     }
     
-    required public init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    
+    init(textView: UITextView,isEditable:Bool  = false) {
+        super.init()
+        self.textView = textView
+        self.textStorage = (textView.textStorage as! MarkdownTextStorage)
+        
+        if isEditable   {
+            let keyboardView = MDKeyboardView()
+            keyboardView.delegate = self
+            textView.inputAccessoryView = keyboardView
+        }
+        
+        highlightManager.highlight(textStorage: textStorage, range:NSMakeRange(0, textView.text.count))
+        
     }
     
+    func insertText(_ text:String) {
+        self.textView?.insertText(text)
+    }
 }
 
+extension MDTextViewWapper:MDKeyboarActionDelegate {
+    func listButtonTapped() {
+        self.changeCurrentLine2List()
+    }
+    
+    func orderListButtonTapped() {
+        self.changeCurrentLine2OrderList()
+    }
+    
+    func keyboardButtonTapped() {
+        self.textView?.resignFirstResponder()
+    }
+    
+    
+    func changeCurrentLine2List() {
+        let lineRange  = (text as NSString).lineRange(for: self.selectedRange)
+        
+        let line = getSelectedLine()
+        
+        if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange){
+            // 移除 symbol
+            replaceAndMoveSelected(range: NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length), replace: "")
+            
+        } else{
+            
+            let symbolStr = "- "
+            let lineLeadingText = getLeadingText(line: line)
+            
+            if let numSymbolRange = highlightManager.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {// 是
+                
+                let move = abs(numSymbolRange.length - symbolStr.count)
+                
+                
+                replaceAndMoveSelected(range: NSMakeRange(lineRange.location, numSymbolRange.length), replace: symbolStr)
+                
+                
+                self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound - move, lineLeadingText: lineLeadingText)
+                
+                return
+            }
+            
+            replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound, 0), replace: symbolStr)
+        }
+    }
+}
 
 
 //MARK:  UITextViewDelegate
-extension MDTextView:UITextViewDelegate {
+extension MDTextViewWapper {
     
-    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if text == "\n" {
-            let lineRange  = getSelectedLineRange()
-            let line = (textView.text as NSString).substring(with: lineRange)
-            
-            // 匹配
-            if let numSymbolRange = highlightManager.numListHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
-                let leadingText =  getLineLeadingText(line: line)
-                self.handleNumberList(lineRange: lineRange, symbolRange: numSymbolRange,leadingText:leadingText)
-                return false
-            }
-            
-            if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
-                let leadingText =  getLineLeadingText(line: line)
-                self.handleBulletList(lineRange: lineRange, symbolRange: bulletSymbolRange,leadingText:leadingText)
-                return false
-            }
-            
+    public func handleEnterkey(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        let lineRange  = getSelectedLineRange()
+        let line = (textView.text as NSString).substring(with: lineRange)
+        
+        // 匹配
+        if let numSymbolRange = highlightManager.numListHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
+            let leadingText =  getLineLeadingText(line: line)
+            self.handleNumberList(lineRange: lineRange, symbolRange: numSymbolRange,leadingText:leadingText)
+            return false
+        }
+        
+        if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: textView.text, lineRange: lineRange){
+            let leadingText =  getLineLeadingText(line: line)
+            self.handleBulletList(lineRange: lineRange, symbolRange: bulletSymbolRange,leadingText:leadingText)
+            return false
         }
         return true
     }
-    
-    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        self.typingAttributes = MarkdownAttributes.mdDefaultAttributes
-        return true
-    }
-    
-    public func textViewDidChange(_ textView: UITextView) {
-        editorDelegate?.textViewDidChange(self)
-    }
-    
-    public func textViewDidEndEditing(_ textView: UITextView) {
-        editorDelegate?.textViewDidEndEditing(self)
-    }
-    
-    
-    public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        UIApplication.shared.open(URL)
-        return false
-    }
 }
 
+
 //MARK: 处理回车键
-extension MDTextView {
+extension MDTextViewWapper {
     
     func isOnlySymbol(lineRange:NSRange,symbolRange:NSRange,leadingText:String) -> Bool {
         let line = self.text.substring(with: lineRange)
@@ -188,56 +196,8 @@ extension MDTextView {
     }
 }
 
-
-//MARK: 键盘 
-extension MDTextView:MDKeyboarActionDelegate {
-    func listButtonTapped() {
-        self.changeCurrentLine2List()
-    }
-    
-    func orderListButtonTapped() {
-        self.changeCurrentLine2OrderList()
-    }
-    
-    func keyboardButtonTapped() {
-        self.resignFirstResponder()
-    }
-    
-    
-    func changeCurrentLine2List() {
-        let lineRange  = (text as NSString).lineRange(for: self.selectedRange)
-        
-        let line = getSelectedLine()
-        
-        if let bulletSymbolRange = highlightManager.bulletHightlighter.matchSymbol(text: self.text, lineRange: lineRange){
-            // 移除 symbol
-            replaceAndMoveSelected(range: NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length), replace: "")
-            
-        } else{
-            
-            let symbolStr = "- "
-            let lineLeadingText = getLeadingText(line: line)
-            
-            if let numSymbolRange = highlightManager.numListHightlighter.matchSymbol(text: self.text, lineRange: lineRange)  {// 是
-                
-                let move = abs(numSymbolRange.length - symbolStr.count)
-                
-                
-                replaceAndMoveSelected(range: NSMakeRange(lineRange.location, numSymbolRange.length), replace: symbolStr)
-                
-                
-                self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound - move, lineLeadingText: lineLeadingText)
-                
-                return
-            }
-            
-            replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound, 0), replace: symbolStr)
-        }
-    }
-}
-
 //MARK: number list
-extension MDTextView {
+extension MDTextViewWapper {
     
     func changeCurrentLine2OrderList() {
         let lineRange  = getSelectedLineRange()
@@ -353,7 +313,7 @@ extension MDTextView {
     
 }
 
-extension MDTextView {
+extension MDTextViewWapper {
     func getSelectedLineRange() -> NSRange {
         return (text as NSString).lineRange(for: self.selectedRange)
     }
@@ -371,67 +331,38 @@ extension MDTextView {
     }
 }
 
-
-extension  String {
-    func leadingWhiteSpaceAndTabRange() -> NSRange? {
-        //        regex.firstMatch(in: testString, options: [], range: range) != nil
-        let range = self.range(of: "^[ \t]+")
-        return range
-    }
-}
-
-extension MDTextView:NSLayoutManagerDelegate {
-    //    public func layoutManager(_ layoutManager: NSLayoutManager, shouldSetLineFragmentRect lineFragmentRect: UnsafeMutablePointer<CGRect>, lineFragmentUsedRect: UnsafeMutablePointer<CGRect>, baselineOffset: UnsafeMutablePointer<CGFloat>, in textContainer: NSTextContainer, forGlyphRange glyphRange: NSRange) -> Bool {
-    //
-    ////        var baseline: CGFloat = (lineFragmentRect.pointee.height - biggestLineHeight) / 2
-    ////        baseline += biggestLineHeight
-    ////        baseline -= biggestDescender
-    ////        baseline = min(max(baseline, 0), lineFragmentRect.pointee.height)
-    //
-    //
-    //        let a =  ((lineHeightMultiple - 1）* defaultFont.lineheight - defaultFont.descender）/（3 - lineHe）
-    //
-    //
-    //        baselineOffset.pointee = floor(baseline)
-    //
-    //        return false
-    //
-    //    }
+//MARK: UITextViewDelegate
+extension MDTextViewWapper: UITextViewDelegate {
     
-    func checkTapeable()  -> Bool {
-        let newTime = Date().currentTimeMillis()
-        if newTime - tempTime < 300 {
-            return false
-        }
-        tempTime = newTime
-        return true
-    }
     
-    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    public func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        
+        guard let textView = self.textView else { return   nil }
 
-        let glyphIndex = self.layoutManager.glyphIndex(for: point, in: self.textContainer)
+        let glyphIndex = textView.layoutManager.glyphIndex(for: point, in: textView.textContainer)
 
         //Ensure the glyphIndex actually matches the point and isn't just the closest glyph to the point
-        let glyphRect = self.layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: self.textContainer)
-        print("glyphIndex: \(glyphIndex)")
+        let glyphRect = textView.layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textView.textContainer)
+//        print("glyphIndex: \(glyphIndex)")
         if glyphIndex != 0 && glyphIndex < self.textStorage.length,
             glyphRect.contains(point),
             self.textStorage.attribute(NSAttributedString.Key.link, at: glyphIndex, effectiveRange: nil) != nil {
+
+//            let last = self.text.substring(with:glyphIndex..<(glyphIndex+1))
+//            if last == "\n" {
+//                print("回车")
+//                return nil
+//            }
             
-            let last = self.text.substring(with:glyphIndex..<(glyphIndex+1))
-            if last == "\n" {
-                print("回车")
-                return self
-            }
-            if !checkTapeable(){ return nil }
+            if isForbid(){ return self.textView }
 
             let newText = clipText(characterIndex: glyphIndex)
             if  newText.first == "#" {
                 if let range = self.highlightManager.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
                     let tag = newText.substring(with: range)
-//                    self.editorDelegate?.textViewTagTapped(self, tag: tag)
+                    self.textviewTappedDelegate?.textViewTagTapped(textView, tag: tag)
                     print(tag)
-                    return nil
+                    return self.textView
                 }
             }else {
                 if let range = self.highlightManager.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) {
@@ -440,12 +371,25 @@ extension MDTextView:NSLayoutManagerDelegate {
                         link = "http://\(link)"
                     }
                     print(link)
-//                    self.editorDelegate?.textViewLinkTapped(self, link: link)
-                    return nil
+                    self.textviewTappedDelegate?.textViewLinkTapped(textView, link: link)
+                    return self.textView
                 }
             }
         }
-        return self
+        return nil
+    }
+    
+    func isForbid()  -> Bool {
+        let newTime = Date().currentTimeMillis()
+//        if tempTime ==  0  {
+//            tempTime = newTime
+//            return false
+//        }
+        if newTime - tempTime < 300 {
+            return true
+        }
+        tempTime = newTime
+        return false
     }
     
     func extractTag(characterIndex:Int) -> String? {
@@ -453,32 +397,30 @@ extension MDTextView:NSLayoutManagerDelegate {
         let tagStart = str.lastIntIndex(of: "#")
         if tagStart == -1  { return nil}
         let newText  = self.text.substring(from: tagStart)
-        
+
         guard let range = self.highlightManager.tagHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
         let tag = newText.substring(with: range)
         return tag
     }
-    
-    
+
+
     func extractLink(characterIndex:Int) -> String? {
         let str = self.text.substring(to: characterIndex)
         let start = str.lastIndex { $0 == "\n" || $0 == "\t" || $0 == " "}?.utf16Offset(in: str) ?? 0
-        
+
         let newText  = self.text.substring(from: start)
-        
+
         guard let range = self.highlightManager.linkHightlighter.firstMatch(text: newText, searchRange: NSMakeRange(0, newText.count)) else { return nil}
         let link = newText.substring(with: range)
         return link
     }
-    
-    
+
+
     func clipText(characterIndex:Int) -> String {
         let str = self.text.substring(to: characterIndex)
         let start = str.lastIndex { $0 == "\n" || $0 == "\t" || $0 == " "}?.utf16Offset(in: str) ?? -1
-        
+
         let newText = self.text.substring(from: start+1)
         return newText
     }
-    
-    
 }
