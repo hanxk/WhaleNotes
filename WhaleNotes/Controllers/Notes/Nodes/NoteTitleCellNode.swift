@@ -69,9 +69,9 @@ extension NoteTitleCellNode {
     
 
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
-        let font =  UIFont.systemFont(ofSize: 22, weight: .medium)
+        let font = MDStyle.generateDefaultFont(fontSize: 22,weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.3
+        paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.lineBreakMode = .byWordWrapping;
         
         let attributes: [NSAttributedString.Key: Any] = [

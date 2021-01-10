@@ -11,7 +11,7 @@ class NoteTitleCell: UITableViewCell {
     
     let textView: UITextView = UITextView().then {
 //        $0.placeholder = "标题"
-        $0.font = MarkdownAttributes.headerFont2
+        $0.font = MDStyle.generateDefaultFont(fontSize: 18,weight: .medium)
         $0.textColor = .primaryText
         $0.autocorrectionType = .no
         $0.spellCheckingType = .no
