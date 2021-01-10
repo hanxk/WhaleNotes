@@ -28,6 +28,7 @@ class MDEditorViewController: UIViewController {
     var cellNodeTypes:[EditorCellNodeType] = [.title,.content]
     
     private var isKeyboardShow = false
+    var isNewCreated = false
     
     //    private var noteEditorEvent:NoteEditorEvent?
     private var callbackNoteInfoEdited:((NoteInfo)->Void)?
@@ -92,6 +93,23 @@ class MDEditorViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if isNewCreated {
+            if let cell = self.getNoteContentCellNode() {
+                cell.textNode.textView.becomeFirstResponder()
+            }
+        }
+    }
+    
+    private func getNoteContentCellNode() -> NoteContentCellNode? {
+        return self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode
+    }
+    private func getNoteTitleCell() -> NoteTitleCellNode? {
+        return self.tableView.nodeForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCellNode
+    }
     override func viewWillDisappear(_ animated: Bool) {
         tryUpdateInputing()
         tryEmitUpdateEvent(isDelay: isKeyboardShow)

@@ -106,13 +106,13 @@ class NotesListView: UIView {
 //        }
        let editorVC  = MDEditorViewController()
         editorVC.noteInfo = noteInfo
+        editorVC.isNewCreated = isNewCreated
         editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
             self?.handleNoteInfoUpdated(noteInfo)
         }
         
        editorVC.modalPresentationStyle = .fullScreen
        self.controller?.present(editorVC, animated: true, completion: nil)
-//       self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }
 }
 
