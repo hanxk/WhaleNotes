@@ -25,7 +25,7 @@ public class MarkdownTextStorage: NSTextStorage {
     
 //    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter,linkHightlighter]
     
-    let highlightManager = MDHighlightManager()
+    var highlightManager:MDHighlightManager!
     
     private  var backingStore:NSMutableAttributedString!
     var textView: UITextView!{
@@ -50,6 +50,7 @@ public class MarkdownTextStorage: NSTextStorage {
         self.init()
         self.style = style
         backingStore = NSMutableAttributedString(string: "", attributes: style.mdDefaultAttributes)
+        highlightManager = MDHighlightManager(style: style)
     }
     public override init() {
         super.init()

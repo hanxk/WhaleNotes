@@ -314,7 +314,7 @@ extension NoteCardNode {
     
     
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
-        let font =  MDStyle.generateDefaultFont(fontSize: 18,weight: .medium)
+        let font =  MDStyle.generateDefaultFont(fontSize: 19,weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.lineBreakMode = .byWordWrapping;

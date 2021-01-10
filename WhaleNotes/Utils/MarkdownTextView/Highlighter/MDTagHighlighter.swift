@@ -13,12 +13,23 @@ public final class MDTagHighlighter: MDHighlighterType {
     let regex:NSRegularExpression
     private let attributes:TextAttributes
     private let regexStr = "(?:^|\\s)(?:#)(\\S+)(?:$|(?=\\s?))"
-    //(?:^|(?<=\\s+))(?:#)(\\S+)(?=\\s+)"
-    init() {
+   
+    init(font:  UIFont) {
         self.regex = regexFromPattern(pattern: regexStr)
-        self.attributes = MarkdownAttributes().tagAttributes!
+        self.attributes =  [
+            .font:font,
+            NSAttributedString.Key.foregroundColor: UIColor.green,
+            NSAttributedString.Key.underlineColor: UIColor.lightGray,
+            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue
+        ]
     }
     
+//    public var tagAttributes: TextAttributes? = [
+//        .font:defaultFont,
+//        NSAttributedString.Key.foregroundColor: UIColor.green,
+//        NSAttributedString.Key.underlineColor: UIColor.lightGray,
+//        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue
+//    ]
     
     public func highlight(storage:NSTextStorage,searchRange:NSRange) {
         self.regex.enumerateMatches(in: storage.string, range: searchRange) {

@@ -61,7 +61,7 @@ class NoteContentCellNode:ASCellNode {
     
     func generateASEditableTextNode(content:String)  -> ASEditableTextNode {
         
-        let style = MDStyle(fontSize: 17)
+        let style = MDStyle(fontSize: 16)
         
         let textStorage =  MarkdownTextStorage(style: style)
         let layoutManager = MyLayoutManger()

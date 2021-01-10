@@ -234,19 +234,19 @@ extension NoteEditorViewController {
         if self.noteInfo.note.content == content{ return }
         let noteTagTitles = self.noteInfo.tags
         
-        let tagTitles = self.extractTags(tagRegex: textView.highlightManager.tagHightlighter.regex, text: content)
-        
-        let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
-        if isEqual {
-            self.model.updateNoteContent(content: content)
-            return
-        }
-        // 提取标签并更新
-        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
-        
-        
-        // 通知侧边栏刷新
-        EventManager.shared.post(name: .Tag_CHANGED)
+//        let tagTitles = self.extractTags(tagRegex: textView.highlightManager.tagHightlighter.regex, text: content)
+//        
+//        let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
+//        if isEqual {
+//            self.model.updateNoteContent(content: content)
+//            return
+//        }
+//        // 提取标签并更新
+//        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
+//        
+//        
+//        // 通知侧边栏刷新
+//        EventManager.shared.post(name: .Tag_CHANGED)
     }
     
     private func extractTags(tagRegex:NSRegularExpression,text:String) -> [String]  {

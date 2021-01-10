@@ -9,16 +9,23 @@
 import UIKit
 
 class MDHighlightManager {
-    let headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
+
+    private(set) var headerHightlighter:MDHeaderHighlighter!
+    private(set) var tagHightlighter:MDTagHighlighter!
+    private(set) var linkHightlighter:MDLinkHighlighter!
+    private(set) var bulletHightlighter:MDBulletListHighlighter!
+    private(set) var numListHightlighter:MDNumListHighlighter!
     
-    let tagHightlighter = MDTagHighlighter()
-    let linkHightlighter = MDLinkHighlighter()
+    private var mdHighlighters:[MDHighlighterType]
     
-    let bulletHightlighter = MDBulletListHighlighter()
-    let numListHightlighter = MDNumListHighlighter()
-    
-    
-    private lazy var mdHighlighters:[MDHighlighterType] = [headerHightlighter,tagHightlighter,linkHightlighter]
+    init(style:MDStyle) {
+        headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
+        tagHightlighter =  MDTagHighlighter(font: MDStyle.generateDefaultFont(fontSize: style.font.pointSize, weight: .medium))
+        linkHightlighter = MDLinkHighlighter(font: style.font)
+        bulletHightlighter = MDBulletListHighlighter()
+        numListHightlighter = MDNumListHighlighter()
+        self.mdHighlighters = [headerHightlighter,tagHightlighter,linkHightlighter]
+    }
     
     
     func highlight(textStorage:NSTextStorage,range:NSRange) {

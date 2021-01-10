@@ -14,9 +14,14 @@ public final class MDLinkHighlighter: MDHighlighterType {
     private let attributes:TextAttributes
     private let regexStr = #"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"#
     //(?:^|(?<=\\s+))(?:#)(\\S+)(?=\\s+)"
-    init() {
+    init(font: UIFont) {
         self.regex = regexFromPattern(pattern: regexStr)
-        self.attributes = MarkdownAttributes().tagAttributes!
+        self.attributes =  [
+            .font:font,
+            NSAttributedString.Key.foregroundColor: UIColor.green,
+            NSAttributedString.Key.underlineColor: UIColor.lightGray,
+            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue
+        ]
     }
     
     

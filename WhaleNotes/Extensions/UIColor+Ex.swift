@@ -11,7 +11,7 @@ import UIKit
 extension UIColor {
     open class var brand: UIColor {
         get {
-            return UIColor(hexString: "#0087FE")!
+            return UIColor(hexString: "#0087FE")! //#1D71E7
         }
     }
     
