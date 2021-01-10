@@ -28,8 +28,7 @@ class NoteContentCellNode:ASCellNode {
         super.init()
         self.content = title
         
-        self.textNode =  generateASEditableTextNode()
-        self.textNode.attributedText =  NSMutableAttributedString(string: content, attributes: MarkdownAttributes.mdDefaultAttributes)
+        self.textNode =  generateASEditableTextNode(content: title)
         
         
 //        self.backgroundColor   = .red
@@ -60,7 +59,7 @@ class NoteContentCellNode:ASCellNode {
     }
     
     
-    func generateASEditableTextNode()  -> ASEditableTextNode {
+    func generateASEditableTextNode(content:String)  -> ASEditableTextNode {
         
         let style = MDStyle(fontSize: 16)
         
@@ -87,6 +86,10 @@ class NoteContentCellNode:ASCellNode {
                         $0.textView.tag = EditViewTag.content.rawValue
                         $0.tintColor =  UIColor.link
          }
+        
+        
+        contentNode.attributedText =  NSMutableAttributedString(string: content, attributes: style.mdDefaultAttributes)
+        
         return  contentNode
     }
 }

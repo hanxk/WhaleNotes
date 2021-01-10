@@ -11,7 +11,7 @@ import AsyncDisplayKit
 import RxSwift
 
 enum MDEditorConfig {
-    static let paddingH:CGFloat = 16
+    static let paddingH:CGFloat = 20
 }
 class MDEditorViewController: UIViewController {
     
@@ -47,14 +47,13 @@ class MDEditorViewController: UIViewController {
     private lazy var tableView = ASTableNode().then {
         $0.delegate = self
         $0.dataSource = self
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
-//        $0.backgroundColor = .blue
+        $0.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: bottomExtraSpace, right: 0)
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
-//        $0.view.keyboardDismissMode = .onDrag
+        $0.view.keyboardDismissMode = .interactive
     }
     
-    let bottomExtraSpace: CGFloat = 42.0
+    lazy var bottomExtraSpace: CGFloat = 42.0 + 44
     let keyboardTop: CGFloat = 16
     
     var focusedTextView:UITextView? = nil
@@ -69,14 +68,14 @@ class MDEditorViewController: UIViewController {
         self.view.addSubview(tableView.view)
         tableView.view.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(self.topbarHeight)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(0)
         }
         
         self.view.addSubview(myNavbar)
         myNavbar.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
         }
         
         self.navigationController?.navigationBar.isHidden = true
@@ -156,14 +155,18 @@ extension MDEditorViewController {
         let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
         
         if notification.name == UIResponder.keyboardWillHideNotification {
-            tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.bottomExtraSpace, right: 0)
+            var edgeInsets = tableView.contentInset
+            edgeInsets.bottom = self.bottomExtraSpace
+            tableView.contentInset = edgeInsets
             tableView.view.scrollIndicatorInsets  = .zero
             isKeyboardShow = false
         } else {
             isKeyboardShow = true
             let  offset = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
-            let  inset  =  UIEdgeInsets(top: 0, left: 0, bottom: offset + keyboardTop, right: 0)
-            tableView.contentInset = inset
+            
+            var edgeInsets = tableView.contentInset
+            edgeInsets.bottom = offset + keyboardTop
+            tableView.contentInset = edgeInsets
             
             tableView.view.scrollIndicatorInsets  =  UIEdgeInsets(top: 0, left: 0, bottom: offset, right: 0)
             
@@ -254,7 +257,7 @@ extension MDEditorViewController {
     
     func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
         
-        let backButtonImage =  UIImage(systemName: "chevron.left", pointSize: 20, weight: .regular)
+        let backButtonImage =  UIImage(systemName: "multiply", pointSize: 22, weight: .regular)
         
         let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
@@ -265,7 +268,8 @@ extension MDEditorViewController {
     }
     
     @objc func backBarButtonTapped() {
-        self.navigationController?.popViewController(animated: true)
+//        self.navigationController?.popViewController(animated: true)
+        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func menuIconTapped() {

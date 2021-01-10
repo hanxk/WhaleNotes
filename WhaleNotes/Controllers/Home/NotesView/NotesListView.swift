@@ -109,7 +109,10 @@ class NotesListView: UIView {
         editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
             self?.handleNoteInfoUpdated(noteInfo)
         }
-       self.controller?.navigationController?.pushViewController(editorVC, animated: true)
+        
+       editorVC.modalPresentationStyle = .fullScreen
+       self.controller?.present(editorVC, animated: true, completion: nil)
+//       self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }
 }
 
