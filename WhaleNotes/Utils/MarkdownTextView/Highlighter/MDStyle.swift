@@ -21,7 +21,7 @@ struct MDStyle {
             return paraStyle
         }()
         self.mdDefaultAttributes =  [
-            .font: defaultFont,
+            .font: font,
             .foregroundColor: UIColor.primaryText,
             .paragraphStyle: paragraphStyle
         ]

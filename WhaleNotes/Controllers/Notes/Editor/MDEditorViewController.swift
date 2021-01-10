@@ -199,11 +199,10 @@ extension MDEditorViewController {
         let pointInTable:CGPoint = textView.superview!.convert(textView.frame.origin, to: self.tableView.view)
         let originY = pointInTable.y
         
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            var caret = textView.caretRect(for: textView.selectedTextRange!.start)
+        if let selectedRange = textView.selectedTextRange {
+            var caret = textView.caretRect(for: selectedRange.start)
             caret.y =  caret.y + originY + self.keyboardTop
             self.tableView.view.scrollRectToVisible(caret, animated: animated)
-            
         }
     }
     

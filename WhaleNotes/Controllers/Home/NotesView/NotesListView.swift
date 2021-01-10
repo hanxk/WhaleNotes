@@ -68,7 +68,7 @@ class NotesListView: UIView {
     func createNewNote() {
         var noteInfo = NoteInfo(note: Note())
         if let tag = self.noteTag {
-           noteInfo.note.content = "#\(tag.title)"
+           noteInfo.note.content = "#\(tag.title) "
            noteInfo.tags = [tag]
         }
         NoteRepo.shared.createNote(noteInfo)

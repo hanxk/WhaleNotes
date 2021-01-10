@@ -149,7 +149,7 @@ class NoteCardNode: ASCellNode {
             
             let containerSize = CGSize.zero
             
-            let style = MDStyle(fontSize: 15)
+            let style = MDStyle(fontSize: 16)
             let textStorage =  MarkdownTextStorage(style: style)
             let layoutManager = MyLayoutManger()
             
