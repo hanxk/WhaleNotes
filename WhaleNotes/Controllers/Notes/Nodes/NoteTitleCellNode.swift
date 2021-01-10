@@ -22,6 +22,7 @@ class NoteTitleCellNode:ASCellNode {
     private var textChanged: ((String) -> Void)?
     private var textDidFinishEditing: ((String) -> Void)?
     private var textEnterkeyInput: (() -> Void)?
+    private var textShouldBeginEditing: ((UITextView) -> Void)?
     
     private(set) var title = ""
     
@@ -46,6 +47,10 @@ class NoteTitleCellNode:ASCellNode {
     }
     func textEnterkeyInput(action: @escaping () -> Void) {
         self.textEnterkeyInput = action
+    }
+    
+    func textShouldBeginEditing(action: @escaping (UITextView) -> Void) {
+        self.textShouldBeginEditing = action
     }
 }
 
@@ -90,6 +95,11 @@ extension NoteTitleCellNode: ASEditableTextNodeDelegate {
     func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
         let text = editableTextNode.textView.text ??  ""
         self.textDidFinishEditing?(text)
+    }
+    
+    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
+        self.textShouldBeginEditing?(editableTextNode.textView)
+        return true
     }
     
     func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {

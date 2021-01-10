@@ -192,8 +192,8 @@ extension UIColor {
     open class var bg: UIColor {
         get {
             
-//            return UIColor.init(hexString: "#f8f8f8")
-            return UIColor.init(hexString: "#fafafa")
+            return UIColor.init(hexString: "#f8f8f8")
+//            return UIColor.init(hexString: "#fafafa")
         }
     }
     

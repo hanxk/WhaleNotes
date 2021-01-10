@@ -18,7 +18,7 @@ class MDEditorViewController: UIViewController {
     enum EditorCellNodeType {
         case title
         case content
-//        case tags
+        //        case tags
     }
     
     private  var disposeBag = DisposeBag()
@@ -29,17 +29,17 @@ class MDEditorViewController: UIViewController {
     
     private var isKeyboardShow = false
     
-//    private var noteEditorEvent:NoteEditorEvent?
+    //    private var noteEditorEvent:NoteEditorEvent?
     private var callbackNoteInfoEdited:((NoteInfo)->Void)?
     
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = false
-//        $0.delegate = self
+        //        $0.delegate = self
         let barAppearance =  UINavigationBarAppearance()
-    //   barAppearance.configureWithDefaultBackground()
+        //   barAppearance.configureWithDefaultBackground()
         barAppearance.configureWithDefaultBackground()
         $0.standardAppearance.backgroundColor = .white
-            
+        
         $0.scrollEdgeAppearance = barAppearance
         $0.standardAppearance.shadowColor = nil
     }
@@ -47,17 +47,21 @@ class MDEditorViewController: UIViewController {
     private lazy var tableView = ASTableNode().then {
         $0.delegate = self
         $0.dataSource = self
-        $0.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
-//        $0.backgroundColor = .red
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
+//        $0.backgroundColor = .blue
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
-        $0.view.keyboardDismissMode = .onDrag
+//        $0.view.keyboardDismissMode = .onDrag
     }
+    
+    let bottomExtraSpace: CGFloat = 42.0
+    let keyboardTop: CGFloat = 16
+    
+    var focusedTextView:UITextView? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
-        
         self.registerNoteInfoEvent()
     }
     
@@ -66,7 +70,7 @@ class MDEditorViewController: UIViewController {
         tableView.view.snp.makeConstraints {
             $0.width.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(self.topbarHeight)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(0)
         }
         
         self.view.addSubview(myNavbar)
@@ -82,26 +86,18 @@ class MDEditorViewController: UIViewController {
         self.registerTableViewTaped()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         tryUpdateInputing()
         tryEmitUpdateEvent(isDelay: isKeyboardShow)
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDisappear), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
-    }
-    @objc func keyboardWillAppear() {
-        //Do something here
-        isKeyboardShow = true
-    }
-
-    @objc func keyboardWillDisappear() {
-        //Do something here
-        isKeyboardShow = false
     }
     
     @objc func appMovedToBackground() {
@@ -119,7 +115,7 @@ class MDEditorViewController: UIViewController {
                 guard let self = self  else {  return }
                 
                 if self.isNoteUpdated {
-                   self.callbackNoteInfoEdited?(self.noteInfo)
+                    self.callbackNoteInfoEdited?(self.noteInfo)
                 }
             }
             return
@@ -136,33 +132,62 @@ extension MDEditorViewController {
         if !isKeyboardShow { return }
         if let titleCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCellNode,
            titleCelleNode.titleNode.isFirstResponder()
-           {
+        {
             self.updateInputTitle(titleCelleNode.title)
             return
         }
         if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
            contentCelleNode.textNode.isFirstResponder()
-           {
+        {
             self.updateInputContent(contentCelleNode.content)
             return
         }
     }
-//    private func tryResignResponder() {
-//        if !isKeyboardShow  { return }
-////            if let titleCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCellNode
-////               {
-////                titleCelleNode.resignFirstResponder()
-////                return
-////            }
-//            if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
-//               contentCelleNode.contentNode.isFirstResponder()
-//               {
-//                contentCelleNode.contentNode.resignFirstResponder()
-//                return
-//            }
-//    }
 }
 
+//MARK: 键盘
+extension MDEditorViewController {
+    
+    @objc func adjustForKeyboard(notification: Notification) {
+        
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        
+        let keyboardScreenEndFrame = keyboardValue.cgRectValue
+        let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
+        
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: self.bottomExtraSpace, right: 0)
+            tableView.view.scrollIndicatorInsets  = .zero
+            isKeyboardShow = false
+        } else {
+            isKeyboardShow = true
+            let  offset = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
+            let  inset  =  UIEdgeInsets(top: 0, left: 0, bottom: offset + keyboardTop, right: 0)
+            tableView.contentInset = inset
+            
+            tableView.view.scrollIndicatorInsets  =  UIEdgeInsets(top: 0, left: 0, bottom: offset, right: 0)
+            
+            if let focusedTextView = self.focusedTextView {
+              self.scrollToCursorPositionIfBelowKeyboard(textView:focusedTextView)
+            }
+        }
+    }
+    
+    private func scrollToCursorPositionIfBelowKeyboard(textView:UITextView,animated:Bool = true) {
+        
+        let pointInTable:CGPoint = textView.superview!.convert(textView.frame.origin, to: self.tableView.view)
+        let originY = pointInTable.y
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
+            var caret = textView.caretRect(for: textView.selectedTextRange!.start)
+            caret.y =  caret.y + originY + self.keyboardTop
+            self.tableView.view.scrollRectToVisible(caret, animated: animated)
+            
+        }
+    }
+    
+    
+}
 
 extension MDEditorViewController {
     
@@ -191,9 +216,9 @@ extension MDEditorViewController {
         tapGesture.cancelsTouchesInView = false
         self.tableView.view.addGestureRecognizer(tapGesture)
     }
-
+    
     @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
-
+        
         if sender.state != .ended {
             return
         }
@@ -214,7 +239,7 @@ extension MDEditorViewController {
         myNavbar.items = [navItem]
         myNavbar.tintColor = .iconColor
         self.createBackBarButton(forNavigationItem: navItem)
-       
+        
         let tagButton = generateUIBarButtonItem(imageName: "tag", action:  #selector(tagIconTapped))
         
         let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(menuIconTapped))
@@ -233,10 +258,10 @@ extension MDEditorViewController {
         
         let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
-//        backButton.backgroundColor = .red
-           backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
-           let backBarButton = UIBarButtonItem(customView: backButton)
-           navigationItem.leftBarButtonItems = [backBarButton]
+        //        backButton.backgroundColor = .red
+        backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
+        let backBarButton = UIBarButtonItem(customView: backButton)
+        navigationItem.leftBarButtonItems = [backBarButton]
     }
     
     @objc func backBarButtonTapped() {
@@ -268,7 +293,7 @@ extension MDEditorViewController:ASTableDataSource {
             let titleCellNode = NoteTitleCellNode(title: self.noteInfo.note.title)
             titleCellNode.textChanged {[weak titleCellNode] (newText: String) in
                 if let titleCellNode = titleCellNode {
-                   self.refreshTableNode(node: titleCellNode)
+                    self.refreshTableNode(node: titleCellNode)
                 }
             }
             titleCellNode.textDidFinishEditing {[weak self] (newText: String) in
@@ -277,16 +302,24 @@ extension MDEditorViewController:ASTableDataSource {
             titleCellNode.textEnterkeyInput {[weak self] in
                 self?.jump2ContentFirstWord()
             }
+            titleCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
+//                self?.scrollToCursorPositionIfBelowKeyboard(textView: textView)
+                self?.focusedTextView = textView
+            }
             return titleCellNode
         case .content:
             let contentCellNode = NoteContentCellNode(title: self.noteInfo.note.content)
             contentCellNode.textChanged {[weak contentCellNode] (newText: String) in
                 if let contentCellNode = contentCellNode {
-                   self.refreshTableNode(node: contentCellNode)
+                    self.refreshTableNode(node: contentCellNode)
                 }
             }
             contentCellNode.textDidFinishEditing {[weak self] (newText: String) in
                 self?.updateInputContent(newText)
+            }
+            contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
+//                self?.scrollToCursorPositionIfBelowKeyboard(textView: textView)
+                self?.focusedTextView = textView
             }
             return contentCellNode
         }
@@ -294,14 +327,15 @@ extension MDEditorViewController:ASTableDataSource {
     
     private func updateInputContent(_ content:String) {
         if self.noteInfo.note.content == content{ return }
-         self.model.updateNoteContent(content: content)
+        self.model.updateNoteContent(content: content)
     }
     
     private func updateInputTitle(_ title:String) {
         if self.noteInfo.note.title == title { return }
         self.model.updateNoteTitle(title: title)
     }
-  
+    
+    
     private func refreshTableNode(node:ASCellNode) {
         UIView.setAnimationsEnabled(false)
         self.tableView.performBatch(animated: false) {
@@ -310,16 +344,25 @@ extension MDEditorViewController:ASTableDataSource {
             DispatchQueue.main.asyncAfter(deadline: .now() + node.defaultLayoutTransitionDuration) {
                 UIView.setAnimationsEnabled(true)
             }
+            
+            if self.isKeyboardShow {
+                if let focusedTextView = self.focusedTextView {
+                    self.scrollToCursorPositionIfBelowKeyboard(textView:focusedTextView,animated:false)
+                }
+            }
+            
         }
+        
+        
     }
     
     func jump2ContentFirstWord() {
         if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode {
-//            contentCelleNode.contentNode.becomeFirstResponder()
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                // your code here
-//                contentCelleNode.contentNode.selectedRange = NSMakeRange(0, 0)
-//            }
+            //            contentCelleNode.contentNode.becomeFirstResponder()
+            //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            //                // your code here
+            //                contentCelleNode.contentNode.selectedRange = NSMakeRange(0, 0)
+            //            }
         }
     }
 }

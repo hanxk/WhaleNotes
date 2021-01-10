@@ -18,6 +18,7 @@ class NoteContentCellNode:ASCellNode {
     
     private var textChanged: ((String) -> Void)?
     private var textDidFinishEditing: ((String) -> Void)?
+    private var textShouldBeginEditing: ((UITextView) -> Void)?
     
     
     private var mdHelper:MDHelper!
@@ -53,6 +54,9 @@ class NoteContentCellNode:ASCellNode {
     }
     func textDidFinishEditing(action: @escaping (String) -> Void) {
         self.textDidFinishEditing = action
+    }
+    func textShouldBeginEditing(action: @escaping (UITextView) -> Void) {
+        self.textShouldBeginEditing = action
     }
     
     
@@ -109,6 +113,11 @@ extension NoteContentCellNode: ASEditableTextNodeDelegate {
         let newText = textView.text ??  ""
         self.textChanged?(newText)
       
+    }
+    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
+//        let newText = editableTextNode.textView.text ??  ""
+        self.textShouldBeginEditing?(editableTextNode.textView)
+        return true
     }
     
     func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
