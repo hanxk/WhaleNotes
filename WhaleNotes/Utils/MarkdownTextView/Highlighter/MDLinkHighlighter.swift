@@ -17,10 +17,7 @@ public final class MDLinkHighlighter: MDHighlighterType {
     init(font: UIFont) {
         self.regex = regexFromPattern(pattern: regexStr)
         self.attributes =  [
-            .font:font,
-            NSAttributedString.Key.foregroundColor: UIColor.green,
-            NSAttributedString.Key.underlineColor: UIColor.lightGray,
-            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue
+            .font:font
         ]
     }
     
@@ -29,7 +26,8 @@ public final class MDLinkHighlighter: MDHighlighterType {
         self.regex.enumerateMatches(in: storage.string, range: searchRange) {
             match, flags, stop in
             if  let  match = match {
-                storage.addAttribute(.link, value: attributes, range: match.range(at: 0))
+                storage.addAttribute(.link, value: attributes, range:  match.range)
+                storage.addAttributes(attributes, range: match.range)
             }
         }
     }

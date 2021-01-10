@@ -18,9 +18,7 @@ public final class MDTagHighlighter: MDHighlighterType {
         self.regex = regexFromPattern(pattern: regexStr)
         self.attributes =  [
             .font:font,
-            NSAttributedString.Key.foregroundColor: UIColor.green,
-            NSAttributedString.Key.underlineColor: UIColor.lightGray,
-            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue
+            NSAttributedString.Key.foregroundColor: UIColor.red
         ]
     }
     
@@ -37,8 +35,9 @@ public final class MDTagHighlighter: MDHighlighterType {
             if  let  match = match {
 //                storage.addAttribute(.tagStyle,value: TagStyle(),range: match.range(at: 0))
 //                storage.addAttribute(.,value: TagStyle(),range: match.range(at: 0))
-                storage.addAttribute(.link, value: attributes, range: match.range(at: 0))
-//                storage.addAttributes(attributes, range: match.range)
+//                storage.addAttribute(.link, value: attributes, range: match.range(at: 0))
+                storage.addAttribute(.link, value: attributes, range:  match.range)
+                storage.addAttributes(attributes, range: match.range)
 //                storage.addAttribute(., value: <#T##Any#>, range: <#T##NSRange#>)
             }
         }

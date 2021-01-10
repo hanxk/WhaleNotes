@@ -348,7 +348,49 @@ extension MDEditorViewController:ASTableDataSource {
     
     private func updateInputContent(_ content:String) {
         if self.noteInfo.note.content == content{ return }
-        self.model.updateNoteContent(content: content)
+        
+        guard let contentCellNode = getNoteContentCellNode() else { return }
+        
+        let noteTagTitles = self.noteInfo.tags
+        
+        let tagTitles = self.extractTags(tagRegex: contentCellNode.mdTextViewWrapper.highlightManager.tagHightlighter.regex, text: content)
+
+        let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
+        if isEqual {
+            self.model.updateNoteContent(content: content)
+            return
+        }
+        // 提取标签并更新
+        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
+
+        // 通知侧边栏刷新
+        EventManager.shared.post(name: .Tag_CHANGED)
+    }
+    
+    private func extractTags(tagRegex:NSRegularExpression,text:String) -> [String]  {
+        var tags:[String] = []
+        tagRegex.enumerateMatches(in: text,range:NSMakeRange(0, text.length)) {
+            match, flags, stop in
+            if  let  match = match {
+                let  tagRange = match.range(at: 1)
+                tags.append(text.substring(with: tagRange))
+            }
+        }
+        
+        var tagTitles:[String] = []
+        for title in tags {
+            //新增 parent tag
+            let parentTitles = title.components(separatedBy: "/").dropLast()
+            var pTitle = ""
+            for (index,title) in parentTitles.enumerated() {
+                if index > 0 { pTitle += "/" }
+                pTitle += title
+                tagTitles.append(pTitle)
+            }
+            tagTitles.append(title)
+        }
+        tagTitles = tagTitles.sorted { $0 < $1 }
+        return tagTitles
     }
     
     private func updateInputTitle(_ title:String) {

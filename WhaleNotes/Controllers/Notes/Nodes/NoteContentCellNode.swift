@@ -12,7 +12,7 @@ import AsyncDisplayKit
 class NoteContentCellNode:ASCellNode {
     
     var textNode:ASEditableTextNode!
-    private var mdTextViewWrapper:MDTextViewWapper!
+    var mdTextViewWrapper:MDTextViewWapper!
     
     private(set) var content:String  = ""
     
