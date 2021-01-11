@@ -513,7 +513,7 @@ extension HomeViewController {
 
         if let navigationController = navigationController {
             SideMenuManager.default.addPanGestureToPresent(toView: navigationController.navigationBar)
-            SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: self.view,forMenu: .left)
+            SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: navigationController.view,forMenu: .left)
         }
     }
 }
