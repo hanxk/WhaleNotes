@@ -24,7 +24,7 @@ class NotesListView: UIView {
     private var notes:[NoteInfo]  = []
     private var tagTitleWidthCache:[String:CGFloat] = [:]
     private var selectedNoteId:String?
-    private lazy var tableView = ASTableNode().then {
+    lazy var tableView = ASTableNode().then {
         $0.delegate = self
         $0.dataSource = self
         $0.contentInset = UIEdgeInsets(top: 5, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
@@ -35,6 +35,8 @@ class NotesListView: UIView {
     private var mode:NoteListMode!
     private var noteTag:Tag? = nil
     private weak var viewModel: NoteInfoViewModel?
+    
+    private lazy var insetsTop:CGPoint = tableView.contentOffset
     
     enum MenuAction:Int {
         case edit =  1
@@ -53,6 +55,7 @@ class NotesListView: UIView {
     private func setupUI() {
         tableView.frame = self.frame
         tableView.backgroundColor = .bg
+        
         self.addSubnode(tableView)
         
     }
@@ -95,10 +98,7 @@ extension NotesListView {
         let tagId = tag?.id ?? ""
         NoteRepo.shared.getNotes(tag: tagId)
             .subscribe(onNext: { [weak self] notes in
-                if let self = self {
-                    self.notes = notes
-                    self.tableView.reloadData()
-                }
+                self?.reloadTableView(notes: notes)
             }, onError: {
                 Logger.error($0)
             })
@@ -108,17 +108,18 @@ extension NotesListView {
     private func loadData(status:NoteStatus) {
         NoteRepo.shared.getNotes(status: status)
             .subscribe(onNext: { [weak self] notes in
-                if let self = self {
-                    self.notes = notes
-                    self.tableView.reloadData()
-                    self.tableView.contentOffset = .zero
-                }
+                self?.reloadTableView(notes: notes)
             }, onError: {
                 Logger.error($0)
             })
             .disposed(by: disposeBag)
     }
     
+    private func reloadTableView(notes:[NoteInfo])  {
+        self.notes = notes
+        self.tableView.reloadData()
+        self.tableView.contentOffset = self.insetsTop
+    }
     
     func createNewNote() {
         var noteInfo = NoteInfo(note: Note())

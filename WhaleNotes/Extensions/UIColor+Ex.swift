@@ -69,7 +69,7 @@ extension UIColor {
     open class var iconColor: UIColor {
         get {
 //            return UIColor(red: 0.122, green: 0.133, blue: 0.145, alpha: 1)
-            return  UIColor(hexString: "#1F2225")
+            return  UIColor(hexString: "#444444")
         }
     }
     
@@ -195,6 +195,12 @@ extension UIColor {
             return UIColor.init(hexString: "#f6f6f6")
 //            return UIColor.init(hexString: "#f8f8f8")
 //            return UIColor.init(hexString: "#fafafa")
+        }
+    }
+    open class var statusbar: UIColor {
+        get {
+            
+            return UIColor.bg
         }
     }
     

@@ -40,3 +40,12 @@ extension UIBarButtonItem {
     }
 }
 
+
+extension UINavigationBar {
+    func transparentNavigationBar() {
+        self.setBackgroundImage(UIImage(), for: .default) //UIImage.init(named: "transparent.png")
+        self.shadowImage = UIImage()
+    //        self.isTranslucent = true
+        self.backgroundColor = UIColor.statusbar.withAlphaComponent(0.92)
+    }
+}

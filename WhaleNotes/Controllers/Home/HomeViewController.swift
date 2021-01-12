@@ -27,15 +27,10 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private var floatButton:UIButton!
     
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
-        $0.isTranslucent = true
         $0.delegate = self
         $0.tintColor = .iconColor
-        let barAppearance =  UINavigationBarAppearance()
-        barAppearance.configureWithDefaultBackground()
-        $0.standardAppearance.backgroundColor = .bg
-            
-        $0.scrollEdgeAppearance = barAppearance
-        $0.standardAppearance.shadowColor = nil
+        $0.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor(hexString: "#333333")]
+        $0.transparentNavigationBar()
     }
     
     let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
@@ -67,9 +62,6 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setup()
-        
-//        let editorVC = MDEditorSimpleViewController()
-//        self.navigationController?.pushViewController(editorVC, animated: true)
     }
     
     
@@ -80,7 +72,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupToolbar()
         self.setupNoteListView()
         
-        self.extendedLayoutIncludesOpaqueBars = true
+//        self.extendedLayoutIncludesOpaqueBars = true
         self.view.backgroundColor = .bg
         
         func openBoardSetting(board: BlockInfo) {
@@ -115,16 +107,18 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     func setupNoteListView() {
-        let topPadding = self.topbarHeight  + 16
-        let height:CGFloat = self.view.frame.height - topPadding
-        let noteListView = NotesListView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height))
+        let topPadding = self.topbarHeight + 4
+        let noteListView = NotesListView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        noteListView.tableView.contentInset = UIEdgeInsets(top: topPadding, left: 0, bottom: 120, right: 0)
+        noteListView.tableView.view.scrollIndicatorInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: 0, right: 0)
         self.containerView.addSubview(noteListView)
-        noteListView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
         self.contentView = noteListView
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
 }
+
 class Toolbar: UIToolbar {
 
     let height: CGFloat = HomeViewController.toolbarHeight
@@ -303,6 +297,7 @@ extension HomeViewController:UINavigationBarDelegate{
 //        label.text = "TCO_choose_reminder";
 //
         navItem.titleView = titleButton
+        
 //
 //        if let titleView = self.navigationItem.titleView  {
 //            titleView.snp.makeConstraints {
@@ -313,12 +308,20 @@ extension HomeViewController:UINavigationBarDelegate{
         let menuImg = UIImage(systemName: "magnifyingglass")?.withTintColor(UIColor.iconColor)
         let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(handleShowSearchbar))
         navItem.rightBarButtonItems = [item]
+        
+        // status bar
+        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+          let statusBarFrame = window?.windowScene?.statusBarManager?.statusBarFrame
+
+          let statusBarView = UIView(frame: statusBarFrame!)
+          self.view.addSubview(statusBarView)
+          statusBarView.backgroundColor = .statusbar
     }
     
     
-    func position(for bar: UIBarPositioning) -> UIBarPosition {
-        return .topAttached
-    }
+//    func position(for bar: UIBarPositioning) -> UIBarPosition {
+//        return .topAttached
+//    }
 }
 
 extension HomeViewController {
