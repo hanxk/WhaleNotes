@@ -368,11 +368,11 @@ extension HomeViewController {
     
     func makeSettings() -> SideMenuSettings {
         let presentationStyle = selectedPresentationStyle()
-        presentationStyle.backgroundColor = .bg
+        presentationStyle.backgroundColor = .white
         //        presentationStyle.menuStartAlpha = CGFloat(menuAlphaSlider.value)
         //        presentationStyle.menuScaleFactor = CGFloat(menuScaleFactorSlider.value)
         //        presentationStyle.onTopShadowOpacity = shadowOpacitySlider.value
-        presentationStyle.presentingEndAlpha = 0.2
+        presentationStyle.presentingEndAlpha = 0.5
         //        presentationStyle.presentingScaleFactor = CGFloat(presentingScaleFactorSlider.value)
         var settings = SideMenuSettings()
         settings.presentationStyle = presentationStyle
@@ -399,7 +399,7 @@ extension HomeViewController {
 
         if let navigationController = navigationController {
             SideMenuManager.default.addPanGestureToPresent(toView: navigationController.navigationBar)
-            SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: navigationController.view,forMenu: .left)
+            SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: self.view,forMenu: .left)
         }
     }
 }
