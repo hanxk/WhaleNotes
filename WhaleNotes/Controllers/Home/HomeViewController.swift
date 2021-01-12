@@ -23,15 +23,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     static let toolbarHeight:CGFloat = 120
     
-    private var contentView:UIView?
-//    private var sideMenuItem:SideMenuItem! {
-//        didSet {
-//            if oldValue == sideMenuItem {
-//                return
-//            }
-//            self.setupContentView()
-//        }
-//    }
+    private var contentView:NotesListView!
+    private var floatButton:UIButton!
+    
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = true
         $0.delegate = self
@@ -48,6 +42,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         $0.tintColor = .iconColor
         $0.isTranslucent = false
     }
+    
+    private var trashFloatButton:UIButton?
+    private var newNoteFloatButton:UIButton?
   
     override var title: String? {
         didSet {
@@ -65,6 +62,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         $0.delegate = self
     }
     
+    var mode:NoteListMode? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setup()
@@ -79,8 +78,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupNavgationBar()
         self.setupSideMenu()
         self.setupToolbar()
-        self.settupNewNoteButton()
-//        self.setupActionView()
+        self.setupNoteListView()
         
         self.extendedLayoutIncludesOpaqueBars = true
         self.view.backgroundColor = .bg
@@ -113,18 +111,19 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
 //            case .none:
 //                break
 //            }
-            
-            
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
+    func setupNoteListView() {
+        let topPadding = self.topbarHeight  + 16
+        let height:CGFloat = self.view.frame.height - topPadding
+        let noteListView = NotesListView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height))
+        self.containerView.addSubview(noteListView)
+        noteListView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        self.contentView = noteListView
     }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(true)
-    }
-    
 }
 class Toolbar: UIToolbar {
 
@@ -142,47 +141,6 @@ class Toolbar: UIToolbar {
         var size = super.sizeThatFits(size)
         size.height = height
         return size
-    }
-}
-
-//MARK: action float view
-extension HomeViewController {
-    
-//    private  func setupActionView() {
-//        self.view.addSubview(actionView)
-//        actionView.snp.makeConstraints {
-//            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
-//            $0.height.equalTo(HomeActionView.SizeConstants.height)
-//            $0.centerX.equalToSuperview()
-//            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
-//        }
-//        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
-//        actionView.menuButton.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
-//    }
-    
-   @objc func menuButtonTapped() {
-        let actions:[UIControlMenuAction] = [
-            UIControlMenuAction(title: "拍照", imageName:  "camera", handler: { _ in
-                self.handleAction(.camera)
-            }),
-            UIControlMenuAction(title: "照片", imageName: "photo.on.rectangle", handler: { _ in
-                self.handleAction(.image)
-            }),
-            UIControlMenuAction(title: "链接", imageName: "link", handler: { _ in
-                self.handleAction(.bookmark)
-            })
-        ]
-
-        let vc = MenuController(actions: actions)
-        vc.title = "添加"
-        self.present(vc, animated: true, completion: nil)
-    }
-    
-    func handleAction(_ type:MenuType)  {
-        guard let boardView = self.contentView as? BoardView else{
-            return
-        }
-        boardView.openNoteEditor(type: type)
     }
 }
 
@@ -260,52 +218,6 @@ extension HomeViewController {
 //        navVC.modalTransitionStyle = .crossDissolve
 //        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
-    
-    
-    private func setupTrashToolbar() {
-        var items = [UIBarButtonItem]()
-        items.append(UIBarButtonItem(title: "全部恢复", style: .plain, target: self, action: #selector(trashRestoreTapped(sender:))))
-        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        items.append(space)
-        items.append(UIBarButtonItem(title: "全部删除", style: .plain, target: self, action: #selector(trashDeleteTapped(sender:))))
-        toolbar.tintColor = .brand
-        toolbar.items = items
-    }
-    
-    
-    private func generateUIBarButtonItem(systemName:String,action:MenuType,pointSize:CGFloat = 15) -> UIBarButtonItem {
-        let icon = UIImage(systemName: systemName, pointSize: pointSize)
-        let item = UIBarButtonItem(image:icon , style: .plain, target: self, action: #selector(toolbarActionTapped(sender:)))
-        item.tag = action.rawValue
-        item.imageInsets = UIEdgeInsets(top: 0, left: 0, bottom: -20, right: 0)
-        return item
-    }
-    
-    private func generateSpace() -> UIBarButtonItem {
-        let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-        space.width = 14
-        return space
-    }
-    
-    
-    @objc func toolbarActionTapped (sender: UIBarButtonItem) {
-        guard let boardView = self.contentView as? BoardView,
-             let toolbarAction = MenuType.init(rawValue: sender.tag) else{
-            return
-        }
-        boardView.openNoteEditor(type: toolbarAction)
-    }
-    
-    
-    @objc func trashDeleteTapped (sender: UIBarButtonItem) {
-        guard let trashView = self.contentView as? TrashView else{ return }
-        trashView.handleClearTrash()
-    }
-    @objc func trashRestoreTapped (sender: UIBarButtonItem) {
-        guard let trashView = self.contentView as? TrashView else{ return }
-        trashView.handleRestoreTrash()
-    }
-    
 }
 
 
@@ -329,55 +241,26 @@ extension HomeViewController {
     
     func setupContentView(tag:Tag) {
         titleButton.setTitle(tag.title, icon: nil)
-        self.setupTagListView(tag: tag)
+        self.setupTagListView(mode: .tag(tag: tag))
     }
     
     func setupContentView(systemMenu:SystemMenuItem) {
         titleButton.setTitle(systemMenu.title, icon: nil)
         switch systemMenu {
         case .all:
-            self.setupTagListView()
+            self.setupTagListView(mode: .all)
             break
         case .trash:
+            self.setupTagListView(mode: .trash)
             break
         }
     }
     
-    func setupTagListView(tag:Tag? = nil) {
-        let tagListView:NotesListView
-        if let contentView =  self.contentView as? NotesListView {
-            tagListView = contentView
-        }else {
-            let topPadding = self.topbarHeight
-            let height:CGFloat = self.view.frame.height - topPadding
-            tagListView = NotesListView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height))
-            self.containerView.addSubview(tagListView)
-            tagListView.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-            }
-            self.contentView = tagListView
-        }
-        tagListView.loadData(tag:tag)
+    func setupTagListView(mode:NoteListMode) {
+        self.mode = mode
+        contentView.loadData(mode: mode)
+        self.setupFloatButton(mode: mode)
     }
-    
-    
-//    func setupTrashView() {
-//        if let oldView =  self.contentView {
-//            oldView.removeFromSuperview()
-//        }
-//
-//        let topPadding = self.topbarHeight
-//        let height:CGFloat = self.view.frame.height - topPadding
-//        let trashView = TrashView(frame: CGRect(x: 0, y: topPadding, width: self.view.frame.width, height: height),boardsMap:
-//                                    sideMenuViewController.boardsMap)
-//        self.contentView = trashView
-//        self.containerView.addSubview(trashView)
-//        trashView.snp.makeConstraints { make in
-//            make.edges.equalToSuperview()
-//        }
-//
-//        self.setupTrashToolbar()
-//    }
 }
 
 //MARK: nav bar
@@ -549,27 +432,65 @@ extension HomeViewController: SideMenuNavigationControllerDelegate {
 
 //MARK: float button
 extension HomeViewController  {
-    func settupNewNoteButton()  {
-        let btnNewNote = NotesView.makeFloatButton().then {
-            $0.backgroundColor = .brand
+    
+    func setupFloatButton(mode:NoteListMode) {
+        switch mode {
+        case .trash:
+            if self.trashFloatButton == nil {
+                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 20)
+                return
+            }
+            self.newNoteFloatButton?.isHidden  = true
+            self.trashFloatButton?.isHidden  = false
+        default:
+            if self.newNoteFloatButton == nil {
+                self.newNoteFloatButton =  self.generateFloatButton(background: UIColor.brand, iconName: "plus", imageSize: 22)
+                return
+            }
+            self.trashFloatButton?.isHidden  = true
+            self.newNoteFloatButton?.isHidden  = false
+        }
+    }
+    
+    func generateFloatButton(background:UIColor,iconName:String,imageSize: CGFloat) -> UIButton   {
+        let btnNewNote = ActionButton().then {
+            $0.contentMode = .center
+            $0.adjustsImageWhenHighlighted = false
+            let layer0 = $0.layer
+            
+            layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor
+            layer0.shadowOpacity = 1
+            layer0.shadowRadius = 2
+            layer0.shadowOffset = CGSize(width: 1, height: 2)
+            
+            $0.backgroundColor = background
             $0.tintColor = .white
             $0.layer.cornerRadius = FloatButtonConstants.btnSize / 2
-            $0.setImage( UIImage(systemName: "plus", pointSize: 22, weight: .medium), for: .normal)
-//            $0.setImage( UIImage(systemName: "square.and.pencil", pointSize: FloatButtonConstants.iconSize, weight: .light), for: .normal)
-            $0.addTarget(self, action: #selector(btnNewNoteTapped), for: .touchUpInside)
+            
+            $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .medium), for: .normal)
+
         }
+        
         self.view.addSubview(btnNewNote)
+        
         btnNewNote.snp.makeConstraints { (make) -> Void in
             make.width.height.equalTo(FloatButtonConstants.btnSize)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
             make.trailing.equalTo(self.view).offset(-FloatButtonConstants.trailing)
         }
+        btnNewNote.addTarget(self, action: #selector(floatButtonTapped), for: .touchUpInside)
+        return btnNewNote
     }
     
-    @objc func btnNewNoteTapped()   {
-        guard let boardView = self.contentView as? NotesListView else{
-            return
+    
+    @objc func floatButtonTapped()   {
+        let mode = self.mode!
+        switch mode {
+        case .trash:
+            contentView.clearTrash()
+        default:
+            contentView.createNewNote()
         }
-        boardView.createNewNote()
     }
+    
 }

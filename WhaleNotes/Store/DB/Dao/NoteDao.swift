@@ -19,8 +19,8 @@ class NoteDao {
 
 extension NoteDao {
     func insert( _ note:Note) throws {
-        let insertSQL = "insert into note(id,title,content,created_at,updated_at) values(?,?,?,?,?)"
-        try db.execute(insertSQL, args: note.id,note.title,note.content,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
+        let insertSQL = "insert into note(id,title,content,status,created_at,updated_at) values(?,?,?,?,?,?)"
+        try db.execute(insertSQL, args: note.id,note.title,note.content,note.status.rawValue,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
     }
     
     func query(tagId:String) throws -> [Note]  {
@@ -29,9 +29,15 @@ extension NoteDao {
         return extract(rows: rows)
     }
     
-    func query() throws -> [Note]  {
-        let selectSQL = "select * from note  order by created_at desc"
-        let rows = try db.query(selectSQL)
+//    func query() throws -> [Note]  {
+//        let selectSQL = "select * from note  order by created_at desc"
+//        let rows = try db.query(selectSQL)
+//        return extract(rows: rows)
+//    }
+    
+    func query(status:NoteStatus = .normal) throws -> [Note]  {
+        let selectSQL = "select * from note where status  = ?  order by created_at desc"
+        let rows = try db.query(selectSQL,args: status.rawValue)
         return extract(rows: rows)
     }
     
@@ -44,8 +50,8 @@ extension NoteDao {
     }
     
     func update( _ note:Note) throws {
-        let updateSQL = "update note set title = ?,content = ?,updated_at=strftime('%s', 'now') where id = ?"
-        try db.execute(updateSQL, args: note.title,note.content,note.id)
+        let updateSQL = "update note set title = ?,content = ?,status = ?,updated_at=strftime('%s', 'now') where id = ?"
+        try db.execute(updateSQL, args: note.title,note.content,note.status,note.id)
     }
     
     func updateContent( _ content:String,noteId:String,updatedAt:Date) throws {
@@ -58,10 +64,21 @@ extension NoteDao {
         try db.execute(updateSQL, args: title,updatedAt.timeIntervalSince1970,noteId)
     }
     
+    func updateStatus( _ status:NoteStatus,noteId:String,updatedAt:Date) throws {
+        let updateSQL = "update note set status = ?,updated_at=? where id = ?"
+        try db.execute(updateSQL, args: status.rawValue,updatedAt.timeIntervalSince1970,noteId)
+    }
+    
     func delete( _ id:String) throws {
         let delSQL = "delete from note where id = ?"
         try db.execute(delSQL, args: id)
     }
+    
+    func removeTrashedNotes() throws {
+        let delSQL = "delete from note where status = ?"
+        try db.execute(delSQL, args: NoteStatus.trash.rawValue)
+    }
+    
     
     func updateUpdatedAt(id:String,updatedAt:Date) throws {
         let updateSQL = "update note set updated_at=? where id = ?"
@@ -88,8 +105,9 @@ extension NoteDao {
         let id = row["id"] as! String
         let title = row["title"] as! String
         let content = row["content"] as! String
+        let status = row["status"] as! Int
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
-        return  Note(id: id,title: title, content: content, createdAt: createdAt, updatedAt: updatedAt)
+        return  Note(id: id,title: title, content: content,status: NoteStatus.init(rawValue: status)!, createdAt: createdAt, updatedAt: updatedAt)
     }
 }

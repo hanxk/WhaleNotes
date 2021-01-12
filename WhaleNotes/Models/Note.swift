@@ -12,6 +12,7 @@ struct Note {
     var id:String = UUID.init().uuidString
     var title:String = ""
     var content:String = ""
+    var status:NoteStatus =  .normal
     var createdAt:Date!
     var updatedAt:Date!
     
@@ -21,13 +22,21 @@ struct Note {
         self.updatedAt = date
     }
     
-    init(id:String,title:String,content:String,createdAt:Date,updatedAt:Date) {
+    init(id:String,title:String,content:String,status:NoteStatus = .normal,createdAt:Date,updatedAt:Date) {
         self.id = id
         self.title = title
         self.content = content
+        self.status = status
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
+}
+
+
+enum NoteStatus: Int,Codable {
+    case trash = -1
+    case normal = 1
+    case archive = 2
 }
 
 extension Note:SQLTable {
@@ -37,6 +46,7 @@ extension Note:SQLTable {
                       "id" TEXT PRIMARY KEY NOT NULL,
                       "title" TEXT,
                       "content" TEXT,
+                      "status" INTEGER,
                       "created_at" TIMESTAMP,
                       "updated_at" TIMESTAMP
                     );

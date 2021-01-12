@@ -17,6 +17,10 @@ extension NoteInfo {
     var id:String {
         return self.note.id
     }
+    var status:NoteStatus {
+        get { return note.status }
+        set { self.note.status = newValue }
+    }
     
     var isEmpty:Bool {
         return note.title.isEmpty && note.content.isEmpty

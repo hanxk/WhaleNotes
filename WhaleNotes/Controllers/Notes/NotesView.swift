@@ -441,6 +441,7 @@ extension NotesView {
     static func  makeFloatButton() -> UIButton {
         let btn = ActionButton()
         btn.contentMode = .center
+//        btn.clipsToBounds = true
         btn.adjustsImageWhenHighlighted = false
         let layer0 = btn.layer
         

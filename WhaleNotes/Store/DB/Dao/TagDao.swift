@@ -23,7 +23,7 @@ extension TagDao {
     func insert( _ tag:Tag) throws {
         let insertSQL = "INSERT INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
         try db.execute(insertSQL, args: tag.id,tag.title,tag.icon,tag.createdAt.timeIntervalSince1970,tag.updatedAt.timeIntervalSince1970)
-//        return db.changes
+        //        return db.changes
     }
     
     func query() throws -> [Tag]  {
@@ -40,12 +40,12 @@ extension TagDao {
     }
     
     func queryByTitles(_ titles:[String]) throws -> [Tag] {
-//        let titlePara = titles.joined(separator: ",")
+        //        let titlePara = titles.joined(separator: ",")
         
         
         let titlePara = "\"" + titles.joined(separator: "\",\"") + "\""
         
-//        let titlePara = \""  + titles.joined(separator: "\",\"") + \""
+        //        let titlePara = \""  + titles.joined(separator: "\",\"") + \""
         let selectSQL = "SELECT * FROM tag WHERE title in (\(titlePara))"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
@@ -53,23 +53,25 @@ extension TagDao {
     
     func queryValids() throws -> [Tag]  {
         let selectSQL = """
-                            SELECT * FROM (
-                                    select * from tag where id in (select tag_id from note_tag)
-                               )
+                            select * from tag where id in (
+                                select tag_id from note_tag
+                                WHERE note_id in (SELECT id FROM note where status = ?)
+                            )
                             order by title
                             """
-        let rows = try db.query(selectSQL)
+        let rows = try db.query(selectSQL,args:NoteStatus.normal.rawValue)
         return extract(rows: rows)
     }
     
-    func queryByTag(tagId:String = "") throws -> [(String,Tag)]  {
-      let selectSQL  = """
+    func queryByTag(tagId:String = "",status:NoteStatus =  .normal) throws -> [(String,Tag)]  {
+        let tagQuery = tagId ==  "" ? "" : " and tag_id = \"\(tagId)\""
+        let selectSQL  = """
                         SELECT tag.*,n_t.note_id FROM (
                             SELECT * FROM note_tag
-                            WHERE note_id in (SELECT id FROM note)
+                            WHERE note_id in (SELECT id FROM note where status = ?) \(tagQuery)
                         ) AS n_t JOIN tag ON tag.id = n_t.tag_id  ORDER BY tag.title
                     """
-        let rows = try db.query(selectSQL)
+        let rows = try db.query(selectSQL,args: status.rawValue)
         var result: [(String,Tag)] = []
         for row in rows {
             let tag = extract(row: row)
@@ -80,14 +82,14 @@ extension TagDao {
     }
     
     func queryByNote(noteId:String) throws -> [Tag]  {
-      let selectSQL  = """
+        let selectSQL  = """
                         SELECT tag.* FROM note_tag
                         JOIN tag ON tag.id = note_tag.tag_id AND note_tag.note_id = ? ORDER BY tag.title
                     """
         let rows = try db.query(selectSQL,args:noteId)
         return extract(rows: rows)
     }
-
+    
     func search(_ keyword:String) throws -> [Tag]  {
         var selectSQL:String
         if keyword.isNotEmpty {
@@ -126,7 +128,7 @@ extension TagDao {
         let id = row["id"] as! String
         let title = row["title"] as! String
         let icon = row["icon"] as! String
-//        let parent = row["parent"] as? String
+        //        let parent = row["parent"] as? String
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
         return Tag(id: id, title: title,icon: icon,createdAt: createdAt, updatedAt: updatedAt)

@@ -14,17 +14,30 @@ class NoteRepo:BaseRepo {
 }
 
 extension NoteRepo {
-    func getNotes(tag:String = "") -> Observable<[NoteInfo]> {
+    func getNotes(tag:String) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
-                let notes:[Note]
-                if tag.isEmpty {
-                    notes = try self.noteDao.query()
-                }else {
-                   notes = try self.noteDao.query(tagId: tag)
-                }
+                let notes:[Note] = try self.noteDao.query(tagId: tag)
                 // 获取所有note的tags
-                let noteTags = try self.tagDao.queryByTag()
+                let noteTags = try self.tagDao.queryByTag(tagId: tag)
+                var noteInfos:[NoteInfo] = []
+                for note in notes {
+                    let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
+                    noteInfos.append(NoteInfo(note: note, tags: tags))
+                }
+                return noteInfos
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func getNotes(status:NoteStatus = .normal) -> Observable<[NoteInfo]> {
+        return Observable<[NoteInfo]>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> [NoteInfo] in
+                let notes:[Note] = try self.noteDao.query(status: status)
+                // 获取所有note的tags
+                let noteTags = try self.tagDao.queryByTag(status: status)
                 var noteInfos:[NoteInfo] = []
                 for note in notes {
                     let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
@@ -86,6 +99,31 @@ extension NoteRepo {
                 newNote.updatedAt = Date()
                 try self.noteDao.updateTitle(newTitle, noteId: note.id,updatedAt: newNote.updatedAt)
                 return newNote
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    func updateNoteStatus(_ note:Note,status:NoteStatus) -> Observable<Note> {
+        return Observable<Note>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Note in
+                var newNote = note
+                newNote.status = status
+                newNote.updatedAt = Date()
+                try self.noteDao.updateStatus(status, noteId: note.id,updatedAt: newNote.updatedAt)
+                return newNote
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    
+    
+    func removeTrashedNotes() -> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                try self.noteDao.removeTrashedNotes()
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))

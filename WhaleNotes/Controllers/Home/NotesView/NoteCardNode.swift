@@ -20,7 +20,7 @@ enum StyleConfig {
     static let spacing:CGFloat = 12
     static let insetH:CGFloat = 12
     static let insetV:CGFloat = 12
-    static let cornerRadius:CGFloat = 8
+    static let cornerRadius:CGFloat = 6
     
     static let footerHeight:CGFloat = 48
     
@@ -95,18 +95,18 @@ class NoteCardNode: ASCellNode {
         
         
         if isEditing  {
-            $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.7).cgColor
-            $0.shadowOpacity = 1
-            $0.shadowRadius = 4
-            $0.shadowOffset = .zero
+//            $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.7).cgColor
+//            $0.shadowOpacity = 1
+//            $0.shadowRadius = 4
+//            $0.shadowOffset = .zero
             
             //            $0.layer.borderWidth = 1
             //            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
         }
-        $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.6).cgColor
-        $0.shadowOpacity = 1
-        $0.shadowRadius = 6
-        $0.shadowOffset = .zero
+//        $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.5).cgColor
+//        $0.shadowOpacity = 1
+//        $0.shadowRadius = 6
+//        $0.shadowOffset = .zero
         
         //        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03).cgColor
         //        $0.shadowRadius = 5
@@ -314,9 +314,9 @@ extension NoteCardNode {
     
     
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
-        let font =  MDStyle.generateDefaultFont(fontSize: 19,weight: .medium)
+        let font =  MDStyle.generateDefaultFont(fontSize: 18,weight: .medium)
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.2
+        paragraphStyle.lineHeightMultiple = 1.1
         paragraphStyle.lineBreakMode = .byWordWrapping;
         
         let attributes: [NSAttributedString.Key: Any] = [

@@ -11,6 +11,13 @@ import RxSwift
 import AsyncDisplayKit
 import FloatingPanel
 
+
+enum NoteListMode {
+    case all
+    case tag(tag:Tag)
+    case trash
+}
+
 class NotesListView: UIView {
     
     private lazy var disposeBag = DisposeBag()
@@ -20,11 +27,14 @@ class NotesListView: UIView {
     private lazy var tableView = ASTableNode().then {
         $0.delegate = self
         $0.dataSource = self
-        $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
+        $0.contentInset = UIEdgeInsets(top: 5, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
         $0.backgroundColor = .clear
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .onDrag
     }
+    private var mode:NoteListMode!
+    private var noteTag:Tag? = nil
+    private weak var viewModel: NoteInfoViewModel?
     
     enum MenuAction:Int {
         case edit =  1
@@ -32,7 +42,6 @@ class NotesListView: UIView {
         case share =  3
         case copy =  4
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -48,9 +57,40 @@ class NotesListView: UIView {
         
     }
     
-    private var noteTag:Tag? = nil
+    func loadData(mode:NoteListMode){
+        self.mode = mode
+        self.setupData(mode: mode)
+    }
     
-    func loadData(tag:Tag? = nil) {
+    
+    private func setupData(mode:NoteListMode) {
+        switch mode {
+        case .all:
+            self.loadData(status: .normal)
+        case .tag(let tag):
+            self.loadData(tag:tag)
+        case .trash:
+            self.loadData(status: .trash)
+        }
+    }
+    
+    func openEditorVC(noteInfo:NoteInfo,isNewCreated:Bool = false) {
+        let editorVC  = MDEditorViewController()
+        editorVC.noteInfo = noteInfo
+        editorVC.isNewCreated = isNewCreated
+        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
+            self?.handleNoteInfoUpdated(noteInfo)
+        }
+//        editorVC.modalPresentationStyle = .fullScreen
+//        self.controller?.present(editorVC, animated: true, completion: nil)
+        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
+    }
+}
+
+//MARK: data handle
+extension NotesListView {
+    
+    private func loadData(tag:Tag? = nil) {
         self.noteTag = tag
         let tagId = tag?.id ?? ""
         NoteRepo.shared.getNotes(tag: tagId)
@@ -65,11 +105,26 @@ class NotesListView: UIView {
             .disposed(by: disposeBag)
     }
     
+    private func loadData(status:NoteStatus) {
+        NoteRepo.shared.getNotes(status: status)
+            .subscribe(onNext: { [weak self] notes in
+                if let self = self {
+                    self.notes = notes
+                    self.tableView.reloadData()
+                    self.tableView.contentOffset = .zero
+                }
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    
     func createNewNote() {
         var noteInfo = NoteInfo(note: Note())
         if let tag = self.noteTag {
-           noteInfo.note.content = "#\(tag.title) "
-           noteInfo.tags = [tag]
+            noteInfo.note.content = "#\(tag.title) "
+            noteInfo.tags = [tag]
         }
         NoteRepo.shared.createNote(noteInfo)
             .subscribe(onNext: { [weak self] noteInfo in
@@ -92,37 +147,18 @@ class NotesListView: UIView {
         
         self.tableView.insertRows(at: [indexPath], with: .automatic)
         if needScroll2Top {
-           self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
+            self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
         }
         self.openEditorVC(noteInfo:noteInfo,isNewCreated: true)
-    }
-    
-    func openEditorVC(noteInfo:NoteInfo,isNewCreated:Bool = false) {
-//       let editorVC = NoteEditorViewController()
-//        editorVC.noteInfo = noteInfo
-//        editorVC.isNewCreated = isNewCreated
-//        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
-//            self?.handleNoteInfoUpdated(noteInfo)
-//        }
-       let editorVC  = MDEditorViewController()
-        editorVC.noteInfo = noteInfo
-        editorVC.isNewCreated = isNewCreated
-        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
-            self?.handleNoteInfoUpdated(noteInfo)
-        }
-        
-       editorVC.modalPresentationStyle = .fullScreen
-       self.controller?.present(editorVC, animated: true, completion: nil)
     }
 }
 
 extension NotesListView {
     func handleNoteInfoUpdated(_ noteInfo:NoteInfo) {
-        
         // 检查tag
         if let tag = self.noteTag,
            noteInfo.tags.contains(where: {$0.id == tag.id}) == false
-           {
+        {
             self.deleteNoteInfoFromDataSource(noteInfo: noteInfo)
             return
         }
@@ -164,7 +200,6 @@ extension NotesListView:ASTableDataSource {
         node.textChanged {[weak node] (newText: String) in
             UIView.performWithoutAnimation {
                 node?.setNeedsLayout()
-                print("哈哈哈r")
             }
         }
         node.textEdited {[weak self] text,editViewTag in
@@ -178,7 +213,7 @@ extension NotesListView:ASTableDataSource {
         var rows =  [IndexPath(row: newIndex, section: 0)]
         if let selectedNoteId = self.selectedNoteId,
            let oldIndex =  self.notes.firstIndex(where: {$0.note.id == selectedNoteId}){
-           rows.append(IndexPath(row: oldIndex, section: 0))
+            rows.append(IndexPath(row: oldIndex, section: 0))
         }
         self.selectedNoteId = noteId
         self.tableView.reloadRows(rows: rows)
@@ -196,14 +231,8 @@ extension NotesListView:ASTableDataSource {
     }
     
     private func handleSaveAction() {
-        
         guard let selectedNoteId = self.selectedNoteId,
-           let oldIndex =  self.notes.firstIndex(where: {$0.note.id == selectedNoteId}) else { return }
-        
-//        let noteInfo = self.notes[oldIndex]
-//        if noteInfo.note.createdAt == noteInfo.note.updatedAt && noteInfo.isEmpty  {
-//            self.deleteNoteInfo(noteInfo: noteInfo)
-//        }
+              let oldIndex =  self.notes.firstIndex(where: {$0.note.id == selectedNoteId}) else { return }
         self.selectedNoteId = nil
         self.tableView.reloadRows(rows: [IndexPath(row: oldIndex, section: 0)])
     }
@@ -272,9 +301,16 @@ extension NotesListView {
     }
     
     fileprivate func handleMenuAction(noteId:String) {
+        
+        guard let index =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
+        let noteInfo = self.notes[index]
+        
+        let trashRow = noteInfo.status == .normal ?
+        PopMenuRow(icon: "trash", title: "移到废纸篓",tag:MenuAction.trash.rawValue) :
+        PopMenuRow(icon: "arrow.up.bin", title: "恢复",tag:MenuAction.trash.rawValue)
+        
         let menuRows = [
-            PopMenuRow(icon: "pencil", title: "编辑",tag:MenuAction.edit.rawValue),
-            PopMenuRow(icon: "trash", title: "移到废纸篓",tag:MenuAction.trash.rawValue),
+            trashRow,
             PopMenuRow(icon: "square.and.arrow.up", title: "分享",tag:MenuAction.share.rawValue),
             PopMenuRow(icon: "doc.on.doc", title: "复制",tag:MenuAction.copy.rawValue)
         ]
@@ -300,7 +336,6 @@ extension NotesListView {
         let newIndexPath = IndexPath(row: newIndex, section: 0)
         
         // 通知sidemenu 更新
-        
         if let tag = self.noteTag {
             let isTagDeleted = !newNoteInfo.tags.contains{$0.id == tag.id}
             if isTagDeleted {// tag 被移除
@@ -309,6 +344,18 @@ extension NotesListView {
                 return
             }
         }
+        
+        // 状态更新
+        if self.notes[newIndex].status != newNoteInfo.status {
+            // 刷新 tag
+            if self.notes[newIndex].tags.count  > 0  {
+                EventManager.shared.post(name: .Tag_CHANGED)
+            }
+            self.notes.remove(at: newIndex)
+            self.tableView.deleteRows(at: [newIndexPath], with: .none)
+            return
+        }
+        
         self.notes[newIndex] = newNoteInfo
         self.tableView.reloadRowsWithoutAnim(at: [newIndexPath])
     }
@@ -322,8 +369,54 @@ extension NotesListView {
         switch menuAcion {
         case .edit:
             self.handleEditAction(noteId: noteId)
+        case .trash:
+            self.handleTrashAction(noteId: noteId)
         default:
             break
         }
+    }
+    
+    private func handleTrashAction(noteId:String) {
+        guard let index =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
+        let note = self.notes[index]
+        let status:NoteStatus = note.note.status == .normal ? .trash : .normal
+        var noteinfo = note
+        NoteRepo.shared.updateNoteStatus(note.note, status: status)
+            .subscribe(onNext: { [weak self] note in
+                noteinfo.note = note
+                self?.updateNoteInfoDataSource(newNoteInfo: noteinfo)
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+}
+
+//MARK: 清空回收站
+extension NotesListView {
+    
+    func clearTrash() {
+        if self.notes.isEmpty {return}
+        let alert = UIAlertController(title: "", message: "清空后的内容将不能够被恢复。确认要清空吗？", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "确认清空", style: .destructive , handler:{ (UIAlertAction)in
+            self.handleClearTrash()
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler:{ (UIAlertAction)in
+            print("User click Dismiss button")
+        }))
+        self.controller?.present(alert, animated: true, completion:nil)
+    }
+    
+    private func handleClearTrash() {
+        NoteRepo.shared.removeTrashedNotes()
+            .subscribe(onNext: { [weak self]  in
+                if let self = self {
+                    self.notes = []
+                    self.tableView.reloadData()
+                }
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
     }
 }

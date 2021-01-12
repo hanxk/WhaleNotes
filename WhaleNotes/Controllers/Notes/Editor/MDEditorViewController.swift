@@ -230,11 +230,17 @@ extension MDEditorViewController {
 
 
 // MARK: 处理空白区域点击
-extension MDEditorViewController {
+extension MDEditorViewController: UIGestureRecognizerDelegate {
     private func registerTableViewTaped() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tableViewTapped))
+        tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
         self.tableView.view.addGestureRecognizer(tapGesture)
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        view.endEditing(true)
+        return true
     }
     
     @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
@@ -242,6 +248,10 @@ extension MDEditorViewController {
         if sender.state != .ended {
             return
         }
+//        if self.noteInfo.status == .trash {
+//            return
+//        }
+        
         let touch = sender.location(in: self.tableView.view)
         if let _ = tableView.indexPathForRow(at: touch) { // 点击空白区域
             return
@@ -260,8 +270,7 @@ extension MDEditorViewController {
         myNavbar.tintColor = .iconColor
         self.createBackBarButton(forNavigationItem: navItem)
         
-        let tagButton = generateUIBarButtonItem(imageName: "tag", action:  #selector(tagIconTapped))
-        
+//        let tagButton = generateUIBarButtonItem(imageName: "tag", action:  #selector(tagIconTapped))
         let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(menuIconTapped))
         navItem.rightBarButtonItems = [menuButton]
     }
@@ -273,20 +282,18 @@ extension MDEditorViewController {
     }
     
     func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
-        
-        let backButtonImage =  UIImage(systemName: "multiply", pointSize: 22, weight: .regular)
-        
+        let backButtonImage =  UIImage(systemName: "chevron.left")?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0))
+//        let backButtonImage =  UIImage(systemName: "multiply", pointSize: 22, weight: .regular)
         let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
-        //        backButton.backgroundColor = .red
         backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
         let backBarButton = UIBarButtonItem(customView: backButton)
         navigationItem.leftBarButtonItems = [backBarButton]
     }
     
     @objc func backBarButtonTapped() {
-//        self.navigationController?.popViewController(animated: true)
-        self.dismiss(animated: true, completion: nil)
+//        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc func menuIconTapped() {
@@ -327,6 +334,7 @@ extension MDEditorViewController:ASTableDataSource {
 //                self?.scrollToCursorPositionIfBelowKeyboard(textView: textView)
                 self?.focusedTextView = textView
             }
+//            titleCellNode.titleNode.textView.isEditable = self.noteInfo.status != .trash
             return titleCellNode
         case .content:
             let contentCellNode = NoteContentCellNode(title: self.noteInfo.note.content)
@@ -339,9 +347,9 @@ extension MDEditorViewController:ASTableDataSource {
                 self?.updateInputContent(newText)
             }
             contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
-//                self?.scrollToCursorPositionIfBelowKeyboard(textView: textView)
                 self?.focusedTextView = textView
             }
+//            contentCellNode.textNode.textView.isEditable = self.noteInfo.status != .trash
             return contentCellNode
         }
     }
