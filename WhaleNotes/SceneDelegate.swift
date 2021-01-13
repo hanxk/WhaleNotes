@@ -25,24 +25,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
             appDelegate.window = window
         }
-//        _ = UINavigationBar.appearance().then {
+        _ = UINavigationBar.appearance().then {
 //            $0.tintColor = UIColor.iconColor
-//            $0.barTintColor = .white
-//            $0.isTranslucent = false
-//            $0.layer.borderWidth = 0.0
-//            $0.shadowImage = UIImage()
-//            
-//            let yourBackImage =  UIImage(systemName: "chevron.left")?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0))
-//            $0.backIndicatorImage = yourBackImage
-//            $0.backIndicatorTransitionMaskImage = yourBackImage
-//            
-//            
-//            let textAttributes = [NSAttributedString.Key.foregroundColor:UIColor.init(hexString: "#202020"),
-//                                  NSAttributedString.Key.font:UIFont.systemFont(ofSize: 16, weight: .medium)
-//            ]
-//            $0.titleTextAttributes = textAttributes
-//            
-//        }
+            $0.barTintColor = .bg
+            $0.layer.borderWidth = 0.0
+            $0.shadowImage = UIImage()
+//            $0.transparentNavigationBar()
+            
+            
+            let yourBackImage =  UIImage(systemName: "chevron.left")?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0))
+            $0.backIndicatorImage = yourBackImage
+            $0.backIndicatorTransitionMaskImage = yourBackImage
+            
+            
+            let textAttributes = [NSAttributedString.Key.foregroundColor:UIColor.init(hexString: "#333333"),
+                                  NSAttributedString.Key.font:UIFont.systemFont(ofSize: 16, weight: .medium)
+            ]
+            $0.titleTextAttributes = textAttributes
+            
+        }
         
         
         let homeVC = HomeViewController()

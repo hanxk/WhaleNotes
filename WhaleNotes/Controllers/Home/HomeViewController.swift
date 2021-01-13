@@ -107,9 +107,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     func setupNoteListView() {
-        let topPadding = self.topbarHeight + 4
+        let topPadding = self.topbarHeight + NotesListViewConstants.topPadding
         let noteListView = NotesListView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-        noteListView.tableView.contentInset = UIEdgeInsets(top: topPadding, left: 0, bottom: 120, right: 0)
+        noteListView.tableView.contentInset = UIEdgeInsets(top: topPadding, left: 0, bottom: NotesListViewConstants.bottomPadding+50, right: 0)
         noteListView.tableView.view.scrollIndicatorInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: 0, right: 0)
         self.containerView.addSubview(noteListView)
         self.contentView = noteListView
@@ -205,12 +205,12 @@ extension HomeViewController {
     
     
     @objc func handleShowSearchbar() {
-//        let vc = SearchViewController()
+        let vc = SearchViewController()
 //        vc.boardsMap = sideMenuViewController.boardsMap
-//        let navVC = MyNavigationController(rootViewController: vc)
-//        navVC.modalPresentationStyle = .overFullScreen
-//        navVC.modalTransitionStyle = .crossDissolve
-//        self.navigationController?.present(navVC, animated: true, completion: nil)
+        let navVC = MyNavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+        navVC.modalTransitionStyle = .crossDissolve
+        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
 }
 
@@ -269,7 +269,7 @@ extension HomeViewController:UINavigationBarDelegate{
         myNavbar.snp.makeConstraints {
             $0.width.equalToSuperview()
 //            $0.height.equalTo(HomeViewController.toolbarHeight)
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
         self.navigationController?.navigationBar.isHidden = true
     }
@@ -309,19 +309,21 @@ extension HomeViewController:UINavigationBarDelegate{
         let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(handleShowSearchbar))
         navItem.rightBarButtonItems = [item]
         
-        // status bar
-        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-          let statusBarFrame = window?.windowScene?.statusBarManager?.statusBarFrame
-
-          let statusBarView = UIView(frame: statusBarFrame!)
+        
+        let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+    
+        let topInset: CGFloat = keyWindow?.safeAreaInsets.top ?? 44
+    
+        let statusBarFrame = CGRect(x: 0, y: 0, width: windowWidth, height: topInset)
+          let statusBarView = UIView(frame: statusBarFrame)
           self.view.addSubview(statusBarView)
           statusBarView.backgroundColor = .statusbar
     }
     
     
-//    func position(for bar: UIBarPositioning) -> UIBarPosition {
-//        return .topAttached
-//    }
+    func position(for bar: UIBarPositioning) -> UIBarPosition {
+        return .topAttached
+    }
 }
 
 extension HomeViewController {

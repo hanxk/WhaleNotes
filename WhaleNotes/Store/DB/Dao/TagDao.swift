@@ -62,6 +62,25 @@ extension TagDao {
         let rows = try db.query(selectSQL,args:NoteStatus.normal.rawValue)
         return extract(rows: rows)
     }
+//    "
+    
+    
+    func queryByKeyword(_ keyword:String) throws -> [(String,Tag)]  {
+        let selectSQL  = """
+                        SELECT tag.*,n_t.note_id FROM (
+                            SELECT * FROM note_tag
+                            WHERE note_id in (select id from note where status != -1 AND (title  like '%\(keyword)%'  or content like '%\(keyword)%'))
+                        ) AS n_t JOIN tag ON tag.id = n_t.tag_id  ORDER BY tag.title
+                    """
+        let rows = try db.query(selectSQL)
+        var result: [(String,Tag)] = []
+        for row in rows {
+            let tag = extract(row: row)
+            let noteId = row["note_id"] as! String
+            result.append((noteId,tag))
+        }
+        return result
+    }
     
     func queryByTag(tagId:String = "",status:NoteStatus =  .normal) throws -> [(String,Tag)]  {
         let tagQuery = tagId ==  "" ? "" : " and tag_id = \"\(tagId)\""

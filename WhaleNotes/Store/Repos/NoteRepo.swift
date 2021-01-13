@@ -34,10 +34,29 @@ extension NoteRepo {
     
     func getNotes(status:NoteStatus = .normal) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
+           self.executeTask(observable: observer) { () -> [NoteInfo] in
+               let notes:[Note] = try self.noteDao.query(status: status)
+               // 获取所有note的tags
+               let noteTags = try self.tagDao.queryByTag(status: status)
+               var noteInfos:[NoteInfo] = []
+               for note in notes {
+                   let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
+                noteInfos.append(NoteInfo(note: note, tags: tags))
+               }
+                return noteInfos
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+                
+    
+    func getNotes(keyword:String) -> Observable<[NoteInfo]> {
+        return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
-                let notes:[Note] = try self.noteDao.query(status: status)
+                let notes:[Note] = try self.noteDao.query(keyword: keyword)
                 // 获取所有note的tags
-                let noteTags = try self.tagDao.queryByTag(status: status)
+                let noteTags = try self.tagDao.queryByKeyword(keyword)
                 var noteInfos:[NoteInfo] = []
                 for note in notes {
                     let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }

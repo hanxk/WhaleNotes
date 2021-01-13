@@ -15,8 +15,16 @@ import FloatingPanel
 enum NoteListMode {
     case all
     case tag(tag:Tag)
+    case search(keyword:String)
     case trash
 }
+
+
+enum NotesListViewConstants {
+    static let topPadding:CGFloat = 4
+    static let bottomPadding:CGFloat = 40
+}
+
 
 class NotesListView: UIView {
     
@@ -27,7 +35,7 @@ class NotesListView: UIView {
     lazy var tableView = ASTableNode().then {
         $0.delegate = self
         $0.dataSource = self
-        $0.contentInset = UIEdgeInsets(top: 5, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
+        $0.contentInset = UIEdgeInsets(top: NotesListViewConstants.topPadding, left: 0, bottom: NotesListViewConstants.bottomPadding, right: 0)
         $0.backgroundColor = .clear
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .onDrag
@@ -74,6 +82,8 @@ class NotesListView: UIView {
             self.loadData(tag:tag)
         case .trash:
             self.loadData(status: .trash)
+        case .search(keyword: let keyword):
+            self.loadData(keyword: keyword)
         }
     }
     
@@ -108,6 +118,22 @@ extension NotesListView {
     private func loadData(status:NoteStatus) {
         self.noteTag = nil
         NoteRepo.shared.getNotes(status: status)
+            .subscribe(onNext: { [weak self] notes in
+                self?.reloadTableView(notes: notes)
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    
+    private func loadData(keyword:String) {
+        self.noteTag = nil
+        if keyword.isEmpty {
+            self.reloadTableView(notes: [])
+            return
+        }
+        NoteRepo.shared.getNotes(keyword: keyword)
             .subscribe(onNext: { [weak self] notes in
                 self?.reloadTableView(notes: notes)
             }, onError: {

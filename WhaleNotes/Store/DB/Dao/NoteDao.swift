@@ -41,6 +41,12 @@ extension NoteDao {
         return extract(rows: rows)
     }
     
+    func query(keyword:String) throws -> [Note]  {
+        let selectSQL = "select * from note where status != -1  AND (title  like '%\(keyword)%'  or content like '%\(keyword)%') order by created_at desc"
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
+    
     
     func query(id:String) throws -> Note?  {
         let selectSQL = "select * from note where id = ?"
