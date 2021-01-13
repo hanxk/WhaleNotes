@@ -440,14 +440,14 @@ extension HomeViewController  {
         switch mode {
         case .trash:
             if self.trashFloatButton == nil {
-                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 20)
+                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 18)
                 return
             }
             self.newNoteFloatButton?.isHidden  = true
             self.trashFloatButton?.isHidden  = false
         default:
             if self.newNoteFloatButton == nil {
-                self.newNoteFloatButton =  self.generateFloatButton(background: UIColor.brand, iconName: "plus", imageSize: 22)
+                self.newNoteFloatButton =  self.generateFloatButton(background: UIColor.brand, iconName: "plus", imageSize: 20)
                 return
             }
             self.trashFloatButton?.isHidden  = true
@@ -461,7 +461,7 @@ extension HomeViewController  {
             $0.adjustsImageWhenHighlighted = false
             let layer0 = $0.layer
             
-            layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor
+            layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
             layer0.shadowOpacity = 1
             layer0.shadowRadius = 2
             layer0.shadowOffset = CGSize(width: 1, height: 2)
@@ -470,7 +470,7 @@ extension HomeViewController  {
             $0.tintColor = .white
             $0.layer.cornerRadius = FloatButtonConstants.btnSize / 2
             
-            $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .medium), for: .normal)
+            $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .regular), for: .normal)
 
         }
         

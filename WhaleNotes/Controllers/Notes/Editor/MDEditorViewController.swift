@@ -238,10 +238,10 @@ extension MDEditorViewController: UIGestureRecognizerDelegate {
         self.tableView.view.addGestureRecognizer(tapGesture)
     }
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        view.endEditing(true)
-        return true
-    }
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+//        view.endEditing(true)
+//        return true
+//    }
     
     @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
         
@@ -282,7 +282,7 @@ extension MDEditorViewController {
     }
     
     func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
-        let backButtonImage =  UIImage(systemName: "chevron.left")?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0))
+        let backButtonImage =  UIImage(systemName: "chevron.left",pointSize: 18)?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
 //        let backButtonImage =  UIImage(systemName: "multiply", pointSize: 22, weight: .regular)
         let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)

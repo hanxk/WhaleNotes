@@ -106,6 +106,7 @@ extension NotesListView {
     }
     
     private func loadData(status:NoteStatus) {
+        self.noteTag = nil
         NoteRepo.shared.getNotes(status: status)
             .subscribe(onNext: { [weak self] notes in
                 self?.reloadTableView(notes: notes)
@@ -124,7 +125,7 @@ extension NotesListView {
     func createNewNote() {
         var noteInfo = NoteInfo(note: Note())
         if let tag = self.noteTag {
-            noteInfo.note.content = "#\(tag.title) "
+            noteInfo.note.content = "#\(tag.title) \n"
             noteInfo.tags = [tag]
         }
         NoteRepo.shared.createNote(noteInfo)
