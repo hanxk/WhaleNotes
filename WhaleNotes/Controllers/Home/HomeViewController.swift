@@ -442,14 +442,14 @@ extension HomeViewController  {
         switch mode {
         case .trash:
             if self.trashFloatButton == nil {
-                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 18)
+                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 19)
                 return
             }
             self.newNoteFloatButton?.isHidden  = true
             self.trashFloatButton?.isHidden  = false
         default:
             if self.newNoteFloatButton == nil {
-                self.newNoteFloatButton =  self.generateFloatButton(background: UIColor.brand, iconName: "plus", imageSize: 20)
+                self.newNoteFloatButton =  self.generateFloatButton(background: UIColor.brand, iconName: "plus", imageSize: 21)
                 return
             }
             self.trashFloatButton?.isHidden  = true
@@ -464,9 +464,9 @@ extension HomeViewController  {
             let layer0 = $0.layer
             
             layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
-            layer0.shadowOpacity = 1
-            layer0.shadowRadius = 2
-            layer0.shadowOffset = CGSize(width: 1, height: 2)
+            layer0.shadowOpacity = 0
+            layer0.shadowRadius = 3
+            layer0.shadowOffset = CGSize(width: 1, height: 3)
             
             $0.backgroundColor = background
             $0.tintColor = .white

@@ -56,7 +56,10 @@ class SearchViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         DispatchQueue.main.async {
-          self.searchController.searchBar.becomeFirstResponder()
+            let text = self.searchController.searchBar.text ??  ""
+            if text.isEmpty {
+                self.searchController.searchBar.becomeFirstResponder()
+            }
         }
     }
 }
