@@ -15,6 +15,8 @@ class SideMenuCell: UITableViewCell {
     private  let arrowButtonWidth = 36
     private  let arrowButtonSpace = 0
     
+    let iconSize:CGFloat = 18
+    
     var arrowButtonTapAction:(() -> Void)?
     
     var cellIsSelected:Bool = false {
@@ -91,13 +93,13 @@ class SideMenuCell: UITableViewCell {
     
     
     func bindSysMenuItem(_ sysItem:SystemMenuItem) {
-        bindIconAndTitle(icon: sysItem.icon, title: sysItem.title)
+        bindIconAndTitle(icon:UIImage(systemName: sysItem.icon,pointSize: iconSize)!, title: sysItem.title)
     }
     
     
     func bindTag(_ tag:Tag,childCount:Int,isExpand:Bool)  {
-        let icon = tag.icon.isEmpty ? ConstantsUI.tagDefaultImageName : tag.icon
-        bindIconAndTitle(icon: icon, title: tag.title,childCount:childCount)
+        let icon = tag.icon.isEmpty ? UIImage(systemName: ConstantsUI.tagDefaultImageName, pointSize: iconSize)?.withRenderingMode(.alwaysTemplate) : tag.icon.emojiToImage(fontSize: iconSize)
+        bindIconAndTitle(icon:icon!, title: tag.title,childCount:childCount)
         
         self.isExpand = isExpand
         let image = UIImage(systemName: isExpand ? "chevron.down" : "chevron.right",pointSize: 14)?.withRenderingMode(.alwaysTemplate)
@@ -106,10 +108,8 @@ class SideMenuCell: UITableViewCell {
     private var isExpand = false
     private var paddingL2:Int =  SideMenuCellContants.cellPadding
     
-    private func bindIconAndTitle(icon:String,title:String,childCount:Int = 0)  {
-        if let iconImage = UIImage(systemName: icon)?.withRenderingMode(.alwaysTemplate) {
-            self.iconImageView.image = iconImage
-        }
+    private func bindIconAndTitle(icon:UIImage,title:String,childCount:Int = 0)  {
+        self.iconImageView.image = icon
         let titles = title.split("/")
         self.bindTitle(titles: titles)
         self.arrowButton.isHidden = childCount == 0

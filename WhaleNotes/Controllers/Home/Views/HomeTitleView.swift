@@ -20,7 +20,7 @@ class HomeTitleView:UIView {
         
         let spacing:CGFloat = 3
         
-        $0.setTitleColor(.black, for: .normal)
+        $0.setTitleColor(.primaryText, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 18,weight: .medium)
         $0.setImageTitleSpace(3)
         
@@ -31,9 +31,9 @@ class HomeTitleView:UIView {
     
     var isEnabled:Bool = true {
         didSet {
-//            button.isEnabled = isEnabled
-//            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: (isEnabled ? arrowSpacing : 0))
-//            arrowImageView.isHidden = !isEnabled
+            button.isEnabled = isEnabled
+            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: (isEnabled ? arrowSpacing : 0))
+            arrowImageView.isHidden = !isEnabled
         }
     }
     
@@ -49,9 +49,10 @@ class HomeTitleView:UIView {
     
     
     func setTitle(_ title:String,emoji:String) {
-        guard let emojiImage = emoji.emojiToImage(fontSize: 22) else { return }
+        if let emojiImage = emoji.emojiToImage(fontSize: 18)  {
+           button.setImage(emojiImage, for: .normal)
+        }
         button.setTitle(title, for: .normal)
-        button.setImage(emojiImage, for: .normal)
     }
     
      override init(frame: CGRect) {
@@ -68,12 +69,12 @@ class HomeTitleView:UIView {
             $0.height.equalToSuperview()
         }
         
-//        self.addSubview(arrowImageView)
-//        arrowImageView.snp.makeConstraints {
-//            $0.trailing.equalToSuperview()
-//            $0.width.equalTo(arrowWidth)
-//            $0.centerY.equalToSuperview()
-//        }
+        self.addSubview(arrowImageView)
+        arrowImageView.snp.makeConstraints {
+            $0.trailing.equalToSuperview()
+            $0.width.equalTo(arrowWidth)
+            $0.centerY.equalToSuperview()
+        }
     }
     
     @objc func buttonTapped() {

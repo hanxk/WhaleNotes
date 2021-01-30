@@ -12,7 +12,7 @@ class EmojiSearchInputView: UIView {
     
     var callbackTextInputChanged:((String) -> Void)?
     
-    private lazy var textField:MyTextField = MyTextField().then {
+    lazy var textField:MyTextField = MyTextField().then {
         $0.placeholder = "搜索图标"
         $0.returnKeyType = .done
         $0.delegate = self

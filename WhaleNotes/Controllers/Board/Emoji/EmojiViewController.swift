@@ -21,6 +21,8 @@ class EmojiViewController:UIViewController {
     private let cellReuseIdentifier = "EmojiCollectionCell"
     private let headerReuseIdentifier = "EmojiSectionHeaderView"
     
+    private let searchbarHeight:CGFloat = 60
+    
     
     private lazy var searchView: EmojiSearchInputView = EmojiSearchInputView().then {
         $0.callbackTextInputChanged = {
@@ -34,6 +36,9 @@ class EmojiViewController:UIViewController {
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout()).then {
         $0.dataSource = self
         $0.delegate = self
+        $0.alwaysBounceVertical = true
+        $0.contentInset = UIEdgeInsets(top: searchbarHeight, left: 0, bottom: 0, right: 0)
+        $0.scrollIndicatorInsets = UIEdgeInsets(top: searchbarHeight, left: 0, bottom: 0, right: 0)
         $0.register(EmojiCollectionCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         $0.register(EmojiSectionHeaderView.self, forSupplementaryViewOfKind:  UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
     }
@@ -45,6 +50,7 @@ class EmojiViewController:UIViewController {
         self.title = "选择图标"
         self.setupUI()
         
+        self.view.backgroundColor = .bg
         self.loadEmojis()
     }
     
@@ -54,29 +60,30 @@ class EmojiViewController:UIViewController {
     
     
     private func setupUI() {
-        self.view.backgroundColor = .white
-        
-        
-//        let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
-//        self.navigationItem.leftBarButtonItem = cancelButtonItem
+        let cancelButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(self.cancelButtonTapped))
+        self.navigationItem.leftBarButtonItem = cancelButtonItem
         
         let barButtonItem = UIBarButtonItem(title: "随机", style: .done, target: self, action: #selector(self.doneButtonTapped))
         barButtonItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.brand], for: .normal)
         self.navigationItem.rightBarButtonItem = barButtonItem
         
+        
         self.view.addSubview(collectionView)
         collectionView.backgroundColor = .white
         collectionView.snp.makeConstraints {
-            $0.width.height.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
+            $0.top.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
         
         self.view.addSubview(searchView)
         searchView.backgroundColor = .white
         searchView.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.height.equalTo(60)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(searchbarHeight)
             $0.top.equalToSuperview()
         }
+        
     }
     
     private func loadEmojis() {
@@ -115,8 +122,8 @@ class EmojiViewController:UIViewController {
     
     private func setEmojiSeleced(emoji: Emoji) {
         self.callbackEmojiSelected?(emoji)
-//        self.dismiss(animated: true, completion: nil)
-        self.navigationController?.popViewController(animated: true)
+        self.dismiss(animated: true, completion: nil)
+//        self.navigationController?.popViewController(animated: true)
     }
 }
 
@@ -183,8 +190,8 @@ extension EmojiViewController : UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         var height:CGFloat = 52
-        if section == 0 {
-            height = 100
+        if section == 0 && searchView.textField.text!.isNotEmpty {
+            height = 10
         }
         
         return CGSize(width: collectionView.frame.width, height: height)

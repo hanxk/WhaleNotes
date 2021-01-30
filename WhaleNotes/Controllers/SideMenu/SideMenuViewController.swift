@@ -132,6 +132,7 @@ class SideMenuViewController: UIViewController {
     var tagsMap:[String:Tag] = [:]
     // 控制显示
     var visibleTagIds:[String] = []
+    var visibleTags:[Tag] = []
     var tagChildCountMap:[String:Int] = [:]
     
     var sectionItems:[SectionItem] =  []
@@ -195,11 +196,18 @@ class SideMenuViewController: UIViewController {
     private func refreshTags() {
         self.loadTags { [weak self]newTags in
             guard let self = self else { return }
-            let oldTagIds = self.visibleTagIds
+            let oldVisibleTags = self.visibleTagIds.map {
+                self.tagsMap[$0]!
+            }
             self.tags = newTags
             let newTagIds = self.getVisibleTagIds()
+            
+            let newVisibleTags = newTagIds.map {
+                self.tagsMap[$0]!
+            }
+            
             // 刷新tag
-            let changes = diff(old:oldTagIds, new: newTagIds)
+            let changes = diff(old:oldVisibleTags, new: newVisibleTags)
             
             UIView.performWithoutAnimation {
                 self.tableView.reload(changes: changes,section: 1) {

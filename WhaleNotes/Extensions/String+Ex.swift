@@ -103,6 +103,7 @@ extension String {
     }
     
     func emojiToImage(fontSize:CGFloat) -> UIImage? {
+        if self.isEmpty { return nil }
            let nsString = (self as NSString)
            let font = UIFont.systemFont(ofSize: fontSize) // you can change your font size here
            let stringAttributes = [NSAttributedString.Key.font: font]

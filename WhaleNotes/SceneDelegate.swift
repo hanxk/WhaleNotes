@@ -30,7 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             $0.barTintColor = .bg
             $0.layer.borderWidth = 0.0
             $0.shadowImage = UIImage()
-//            $0.transparentNavigationBar()
+            $0.isTranslucent = false
             
             
             let yourBackImage =  UIImage(systemName: "chevron.left")?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0))

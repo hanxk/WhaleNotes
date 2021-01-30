@@ -21,13 +21,20 @@ class TagDao {
 
 extension TagDao {
     func insert( _ tag:Tag) throws {
-        let insertSQL = "INSERT INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
+        let insertSQL = "INSERT OR IGNORE INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
         try db.execute(insertSQL, args: tag.id,tag.title,tag.icon,tag.createdAt.timeIntervalSince1970,tag.updatedAt.timeIntervalSince1970)
         //        return db.changes
     }
     
     func query() throws -> [Tag]  {
         let selectSQL = "SELECT * FROM tag ORDER BY title"
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
+    
+    //#123 #123/456
+    func queryChildTags(parentTitle:String) throws -> [Tag]  {
+        let selectSQL = "SELECT * FROM tag where title like '\(parentTitle)/%' ORDER BY title"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
     }
@@ -122,7 +129,7 @@ extension TagDao {
     
     
     func update( _ tag:Tag) throws {
-        let updateSQL = "update tag set title = ?,icon = ?,updated_at=strftime('%s', 'now') where id = ?"
+        let updateSQL = "update or ignore tag set title = ?,icon = ?,updated_at=strftime('%s', 'now') where id = ?"
         try db.execute(updateSQL, args: tag.title,tag.icon,tag.id)
     }
     

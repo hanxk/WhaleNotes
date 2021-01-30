@@ -10,13 +10,32 @@ import UIKit
 import RxSwift
 import AsyncDisplayKit
 import FloatingPanel
+import DeepDiff
 
 
 enum NoteListMode {
+    static func == (lhs: NoteListMode, rhs: NoteListMode) -> Bool {
+        switch (lhs,rhs)  {
+            case (.all,.all),(.trash,.trash):
+                return true
+            case (.tag(let lTag),.tag(let rTag)):
+                return lTag.id == rTag.id
+            default:
+                return false
+        }
+    }
+    
     case all
     case tag(tag:Tag)
     case search(keyword:String)
     case trash
+    
+    var tag:Tag? {
+        if case .tag(let tag) = self {
+            return tag
+        }
+        return nil
+    }
 }
 
 
@@ -41,6 +60,8 @@ class NotesListView: UIView {
         $0.view.keyboardDismissMode = .onDrag
     }
     private var mode:NoteListMode!
+    private var needReset:Bool = true
+    
     private var noteTag:Tag? = nil
     private weak var viewModel: NoteInfoViewModel?
     
@@ -70,6 +91,14 @@ class NotesListView: UIView {
     
     func loadData(mode:NoteListMode){
         self.mode = mode
+        self.needReset = true
+        self.setupData(mode: mode)
+    }
+    
+    func refresh(mode:NoteListMode) {
+//        guard let mode = self.mode else { return }
+        self.mode = mode
+//        needReset = false
         self.setupData(mode: mode)
     }
     
@@ -104,6 +133,7 @@ class NotesListView: UIView {
 extension NotesListView {
     
     private func loadData(tag:Tag? = nil) {
+        self.needReset = true
         self.noteTag = tag
         let tagId = tag?.id ?? ""
         NoteRepo.shared.getNotes(tag: tagId)
@@ -117,6 +147,7 @@ extension NotesListView {
     
     private func loadData(status:NoteStatus) {
         self.noteTag = nil
+        self.needReset = true
         NoteRepo.shared.getNotes(status: status)
             .subscribe(onNext: { [weak self] notes in
                 self?.reloadTableView(notes: notes)
@@ -129,6 +160,7 @@ extension NotesListView {
     
     private func loadData(keyword:String) {
         self.noteTag = nil
+        self.needReset = true
         if keyword.isEmpty {
             self.reloadTableView(notes: [])
             return
@@ -143,9 +175,17 @@ extension NotesListView {
     }
     
     private func reloadTableView(notes:[NoteInfo])  {
-        self.notes = notes
-        self.tableView.reloadData()
-        self.tableView.contentOffset = self.insetsTop
+        if needReset {
+            self.notes = notes
+            self.tableView.reloadData()
+            self.tableView.contentOffset = self.insetsTop
+            return
+        }
+        // 刷新
+        let changes = diff(old:self.notes, new: notes)
+        self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
+            self.notes = notes
+        }
     }
     
     func createNewNote() {
@@ -334,13 +374,13 @@ extension NotesListView {
         let noteInfo = self.notes[index]
         
         let trashRow = noteInfo.status == .normal ?
-        PopMenuRow(icon: "trash", title: "移到废纸篓",tag:MenuAction.trash.rawValue) :
-        PopMenuRow(icon: "arrow.up.bin", title: "恢复",tag:MenuAction.trash.rawValue)
+            PopMenuRow(icon: UIImage(systemName:"trash"), title: "移到废纸篓",tag:MenuAction.trash.rawValue) :
+            PopMenuRow(icon: UIImage(systemName:"arrow.up.bin"), title: "恢复",tag:MenuAction.trash.rawValue)
         
         let menuRows = [
             trashRow,
-            PopMenuRow(icon: "square.and.arrow.up", title: "分享",tag:MenuAction.share.rawValue),
-            PopMenuRow(icon: "doc.on.doc", title: "复制",tag:MenuAction.copy.rawValue)
+            PopMenuRow(icon: UIImage(systemName:"square.and.arrow.up"), title: "分享",tag:MenuAction.share.rawValue),
+            PopMenuRow(icon: UIImage(systemName:"doc.on.doc"), title: "复制",tag:MenuAction.copy.rawValue)
         ]
         let menuVC = PopMenuController(menuRows: menuRows)
         menuVC.rowSelected = {[weak self] menuRow in

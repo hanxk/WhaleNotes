@@ -12,10 +12,13 @@ public final class MDTagHighlighter: MDHighlighterType {
     
     let regex:NSRegularExpression
     private let attributes:TextAttributes
-    private let regexStr = "(?:^|\\s)(?:#)(\\S+)(?:$|(?=\\s?))"
-   
+    static let regexStr = #"\B#([^#\/\s]+(?:\/[^#\/\s]*)*)(?=\s|$)"#
+//    static let regexStr = #"\B#[^#\/\s]+(\/[^#\/\s]*)*(?=\s|$)"#
+//    static let regexStr = "(?:^|\\s)(?:#)(\\S+)(?:$|(?=\\s?))"
+    
+    
     init(font:  UIFont) {
-        self.regex = regexFromPattern(pattern: regexStr)
+        self.regex = regexFromPattern(pattern: MDTagHighlighter.regexStr)
         self.attributes =  [
             .font:font,
             NSAttributedString.Key.foregroundColor: UIColor.red

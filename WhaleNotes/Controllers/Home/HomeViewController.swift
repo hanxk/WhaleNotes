@@ -30,7 +30,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         $0.delegate = self
         $0.tintColor = .iconColor
         $0.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor(hexString: "#333333")]
-        $0.transparentNavigationBar()
+//        $0.transparentNavigationBar()
     }
     
     let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
@@ -78,33 +78,27 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         func openBoardSetting(board: BlockInfo) {
             let settingVC = BoardSettingViewController()
             settingVC.board = board
-            settingVC.callbackBoardSettingEdited = { boardEditedType in
-                switch boardEditedType {
-                case .update(let board):
-                    self.handleBoardUpdated(board: board)
-                case .delete(let board):
-                    self.handleBoardDeleted(board: board)
-                }
-            }
+//            settingVC.callbackBoardSettingEdited = { boardEditedType in
+//                switch boardEditedType {
+//                case .update(let board):
+//                    self.handleBoardUpdated(board: board)
+//                case .delete(let board):
+//                    self.handleBoardDeleted(board: board)
+//                }
+//            }
             let vc = MyNavigationController(rootViewController: settingVC)
             self.present(vc, animated: true, completion: nil)
         }
         
         titleButton.callbackTapped = {
-//            switch self.sideMenuItemType {
-//            case .board(let board):
-//                openBoardSetting(board: board)
-//                break
-//            case .system(let menuInfo):
-//                if case .board(let board) = menuInfo {
-//                    openBoardSetting(board: board)
-//                }
-//                break
-//            case .none:
-//                break
-//            }
+            guard let mode = self.mode else { return }
+            if case .tag(let tag) = mode {
+                self.handleTagMenuAction(tag: tag)
+            }
         }
     }
+    
+    
     
     func setupNoteListView() {
         let topPadding = self.topbarHeight + NotesListViewConstants.topPadding
@@ -135,6 +129,108 @@ class Toolbar: UIToolbar {
         var size = super.sizeThatFits(size)
         size.height = height
         return size
+    }
+}
+
+//MARK: tag menu
+extension HomeViewController  {
+    
+    fileprivate func handleTagMenuAction(tag:Tag) {
+        let menuRows = [
+            PopMenuRow(icon: UIImage(systemName: "pencil"), title: "编辑名称",tag:1),
+            PopMenuRow(icon: UIImage(systemName: "grid"), title: "编辑图标",tag:2),
+            PopMenuRow(icon: UIImage(systemName: "trash"), title: "删除",tag:3,isDestroy: true)
+        ]
+        let menuVC = PopMenuController(menuRows: menuRows)
+        menuVC.rowSelected = {[weak self] menuRow in
+            guard let tag = self?.mode?.tag else { return}
+            let flag = menuRow.tag
+            if flag == 1 {
+                self?.showAlertTextField(title: "编辑名称", text: tag.title, placeholder: "", positiveBtnText: "更新", callbackPositive: { title in
+//                    tag.title = title
+                    self?.handleTagTitleUpdated(tag: tag, newTagTitle: title)
+                })
+            }else if flag == 2 {
+                self?.openEmojiVC()
+            }else if flag == 3 {
+            }
+        }
+        menuVC.showModal(vc: self)
+    }
+    
+    func openEmojiVC() {
+        let vc = EmojiViewController()
+        vc.callbackEmojiSelected = { [weak self] emoji in
+//            guard let self = self else { return }
+//            self.boardProperties.icon = emoji.value
+//            iconView.iconImage = self.boardProperties.getBoardIcon(fontSize: 50)
+            self?.handleEmojiSelected(emoji.value)
+        }
+        let navVC = MyNavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+        navVC.modalTransitionStyle = .coverVertical
+        
+        self.navigationController?.present(navVC, animated: true, completion: nil)
+        
+//        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+//        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func handleEmojiSelected(_ emoji:String) {
+        guard var tag = self.mode?.tag else { return}
+        tag.icon = emoji
+        self.updateTag(tag: tag) {
+            self.updateTagDatasource(tag: tag)
+        }
+    }
+    
+    func handleTagUpdated(_ tag:Tag) {
+        self.updateTag(tag: tag) {
+            self.updateTagDatasource(tag: tag)
+        }
+    }
+    
+    func updateTagDatasource(tag:Tag) {
+        self.mode = NoteListMode.tag(tag: tag)
+        titleButton.setTitle(tag.title, emoji: tag.icon)
+        EventManager.shared.post(name: .Tag_CHANGED)
+    }
+    
+    func updateTag(tag:Tag,callback: @escaping ()->Void) {
+        NoteRepo.shared.updateTag(tag: tag)
+            .subscribe(onNext: {
+                callback()
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func handleTagTitleUpdated(tag:Tag,newTagTitle:String) {
+//        let tagTitles = MDEditorViewController.extractTagsFromTitle(title:newTagTitle)
+//        // 更新 tag
+//        self.updateNotesTag(tag:tag,tagTitles:tagTitles)
+        NoteRepo.shared.updateNotesTag(tag: tag, newTitle: newTagTitle)
+            .subscribe(onNext: { newTag in
+                self.updateTagDatasource(tag: newTag)
+                //刷新
+                self.contentView.refresh(mode: NoteListMode.tag(tag: newTag))
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func updateNotesTag(tag:Tag,tagTitles:[String]) {
+        NoteRepo.shared.updateNotesTag(tag: tag, tagTitles: tagTitles)
+            .subscribe(onNext: { newTag in
+                self.updateTagDatasource(tag: newTag)
+                //刷新
+                self.contentView.refresh(mode: NoteListMode.tag(tag: newTag))
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -215,26 +311,11 @@ extension HomeViewController {
 }
 
 
-//MARK: board edited
-extension HomeViewController {
-    private func handleBoardUpdated(board:BlockInfo) {
-//        self.sideMenuItemType = SideMenuItem.board(board: board)
-//        let properties = board.blockBoardProperties!
-//        self.title = board.title
-        
-//        navBar.topItem?.title = board.title
-//        navItem.title = board.title
-    }
-    
-    private func handleBoardDeleted(board:BlockInfo) {
-    }
-}
-
 //MARK: content view
 extension HomeViewController {
     
     func setupContentView(tag:Tag) {
-        titleButton.setTitle(tag.title, icon: nil)
+        titleButton.setTitle(tag.title, emoji: tag.icon)
         self.setupTagListView(mode: .tag(tag: tag))
     }
     
@@ -254,6 +335,13 @@ extension HomeViewController {
         self.mode = mode
         contentView.loadData(mode: mode)
         self.setupFloatButton(mode: mode)
+        
+        if case .tag(let _) = mode {
+            titleButton.isEnabled = true
+        }else {
+            titleButton.isEnabled = false
+            
+        }
     }
 }
 

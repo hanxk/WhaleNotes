@@ -6,11 +6,11 @@
 //  Copyright © 2020 hanxk. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 struct PopMenuRow {
-    
-    var icon:String?
+    var icon:UIImage?
     var title:String
     var tag:Int = 0
+    var isDestroy = false
 }

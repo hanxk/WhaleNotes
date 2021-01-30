@@ -81,13 +81,15 @@ extension PopMenuController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let menuRow = self.menuRows[indexPath.row]
+        let tintColor:UIColor = menuRow.isDestroy ? .red : .cardText
+        
         let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "").then {
-            $0.textLabel?.textColor = .cardText
+            $0.textLabel?.textColor =  tintColor
             $0.textLabel?.text = menuRow.title
 //            $0.contentView.backgroundColor = .cellSelectedColor
             if let menuIcon = menuRow.icon {
-                $0.imageView?.image = UIImage(systemName: menuIcon)?.withRenderingMode(.alwaysTemplate)
-                $0.imageView?.tintColor = .cardText
+                $0.imageView?.image = menuIcon.withRenderingMode(.alwaysTemplate)
+                $0.imageView?.tintColor = tintColor
             }
         }
         return  cell

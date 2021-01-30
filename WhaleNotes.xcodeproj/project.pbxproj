@@ -170,6 +170,7 @@
 		18B0D284248E03F60082ACF6 /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */; };
 		18BC5FF225AC1E04003A2952 /* ImageCellProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BC5FF125AC1E04003A2952 /* ImageCellProvider.swift */; };
 		18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BCA59724E8165800612889 /* BoardsRepo.swift */; };
+		18BEAB8825B42DD50032A342 /* ASTableNode+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BEAB8725B42DD40032A342 /* ASTableNode+Ex.swift */; };
 		18C1322B2599C02600D1529B /* TextUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C132192599C02600D1529B /* TextUtils.swift */; };
 		18C1322C2599C02600D1529B /* HighlighterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321A2599C02600D1529B /* HighlighterType.swift */; };
 		18C1322D2599C02600D1529B /* MarkdownAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1321B2599C02600D1529B /* MarkdownAttributes.swift */; };
@@ -422,6 +423,7 @@
 		18B0D283248E03F60082ACF6 /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
 		18BC5FF125AC1E04003A2952 /* ImageCellProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCellProvider.swift; sourceTree = "<group>"; };
 		18BCA59724E8165800612889 /* BoardsRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardsRepo.swift; sourceTree = "<group>"; };
+		18BEAB8725B42DD40032A342 /* ASTableNode+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ASTableNode+Ex.swift"; sourceTree = "<group>"; };
 		18C132192599C02600D1529B /* TextUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextUtils.swift; sourceTree = "<group>"; };
 		18C1321A2599C02600D1529B /* HighlighterType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HighlighterType.swift; sourceTree = "<group>"; };
 		18C1321B2599C02600D1529B /* MarkdownAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownAttributes.swift; sourceTree = "<group>"; };
@@ -780,6 +782,7 @@
 				18E7BF89248C92CB00B8AEC1 /* UILabel+Ex.swift */,
 				18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */,
 				18F57C31256E29B600834DB5 /* UITextView+Ex.swift */,
+				18BEAB8725B42DD40032A342 /* ASTableNode+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1689,6 +1692,7 @@
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
 				18C1322C2599C02600D1529B /* HighlighterType.swift in Sources */,
 				186A33F825831A570003E926 /* UIControlMenu+Helpers.swift in Sources */,
+				18BEAB8825B42DD50032A342 /* ASTableNode+Ex.swift in Sources */,
 				1865AF08244D4DC40006B48D /* TypedRow.swift in Sources */,
 				18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */,
 				181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */,

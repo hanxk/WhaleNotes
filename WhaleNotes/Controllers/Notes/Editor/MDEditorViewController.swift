@@ -361,7 +361,7 @@ extension MDEditorViewController:ASTableDataSource {
         
         let noteTagTitles = self.noteInfo.tags
         
-        let tagTitles = self.extractTags(tagRegex: contentCellNode.mdTextViewWrapper.highlightManager.tagHightlighter.regex, text: content)
+        let tagTitles = MDEditorViewController.extractTags(text: content)
 
         let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
         if isEqual {
@@ -375,23 +375,27 @@ extension MDEditorViewController:ASTableDataSource {
         EventManager.shared.post(name: .Tag_CHANGED)
     }
     
-    private func extractTags(tagRegex:NSRegularExpression,text:String) -> [String]  {
+    static func extractTags(text:String) -> [String]  {
+        let tagRegex = regexFromPattern(pattern: MDTagHighlighter.regexStr)
         var tags:[String] = []
         tagRegex.enumerateMatches(in: text,range:NSMakeRange(0, text.length)) {
             match, flags, stop in
             if  let  match = match {
                 let  tagRange = match.range(at: 1)
-                tags.append(text.substring(with: tagRange))
+                let tag = text.substring(with: tagRange).trimmingCharacters(in: .whitespacesAndNewlines)
+                tags.append(tag)
             }
         }
-        
         var tagTitles:[String] = []
         for title in tags {
             //新增 parent tag
             let parentTitles = title.components(separatedBy: "/").dropLast()
             var pTitle = ""
             for (index,title) in parentTitles.enumerated() {
-                if index > 0 { pTitle += "/" }
+                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    continue
+                }
+                if pTitle.isNotEmpty { pTitle += "/" }
                 pTitle += title
                 tagTitles.append(pTitle)
             }
@@ -399,7 +403,57 @@ extension MDEditorViewController:ASTableDataSource {
         }
         tagTitles = tagTitles.sorted { $0 < $1 }
         return tagTitles
+            
     }
+    
+    
+    static func extractTagsFromTitle(title:String) -> [String]  {
+    
+        if !"#\(title)".match(pattern: MDTagHighlighter.regexStr) {
+            fatalError("extractTagsFromTitle: \(title)  --- > 不合法")
+        }
+        
+        var tagTitles:[String] = []
+        let parentTitles = title.components(separatedBy: "/").dropLast()
+        var pTitle = ""
+        for (index,title) in parentTitles.enumerated() {
+            if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                continue
+            }
+            if pTitle.isNumber() { pTitle += "/" }
+            pTitle += title
+            tagTitles.append(pTitle)
+        }
+        tagTitles.append(title)
+        return tagTitles
+    }
+    
+    
+//    private func extractTags(tagRegex:NSRegularExpression,text:String) -> [String]  {
+//        var tags:[String] = []
+//        tagRegex.enumerateMatches(in: text,range:NSMakeRange(0, text.length)) {
+//            match, flags, stop in
+//            if  let  match = match {
+//                let  tagRange = match.range(at: 1)
+//                tags.append(text.substring(with: tagRange))
+//            }
+//        }
+//
+//        var tagTitles:[String] = []
+//        for title in tags {
+//            //新增 parent tag
+//            let parentTitles = title.components(separatedBy: "/").dropLast()
+//            var pTitle = ""
+//            for (index,title) in parentTitles.enumerated() {
+//                if index > 0 { pTitle += "/" }
+//                pTitle += title
+//                tagTitles.append(pTitle)
+//            }
+//            tagTitles.append(title)
+//        }
+//        tagTitles = tagTitles.sorted { $0 < $1 }
+//        return tagTitles
+//    }
     
     private func updateInputTitle(_ title:String) {
         if self.noteInfo.note.title == title { return }

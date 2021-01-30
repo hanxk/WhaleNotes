@@ -37,7 +37,7 @@ struct Tag:DiffAware {
     typealias DiffId = String
     var diffId: DiffId { return self.id }
     static func compareContent(_ a: Self, _ b: Self) -> Bool {
-        a.id == b.id && a.title  ==  b.title
+        (a.id == b.id) && (a.title  ==  b.title) && (a.icon == b.icon)
     }
 }
 
