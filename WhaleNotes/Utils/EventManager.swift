@@ -31,4 +31,6 @@ class EventManager {
 extension Notification.Name {
     static let Tag_CHANGED
                 = NSNotification.Name("Tag_CHANGED")
+    static let Tag_DELETED
+                = NSNotification.Name("Tag_DELETED")
 }

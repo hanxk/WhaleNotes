@@ -148,11 +148,12 @@ extension HomeViewController  {
             if flag == 1 {
                 self?.showAlertTextField(title: "编辑名称", text: tag.title, placeholder: "", positiveBtnText: "更新", callbackPositive: { title in
 //                    tag.title = title
-                    self?.handleTagTitleUpdated(tag: tag, newTagTitle: title)
+                    self?.updateTagTitle(tag: tag, newTagTitle: title)
                 })
             }else if flag == 2 {
                 self?.openEmojiVC()
             }else if flag == 3 {
+                self?.handleDelTag(tag: tag)
             }
         }
         menuVC.showModal(vc: self)
@@ -184,6 +185,17 @@ extension HomeViewController  {
         }
     }
     
+    func handleDelTag(tag: Tag) {
+        let alert = UIAlertController(title: "", message: "当前标签及子标签将会被删除。确认要删除吗？", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "确认删除", style: .destructive , handler:{ (UIAlertAction)in
+            self.delteNotesTag(tag: tag)
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler:{ (UIAlertAction)in
+            
+        }))
+        self.present(alert, animated: true, completion:nil)
+    }
+    
     func handleTagUpdated(_ tag:Tag) {
         self.updateTag(tag: tag) {
             self.updateTagDatasource(tag: tag)
@@ -193,7 +205,14 @@ extension HomeViewController  {
     func updateTagDatasource(tag:Tag) {
         self.mode = NoteListMode.tag(tag: tag)
         titleButton.setTitle(tag.title, emoji: tag.icon)
-        EventManager.shared.post(name: .Tag_CHANGED)
+//        EventManager.shared.post(name: .Tag_CHANGED,userInfo: <#T##[AnyHashable : Any]?#>)
+        
+        // 标签展开
+        
+        EventManager.shared.post(name:.Tag_CHANGED, object: tag, userInfo: nil)
+        
+        
+        
     }
     
     func updateTag(tag:Tag,callback: @escaping ()->Void) {
@@ -206,14 +225,12 @@ extension HomeViewController  {
             .disposed(by: disposeBag)
     }
     
-    func handleTagTitleUpdated(tag:Tag,newTagTitle:String) {
-//        let tagTitles = MDEditorViewController.extractTagsFromTitle(title:newTagTitle)
-//        // 更新 tag
-//        self.updateNotesTag(tag:tag,tagTitles:tagTitles)
+    func updateTagTitle(tag:Tag,newTagTitle:String) {
+        // 更新笔记的tag
         NoteRepo.shared.updateNotesTag(tag: tag, newTitle: newTagTitle)
             .subscribe(onNext: { newTag in
                 self.updateTagDatasource(tag: newTag)
-                //刷新
+                //刷新列表
                 self.contentView.refresh(mode: NoteListMode.tag(tag: newTag))
             }, onError: {
                 Logger.error($0)
@@ -221,12 +238,10 @@ extension HomeViewController  {
             .disposed(by: disposeBag)
     }
     
-    func updateNotesTag(tag:Tag,tagTitles:[String]) {
-        NoteRepo.shared.updateNotesTag(tag: tag, tagTitles: tagTitles)
+    func delteNotesTag(tag:Tag) {
+        NoteRepo.shared.deleteNotesTag(tag: tag)
             .subscribe(onNext: { newTag in
-                self.updateTagDatasource(tag: newTag)
-                //刷新
-                self.contentView.refresh(mode: NoteListMode.tag(tag: newTag))
+                EventManager.shared.post(name: .Tag_DELETED)
             }, onError: {
                 Logger.error($0)
             })

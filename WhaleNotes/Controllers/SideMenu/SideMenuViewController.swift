@@ -25,9 +25,27 @@ protocol SideMenuViewControllerDelegate: AnyObject {
     func sideMenuItemSelected(tag:Tag)
 }
 
+enum SideMenuItem:Equatable {
+    case system(sysMenuItem:SystemMenuItem)
+    case tag(id:String)
+    
+    static func == (lhs: SideMenuItem, rhs: SideMenuItem) -> Bool {
+        switch (lhs,rhs)  {
+        case (.system(let lmenu),.system(let rmenu) ):
+            return  lmenu == rmenu
+        case (.system,.tag):
+            return false
+        case (.tag(let lTagId) ,.tag(let rTagId)):
+            return lTagId == rTagId
+        case (.tag, .system):
+            return false
+        }
+    }
+}
+
 enum SystemMenuItem:Equatable {
-    case all(icon:String,title:String)
-    case trash(icon:String,title:String)
+    case all(icon:String="doc.text",title:String="全部")
+    case trash(icon:String="trash",title:String="废纸篓")
     
     var title:String {
         switch self {
@@ -49,26 +67,21 @@ enum SystemMenuItem:Equatable {
     static func == (lhs: SystemMenuItem, rhs: SystemMenuItem) -> Bool {
         return lhs.title == rhs.title
     }
+    
+    var index:Int{
+        switch self {
+        case .all:
+            return 0
+        default:
+            return 1
+        }
+    }
 }
 
-
-//enum SideMenuItem:Equatable {
-//    case system(item:SystemMenuItem)
-//    case tag(tag:Tag,childCount:Int)
-//
-//    static func == (lhs: SideMenuItem, rhs: SideMenuItem) -> Bool {
-//        switch (lhs,rhs)  {
-//        case (.system(let lmenu),.system(let rmenu) ):
-//            return  lmenu == rmenu
-//        case (.system,.tag):
-//            return false
-//        case (.tag(let lTag,_) ,.tag(let rTag,_)):
-//            return lTag.id == rTag.id
-//        case (.tag, .system):
-//            return false
-//        }
-//    }
-//}
+enum SyetemMenuType {
+    case all
+    case trash
+}
 
 enum SectionItem {
     case system
@@ -90,7 +103,7 @@ class SideMenuViewController: UIViewController {
         didSet {
             self.loadTags {[weak self] tags in
                 self?.setupData(tags: tags)
-                self?.setSelectedIndexPath(IndexPath(row: 0, section: 0))
+                self?.setSelectedIndexPath(IndexPath(row: 0, section: 0),checkSame: false)
             }
             self.registerEvent()
         }
@@ -120,26 +133,25 @@ class SideMenuViewController: UIViewController {
             self.tagsMap = Dictionary(uniqueKeysWithValues: tags.map { ($0.id, $0)})
             self.tagChildCountMap = Dictionary(uniqueKeysWithValues:
                                                 tagsMap.map { key, value in (key, getChildCount(tag: value)) })
-            
-//            self.visibleTagIds = self.tags.filter {
-//                isTagExpand(tagId: $0.id)
-//            }.map  {
-//                return $0.id
-//            }
-//            self.visibleTagIds = expandTags
+            self.visibleTagIds = self.getVisibleTagIds()
         }
     }
+    
+    enum Constants {
+       static let all = SystemMenuItem.all(icon: "doc.text", title: "全部")
+        static let trash = SystemMenuItem.trash(icon: "trash", title: "废纸篓")
+    }
+    
     var tagsMap:[String:Tag] = [:]
-    // 控制显示
-    var visibleTagIds:[String] = []
-    var visibleTags:[Tag] = []
     var tagChildCountMap:[String:Int] = [:]
     
     var sectionItems:[SectionItem] =  []
+    
+    // 控制列表展示
     var sysMenuItems:[SystemMenuItem] = []
+    var visibleTagIds:[String] = []
     
-    
-    var selectedIndexPath:IndexPath!
+    var selectedMenu:SideMenuItem!
     
     func getVisibleTagIds() -> [String] {
         var expandTags:[String] = []
@@ -147,21 +159,38 @@ class SideMenuViewController: UIViewController {
         return  expandTags
     }
     
-    func setSelectedIndexPath(_ indexPath:IndexPath,isPreventClose:Bool=false) {
-        
+    
+    func setSelectedIndexPath(_ indexPath:IndexPath,isPreventClose:Bool=false,checkSame:Bool = true) {
         if  !isPreventClose {
            SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
         }
-       
-        if self.selectedIndexPath == indexPath { return }
-        self.selectedIndexPath  = indexPath
         
-        let sectionType =  self.sectionItems[selectedIndexPath.section]
+        if checkSame && getSelectedIndexPath() == indexPath { return }
+        
+        let sectionType =  self.sectionItems[indexPath.section]
         switch sectionType {
         case .system:
-            self.delegate?.sideMenuItemSelected(sideMenuItem: self.sysMenuItems[selectedIndexPath.row])
+            let sysMenuItem = self.sysMenuItems[indexPath.row]
+            self.selectedMenu = SideMenuItem.system(sysMenuItem:sysMenuItem )
+            self.delegate?.sideMenuItemSelected(sideMenuItem: sysMenuItem)
         case  .tag:
-            self.delegate?.sideMenuItemSelected(tag: self.getTag(index: selectedIndexPath.row))
+            let tag = self.getTag(index: indexPath.row)
+            self.selectedMenu = SideMenuItem.tag(id: tag.id)
+            self.delegate?.sideMenuItemSelected(tag: tag)
+        }
+        
+    }
+    
+    func getSelectedIndexPath() -> IndexPath? {
+        guard let selectedMenu = self.selectedMenu else { return nil }
+        switch selectedMenu {
+        case .system(let sysMenuItem):
+            return IndexPath(row: sysMenuItem.index, section: 0)
+        case .tag(let id):
+            if let row = self.visibleTagIds.firstIndex(of: id) {
+                return IndexPath(row: row, section: 1)
+            }
+            return nil
         }
     }
     
@@ -196,22 +225,12 @@ class SideMenuViewController: UIViewController {
     private func refreshTags() {
         self.loadTags { [weak self]newTags in
             guard let self = self else { return }
-            let oldVisibleTags = self.visibleTagIds.map {
-                self.tagsMap[$0]!
-            }
+            let oldTags = self.visibleTagIds.map {self.tagsMap[$0]!}
             self.tags = newTags
-            let newTagIds = self.getVisibleTagIds()
-            
-            let newVisibleTags = newTagIds.map {
-                self.tagsMap[$0]!
-            }
-            
-            // 刷新tag
-            let changes = diff(old:oldVisibleTags, new: newVisibleTags)
-            
+            let newTags = self.visibleTagIds.map {self.tagsMap[$0]!}
+            let changes = diff(old:oldTags, new: newTags)
             UIView.performWithoutAnimation {
                 self.tableView.reload(changes: changes,section: 1) {
-                    self.visibleTagIds = newTagIds
                 }
             }
         }
@@ -234,7 +253,7 @@ class SideMenuViewController: UIViewController {
     
     private func loadTags(callback:@escaping ([Tag])->Void) {
         NoteRepo.shared.getValidTags()
-            .subscribe(onNext: { [weak self] tags in
+            .subscribe(onNext: { tags in
                 callback(tags)
             }, onError: {
                 Logger.error($0)
@@ -243,14 +262,8 @@ class SideMenuViewController: UIViewController {
     }
     
     private func setupData(tags:[Tag]) {
-        self.sysMenuItems = [SystemMenuItem.all(icon: "doc.text", title: "全部"),
-                           SystemMenuItem.trash(icon: "trash", title: "废纸篓")
-        ]
-        
-        
-            self.tags = tags
-        
-        self.visibleTagIds = getVisibleTagIds()
+        self.sysMenuItems = [Constants.all,Constants.trash]
+        self.tags = tags
         
         self.sectionItems = [
             SectionItem.system,
@@ -260,10 +273,6 @@ class SideMenuViewController: UIViewController {
         self.tableView.reloadData()
     }
     
-    private func setupTags(tags:[Tag]) {
-//        var tags:[Tag]  = []
-//        self.totalTagIds = tags.map{$0.id}
-    }
     
     deinit {
         self.unRegisterEvent()
@@ -278,6 +287,7 @@ class SideMenuViewController: UIViewController {
 extension SideMenuViewController {
     private func registerEvent() {
         EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_CHANGED)
+        EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_DELETED)
     }
     
     private func unRegisterEvent() {
@@ -287,9 +297,18 @@ extension SideMenuViewController {
     @objc private func handleTagChanged(notification: Notification) {
         print("tag changed")
         self.needRefresh = true
-//        self.loadTags {[weak self] in
-//           print("刷新完成")
-//        }
+        switch notification.name {
+        case .Tag_CHANGED:
+            if let tag = notification.object as? Tag {
+                self.selectedMenu = SideMenuItem.tag(id: tag.id)
+            }
+            break
+        case .Tag_DELETED:
+            // 选中 all
+            self.setSelectedIndexPath(IndexPath(row: 0, section: 0))
+        default:
+            break
+        }
     }
 }
 
@@ -321,14 +340,14 @@ extension SideMenuViewController:UITableViewDataSource {
         case .system:
             cell.bindSysMenuItem(self.sysMenuItems[indexPath.row])
         case  .tag:
-            let tag = self.tagsMap[self.visibleTagIds[indexPath.row]]!
+            let tag = getTag(index: indexPath.row)
             let childCount = self.tagChildCountMap[tag.id] ?? 0
             cell.bindTag(tag, childCount:childCount, isExpand: isTagExpand(tagId: tag.id))
             cell.arrowButtonTapAction  = {
                 self.toggleTagExpand(tagId: tag.id)
             }
         }
-        cell.cellIsSelected = self.selectedIndexPath == indexPath
+        cell.cellIsSelected = getSelectedIndexPath() == indexPath
         return cell
     }
     
@@ -367,13 +386,13 @@ extension SideMenuViewController {
             insertIndexs.append(IndexPath(row: row, section: 1))
         }
         
-        // 处理cell选中
-        if self.selectedIndexPath.section == 1 && index < self.selectedIndexPath.row   {
-            // 更新 selected index
-            let newSelectedIndexPath =  IndexPath(row: self.selectedIndexPath.row+insertIndexs.count, section: self.selectedIndexPath.section)
-            setSelectedIndexPath(newSelectedIndexPath, isPreventClose: true)
-        }
-        
+//        if let selectedIndexPath = getSelectedIndexPath() {
+//
+//        }
+//        if let selectedIndexPath = getSelectedIndexPath(),selectedIndexPath.section == 1 && index < selectedIndexPath.row {
+//            let newSelectedIndexPath =  IndexPath(row: selectedIndexPath.row+insertIndexs.count, section: selectedIndexPath.section)
+//            setSelectedIndexPath(newSelectedIndexPath, isPreventClose: true)
+//        }
         self.tableView.performBatchUpdates({
             self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 1)])
             self.tableView.insertRows(at: insertIndexs, with: .none)
@@ -390,19 +409,22 @@ extension SideMenuViewController {
             let row = start + childIndex
             delIndexs.append(IndexPath(row: row, section: 1))
         }
-        self.visibleTagIds.removeSubrange(start..<(start+childCount))
         
         let rootIndexPath = IndexPath(row: index, section: 1)
         
-        if delIndexs.contains(self.selectedIndexPath) {
-            // 处理cell选中
+        // 如果当前要折叠节点的子节点时选中状态，那么需要将当前节点更新为选中状态
+        if let selectedIndexPath = getSelectedIndexPath(),delIndexs.contains(selectedIndexPath) {
+//            if delIndexs.contains(selectedIndexPath) {
+//                // 处理cell选中
+//            }else if selectedIndexPath.section == 1 && index < selectedIndexPath.row   {
+//                // 更新 selected index
+//                let newSelectedIndexPath =  IndexPath(row: selectedIndexPath.row-delIndexs.count, section: selectedIndexPath.section)
+//                setSelectedIndexPath(newSelectedIndexPath, isPreventClose: true)
+//            }
             setSelectedIndexPath(rootIndexPath, isPreventClose: true)
-        }else if self.selectedIndexPath.section == 1 && index < self.selectedIndexPath.row   {
-            // 更新 selected index
-            let newSelectedIndexPath =  IndexPath(row: self.selectedIndexPath.row-delIndexs.count, section: self.selectedIndexPath.section)
-            setSelectedIndexPath(newSelectedIndexPath, isPreventClose: true)
         }
         
+        self.visibleTagIds.removeSubrange(start..<(start+childCount))
         self.tableView.performBatchUpdates({
             self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 1)])
             self.tableView.deleteRows(at: delIndexs, with: .none)
@@ -417,7 +439,7 @@ extension SideMenuViewController {
             return  []
         }
         let tag = tagsMap[tagId]!
-        return self.visibleTagIds.filter{tagsMap[$0]!.title.starts(with: tag.title+"/")}
+        return self.visibleTagIds.filter{self.tagsMap[$0]?.title.starts(with: tag.title+"/") ?? false}
     }
     
     private func findExpandTagByTag(rootTagId:String)-> [String] {
@@ -488,11 +510,11 @@ extension SideMenuViewController:UITableViewDelegate {
         self.setSelected(indexPath: indexPath)
     }
     private func setSelected(indexPath: IndexPath)   {
-        let oldIndexPath = self.selectedIndexPath!
+        var reloadRows:[IndexPath] = [indexPath]
+        if let oldIndexPath = getSelectedIndexPath() {
+            reloadRows.append(oldIndexPath)
+        }
         self.setSelectedIndexPath(indexPath)
-        self.tableView.reloadRowsWithoutAnim(at: [oldIndexPath,indexPath])
+        self.tableView.reloadRowsWithoutAnim(at: reloadRows)
     }
-    
-    
-    
 }
