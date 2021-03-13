@@ -191,7 +191,14 @@ extension NotesListView {
     func createNewNote() {
         var noteInfo = NoteInfo(note: Note())
         if let tag = self.noteTag {
-            noteInfo.note.content = "#\(tag.title) \n"
+            
+            var tagTitle:String = tag.title
+            if tagTitle.contains(" ") {
+                tagTitle = "#\(tagTitle)#"
+            }else {
+                tagTitle = "#\(tagTitle) "
+            }
+            noteInfo.note.content = tagTitle
             noteInfo.tags = [tag]
         }
         NoteRepo.shared.createNote(noteInfo)

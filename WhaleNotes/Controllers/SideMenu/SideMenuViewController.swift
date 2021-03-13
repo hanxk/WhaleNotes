@@ -305,7 +305,12 @@ extension SideMenuViewController {
             break
         case .Tag_DELETED:
             // 选中 all
-            self.setSelectedIndexPath(IndexPath(row: 0, section: 0))
+//            self.selectedMenu = SideMenuItem.system(sysMenuItem: Constants.all)
+            let all = IndexPath(row: 0, section: 0)
+            self.setSelectedIndexPath(all)
+            if let cell = self.tableView.cellForRow(at: all) as? SideMenuCell {
+                cell.cellIsSelected = true
+            }
         default:
             break
         }

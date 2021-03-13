@@ -148,6 +148,11 @@ extension HomeViewController  {
             if flag == 1 {
                 self?.showAlertTextField(title: "编辑名称", text: tag.title, placeholder: "", positiveBtnText: "更新", callbackPositive: { title in
 //                    tag.title = title
+                    var newTitle = title.trimmingCharacters(in: .whitespaces)
+                    if newTitle.isEmpty { return }
+//                    if newTitle.contains(" ") {
+//                        newTitle += "# "
+//                    }
                     self?.updateTagTitle(tag: tag, newTagTitle: title)
                 })
             }else if flag == 2 {
@@ -205,14 +210,7 @@ extension HomeViewController  {
     func updateTagDatasource(tag:Tag) {
         self.mode = NoteListMode.tag(tag: tag)
         titleButton.setTitle(tag.title, emoji: tag.icon)
-//        EventManager.shared.post(name: .Tag_CHANGED,userInfo: <#T##[AnyHashable : Any]?#>)
-        
-        // 标签展开
-        
         EventManager.shared.post(name:.Tag_CHANGED, object: tag, userInfo: nil)
-        
-        
-        
     }
     
     func updateTag(tag:Tag,callback: @escaping ()->Void) {
@@ -227,11 +225,15 @@ extension HomeViewController  {
     
     func updateTagTitle(tag:Tag,newTagTitle:String) {
         // 更新笔记的tag
-        NoteRepo.shared.updateNotesTag(tag: tag, newTitle: newTagTitle)
-            .subscribe(onNext: { newTag in
-                self.updateTagDatasource(tag: newTag)
-                //刷新列表
-                self.contentView.refresh(mode: NoteListMode.tag(tag: newTag))
+        NoteRepo.shared.updateNotesTag(tag: tag, newTagTitle: newTagTitle)
+            .subscribe(onNext: { [weak self] newTag in
+                if let tag = newTag,
+                   let self = self {
+                    self.updateTagDatasource(tag: tag)
+                    //刷新列表
+                    self.contentView.refresh(mode: NoteListMode.tag(tag: tag))
+                }
+                
             }, onError: {
                 Logger.error($0)
             })

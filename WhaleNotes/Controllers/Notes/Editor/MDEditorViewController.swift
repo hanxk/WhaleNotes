@@ -382,24 +382,31 @@ extension MDEditorViewController:ASTableDataSource {
             match, flags, stop in
             if  let  match = match {
                 let  tagRange = match.range(at: 1)
-                let tag = text.substring(with: tagRange).trimmingCharacters(in: .whitespacesAndNewlines)
-                tags.append(tag)
+                if tagRange.length > 0 {
+                    var tag = text.substring(with: tagRange).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if let hashTagIndex = tag.firstIndex(of: "#") {
+                        let range = tag.startIndex..<hashTagIndex
+                        tag = String(tag[range])
+                    }
+                    tags.append(tag)
+                }
             }
         }
         var tagTitles:[String] = []
         for title in tags {
             //新增 parent tag
-            let parentTitles = title.components(separatedBy: "/").dropLast()
+            
+            let parentTitles = title.components(separatedBy: "/")
             var pTitle = ""
             for (index,title) in parentTitles.enumerated() {
-                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    continue
-                }
-                if pTitle.isNotEmpty { pTitle += "/" }
+//                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+//                    continue
+//                }
+                if index > 0 { pTitle += "/" }
                 pTitle += title
                 tagTitles.append(pTitle)
             }
-            tagTitles.append(title)
+//            tagTitles.append(title)
         }
         tagTitles = tagTitles.sorted { $0 < $1 }
         return tagTitles

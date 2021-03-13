@@ -368,41 +368,9 @@ extension NoteRepo {
             self.transactionTask(observable: observer) { () -> Void in
                 var notes:[Note] = try self.noteDao.query(tagId: tag.id)
                 let updatedAt = Date()
+                
+                // 替换所有 notes
                 self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: "", updatedAt: updatedAt, notes: &notes)
-                
-                for note in notes {
-                    let tagTitles = MDEditorViewController.extractTags(text:note.content)
-                    try self.noteTagDao.delete(noteId: note.id)
-                    // 更新 note content
-                    try self.noteDao.updateContent(note.content, noteId: note.id, updatedAt: updatedAt)
-                    for tagTitle in tagTitles {
-                        var tag:Tag!
-                        if let existedTag = try self.tagDao.queryByTitle(title: tagTitle) { // 已存在
-                            tag = existedTag
-                        }else {
-                            let newTag = Tag(title: tagTitle, createdAt: updatedAt, updatedAt: updatedAt)
-                            try self.tagDao.insert(newTag)
-                            tag = newTag
-                        }
-                        try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
-                    }
-                }
-            }
-        }
-        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-        .observeOn(MainScheduler.instance)
-   }
-    
-   // 更新所有note的tag，并返回新的tag
-   func updateNotesTag(tag:Tag,newTitle:String) -> Observable<Tag>  {
-        return Observable<Tag>.create {  observer -> Disposable in
-            self.transactionTask(observable: observer) { () -> Tag in
-                var newTag:Tag!
-                var notes:[Note] = try self.noteDao.query(tagId: tag.id)
-                let updatedAt = Date()
-                self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTitle, updatedAt: updatedAt, notes: &notes)
-                
-                let newTagTitles = MDEditorViewController.extractTags(text:"#"+newTitle)
                 
                 for note in notes {
                     let tagTitles = MDEditorViewController.extractTags(text:note.content)
@@ -421,12 +389,50 @@ extension NoteRepo {
                             tag = newTag
                         }
                         try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
-                        if tagTitle == newTitle {
+                    }
+                }
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+   }
+    
+   // 更新所有note的tag，并返回新的tag
+   func updateNotesTag(tag:Tag,newTagTitle:String) -> Observable<Tag?>  {
+        return Observable<Tag?>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Tag? in
+                var newTag:Tag?
+                var notes:[Note] = try self.noteDao.query(tagId: tag.id)
+                let updatedAt = Date()
+                
+                // 替换笔记内容
+                self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
+                
+//                let newTagTitles = MDEditorViewController.extractTags(text:newTagTitle)
+                
+                for note in notes {
+                    let tagTitles = MDEditorViewController.extractTags(text:note.content)
+                    try self.noteTagDao.delete(noteId: note.id)
+                    // 更新 note content
+                    try self.noteDao.updateContent(note.content, noteId: note.id, updatedAt: updatedAt)
+                    for tagTitle in tagTitles {
+                        var tag:Tag!
+                        if let existedTag = try self.tagDao.queryByTitle(title: tagTitle) { // 已存在,更新
+                            tag = existedTag
+                            tag.updatedAt = updatedAt
+                            try self.tagDao.update(tag)
+                        }else {
+                            let newTag = Tag(title: tagTitle, createdAt: updatedAt, updatedAt: updatedAt)
+                            try self.tagDao.insert(newTag)
+                            tag = newTag
+                        }
+                        try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
+                        if tagTitle == newTagTitle {
                             newTag = tag
                         }
-                        if newTagTitles.contains(tagTitle) {
-                            TagExpandCache.shared.set(key: tag.id, value: tag.id)
-                        }
+//                        if newTagTitles.contains(tagTitle) {
+//                            TagExpandCache.shared.set(key: tag.id, value: tag.id)
+//                        }
                     }
                 }
                 
@@ -439,11 +445,11 @@ extension NoteRepo {
     
     
     // 更新 note 中的 tag
-    private func replaceNoteInsideTagTitles(oldTitle:String,newTagTitle:String,updatedAt:Date, notes:inout [Note]) {
-        let pattern = "\\B#(\(oldTitle))(\\/[^#\\/\\s]*)*(?=\\s|$)"
+    private func replaceNoteInsideTagTitles(oldTitle:String,newTagTitle:String,updatedAt:Date, notes:inout [Note]){
+        let pattern = #"#\#(oldTitle)#?"#
+        let replace = self.generateReplaceTagTitle(title: newTagTitle)
         for (i,note) in notes.enumerated() {
             let content = note.content
-            let replace = newTagTitle.isNotEmpty ? "#\(newTagTitle)$2" : "$2"
             let newContent = content.replacingOccurrences(of: pattern, with: replace, options: .regularExpression)
             if content != newContent {
                 print(newContent)
@@ -453,6 +459,17 @@ extension NoteRepo {
                 notes[i] = newNote
             }
         }
+    }
+    
+    private func generateReplaceTagTitle(title:String) -> String {
+        if title.isEmpty {// 删除
+            return ""
+        }
         
+        if title.contains(" ") {
+            return "#\(title)#$2"
+        }
+        
+        return "#\(title)$2"
     }
 }
