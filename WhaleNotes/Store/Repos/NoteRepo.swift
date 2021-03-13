@@ -34,22 +34,22 @@ extension NoteRepo {
     
     func getNotes(status:NoteStatus = .normal) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
-           self.executeTask(observable: observer) { () -> [NoteInfo] in
-               let notes:[Note] = try self.noteDao.query(status: status)
-               // 获取所有note的tags
-               let noteTags = try self.tagDao.queryByTag(status: status)
-               var noteInfos:[NoteInfo] = []
-               for note in notes {
-                   let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
-                noteInfos.append(NoteInfo(note: note, tags: tags))
-               }
+            self.executeTask(observable: observer) { () -> [NoteInfo] in
+                let notes:[Note] = try self.noteDao.query(status: status)
+                // 获取所有note的tags
+                let noteTags = try self.tagDao.queryByTag(status: status)
+                var noteInfos:[NoteInfo] = []
+                for note in notes {
+                    let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
+                    noteInfos.append(NoteInfo(note: note, tags: tags))
+                }
                 return noteInfos
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
-                
+    
     
     func getNotes(keyword:String) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
@@ -192,8 +192,8 @@ extension NoteRepo {
         
         if tagTitles.isEmpty { return [] }
         
-         let date = Date()
-            
+        let date = Date()
+        
         
         let tags = try self.tagDao.queryByTitles(tagTitles)
         let dict = Dictionary(uniqueKeysWithValues: tags.map{ ($0.title, $0) })
@@ -213,23 +213,23 @@ extension NoteRepo {
             try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
         }
         return noteTags
-//        var tagTitles:[String] = []
-//        for title in sortedTitles {
-//            //新增 parent tag
-//            let parentTitles = title.components(separatedBy: "/").dropLast()
-//            var pTitle = ""
-//            for (index,title) in parentTitles.enumerated() {
-//
-//                if index > 0 { pTitle += "/" }
-//                pTitle += title
-//                tagTitles.append(pTitle)
-////                        let tag = try self.insertTag(tagTitle: pTitle, date: date, noteId: note.id)
-////                        newTags.append(tag)
-//            }
-////                    let tag = try self.insertTag(tagTitle: title, date: date, noteId: note.id)
-////                    newTags.append(tag)
-//            tagTitles.append(title)
-//        }
+        //        var tagTitles:[String] = []
+        //        for title in sortedTitles {
+        //            //新增 parent tag
+        //            let parentTitles = title.components(separatedBy: "/").dropLast()
+        //            var pTitle = ""
+        //            for (index,title) in parentTitles.enumerated() {
+        //
+        //                if index > 0 { pTitle += "/" }
+        //                pTitle += title
+        //                tagTitles.append(pTitle)
+        ////                        let tag = try self.insertTag(tagTitle: pTitle, date: date, noteId: note.id)
+        ////                        newTags.append(tag)
+        //            }
+        ////                    let tag = try self.insertTag(tagTitle: title, date: date, noteId: note.id)
+        ////                    newTags.append(tag)
+        //            tagTitles.append(title)
+        //        }
     }
     
     private func insertTag(tagTitle:String,date:Date,noteId:String) throws -> Tag {
@@ -325,10 +325,10 @@ extension NoteRepo {
             self.transactionTask(observable: observer) { () -> Void in
                 try self.tagDao.insert(tag)
                 if let note = note {
-                        var newNote = note
-                        newNote.updatedAt = Date()
-                        // 更新 note update time
-                        try self.noteDao.updateUpdatedAt(id: newNote.id, updatedAt: newNote.updatedAt)
+                    var newNote = note
+                    newNote.updatedAt = Date()
+                    // 更新 note update time
+                    try self.noteDao.updateUpdatedAt(id: newNote.id, updatedAt: newNote.updatedAt)
                     try self.noteTagDao.insert(NoteTag(noteId: newNote.id, tagId: tag.id))
                 }
             }
@@ -363,7 +363,7 @@ extension NoteRepo {
     }
     
     
-   func deleteNotesTag(tag:Tag) -> Observable<Void>  {
+    func deleteNotesTag(tag:Tag) -> Observable<Void>  {
         return Observable<Void>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Void in
                 var notes:[Note] = try self.noteDao.query(tagId: tag.id)
@@ -395,29 +395,54 @@ extension NoteRepo {
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
-   }
+    }
     
-   // 更新所有note的tag，并返回新的tag
-   func updateNotesTag(tag:Tag,newTagTitle:String) -> Observable<Tag?>  {
+    // 更新所有note的tag，并返回新的tag
+    func updateNotesTag(tag:Tag,newTagTitle:String) -> Observable<Tag?>  {
         return Observable<Tag?>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Tag? in
-                var newTag:Tag?
+                var visibleTag:Tag?
                 var notes:[Note] = try self.noteDao.query(tagId: tag.id)
                 let updatedAt = Date()
                 
                 // 替换笔记内容
                 self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
                 
-//                let newTagTitles = MDEditorViewController.extractTags(text:newTagTitle)
+//                let newTagTitles = newTagTitle.components(separatedBy: "/").map {
+//                    $0.trimmingCharacters(in: .whitespacesAndNewlines)
+//                }.filter{$0.isNotEmpty}
+//                let visibleTagTitle = newTagTitles.joined(separator: "/")
+                
+                
+                func generateAllTagTitles(tagTitle:String) -> [String] {
+                    let tagTitles = newTagTitle.components(separatedBy: "/").map {
+                        $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }.filter{$0.isNotEmpty}
+                    var newTagTitles:[String] = []
+                    var p = ""
+                    for (index,tagTitle) in tagTitles.enumerated() {
+                        p += tagTitle
+                        newTagTitles.append(p)
+                        if index != tagTitles.count - 1 {
+                            p += "/"
+                        }
+                    }
+                    return newTagTitles
+                }
+                
+                let newTagTitles = generateAllTagTitles(tagTitle: newTagTitle)
+                let visibleTagTitle = newTagTitles[newTagTitles.count-1]
                 
                 for note in notes {
                     let tagTitles = MDEditorViewController.extractTags(text:note.content)
                     try self.noteTagDao.delete(noteId: note.id)
                     // 更新 note content
                     try self.noteDao.updateContent(note.content, noteId: note.id, updatedAt: updatedAt)
+                    // 查询title
+                    let existsTags = try self.tagDao.queryByTitles(tagTitles)
                     for tagTitle in tagTitles {
                         var tag:Tag!
-                        if let existedTag = try self.tagDao.queryByTitle(title: tagTitle) { // 已存在,更新
+                        if let existedTag = existsTags.first(where: {$0.title == tagTitle}) { // 已存在,更新
                             tag = existedTag
                             tag.updatedAt = updatedAt
                             try self.tagDao.update(tag)
@@ -427,21 +452,21 @@ extension NoteRepo {
                             tag = newTag
                         }
                         try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
-                        if tagTitle == newTagTitle {
-                            newTag = tag
+                        if newTagTitles.contains(tagTitle) {//全部展开
+                            TagExpandCache.shared.set(key: tag.id, value: tag.id)
                         }
-//                        if newTagTitles.contains(tagTitle) {
-//                            TagExpandCache.shared.set(key: tag.id, value: tag.id)
-//                        }
+                        if visibleTagTitle == tag.title {
+                            visibleTag = tag
+                        }
                     }
                 }
                 
-                return newTag
+                return visibleTag
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
-   }
+    }
     
     
     // 更新 note 中的 tag

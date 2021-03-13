@@ -395,18 +395,17 @@ extension MDEditorViewController:ASTableDataSource {
         var tagTitles:[String] = []
         for title in tags {
             //新增 parent tag
-            
             let parentTitles = title.components(separatedBy: "/")
             var pTitle = ""
             for (index,title) in parentTitles.enumerated() {
-//                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-//                    continue
-//                }
+                var tagTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+                if tagTitle.isEmpty {
+                    continue
+                }
                 if index > 0 { pTitle += "/" }
-                pTitle += title
+                pTitle += tagTitle
                 tagTitles.append(pTitle)
             }
-//            tagTitles.append(title)
         }
         tagTitles = tagTitles.sorted { $0 < $1 }
         return tagTitles
