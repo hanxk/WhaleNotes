@@ -319,6 +319,17 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    // 删除无用的tag
+    func deleteUnusedTags() -> Observable<Void>  {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                try self.tagDao.deleteUnused()
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+        .observeOn(MainScheduler.instance)
+    }
+    
     
     func createTag(_ tag:Tag,note:Note?) -> Observable<Void> {
         return Observable<Void>.create {  observer -> Disposable in
@@ -407,12 +418,6 @@ extension NoteRepo {
                 
                 // 替换笔记内容
                 self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
-                
-//                let newTagTitles = newTagTitle.components(separatedBy: "/").map {
-//                    $0.trimmingCharacters(in: .whitespacesAndNewlines)
-//                }.filter{$0.isNotEmpty}
-//                let visibleTagTitle = newTagTitles.joined(separator: "/")
-                
                 
                 func generateAllTagTitles(tagTitle:String) -> [String] {
                     let tagTitles = newTagTitle.components(separatedBy: "/").map {

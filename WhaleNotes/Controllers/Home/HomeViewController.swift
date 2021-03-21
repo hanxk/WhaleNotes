@@ -96,6 +96,8 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
                 self.handleTagMenuAction(tag: tag)
             }
         }
+        
+        self.deleteUnusedTags()
     }
     
     
@@ -537,6 +539,19 @@ extension HomeViewController: SideMenuNavigationControllerDelegate {
     
     func sideMenuDidDisappear(menu: SideMenuNavigationController, animated: Bool) {
         print("SideMenu Disappeared! (animated: \(animated))")
+    }
+}
+
+//MARK
+extension HomeViewController {
+    func deleteUnusedTags() {
+        NoteRepo.shared.deleteUnusedTags()
+            .subscribe(onNext: {
+                
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
     }
 }
 

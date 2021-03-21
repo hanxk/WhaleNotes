@@ -47,12 +47,7 @@ extension TagDao {
     }
     
     func queryByTitles(_ titles:[String]) throws -> [Tag] {
-        //        let titlePara = titles.joined(separator: ",")
-        
-        
         let titlePara = "\"" + titles.joined(separator: "\",\"") + "\""
-        
-        //        let titlePara = \""  + titles.joined(separator: "\",\"") + \""
         let selectSQL = "SELECT * FROM tag WHERE title in (\(titlePara))"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
@@ -69,8 +64,6 @@ extension TagDao {
         let rows = try db.query(selectSQL,args:NoteStatus.normal.rawValue)
         return extract(rows: rows)
     }
-//    "
-    
     
     func queryByKeyword(_ keyword:String) throws -> [(String,Tag)]  {
         let selectSQL  = """
@@ -137,6 +130,12 @@ extension TagDao {
         let delSQL = "delete from tag where id = ?"
         try db.execute(delSQL, args: id)
     }
+    
+    func deleteUnused() throws {
+        let delSQL = "delete from tag where id not in (select tag_id from note_tag)"
+        try db.execute(delSQL)
+    }
+    
 }
 
 
