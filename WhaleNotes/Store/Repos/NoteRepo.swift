@@ -14,12 +14,13 @@ class NoteRepo:BaseRepo {
 }
 
 extension NoteRepo {
-    func getNotes(tag:String) -> Observable<[NoteInfo]> {
+    func getNotes(tag:String,offset:Int = 0) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
-                let notes:[Note] = try self.noteDao.query(tagId: tag)
-                // 获取所有note的tags
-                let noteTags = try self.tagDao.queryByTag(tagId: tag)
+                let notes:[Note] = try self.noteDao.queryPage(tagId: tag,offset: offset)
+                let noteIds = notes.map { $0.id }
+                 // 获取所有note的tags
+                let noteTags = try self.tagDao.queryByTag(noteIds: noteIds)
                 var noteInfos:[NoteInfo] = []
                 for note in notes {
                     let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
@@ -32,12 +33,16 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func getNotes(status:NoteStatus = .normal) -> Observable<[NoteInfo]> {
+    func getNotes(status:NoteStatus = .normal,offset:Int = 0) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
-                let notes:[Note] = try self.noteDao.query(status: status)
+                let notes:[Note] = try self.noteDao.query(status: status,offset: offset)
+                if notes.isEmpty {
+                    return []
+                }
+                let noteIds = notes.map { $0.id }
                 // 获取所有note的tags
-                let noteTags = try self.tagDao.queryByTag(status: status)
+                let noteTags = try self.tagDao.queryByTag(noteIds: noteIds)
                 var noteInfos:[NoteInfo] = []
                 for note in notes {
                     let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
@@ -51,10 +56,10 @@ extension NoteRepo {
     }
     
     
-    func getNotes(keyword:String) -> Observable<[NoteInfo]> {
+    func getNotes(keyword:String,offset:Int) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
-                let notes:[Note] = try self.noteDao.query(keyword: keyword)
+                let notes:[Note] = try self.noteDao.query(keyword: keyword,offset: offset)
                 // 获取所有note的tags
                 let noteTags = try self.tagDao.queryByKeyword(keyword)
                 var noteInfos:[NoteInfo] = []

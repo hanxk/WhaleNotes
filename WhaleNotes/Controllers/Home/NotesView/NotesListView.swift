@@ -55,6 +55,7 @@ class NotesListView: UIView {
         $0.delegate = self
         $0.dataSource = self
         $0.contentInset = UIEdgeInsets(top: NotesListViewConstants.topPadding, left: 0, bottom: NotesListViewConstants.bottomPadding, right: 0)
+        $0.leadingScreensForBatching = 1.0
         $0.backgroundColor = .clear
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .onDrag
@@ -67,6 +68,7 @@ class NotesListView: UIView {
     
     private lazy var insetsTop:CGPoint = tableView.contentOffset
     
+    
     enum MenuAction:Int {
         case edit =  1
         case trash =  2
@@ -76,7 +78,8 @@ class NotesListView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    override init(frame: CGRect) {
+    
+    override init(frame:CGRect) {
         super.init(frame: frame)
         self.setupUI()
     }
@@ -84,26 +87,25 @@ class NotesListView: UIView {
     private func setupUI() {
         tableView.frame = self.frame
         tableView.backgroundColor = .bg
-        
         self.addSubnode(tableView)
-        
     }
     
     func loadData(mode:NoteListMode){
         self.mode = mode
+        self.noteTag = nil
         self.needReset = true
-        self.setupData(mode: mode)
+        self.notes = []
+        self.loadNotes(mode: mode)
     }
     
     func refresh(mode:NoteListMode) {
-//        guard let mode = self.mode else { return }
+        self.noteTag = nil
         self.mode = mode
-//        needReset = false
-        self.setupData(mode: mode)
+        self.loadNotes(mode: mode)
     }
     
     
-    private func setupData(mode:NoteListMode) {
+    private func loadNotes(mode:NoteListMode) {
         switch mode {
         case .all:
             self.loadData(status: .normal)
@@ -133,10 +135,10 @@ class NotesListView: UIView {
 extension NotesListView {
     
     private func loadData(tag:Tag? = nil) {
-        self.needReset = true
+//        self.needReset = true
         self.noteTag = tag
         let tagId = tag?.id ?? ""
-        NoteRepo.shared.getNotes(tag: tagId)
+        NoteRepo.shared.getNotes(tag: tagId,offset: self.notes.count)
             .subscribe(onNext: { [weak self] notes in
                 self?.reloadTableView(notes: notes)
             }, onError: {
@@ -146,9 +148,9 @@ extension NotesListView {
     }
     
     private func loadData(status:NoteStatus) {
-        self.noteTag = nil
-        self.needReset = true
-        NoteRepo.shared.getNotes(status: status)
+//        self.noteTag = nil
+//        self.needReset = true
+        NoteRepo.shared.getNotes(status: status,offset: self.notes.count)
             .subscribe(onNext: { [weak self] notes in
                 self?.reloadTableView(notes: notes)
             }, onError: {
@@ -159,13 +161,13 @@ extension NotesListView {
     
     
     private func loadData(keyword:String) {
-        self.noteTag = nil
-        self.needReset = true
+//        self.noteTag = nil
+//        self.needReset = true
         if keyword.isEmpty {
-            self.reloadTableView(notes: [])
+            self.reloadTableView(notes:[])
             return
         }
-        NoteRepo.shared.getNotes(keyword: keyword)
+        NoteRepo.shared.getNotes(keyword: keyword, offset: self.notes.count)
             .subscribe(onNext: { [weak self] notes in
                 self?.reloadTableView(notes: notes)
             }, onError: {
@@ -175,17 +177,31 @@ extension NotesListView {
     }
     
     private func reloadTableView(notes:[NoteInfo])  {
-        if needReset {
+//        self.pageIndex = pageIndex
+        if self.notes.count == 0 {
             self.notes = notes
             self.tableView.reloadData()
             self.tableView.contentOffset = self.insetsTop
             return
         }
-        // 刷新
-        let changes = diff(old:self.notes, new: notes)
-        self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
-            self.notes = notes
+        
+//        if self.pageIndex == pageIndex {// 刷新当前页
+//            let changes = diff(old:self.notes, new: notes)
+//            self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
+//                self.notes = notes
+//            }
+//            return
+//        }
+        
+        // 加载更多
+        var row = self.notes.count
+        self.notes.append(contentsOf: notes)
+        let insertRows = notes.map { _ -> IndexPath in
+            let rowIndex = IndexPath(row: row, section: 0)
+            row += 1
+            return rowIndex
         }
+        self.tableView.insertRows(at: insertRows, with: .none)
     }
     
     func createNewNote() {
@@ -252,13 +268,25 @@ extension NotesListView {
     }
 }
 
+//MARK: ASTableDelegate
 extension NotesListView:ASTableDelegate {
     func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
         let noteInfo = self.notes[indexPath.row]
         self.openEditorVC(noteInfo: noteInfo)
     }
+    
+    func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
+        guard let indexPath = tableNode.indexPath(for: node) else { return }
+        let isLastRow = indexPath.row + 1 == self.notes.count
+        if isLastRow  {
+            print("load more: ")
+            self.loadNotes(mode: self.mode)
+        }
+    }
+    
 }
 
+//MARK: ASTableDataSource
 extension NotesListView:ASTableDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return notes.count

@@ -36,7 +36,7 @@ class SearchNotesView: UIView, UINavigationControllerDelegate {
             $0.dataSource = self
             $0.delegate = self
             $0.layoutInspector = _layoutInspector
-            $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: HomeViewController.toolbarHeight+20, right: 0)
+            $0.contentInset = UIEdgeInsets(top: 6, left: 0, bottom: self.controller!.toolbarHeight+20, right: 0)
             $0.showsVerticalScrollIndicator = false
             
         }

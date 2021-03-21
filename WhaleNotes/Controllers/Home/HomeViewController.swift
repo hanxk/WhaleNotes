@@ -21,7 +21,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
     
-    static let toolbarHeight:CGFloat = 120
+    //    static let toolbarHeight:CGFloat = 120
     
     private var contentView:NotesListView!
     private var floatButton:UIButton!
@@ -30,17 +30,17 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         $0.delegate = self
         $0.tintColor = .iconColor
         $0.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor(hexString: "#333333")]
-//        $0.transparentNavigationBar()
+        //        $0.transparentNavigationBar()
     }
     
-    let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
+    let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0)).then {
         $0.tintColor = .iconColor
         $0.isTranslucent = false
     }
     
     private var trashFloatButton:UIButton?
     private var newNoteFloatButton:UIButton?
-  
+    
     override var title: String? {
         didSet {
             myNavbar.topItem?.title = title
@@ -72,20 +72,20 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setupToolbar()
         self.setupNoteListView()
         
-//        self.extendedLayoutIncludesOpaqueBars = true
+        //        self.extendedLayoutIncludesOpaqueBars = true
         self.view.backgroundColor = .bg
         
         func openBoardSetting(board: BlockInfo) {
             let settingVC = BoardSettingViewController()
             settingVC.board = board
-//            settingVC.callbackBoardSettingEdited = { boardEditedType in
-//                switch boardEditedType {
-//                case .update(let board):
-//                    self.handleBoardUpdated(board: board)
-//                case .delete(let board):
-//                    self.handleBoardDeleted(board: board)
-//                }
-//            }
+            //            settingVC.callbackBoardSettingEdited = { boardEditedType in
+            //                switch boardEditedType {
+            //                case .update(let board):
+            //                    self.handleBoardUpdated(board: board)
+            //                case .delete(let board):
+            //                    self.handleBoardDeleted(board: board)
+            //                }
+            //            }
             let vc = MyNavigationController(rootViewController: settingVC)
             self.present(vc, animated: true, completion: nil)
         }
@@ -103,10 +103,14 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     
     func setupNoteListView() {
-        let topPadding = self.topbarHeight + NotesListViewConstants.topPadding
-        let noteListView = NotesListView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-        noteListView.tableView.contentInset = UIEdgeInsets(top: topPadding, left: 0, bottom: NotesListViewConstants.bottomPadding+50, right: 0)
-        noteListView.tableView.view.scrollIndicatorInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: 0, right: 0)
+        self.containerView.removeSubviews()
+        let noteListView = NotesListView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)).then {
+            let topPadding:CGFloat = self.toolbarHeight  + NotesListViewConstants.topPadding
+            //            let topPadding:CGFloat = 60
+            $0.tableView.contentInset = UIEdgeInsets(top: topPadding, left: 0, bottom: NotesListViewConstants.bottomPadding+50, right: 0)
+            //            $0.tableView.backgroundColor = .red
+            $0.tableView.view.scrollIndicatorInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: 0, right: 0)
+        }
         self.containerView.addSubview(noteListView)
         self.contentView = noteListView
     }
@@ -115,24 +119,6 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     }
 }
 
-class Toolbar: UIToolbar {
-
-    let height: CGFloat = HomeViewController.toolbarHeight
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        var newBounds = self.bounds
-        newBounds.size.height = height
-        self.bounds = newBounds
-    }
-
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
-        var size = super.sizeThatFits(size)
-        size.height = height
-        return size
-    }
-}
 
 //MARK: tag menu
 extension HomeViewController  {
@@ -149,12 +135,12 @@ extension HomeViewController  {
             let flag = menuRow.tag
             if flag == 1 {
                 self?.showAlertTextField(title: "编辑名称", text: tag.title, placeholder: "", positiveBtnText: "更新", callbackPositive: { title in
-//                    tag.title = title
+                    //                    tag.title = title
                     var newTitle = title.trimmingCharacters(in: .whitespaces)
                     if newTitle.isEmpty { return }
-//                    if newTitle.contains(" ") {
-//                        newTitle += "# "
-//                    }
+                    //                    if newTitle.contains(" ") {
+                    //                        newTitle += "# "
+                    //                    }
                     self?.updateTagTitle(tag: tag, newTagTitle: title)
                 })
             }else if flag == 2 {
@@ -169,9 +155,9 @@ extension HomeViewController  {
     func openEmojiVC() {
         let vc = EmojiViewController()
         vc.callbackEmojiSelected = { [weak self] emoji in
-//            guard let self = self else { return }
-//            self.boardProperties.icon = emoji.value
-//            iconView.iconImage = self.boardProperties.getBoardIcon(fontSize: 50)
+            //            guard let self = self else { return }
+            //            self.boardProperties.icon = emoji.value
+            //            iconView.iconImage = self.boardProperties.getBoardIcon(fontSize: 50)
             self?.handleEmojiSelected(emoji.value)
         }
         let navVC = MyNavigationController(rootViewController: vc)
@@ -180,8 +166,8 @@ extension HomeViewController  {
         
         self.navigationController?.present(navVC, animated: true, completion: nil)
         
-//        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
-//        self.navigationController?.pushViewController(vc, animated: true)
+        //        self.present(MyNavigationController(rootViewController: vc), animated: true, completion: nil)
+        //        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     func handleEmojiSelected(_ emoji:String) {
@@ -265,23 +251,23 @@ extension HomeViewController {
     }
     
     private  func setupToolbar() {
-//        self.view.addSubview(toolbar)
-//        toolbar.snp.makeConstraints {
-//            $0.width.equalToSuperview()
-//            $0.left.equalToSuperview()
-//            $0.right.equalToSuperview()
-////            $0.height.equalTo(HomeViewController.toolbarHeight)
-//            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
-//        }
+        //        self.view.addSubview(toolbar)
+        //        toolbar.snp.makeConstraints {
+        //            $0.width.equalToSuperview()
+        //            $0.left.equalToSuperview()
+        //            $0.right.equalToSuperview()
+        ////            $0.height.equalTo(HomeViewController.toolbarHeight)
+        //            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
+        //        }
         
-//        self.view.addSubview(actionView)
-//        actionView.snp.makeConstraints {
-//            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
-//            $0.height.equalTo(HomeActionView.SizeConstants.height)
-//            $0.centerX.equalToSuperview()
-//            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
-//        }
-//        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
+        //        self.view.addSubview(actionView)
+        //        actionView.snp.makeConstraints {
+        //            $0.width.equalTo(HomeActionView.SizeConstants.adButtonWidth+HomeActionView.SizeConstants.menuButtonWidth)
+        //            $0.height.equalTo(HomeActionView.SizeConstants.height)
+        //            $0.centerX.equalToSuperview()
+        //            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-20)
+        //        }
+        //        actionView.noteButton.addTarget(self, action: #selector(noteButtonTapped), for: .touchUpInside)
     }
     
     private func setupBoardToolbar() {
@@ -297,16 +283,6 @@ extension HomeViewController {
         let searchItem = UIBarButtonItem(image:UIImage(systemName: "magnifyingglass") , style: .plain, target: self, action: #selector(handleShowSearchbar))
         items.append(searchItem)
         
-//        items.append(generateUIBarButtonItem(systemName:"camera",action: .camera))
-//        items.append(generateSpace())
-//        items.append(generateUIBarButtonItem(systemName:"photo.on.rectangle",action: .image))
-//        items.append(generateSpace())
-//        items.append(generateUIBarButtonItem(systemName:"mic",action: .text))
-//        items.append(generateSpace())
-//        items.append(generateUIBarButtonItem(systemName:"link",action: .bookmark))
-//        items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
-//        items.append(generateUIBarButtonItem(systemName:"square.and.pencil",action: .text,pointSize: 16))
-        
         toolbar.tintColor = .iconColor
         toolbar.items = items
     }
@@ -321,7 +297,7 @@ extension HomeViewController {
     
     @objc func handleShowSearchbar() {
         let vc = SearchViewController()
-//        vc.boardsMap = sideMenuViewController.boardsMap
+        //        vc.boardsMap = sideMenuViewController.boardsMap
         let navVC = MyNavigationController(rootViewController: vc)
         navVC.modalPresentationStyle = .overFullScreen
         navVC.modalTransitionStyle = .crossDissolve
@@ -354,7 +330,6 @@ extension HomeViewController {
         self.mode = mode
         contentView.loadData(mode: mode)
         self.setupFloatButton(mode: mode)
-        
         if case .tag(let _) = mode {
             titleButton.isEnabled = true
         }else {
@@ -375,7 +350,7 @@ extension HomeViewController:UINavigationBarDelegate{
         self.view.addSubview(myNavbar)
         myNavbar.snp.makeConstraints {
             $0.width.equalToSuperview()
-//            $0.height.equalTo(HomeViewController.toolbarHeight)
+            //            $0.height.equalTo(HomeViewController.toolbarHeight)
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
         self.navigationController?.navigationBar.isHidden = true
@@ -393,38 +368,38 @@ extension HomeViewController:UINavigationBarDelegate{
             $0.setImage(UIImage(named: "ico_menu")?.withTintColor(UIColor.iconColor), for: .normal)
             $0.addTarget(self, action: #selector(toggleSideMenu), for: .touchUpInside)
         }
-//        titleButton.backgroundColor = .blue
+        //        titleButton.backgroundColor = .blue
         let barButton = UIBarButtonItem(customView: button)
         navItem.leftBarButtonItem = barButton
-//        button.backgroundColor = .red
-//        let barButton = UIBarButtonItem(customView: button)
+        //        button.backgroundColor = .red
+        //        let barButton = UIBarButtonItem(customView: button)
         
-//        let label = UILabel()
-//        label.textColor = UIColor.white
-//        label.text = "TCO_choose_reminder";
-//
+        //        let label = UILabel()
+        //        label.textColor = UIColor.white
+        //        label.text = "TCO_choose_reminder";
+        //
         navItem.titleView = titleButton
         
-//
-//        if let titleView = self.navigationItem.titleView  {
-//            titleView.snp.makeConstraints {
-//                $0.left.equalToSuperview()
-//                $0.height.equalToSuperview()
-//            }
-//        }
+        //
+        //        if let titleView = self.navigationItem.titleView  {
+        //            titleView.snp.makeConstraints {
+        //                $0.left.equalToSuperview()
+        //                $0.height.equalToSuperview()
+        //            }
+        //        }
         let menuImg = UIImage(systemName: "magnifyingglass")?.withTintColor(UIColor.iconColor)
         let item = UIBarButtonItem(image:menuImg , style: .plain, target: self, action: #selector(handleShowSearchbar))
         navItem.rightBarButtonItems = [item]
         
         
         let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-    
+        
         let topInset: CGFloat = keyWindow?.safeAreaInsets.top ?? 44
-    
+        
         let statusBarFrame = CGRect(x: 0, y: 0, width: windowWidth, height: topInset)
-          let statusBarView = UIView(frame: statusBarFrame)
-          self.view.addSubview(statusBarView)
-          statusBarView.backgroundColor = .statusbar
+        let statusBarView = UIView(frame: statusBarFrame)
+        self.view.addSubview(statusBarView)
+        statusBarView.backgroundColor = .statusbar
     }
     
     
@@ -501,11 +476,11 @@ extension HomeViewController {
         let leftMenuNavigationController = SideMenuNavigationController(rootViewController: sideMenuViewController)
         leftMenuNavigationController.leftSide = true
         leftMenuNavigationController.sideMenuDelegate = self
-
+        
         SideMenuManager.default.leftMenuNavigationController = leftMenuNavigationController
         SideMenuManager.default.leftMenuNavigationController?.settings = settings
-
-
+        
+        
         if let navigationController = navigationController {
             SideMenuManager.default.addPanGestureToPresent(toView: navigationController.navigationBar)
             SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: self.view,forMenu: .left)
@@ -593,7 +568,7 @@ extension HomeViewController  {
             $0.layer.cornerRadius = FloatButtonConstants.btnSize / 2
             
             $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .regular), for: .normal)
-
+            
         }
         
         self.view.addSubview(btnNewNote)

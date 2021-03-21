@@ -64,3 +64,5 @@ let cloudPath: String = {
     }
     return ubiquityURL.path
 }()
+
+let PAGESIZE = 10

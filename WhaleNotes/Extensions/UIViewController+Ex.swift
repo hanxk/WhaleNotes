@@ -37,6 +37,11 @@ extension UIViewController {
          return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
              (self.navigationController?.navigationBar.frame.height ?? 0.0)
      }
+    
+    var toolbarHeight: CGFloat {
+         return 
+             (self.navigationController?.navigationBar.frame.height ?? 0.0)
+     }
 }
 
 extension UIViewController {

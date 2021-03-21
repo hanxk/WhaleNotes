@@ -32,7 +32,7 @@ class CardEditorViewController: UIViewController {
     }
     
     
-    let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: HomeViewController.toolbarHeight)).then {
+    let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0)).then {
         $0.tintColor = .iconColor
         $0.isTranslucent = false
     }

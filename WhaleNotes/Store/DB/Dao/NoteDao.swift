@@ -29,20 +29,23 @@ extension NoteDao {
         return extract(rows: rows)
     }
     
-//    func query() throws -> [Note]  {
-//        let selectSQL = "select * from note  order by created_at desc"
-//        let rows = try db.query(selectSQL)
-//        return extract(rows: rows)
-//    }
+    func queryPage(tagId:String,offset:Int) throws -> [Note]  {
+//        let offset = PAGESIZE * pageIndex
+        let selectSQL = "select * from note where id in (select note_id from note_tag where tag_id = ?) order by created_at desc  LIMIT \(PAGESIZE) OFFSET \(offset)"
+        let rows = try db.query(selectSQL,args: tagId)
+        return extract(rows: rows)
+    }
     
-    func query(status:NoteStatus = .normal) throws -> [Note]  {
-        let selectSQL = "select * from note where status  = ?  order by created_at desc"
+    func query(status:NoteStatus = .normal,offset:Int) throws -> [Note]  {
+//        let offset = PAGESIZE * pageIndex
+        let selectSQL = "select * from note where status  = ? order by created_at desc LIMIT \(PAGESIZE) OFFSET \(offset)"
         let rows = try db.query(selectSQL,args: status.rawValue)
         return extract(rows: rows)
     }
     
-    func query(keyword:String) throws -> [Note]  {
-        let selectSQL = "select * from note where status != -1  AND (title  like '%\(keyword)%'  or content like '%\(keyword)%') order by created_at desc"
+    func query(keyword:String,offset:Int) throws -> [Note]  {
+//        let offset = PAGESIZE * pageIndex
+        let selectSQL = "select * from note where status != -1  AND (title  like '%\(keyword)%'  or content like '%\(keyword)%') order by created_at desc LIMIT \(PAGESIZE) OFFSET \(offset)"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
     }
