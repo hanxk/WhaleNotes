@@ -19,17 +19,21 @@ class NoteContentCellNode:ASCellNode {
     private var textChanged: ((String) -> Void)?
     private var textDidFinishEditing: ((String) -> Void)?
     private var textShouldBeginEditing: ((UITextView) -> Void)?
+    private var saveButtonTapped: (() -> Void)?
     
     
     private var mdHelper:MDHelper!
     
+    private lazy var keyboardView = MDKeyboardView().then {
+        $0.delegate = self
+    }
     
     init(title:String) {
         super.init()
         self.content = title
         
         self.textNode =  generateASEditableTextNode(content: title)
-        
+        self.textNode.textView.inputAccessoryView = keyboardView
         
 //        self.backgroundColor   = .red
         self.addSubnode(textNode)
@@ -57,7 +61,9 @@ class NoteContentCellNode:ASCellNode {
     func textShouldBeginEditing(action: @escaping (UITextView) -> Void) {
         self.textShouldBeginEditing = action
     }
-    
+    func saveButtonTapped(action: @escaping () -> Void) {
+        self.saveButtonTapped = action
+    }
     
     func generateASEditableTextNode(content:String)  -> ASEditableTextNode {
         
@@ -160,5 +166,20 @@ extension NoteContentCellNode {
 
 extension NoteContentCellNode:UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+    }
+}
+
+extension NoteContentCellNode:MDKeyboarActionDelegate {
+    func listButtonTapped() {
+        self.mdTextViewWrapper.changeCurrentLine2List()
+    }
+    
+    func orderListButtonTapped() {
+        self.mdTextViewWrapper.changeCurrentLine2OrderList()
+    }
+    
+    func keyboardButtonTapped() {
+//        self.dismiss(animated: true, completion: nil)
+        self.saveButtonTapped?()
     }
 }

@@ -37,10 +37,10 @@ class MDKeyboardView: UIView {
         
         
         self.backgroundColor = .white
-        self.layer.shadowColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
-        self.layer.shadowOpacity = 1
-        self.layer.shadowRadius = 0
-        self.layer.shadowOffset = CGSize(width: 0, height: -1)
+//        self.layer.shadowColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
+//        self.layer.shadowOpacity = 1
+//        self.layer.shadowRadius = 0
+//        self.layer.shadowOffset = CGSize(width: 0, height: -1)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -60,7 +60,7 @@ class MDKeyboardView: UIView {
         scrollView.contentSize = CGSize(width: CGFloat(items.count) * width+CGFloat(items.count+1)*spacing, height: width)
         
         addSubview(scrollView)
-        let keyboardButton = makeButton(btnParam:("keyboard.chevron.compact.down",#selector(keyboardButtonTapped)),pointSize: 18)
+        let keyboardButton = makeButton(btnParam:("checkmark",#selector(keyboardButtonTapped)),pointSize: 18)
         addSubview(keyboardButton)
         
         scrollView.snp.makeConstraints {

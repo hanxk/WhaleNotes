@@ -576,7 +576,8 @@ extension HomeViewController  {
         btnNewNote.snp.makeConstraints { (make) -> Void in
             make.width.height.equalTo(FloatButtonConstants.btnSize)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin).offset(-FloatButtonConstants.bottom)
-            make.trailing.equalTo(self.view).offset(-FloatButtonConstants.trailing)
+//            make.trailing.equalTo(self.view).offset(-FloatButtonConstants.trailing)
+            make.centerX.equalToSuperview()
         }
         btnNewNote.addTarget(self, action: #selector(floatButtonTapped), for: .touchUpInside)
         return btnNewNote

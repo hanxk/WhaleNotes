@@ -135,11 +135,12 @@ class NotesListView: UIView {
         editorVC.noteInfo = noteInfo
         editorVC.isNewCreated = isNewCreated
         editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
+            print("openEditorVC callback")
             self?.handleNoteInfoUpdated(noteInfo)
         }
 //        editorVC.modalPresentationStyle = .fullScreen
-//        self.controller?.present(editorVC, animated: true, completion: nil)
-        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
+        self.controller?.present(editorVC, animated: true, completion: nil)
+//        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }
 }
 
@@ -241,17 +242,17 @@ extension NotesListView {
     
     func handleNoteInfoCreated(noteInfo:NoteInfo) {
         
-        let visibleRows = self.tableView.indexPathsForVisibleRows()
+//        let visibleRows = self.tableView.indexPathsForVisibleRows()
+//
+//        self.notes.insert(noteInfo, at: 0)
+//        let indexPath:IndexPath = IndexPath(row: 0, section: 0)
         
-        self.notes.insert(noteInfo, at: 0)
-        let indexPath:IndexPath = IndexPath(row: 0, section: 0)
+//        let needScroll2Top = visibleRows.count > 0 && visibleRows[0].row > indexPath.row
         
-        let needScroll2Top = visibleRows.count > 0 && visibleRows[0].row > indexPath.row
-        
-        self.tableView.insertRows(at: [indexPath], with: .automatic)
-        if needScroll2Top {
-            self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
-        }
+//        self.tableView.insertRows(at: [indexPath], with: .automatic)
+//        if needScroll2Top {
+//            self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
+//        }
         self.openEditorVC(noteInfo:noteInfo,isNewCreated: true)
     }
 }
@@ -269,7 +270,17 @@ extension NotesListView {
     }
     
     func updateNoteInfo(noteInfo:NoteInfo) {
-        guard let index = self.notes.firstIndex(where: {$0.id == noteInfo.id}) else { return }
+        guard let index = self.notes.firstIndex(where: {$0.id == noteInfo.id}) else {// 新增
+            let visibleRows = self.tableView.indexPathsForVisibleRows()
+            self.notes.insert(noteInfo, at: 0)
+            let indexPath:IndexPath = IndexPath(row: 0, section: 0)
+            let needScroll2Top = visibleRows.count > 0 && visibleRows[0].row > indexPath.row
+            self.tableView.insertRows(at: [indexPath], with: .automatic)
+            if needScroll2Top {
+                self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
+            }
+            return
+        }
         self.notes[index] = noteInfo
         self.tableView.reloadRowsWithoutAnim(at: [IndexPath(row: index, section: 0)])
     }

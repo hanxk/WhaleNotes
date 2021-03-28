@@ -52,11 +52,11 @@ class MDTextViewWapper: NSObject {
         self.textView = textView
         self.textStorage = (textView.textStorage as! MarkdownTextStorage)
         
-        if isEditable   {
-            let keyboardView = MDKeyboardView()
-            keyboardView.delegate = self
-            textView.inputAccessoryView = keyboardView
-        }
+//        if isEditable   {
+//            let keyboardView = MDKeyboardView()
+//            keyboardView.delegate = self
+//            textView.inputAccessoryView = keyboardView
+//        }
         
         highlightManager.highlight(textStorage: textStorage, range:NSMakeRange(0, textView.text.count))
         

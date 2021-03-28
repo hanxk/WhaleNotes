@@ -138,7 +138,7 @@ extension NoteEditorViewController {
        
 //        let tagButton = generateUIBarButtonItem(imageName: "tag", action:  #selector(tagIconTapped))
         
-        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(menuIconTapped))
+        let menuButton = generateUIBarButtonItem(imageName: "checkmark", action:  #selector(saveIconTapped))
         navItem.rightBarButtonItems = [menuButton]
     }
     
@@ -150,23 +150,23 @@ extension NoteEditorViewController {
     
     func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
         
-        let backButtonImage =  UIImage(systemName: "chevron.left", pointSize: 20, weight: .regular)
+        let backButtonImage =  UIImage(systemName: "camera", pointSize: 20, weight: .regular)
         
         let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
         backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
 //        backButton.backgroundColor = .red
-           backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
+           backButton.addTarget(self, action: #selector(photoIconTapped), for: .touchUpInside)
            let backBarButton = UIBarButtonItem(customView: backButton)
            navigationItem.leftBarButtonItems = [backBarButton]
     }
     
-    @objc func backBarButtonTapped() {
-        self.navigationController?.popViewController(animated: true)
+    @objc func saveIconTapped() {
+        self.dismiss(animated: true, completion: nil)
     }
     
-    @objc func menuIconTapped() {
-    }
     
+    @objc func photoIconTapped() {
+    }
     
     @objc func tagIconTapped() {
     }

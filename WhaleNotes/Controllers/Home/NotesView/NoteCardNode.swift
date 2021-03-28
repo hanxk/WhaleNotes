@@ -20,7 +20,7 @@ enum StyleConfig {
     static let spacing:CGFloat = 12
     static let insetH:CGFloat = 12
     static let insetV:CGFloat = 14
-    static let cornerRadius:CGFloat = 8
+    static let cornerRadius:CGFloat = 6
     
     static let footerHeight:CGFloat = 48
     
@@ -103,9 +103,9 @@ class NoteCardNode: ASCellNode {
             //            $0.layer.borderWidth = 1
             //            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
         }
-        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.02).cgColor
+        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.005).cgColor
         $0.shadowOpacity = 1
-        $0.shadowRadius = 4
+        $0.shadowRadius = 1
         $0.shadowOffset = CGSize(width: 0, height: 0)
 //        $0.shadowOpacity = 1
 //        $0.shadowRadius = 6

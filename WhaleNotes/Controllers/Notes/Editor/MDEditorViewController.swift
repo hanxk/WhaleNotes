@@ -30,7 +30,6 @@ class MDEditorViewController: UIViewController {
     private var isKeyboardShow = false
     var isNewCreated = false
     
-    //    private var noteEditorEvent:NoteEditorEvent?
     private var callbackNoteInfoEdited:((NoteInfo)->Void)?
     
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
@@ -53,6 +52,7 @@ class MDEditorViewController: UIViewController {
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .interactive
     }
+    
     
     lazy var bottomExtraSpace: CGFloat = 42.0 + 44
     let keyboardTop: CGFloat = 16
@@ -112,7 +112,8 @@ class MDEditorViewController: UIViewController {
     }
     override func viewWillDisappear(_ animated: Bool) {
         tryUpdateInputing()
-        tryEmitUpdateEvent(isDelay: isKeyboardShow)
+//        tryEmitUpdateEvent(isDelay: isKeyboardShow)
+        print("viewWillDisappear")
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
     }
@@ -146,19 +147,29 @@ class MDEditorViewController: UIViewController {
 extension MDEditorViewController {
     
     func tryUpdateInputing() {
-        if !isKeyboardShow { return }
-        if let titleCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCellNode,
-           titleCelleNode.titleNode.isFirstResponder()
-        {
-            self.updateInputTitle(titleCelleNode.title)
+        guard let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode else { return }
+        var newNoteInfo = self.model.noteInfo!
+        if isNoteUpdated {//
+            self.callbackNoteInfoEdited?(newNoteInfo)
             return
         }
-        if let contentCelleNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
-           contentCelleNode.textNode.isFirstResponder()
-        {
-            self.updateInputContent(contentCelleNode.content)
-            return
+//        print("newNoteInfo.note.content \(newNoteInfo.note.content)")
+//        print("contentCellNode.textNode.textView.text \(contentCellNode.textNode.textView.text)")
+        let newContent = contentCellNode.textNode.textView.text!
+        if newNoteInfo.note.content != newContent {
+            newNoteInfo.note.content = newContent
+            self.callbackNoteInfoEdited?(newNoteInfo)
         }
+//        guard let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode else { return }
+//        if let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
+//           let newContent = contentCellNode.textNode.textView.text
+//           {
+//            var noteInfo = self.noteInfo!
+//            if noteInfo.note.content != newContent {
+//                noteInfo.note.content = newContent
+//                self.callbackNoteInfoEdited?(noteInfo)
+//            }
+//        }
     }
 }
 
@@ -209,6 +220,7 @@ extension MDEditorViewController {
     
 }
 
+
 extension MDEditorViewController {
     
     func registerNoteInfoEvent() {
@@ -238,11 +250,6 @@ extension MDEditorViewController: UIGestureRecognizerDelegate {
         self.tableView.view.addGestureRecognizer(tapGesture)
     }
     
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-//        view.endEditing(true)
-//        return true
-//    }
-    
     @objc func tableViewTapped(_ sender: UITapGestureRecognizer) {
         
         if sender.state != .ended {
@@ -261,17 +268,24 @@ extension MDEditorViewController: UIGestureRecognizerDelegate {
         }
     }
 }
-
+//MARK: setupNavgationBar
 extension MDEditorViewController {
     private func setupNavgationBar() {
         
         let navItem = UINavigationItem()
         myNavbar.items = [navItem]
         myNavbar.tintColor = .iconColor
-        self.createBackBarButton(forNavigationItem: navItem)
         
-//        let tagButton = generateUIBarButtonItem(imageName: "tag", action:  #selector(tagIconTapped))
-        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(menuIconTapped))
+        func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
+            let backButtonImage =  UIImage(systemName: "camera",pointSize: 18)?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
+            let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+            backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
+            backButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
+            let backBarButton = UIBarButtonItem(customView: backButton)
+            navigationItem.leftBarButtonItems = [backBarButton]
+        }
+        createBackBarButton(forNavigationItem: navItem)
+        let menuButton = generateUIBarButtonItem(imageName: "checkmark", action:  #selector(saveIconTapped))
         navItem.rightBarButtonItems = [menuButton]
     }
     
@@ -281,25 +295,14 @@ extension MDEditorViewController {
         }
     }
     
-    func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
-        let backButtonImage =  UIImage(systemName: "chevron.left",pointSize: 18)?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
-//        let backButtonImage =  UIImage(systemName: "multiply", pointSize: 22, weight: .regular)
-        let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
-        backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
-        backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
-        let backBarButton = UIBarButtonItem(customView: backButton)
-        navigationItem.leftBarButtonItems = [backBarButton]
+    
+    @objc func cameraButtonTapped() {
+        
     }
     
-    @objc func backBarButtonTapped() {
-//        self.dismiss(animated: true, completion: nil)
-        self.navigationController?.popViewController(animated: true)
+    @objc func saveIconTapped() {
+        self.dismiss(animated: true, completion: nil)
     }
-    
-    @objc func menuIconTapped() {
-    }
-    
-    
     @objc func tagIconTapped() {
     }
 }
@@ -349,6 +352,18 @@ extension MDEditorViewController:ASTableDataSource {
             contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
                 self?.focusedTextView = textView
             }
+            contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
+                self?.focusedTextView = textView
+            }
+            contentCellNode.saveButtonTapped {[weak self]  in
+                self?.dismiss(animated: true, completion: nil)
+            }
+//            textView.inputAccessoryView = keyboardView
+            //        if isEditable   {
+            //            let keyboardView = MDKeyboardView()
+            //            keyboardView.delegate = self
+            //            textView.inputAccessoryView = keyboardView
+            //        }
 //            contentCellNode.textNode.textView.isEditable = self.noteInfo.status != .trash
             return contentCellNode
         }
@@ -356,9 +371,7 @@ extension MDEditorViewController:ASTableDataSource {
     
     private func updateInputContent(_ content:String) {
         if self.noteInfo.note.content == content{ return }
-        
         guard let contentCellNode = getNoteContentCellNode() else { return }
-        
         let noteTagTitles = self.noteInfo.tags
         
         let tagTitles = MDEditorViewController.extractTags(text: content)
@@ -414,11 +427,9 @@ extension MDEditorViewController:ASTableDataSource {
     
     
     static func extractTagsFromTitle(title:String) -> [String]  {
-    
         if !"#\(title)".match(pattern: MDTagHighlighter.regexStr) {
             fatalError("extractTagsFromTitle: \(title)  --- > 不合法")
         }
-        
         var tagTitles:[String] = []
         let parentTitles = title.components(separatedBy: "/").dropLast()
         var pTitle = ""
@@ -433,33 +444,6 @@ extension MDEditorViewController:ASTableDataSource {
         tagTitles.append(title)
         return tagTitles
     }
-    
-    
-//    private func extractTags(tagRegex:NSRegularExpression,text:String) -> [String]  {
-//        var tags:[String] = []
-//        tagRegex.enumerateMatches(in: text,range:NSMakeRange(0, text.length)) {
-//            match, flags, stop in
-//            if  let  match = match {
-//                let  tagRange = match.range(at: 1)
-//                tags.append(text.substring(with: tagRange))
-//            }
-//        }
-//
-//        var tagTitles:[String] = []
-//        for title in tags {
-//            //新增 parent tag
-//            let parentTitles = title.components(separatedBy: "/").dropLast()
-//            var pTitle = ""
-//            for (index,title) in parentTitles.enumerated() {
-//                if index > 0 { pTitle += "/" }
-//                pTitle += title
-//                tagTitles.append(pTitle)
-//            }
-//            tagTitles.append(title)
-//        }
-//        tagTitles = tagTitles.sorted { $0 < $1 }
-//        return tagTitles
-//    }
     
     private func updateInputTitle(_ title:String) {
         if self.noteInfo.note.title == title { return }
