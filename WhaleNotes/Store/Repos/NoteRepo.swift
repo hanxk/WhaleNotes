@@ -14,10 +14,13 @@ class NoteRepo:BaseRepo {
 }
 
 extension NoteRepo {
-    func getNotes(tag:String,offset:Int = 0) -> Observable<[NoteInfo]> {
+    func getNotes(tag:String,offset:Int = 0,pageSize:Int = PAGESIZE) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
-                let notes:[Note] = try self.noteDao.queryPage(tagId: tag,offset: offset)
+                let notes:[Note] = try self.noteDao.queryPage(tagId: tag,offset: offset,pageSize: pageSize)
+                if notes.isEmpty {
+                    return []
+                }
                 let noteIds = notes.map { $0.id }
                  // 获取所有note的tags
                 let noteTags = try self.tagDao.queryByTag(noteIds: noteIds)
@@ -60,6 +63,9 @@ extension NoteRepo {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
             self.executeTask(observable: observer) { () -> [NoteInfo] in
                 let notes:[Note] = try self.noteDao.query(keyword: keyword,offset: offset)
+                if notes.isEmpty {
+                    return []
+                }
                 // 获取所有note的tags
                 let noteTags = try self.tagDao.queryByKeyword(keyword)
                 var noteInfos:[NoteInfo] = []

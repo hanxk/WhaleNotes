@@ -29,9 +29,9 @@ extension NoteDao {
         return extract(rows: rows)
     }
     
-    func queryPage(tagId:String,offset:Int) throws -> [Note]  {
+    func queryPage(tagId:String,offset:Int,pageSize:Int = PAGESIZE) throws -> [Note]  {
 //        let offset = PAGESIZE * pageIndex
-        let selectSQL = "select * from note where id in (select note_id from note_tag where tag_id = ?) order by created_at desc  LIMIT \(PAGESIZE) OFFSET \(offset)"
+        let selectSQL = "select * from note where id in (select note_id from note_tag where tag_id = ?) order by created_at desc  LIMIT \(pageSize) OFFSET \(offset)"
         let rows = try db.query(selectSQL,args: tagId)
         return extract(rows: rows)
     }

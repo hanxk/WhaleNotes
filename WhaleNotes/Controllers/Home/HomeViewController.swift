@@ -219,7 +219,7 @@ extension HomeViewController  {
                    let self = self {
                     self.updateTagDatasource(tag: tag)
                     //刷新列表
-                    self.contentView.refresh(mode: NoteListMode.tag(tag: tag))
+                    self.contentView.refreshTagNotes(mode: NoteListMode.tag(tag: tag))
                 }
                 
             }, onError: {

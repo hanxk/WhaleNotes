@@ -98,12 +98,24 @@ class NotesListView: UIView {
         self.loadNotes(mode: mode)
     }
     
-    func refresh(mode:NoteListMode) {
-        self.noteTag = nil
-        self.mode = mode
-        self.loadNotes(mode: mode)
+    func refreshTagNotes(mode:NoteListMode) {
+        if case let .tag(tag) = mode {
+            self.noteTag = tag
+            self.mode = mode
+            NoteRepo.shared.getNotes(tag: tag.id,offset: 0,pageSize: self.notes.count)
+                .subscribe(onNext: { [weak self] notes in
+                    guard let self = self else { return }
+                    let changes = diff(old:self.notes, new: notes)
+                    self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
+                        self.notes = notes
+                    }
+                }, onError: {
+                    Logger.error($0)
+                })
+                .disposed(by: disposeBag)
+        }
+        
     }
-    
     
     private func loadNotes(mode:NoteListMode) {
         switch mode {
@@ -277,9 +289,11 @@ extension NotesListView:ASTableDelegate {
     
     func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
         guard let indexPath = tableNode.indexPath(for: node) else { return }
+        if self.notes.count < PAGESIZE { // 不够一页
+            return
+        }
         let isLastRow = indexPath.row + 1 == self.notes.count
-        if isLastRow  {
-            print("load more: ")
+        if isLastRow  { // 加载更多
             self.loadNotes(mode: self.mode)
         }
     }
