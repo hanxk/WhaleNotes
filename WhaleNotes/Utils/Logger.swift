@@ -25,5 +25,7 @@ class Logger {
     static func error( _ error: Error) {
         print(error)
     }
+    static func error(_ text:String, _ error: Error) {
+        print(text,error)
+    }
 }
-

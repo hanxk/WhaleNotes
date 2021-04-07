@@ -411,7 +411,7 @@ extension MDEditorViewController:ASTableDataSource {
             let parentTitles = title.components(separatedBy: "/")
             var pTitle = ""
             for (index,title) in parentTitles.enumerated() {
-                var tagTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+                let tagTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                 if tagTitle.isEmpty {
                     continue
                 }

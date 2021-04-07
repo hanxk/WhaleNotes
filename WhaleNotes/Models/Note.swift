@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CloudKit
 
 struct Note {
     var id:String = UUID.init().uuidString
@@ -15,6 +16,8 @@ struct Note {
     var status:NoteStatus =  .normal
     var createdAt:Date!
     var updatedAt:Date!
+    // 标识是否需要同步，默认未false，（该字段不会上传到iCloud）
+    var changedType:ChangedType = .none
     
     init() {
         let date =  Date()
@@ -22,11 +25,12 @@ struct Note {
         self.updatedAt = date
     }
     
-    init(id:String,title:String,content:String,status:NoteStatus = .normal,createdAt:Date,updatedAt:Date) {
+    init(id:String,title:String,content:String,status:NoteStatus = .normal,changedType:ChangedType = .none,needSync:Bool = false,createdAt:Date,updatedAt:Date) {
         self.id = id
         self.title = title
         self.content = content
         self.status = status
+        self.changedType = changedType
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -38,6 +42,12 @@ enum NoteStatus: Int,Codable {
     case normal = 1
     case archive = 2
 }
+enum ChangedType: Int,Codable {
+    case none = 0
+    case update = 1
+    case delete = 2
+}
+
 
 extension Note:SQLTable {
     static var createStatement: String {
@@ -47,9 +57,42 @@ extension Note:SQLTable {
                       "title" TEXT,
                       "content" TEXT,
                       "status" INTEGER,
+                      "changed_type" INTEGER DEFAULT 0,
+                      "need_sync" INTEGER DEFAULT 0,
                       "created_at" TIMESTAMP,
                       "updated_at" TIMESTAMP
                     );
         """
+    }
+}
+
+extension Note {
+    static func from(from record: CKRecord) -> Note? {
+        let title = record["title"] as? String ?? ""
+        let content = record["content"] as? String ?? ""
+        guard
+            let id = record["id"] as? String,
+            let status = record["status"] as? Int,
+            let createdAt = record["createdAt"] as? Date,
+            let updatedAt = record["updatedAt"] as? Date
+        else { return nil }
+        guard let noteStatus = NoteStatus.init(rawValue: status) else { return nil }
+        let note = Note(id: id, title: title, content: content, status: noteStatus,changedType: .update, createdAt: createdAt, updatedAt: updatedAt)
+        return note
+    }
+    
+    func tooRecord() -> CKRecord {
+        let record = CKRecord(recordType: "Note",recordID: self.recordID)
+        record["id"] = self.id as CKRecordValue
+        record["title"] = self.title as CKRecordValue
+        record["content"] = self.content as CKRecordValue
+        record["status"] = self.status.rawValue as CKRecordValue
+        record["createdAt"] = self.createdAt as CKRecordValue
+        record["updatedAt"] = self.updatedAt as CKRecordValue
+        return record
+    }
+    
+    var recordID: CKRecord.ID {
+        return CKRecord.ID(recordName: id, zoneID: NotesSyncEngine.shared.zone.zoneID)
     }
 }

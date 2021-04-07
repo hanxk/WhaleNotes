@@ -259,6 +259,8 @@ extension NotesListView {
 
 extension NotesListView {
     func handleNoteInfoUpdated(_ noteInfo:NoteInfo) {
+//        NotesSyncEngine.shared.pushToCloudKit(notesToUpdate: [noteInfo])
+        NotesSyncEngine.shared.pushLocalToRemote()
         // 检查tag
         if let tag = self.noteTag,
            noteInfo.tags.contains(where: {$0.id == tag.id}) == false
@@ -540,6 +542,7 @@ extension NotesListView {
             .subscribe(onNext: { [weak self]  in
                 if let self = self {
                     self.notes = []
+                    NotesSyncEngine.shared.pushLocalToRemote()
                     self.tableView.reloadData()
                 }
             }, onError: {

@@ -12,6 +12,8 @@
 		180256B6257F8DE900BF5804 /* HTMLMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180256B5257F8DE900BF5804 /* HTMLMeta.swift */; };
 		18058EED2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */; };
 		18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */; };
+		18083E65261339BE0009C494 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18083E64261339BE0009C494 /* CloudKit.framework */; };
+		18089B1F26136FB70006AA93 /* CloudModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18089B1E26136FB70006AA93 /* CloudModel.swift */; };
 		18119D4425A71A3600B65823 /* BackgroundStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18119D4325A71A3600B65823 /* BackgroundStyle.swift */; };
 		18119D4825A845BC00B65823 /* MDTextViewWapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18119D4725A845BC00B65823 /* MDTextViewWapper.swift */; };
 		181636722591E239004F7108 /* TagExpandCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181636712591E238004F7108 /* TagExpandCache.swift */; };
@@ -22,6 +24,8 @@
 		181F17CE249DDD6100F8C5B8 /* ChangeBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */; };
 		181F17D1249DDD7800F8C5B8 /* ChangeBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */; };
 		181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */; };
+		181F48F62617FF9300B92E82 /* NotesSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */; };
+		181F48F9261827E700B92E82 /* UserDefaults+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */; };
 		1820C4A2248CE35000484AF8 /* EmojiSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1820C4A1248CE35000484AF8 /* EmojiSectionHeaderView.swift */; };
 		1820C4A4248CE8F600484AF8 /* emojis.json in Resources */ = {isa = PBXBuildFile; fileRef = 1820C4A3248CE8F600484AF8 /* emojis.json */; };
 		1820C4A6248CEA3C00484AF8 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1820C4A5248CEA3C00484AF8 /* Emoji.swift */; };
@@ -83,12 +87,13 @@
 		1859303424BA9E3500D1352A /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303324BA9E3500D1352A /* Board.swift */; };
 		1859303F24BAA00600D1352A /* BoardCategoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303624BAA00500D1352A /* BoardCategoryInfo.swift */; };
 		1859304424BAA00600D1352A /* BoardCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303B24BAA00600D1352A /* BoardCategory.swift */; };
-		1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859303D24BAA00600D1352A /* ImageFetchInfo.swift */; };
 		1859304C24BAAE2900D1352A /* JSONHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304B24BAAE2900D1352A /* JSONHelper.swift */; };
 		1859305024BAD35C00D1352A /* BlockRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859304F24BAD35C00D1352A /* BlockRepo.swift */; };
 		1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859BCAD24EA79FB0089CB1B /* CardEditorViewController.swift */; };
 		1859BCB124EA7A0D0089CB1B /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859BCB024EA7A0D0089CB1B /* NoteView.swift */; };
 		1859BCB324EA812B0089CB1B /* BoardActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859BCB224EA812B0089CB1B /* BoardActionView.swift */; };
+		1860D5B1261B41D500E1423D /* SyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1860D5B0261B41D500E1423D /* SyncOperation.swift */; };
+		1860D5B4261B48FE00E1423D /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1860D5B3261B48FE00E1423D /* NotesStore.swift */; };
 		18621F6724CC179F00BCC27D /* NoteInfoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18621F6624CC179F00BCC27D /* NoteInfoModel.swift */; };
 		1865AEF4244C5EF50006B48D /* ColorTheme.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */; };
 		1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1865AEF5244C61F80006B48D /* UIColor+Ex.swift */; };
@@ -253,6 +258,9 @@
 		180256B5257F8DE900BF5804 /* HTMLMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLMeta.swift; sourceTree = "<group>"; };
 		18058EEC2472361C00543B5F /* WaterfallCollectionLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutDelegate.swift; sourceTree = "<group>"; };
 		18058EEE247238C600543B5F /* WaterfallCollectionLayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallCollectionLayoutInfo.swift; sourceTree = "<group>"; };
+		18083E63261339A30009C494 /* WhaleNotes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WhaleNotes.entitlements; sourceTree = "<group>"; };
+		18083E64261339BE0009C494 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		18089B1E26136FB70006AA93 /* CloudModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudModel.swift; sourceTree = "<group>"; };
 		18119D4325A71A3600B65823 /* BackgroundStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundStyle.swift; sourceTree = "<group>"; };
 		18119D4725A845BC00B65823 /* MDTextViewWapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDTextViewWapper.swift; sourceTree = "<group>"; };
 		181636712591E238004F7108 /* TagExpandCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagExpandCache.swift; sourceTree = "<group>"; };
@@ -263,6 +271,8 @@
 		181F17CD249DDD6100F8C5B8 /* ChangeBoardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardViewController.swift; sourceTree = "<group>"; };
 		181F17D0249DDD7800F8C5B8 /* ChangeBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeBoardCell.swift; sourceTree = "<group>"; };
 		181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTitleView.swift; sourceTree = "<group>"; };
+		181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesSyncEngine.swift; sourceTree = "<group>"; };
+		181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Ex.swift"; sourceTree = "<group>"; };
 		1820C4A1248CE35000484AF8 /* EmojiSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSectionHeaderView.swift; sourceTree = "<group>"; };
 		1820C4A3248CE8F600484AF8 /* emojis.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = emojis.json; sourceTree = "<group>"; };
 		1820C4A5248CEA3C00484AF8 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
@@ -325,12 +335,13 @@
 		1859303324BA9E3500D1352A /* Board.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		1859303624BAA00500D1352A /* BoardCategoryInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardCategoryInfo.swift; sourceTree = "<group>"; };
 		1859303B24BAA00600D1352A /* BoardCategory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoardCategory.swift; sourceTree = "<group>"; };
-		1859303D24BAA00600D1352A /* ImageFetchInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageFetchInfo.swift; sourceTree = "<group>"; };
 		1859304B24BAAE2900D1352A /* JSONHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONHelper.swift; sourceTree = "<group>"; };
 		1859304F24BAD35C00D1352A /* BlockRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockRepo.swift; sourceTree = "<group>"; };
 		1859BCAD24EA79FB0089CB1B /* CardEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEditorViewController.swift; sourceTree = "<group>"; };
 		1859BCB024EA7A0D0089CB1B /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
 		1859BCB224EA812B0089CB1B /* BoardActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardActionView.swift; sourceTree = "<group>"; };
+		1860D5B0261B41D500E1423D /* SyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncOperation.swift; sourceTree = "<group>"; };
+		1860D5B3261B48FE00E1423D /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStore.swift; sourceTree = "<group>"; };
 		18621F6624CC179F00BCC27D /* NoteInfoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInfoModel.swift; sourceTree = "<group>"; };
 		1865AEF3244C5EF50006B48D /* ColorTheme.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ColorTheme.xcassets; sourceTree = "<group>"; };
 		1865AEF5244C61F80006B48D /* UIColor+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ex.swift"; sourceTree = "<group>"; };
@@ -513,6 +524,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				072F6FF56795E2A22DB4EFBA /* Pods_WhaleNotes.framework in Frameworks */,
+				18083E65261339BE0009C494 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -525,6 +537,17 @@
 				180256B5257F8DE900BF5804 /* HTMLMeta.swift */,
 			);
 			path = HTMLParser;
+			sourceTree = "<group>";
+		};
+		18089B1D26136F990006AA93 /* cloud */ = {
+			isa = PBXGroup;
+			children = (
+				18089B1E26136FB70006AA93 /* CloudModel.swift */,
+				181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */,
+				1860D5B0261B41D500E1423D /* SyncOperation.swift */,
+				1860D5B3261B48FE00E1423D /* NotesStore.swift */,
+			);
+			name = cloud;
 			sourceTree = "<group>";
 		};
 		1816364F2591E17E004F7108 /* Cache */ = {
@@ -783,6 +806,7 @@
 				18A9C54024AD8FC30025E0EB /* UICollectionView+Ex.swift */,
 				18F57C31256E29B600834DB5 /* UITextView+Ex.swift */,
 				18BEAB8725B42DD40032A342 /* ASTableNode+Ex.swift */,
+				181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -854,9 +878,9 @@
 		1865AF10244D4FBE0006B48D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				18089B1D26136F990006AA93 /* cloud */,
 				18286B912587631000541526 /* New */,
 				18FA5CCE24DE8FAA00E06642 /* DB */,
-				1859303D24BAA00600D1352A /* ImageFetchInfo.swift */,
 				18A9C54424B0093D0025E0EB /* ImageFetchInfo.swift */,
 			);
 			path = Models;
@@ -1342,6 +1366,7 @@
 		18E9566F2449A3F0003755BF /* WhaleNotes */ = {
 			isa = PBXGroup;
 			children = (
+				18083E63261339A30009C494 /* WhaleNotes.entitlements */,
 				1865AF10244D4FBE0006B48D /* Models */,
 				18E956882449AABA003755BF /* Controllers */,
 				1865AEF0244C5D4E0006B48D /* Extensions */,
@@ -1472,6 +1497,7 @@
 		9E8EE56D1B56A9F5075581CC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18083E64261339BE0009C494 /* CloudKit.framework */,
 				940244A10ED420834FA7953E /* Pods_WhaleNotes.framework */,
 			);
 			name = Frameworks;
@@ -1627,6 +1653,7 @@
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
 				1865AF18244ED46D0006B48D /* BottomBarView.swift in Sources */,
+				1860D5B1261B41D500E1423D /* SyncOperation.swift in Sources */,
 				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
 				181636722591E239004F7108 /* TagExpandCache.swift in Sources */,
@@ -1634,6 +1661,7 @@
 				1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */,
 				1859304C24BAAE2900D1352A /* JSONHelper.swift in Sources */,
 				1865AF0A244D4E020006B48D /* Date+Ex.swift in Sources */,
+				18089B1F26136FB70006AA93 /* CloudModel.swift in Sources */,
 				186A354425834E2E0003E926 /* html_smartypants.c in Sources */,
 				18CED672249F9259009181E0 /* TrashHeaderNode.swift in Sources */,
 				186A33FD25831A570003E926 /* UIControlMenuCell.swift in Sources */,
@@ -1648,7 +1676,6 @@
 				18BCA59824E8165800612889 /* BoardsRepo.swift in Sources */,
 				18C1322D2599C02600D1529B /* MarkdownAttributes.swift in Sources */,
 				1899EB44258772920003F4D6 /* NoteCardNode.swift in Sources */,
-				1859304624BAA00600D1352A /* ImageFetchInfo.swift in Sources */,
 				18E7BF95248C9D2C00B8AEC1 /* EmojiRepo.swift in Sources */,
 				188BD41025946F780050D896 /* NoteTitleCellNode.swift in Sources */,
 				18F57C38256FD78300834DB5 /* RemarkViewController.swift in Sources */,
@@ -1688,6 +1715,7 @@
 				1859BCAE24EA79FB0089CB1B /* CardEditorViewController.swift in Sources */,
 				18C13256259B48CB00D1529B /* NoteTitleCell.swift in Sources */,
 				188BD403259311FD0050D896 /* MDEditorViewProvider.swift in Sources */,
+				181F48F9261827E700B92E82 /* UserDefaults+Ex.swift in Sources */,
 				18E7664124A5CD8E005DCB03 /* SearchViewController.swift in Sources */,
 				18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */,
 				18C1322C2599C02600D1529B /* HighlighterType.swift in Sources */,
@@ -1707,7 +1735,9 @@
 				1859303224BA97C300D1352A /* DBManager.swift in Sources */,
 				1899EB4A258A24310003F4D6 /* ToolbarEditingProvider.swift in Sources */,
 				186A33FA25831A570003E926 /* UIControlMenuAction.swift in Sources */,
+				1860D5B4261B48FE00E1423D /* NotesStore.swift in Sources */,
 				186A34F4258349130003E926 /* HighlightManager.swift in Sources */,
+				181F48F62617FF9300B92E82 /* NotesSyncEngine.swift in Sources */,
 				18006F7525A1BEAD00DA4AAA /* MDTagHighlighter.swift in Sources */,
 				18E7664324A5D3B2005DCB03 /* SearchNotesView.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
@@ -1963,6 +1993,7 @@
 			baseConfigurationReference = 8755AE4A81989AAC961E1A21 /* Pods-WhaleNotes.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WhaleNotes/WhaleNotes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DEP7KPQBX9;
 				INFOPLIST_FILE = WhaleNotes/Info.plist;
@@ -1983,6 +2014,7 @@
 			baseConfigurationReference = A10054E7C48FF86C1A7B5902 /* Pods-WhaleNotes.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WhaleNotes/WhaleNotes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DEP7KPQBX9;
 				INFOPLIST_FILE = WhaleNotes/Info.plist;

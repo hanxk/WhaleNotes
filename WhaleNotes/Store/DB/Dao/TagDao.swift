@@ -21,7 +21,7 @@ class TagDao {
 
 extension TagDao {
     func insert( _ tag:Tag) throws {
-        let insertSQL = "INSERT OR IGNORE INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
+        let insertSQL = "INSERT OR REPLACE INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
         try db.execute(insertSQL, args: tag.id,tag.title,tag.icon,tag.createdAt.timeIntervalSince1970,tag.updatedAt.timeIntervalSince1970)
         //        return db.changes
     }
@@ -124,6 +124,13 @@ extension TagDao {
                         JOIN tag ON tag.id = note_tag.tag_id AND note_tag.note_id = ? ORDER BY tag.title
                     """
         let rows = try db.query(selectSQL,args:noteId)
+        return extract(rows: rows)
+    }
+    
+    
+    func queryFromDate(_ fromDate:Date) throws -> [Tag]  {
+        let selectSQL = "SELECT * FROM tag WHERE updated_at > ?"
+        let rows = try db.query(selectSQL,args: fromDate.timeIntervalSince1970)
         return extract(rows: rows)
     }
     

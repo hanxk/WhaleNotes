@@ -19,8 +19,8 @@ class NoteDao {
 
 extension NoteDao {
     func insert( _ note:Note) throws {
-        let insertSQL = "insert into note(id,title,content,status,created_at,updated_at) values(?,?,?,?,?,?)"
-        try db.execute(insertSQL, args: note.id,note.title,note.content,note.status.rawValue,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
+        let insertSQL = "INSERT OR REPLACE INTO note(id,title,content,status,need_sync,created_at,updated_at) values(?,?,?,?,?,?,?)"
+        try db.execute(insertSQL, args: note.id,note.title,note.content,note.status.rawValue,note.changedType.rawValue,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
     }
     
     func query(tagId:String) throws -> [Note]  {
@@ -38,8 +38,9 @@ extension NoteDao {
     
     func query(status:NoteStatus = .normal,offset:Int) throws -> [Note]  {
 //        let offset = PAGESIZE * pageIndex
-        let selectSQL = "select * from note where status  = ? order by created_at desc LIMIT \(PAGESIZE) OFFSET \(offset)"
-        let rows = try db.query(selectSQL,args: status.rawValue)
+        // 排除被删除的 notes
+        let selectSQL = "select * from note where status  = ? and changed_type != ? order by created_at desc LIMIT \(PAGESIZE) OFFSET \(offset)"
+        let rows = try db.query(selectSQL,args: status.rawValue,ChangedType.delete.rawValue)
         return extract(rows: rows)
     }
     
@@ -50,6 +51,13 @@ extension NoteDao {
         return extract(rows: rows)
     }
     
+    func queryFromDate(_ from:Date) throws -> [Note]  {
+        let selectSQL = "select * from note where updated_at > ?"
+        let rows = try db.query(selectSQL,args: from.timeIntervalSince1970)
+        return extract(rows: rows)
+    }
+    
+    
     
     func query(id:String) throws -> Note?  {
         let selectSQL = "select * from note where id = ?"
@@ -58,34 +66,63 @@ extension NoteDao {
         return extract(row: rows[0])
     }
     
+    func resetUpdateChangedNotes() throws {
+        let updateSQL = "update note set changed_type = \(ChangedType.none.rawValue) where changed_type = \(ChangedType.update.rawValue)"
+        try db.execute(updateSQL)
+    }
+//    func resetDeleteChangedNotes() throws {
+//        let updateSQL = "update note set changed_type = \(ChangedType.none) where changed_type = \(ChangedType.delete.rawValue)"
+//        try db.execute(updateSQL)
+//    }
+    
+    
+    func queryChanged() throws -> [Note]  {
+        let selectSQL = "select * from note where changed_type != ?"
+        let rows = try db.query(selectSQL,args: ChangedType.none.rawValue)
+        return extract(rows: rows)
+    }
+    
+    func queryByIDs(_ ids:[String]) throws -> [Note] {
+        let idPara = "\"" + ids.joined(separator: "\",\"") + "\""
+        let selectSQL = "SELECT * FROM note WHERE id in (\(idPara))"
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
+    
     func update( _ note:Note) throws {
-        let updateSQL = "update note set title = ?,content = ?,status = ?,updated_at=strftime('%s', 'now') where id = ?"
+        let updateSQL = "update note set title = ?,content = ?,changed_type = \(ChangedType.update.rawValue), status = ?,updated_at=strftime('%s', 'now') where id = ?"
         try db.execute(updateSQL, args: note.title,note.content,note.status,note.id)
     }
     
     func updateContent( _ content:String,noteId:String,updatedAt:Date) throws {
-        let updateSQL = "update note set  content = ?,updated_at=? where id = ?"
+        let updateSQL = "update note set  content = ?,changed_type = \(ChangedType.update.rawValue), updated_at=? where id = ?"
         try db.execute(updateSQL, args: content,updatedAt.timeIntervalSince1970,noteId)
     }
     
     func updateTitle( _ title:String,noteId:String,updatedAt:Date) throws {
-        let updateSQL = "update note set  title = ?,updated_at=? where id = ?"
+        let updateSQL = "update note set  title = ?,changed_type = \(ChangedType.update.rawValue),updated_at=? where id = ?"
         try db.execute(updateSQL, args: title,updatedAt.timeIntervalSince1970,noteId)
     }
     
     func updateStatus( _ status:NoteStatus,noteId:String,updatedAt:Date) throws {
-        let updateSQL = "update note set status = ?,updated_at=? where id = ?"
+        let updateSQL = "update note set status = ?,changed_type = \(ChangedType.update.rawValue), updated_at=? where id = ?"
         try db.execute(updateSQL, args: status.rawValue,updatedAt.timeIntervalSince1970,noteId)
     }
     
-    func delete( _ id:String) throws {
-        let delSQL = "delete from note where id = ?"
-        try db.execute(delSQL, args: id)
+    func delete( _ id:String,softDel:Bool=false) throws {
+        var sql:String
+        if softDel {
+            sql = "UPDATE note SET changed_type = \(ChangedType.delete.rawValue) WHERE id = ?"
+        }else {
+            sql = "delete from note where id = ?"
+        }
+        try db.execute(sql, args: id)
     }
     
+    // soft delete
     func removeTrashedNotes() throws {
-        let delSQL = "delete from note where status = ?"
-        try db.execute(delSQL, args: NoteStatus.trash.rawValue)
+        let delSQL = "UPDATE note SET changed_type = ? WHERE status = ?"
+        try db.execute(delSQL, args: ChangedType.delete.rawValue,NoteStatus.trash.rawValue)
     }
     
     
@@ -115,8 +152,9 @@ extension NoteDao {
         let title = row["title"] as! String
         let content = row["content"] as! String
         let status = row["status"] as! Int
+        let changedType = row["changed_type"] as! Int
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
-        return  Note(id: id,title: title, content: content,status: NoteStatus.init(rawValue: status)!, createdAt: createdAt, updatedAt: updatedAt)
+        return  Note(id: id,title: title, content: content,status: NoteStatus.init(rawValue: status)!,changedType: ChangedType.init(rawValue: changedType)!,createdAt: createdAt, updatedAt: updatedAt)
     }
 }

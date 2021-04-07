@@ -58,6 +58,17 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    func getNotesAndTags(fromDate:Date) -> Observable<([Note],[Tag])> {
+        return Observable<([Note],[Tag])>.create {  observer -> Disposable in
+            self.executeTask(observable: observer) { () -> ([Note],[Tag]) in
+                let notes:[Note] = try self.noteDao.queryFromDate(fromDate)
+                let tags:[Tag] = try self.tagDao.queryFromDate(fromDate)
+                return (notes,tags)
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
     
     func getNotes(keyword:String,offset:Int) -> Observable<[NoteInfo]> {
         return Observable<[NoteInfo]>.create {  observer -> Disposable in
@@ -107,6 +118,63 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+    func createNote(_ note:Note) -> Observable<Note> {
+        return Observable<Note>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Note in
+                try self.noteDao.insert(note)
+                return note
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    func createNotesAndTags(notes:[Note],tags:[Tag]) -> Observable<Void> {
+        return Observable<Void>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> Void in
+                for tag in tags {
+                    try self.tagDao.insert(tag)
+                }
+                let localNotes = try self.noteDao.queryByIDs(notes.map{ $0.id })
+                for note in notes {
+                    try self.noteDao.insert(note)
+                    
+                    if let oldNote = localNotes.first(where: {$0.id == note.id}) {
+                        if  oldNote.content == note.content {
+                            // content 没有发生改变
+                            continue
+                        }
+                        try self.noteTagDao.delete(noteId: note.id)
+                    }
+                    // 关联关系
+                    let tags = try self.extractTagsFromNote(note)
+                    for tag  in tags {
+                        try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
+                    }
+                }
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
+    private func extractTagsFromNote( _ note:Note) throws -> [Tag] {
+        let tagTitles = MDEditorViewController.extractTags(text: note.content)
+        
+        var tags = try self.tagDao.queryByTitles(tagTitles)
+        
+        // 本地没有，需要重新创建
+        let newTagTitles = tagTitles.filter({ tagTitle in
+            tags.contains(where: {$0.title == tagTitle})
+        })
+        
+        let date = Date()
+        try newTagTitles.forEach {
+            let newTag = Tag(title: $0, createdAt: date, updatedAt: date)
+            try self.tagDao.insert(newTag)
+            tags.append(newTag)
+        }
+        return tags
+    }
+    
     func updateNote(_ note:Note) -> Observable<Note> {
         return Observable<Note>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Note in
@@ -148,7 +216,6 @@ extension NoteRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
-    
     
     func removeTrashedNotes() -> Observable<Void> {
         return Observable<Void>.create {  observer -> Disposable in

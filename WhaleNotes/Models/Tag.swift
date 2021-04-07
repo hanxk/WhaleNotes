@@ -8,6 +8,7 @@
 
 import Foundation
 import DeepDiff
+import CloudKit
 
 struct Tag:DiffAware {
     
@@ -52,5 +53,28 @@ extension Tag:SQLTable {
                   "updated_at" TIMESTAMP
                 );
         """
+    }
+}
+extension Tag {
+    static func from(from record: CKRecord) -> Tag? {
+        let icon = record["icon"] as? String ?? ""
+        guard
+            let id = record["id"] as? String,
+            let title = record["title"] as? String,
+            let createdAt = record["createdAt"] as? Date,
+            let updatedAt = record["updatedAt"] as? Date
+        else { return nil }
+        let tag = Tag(id: id, title: title, icon: icon, createdAt: createdAt, updatedAt: updatedAt)
+        return tag
+    }
+    
+    func tooRecord(zoneID:CKRecordZone.ID) -> CKRecord {
+        let record = CKRecord(recordType: "Tag",recordID: CKRecord.ID(recordName: id, zoneID: zoneID))
+        record["id"] = self.id as CKRecordValue
+        record["title"] = self.title as CKRecordValue
+        record["icon"] = self.icon as CKRecordValue
+        record["createdAt"] = self.createdAt as CKRecordValue
+        record["updatedAt"] = self.updatedAt as CKRecordValue
+        return record
     }
 }

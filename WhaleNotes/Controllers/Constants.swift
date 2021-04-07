@@ -11,3 +11,14 @@ import Foundation
 enum ConstantsUI {
      static let tagDefaultImageName = "grid"
 }
+
+func logi(_ info:String) {
+    Logger.info(info)
+}
+
+func loge(_ error:Error) {
+    Logger.error(error)
+}
+func loge(_ text:String, _ error:Error) {
+    Logger.error(text,error)
+}
