@@ -61,7 +61,6 @@ class NotesListView: UIView {
         $0.view.keyboardDismissMode = .onDrag
     }
     private var mode:NoteListMode!
-    private var needReset:Bool = true
     
     private var noteTag:Tag? = nil
     private weak var viewModel: NoteInfoViewModel?
@@ -82,51 +81,48 @@ class NotesListView: UIView {
     override init(frame:CGRect) {
         super.init(frame: frame)
         self.setupUI()
+        self.subscribeRemoteNotesChanged()
     }
     
     private func setupUI() {
         tableView.frame = self.frame
         tableView.backgroundColor = .bg
         self.addSubnode(tableView)
+        
     }
     
     func loadData(mode:NoteListMode){
         self.mode = mode
-        self.noteTag = nil
-        self.needReset = true
-        self.notes = []
-        self.loadNotes(mode: mode)
-    }
-    
-    func refreshTagNotes(mode:NoteListMode) {
-        if case let .tag(tag) = mode {
-            self.noteTag = tag
-            self.mode = mode
-            NoteRepo.shared.getNotes(tag: tag.id,offset: 0,pageSize: self.notes.count)
-                .subscribe(onNext: { [weak self] notes in
-                    guard let self = self else { return }
-                    let changes = diff(old:self.notes, new: notes)
-                    self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
-                        self.notes = notes
-                    }
-                }, onError: {
-                    Logger.error($0)
-                })
-                .disposed(by: disposeBag)
+        if self.notes.count != 0 { // mode changed
+            self.notes = []
+            self.tableView.reloadData(animated: false)
         }
-        
+        self.loadNotes(mode: mode,offset: self.notes.count)
     }
     
-    private func loadNotes(mode:NoteListMode) {
+    // 刷新数据源
+    func refresh() {
+       self.loadNotes(mode: mode,offset: 0)
+    }
+    
+    private func refreshDataSource(newNotes:[NoteInfo]) {
+        let old = self.notes
+        self.notes = newNotes
+        let changes = diff(old:old, new: self.notes)
+        self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
+        }
+    }
+    
+    private func loadNotes(mode:NoteListMode,offset:Int) {
         switch mode {
         case .all:
-            self.loadData(status: .normal)
+            self.loadData(status: .normal, offset: offset)
         case .tag(let tag):
-            self.loadData(tag:tag)
+            self.loadData(tag:tag, offset: offset)
         case .trash:
-            self.loadData(status: .trash)
+            self.loadData(status: .trash, offset: offset)
         case .search(keyword: let keyword):
-            self.loadData(keyword: keyword)
+            self.loadData(keyword: keyword, offset: offset)
         }
     }
     
@@ -147,25 +143,22 @@ class NotesListView: UIView {
 //MARK: data handle
 extension NotesListView {
     
-    private func loadData(tag:Tag? = nil) {
-//        self.needReset = true
+    private func loadData(tag:Tag? = nil,offset:Int) {
         self.noteTag = tag
         let tagId = tag?.id ?? ""
-        NoteRepo.shared.getNotes(tag: tagId,offset: self.notes.count)
+        NoteRepo.shared.getNotes(tag: tagId,offset: offset)
             .subscribe(onNext: { [weak self] notes in
-                self?.reloadTableView(notes: notes)
+                self?.reloadTableView(notes: notes, offset: offset)
             }, onError: {
                 Logger.error($0)
             })
             .disposed(by: disposeBag)
     }
     
-    private func loadData(status:NoteStatus) {
-//        self.noteTag = nil
-//        self.needReset = true
-        NoteRepo.shared.getNotes(status: status,offset: self.notes.count)
+    private func loadData(status:NoteStatus,offset:Int) {
+        NoteRepo.shared.getNotes(status: status,offset: offset)
             .subscribe(onNext: { [weak self] notes in
-                self?.reloadTableView(notes: notes)
+                self?.reloadTableView(notes: notes, offset: offset)
             }, onError: {
                 Logger.error($0)
             })
@@ -173,48 +166,29 @@ extension NotesListView {
     }
     
     
-    private func loadData(keyword:String) {
-//        self.noteTag = nil
-//        self.needReset = true
+    private func loadData(keyword:String,offset:Int) {
         if keyword.isEmpty {
-            self.reloadTableView(notes:[])
+            self.reloadTableView(notes:[], offset: offset)
             return
         }
-        NoteRepo.shared.getNotes(keyword: keyword, offset: self.notes.count)
+        NoteRepo.shared.getNotes(keyword: keyword, offset: offset)
             .subscribe(onNext: { [weak self] notes in
-                self?.reloadTableView(notes: notes)
+                self?.reloadTableView(notes: notes, offset: offset)
             }, onError: {
                 Logger.error($0)
             })
             .disposed(by: disposeBag)
     }
     
-    private func reloadTableView(notes:[NoteInfo])  {
-//        self.pageIndex = pageIndex
-        if self.notes.count == 0 {
-            self.notes = notes
-            self.tableView.reloadData()
-            self.tableView.contentOffset = self.insetsTop
-            return
+    private func reloadTableView(notes:[NoteInfo],offset:Int)  {
+        var newNotes:[NoteInfo] = []
+        if offset == 0 {
+            newNotes = notes
+        }else {
+            newNotes = self.notes
+            newNotes.append(contentsOf: notes)
         }
-        
-//        if self.pageIndex == pageIndex {// 刷新当前页
-//            let changes = diff(old:self.notes, new: notes)
-//            self.tableView.reload(changes: changes,replacementAnimation: .none) {_ in
-//                self.notes = notes
-//            }
-//            return
-//        }
-        
-        // 加载更多
-        var row = self.notes.count
-        self.notes.append(contentsOf: notes)
-        let insertRows = notes.map { _ -> IndexPath in
-            let rowIndex = IndexPath(row: row, section: 0)
-            row += 1
-            return rowIndex
-        }
-        self.tableView.insertRows(at: insertRows, with: .none)
+        self.refreshDataSource(newNotes: newNotes)
     }
     
     func createNewNote() {
@@ -307,7 +281,7 @@ extension NotesListView:ASTableDelegate {
         }
         let isLastRow = indexPath.row + 1 == self.notes.count
         if isLastRow  { // 加载更多
-            self.loadNotes(mode: self.mode)
+            self.loadNotes(mode: self.mode, offset: self.notes.count)
         }
     }
     
@@ -522,6 +496,7 @@ extension NotesListView {
     }
 }
 
+
 //MARK: 清空回收站
 extension NotesListView {
     
@@ -549,5 +524,45 @@ extension NotesListView {
                 Logger.error($0)
             })
             .disposed(by: disposeBag)
+    }
+}
+
+//MARK database changes
+extension NotesListView {
+    
+    fileprivate func subscribeRemoteNotesChanged() {
+//        NotificationCenter.default.addObserver(self, selector: #selector(noteInserted(_:)), name: .noteInserted, object:nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(noteUpdated(_:)), name: .noteUpdated, object:nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(noteDeleted(_:)), name: .noteDeleted, object:nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(remoteNotesChanged(_:)), name: .remoteNotesChanged, object:nil)
+    }
+    
+    @objc func noteInserted(_ notification: Notification? = nil) {
+    }
+    @objc func noteUpdated(_ notification: Notification? = nil) {
+        
+    }
+    @objc func noteDeleted(_ notification: Notification? = nil) {
+//        guard let deletedNoteIDs = notification?.object as? [String] else {return }
+//
+//        // 当前列表中是否存在被删除的notes
+//        let validIDs = deletedNoteIDs.filter{ id in self.notes.contains(where: {$0.id == id})}
+//        if validIDs.isEmpty { return }
+//
+//        // 过滤掉被删除的notes
+//        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
+//        self.refreshDataSource(newNotes: newNotes)
+    }
+    @objc func remoteNotesChanged(_ notification: Notification? = nil) {
+        self.refresh()
+//        guard let deletedNoteIDs = notification?.object as? [String] else {return }
+//
+//        // 当前列表中是否存在被删除的notes
+//        let validIDs = deletedNoteIDs.filter{ id in self.notes.contains(where: {$0.id == id})}
+//        if validIDs.isEmpty { return }
+//
+//        // 过滤掉被删除的notes
+//        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
+//        self.refreshDataSource(newNotes: newNotes)
     }
 }

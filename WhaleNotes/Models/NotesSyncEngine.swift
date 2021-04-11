@@ -15,6 +15,7 @@ extension Notification.Name {
     public static let noteInserted = Notification.Name(rawValue: "noteInserted")
     public static let noteUpdated = Notification.Name(rawValue: "noteUpdated")
     public static let noteDeleted = Notification.Name(rawValue: "noteDeleted")
+    public static let remoteNotesChanged = Notification.Name(rawValue: "remoteNotesChanged")
 }
 
 // icloud 同步
@@ -36,6 +37,7 @@ class NotesSyncEngine {
     private var zoneID:CKRecordZone.ID {
         return self.zone.zoneID
     }
+    private var changesObserver: NSObjectProtocol?
 //    private let zoneCreateOption:CKModifyRecordZonesOperation
     
     static var shared = NotesSyncEngine()
@@ -94,42 +96,8 @@ class NotesSyncEngine {
         operationQueue.addOperation(sync)
     }
 }
-//MARK database changes
-extension NotesSyncEngine {
-    
-    fileprivate func subscribeToLocalDatabaseChanges() {
-        NotificationCenter.default.addObserver(self, selector: #selector(noteInserted(_:)), name: .noteInserted, object:nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(noteUpdated(_:)), name: .noteUpdated, object:nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(noteDeleted(_:)), name: .noteDeleted, object:nil)
-    }
-    
-    @objc func noteInserted(_ notification: Notification? = nil) {
-    }
-    @objc func noteUpdated(_ notification: Notification? = nil) {
-        
-    }
-    @objc func noteDeleted(_ notification: Notification? = nil) {
-    }
-}
 
 
 extension NotesSyncEngine {
-//    private func retryCloudKitOperationIfPossible(with error: Error?, block: @escaping () -> ()) {
-//        guard let error = error as? CKError else {
-//            slog("CloudKit puked ¯\\_(ツ)_/¯")
-//            return
-//        }
-//
-//        guard let retryAfter = error.userInfo[CKErrorRetryAfterKey] as? NSNumber else {
-//            slog("CloudKit error: \(error)")
-//            return
-//        }
-//
-//        slog("CloudKit operation error, retrying after \(retryAfter) seconds...")
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + retryAfter.doubleValue) {
-//            block()
-//        }
-//    }
     
 }

@@ -233,9 +233,20 @@ extension SyncOperation {
         // 更新本地 notes
         try self.consolidateUpdatedCloudNotes(with: updatedIdentifiers)
         if deletedIdentifiers.isNotEmpty {
-            try self.deleteNotesForever(noteIDs: deletedIdentifiers.map{$0.recordName})
+            let noteIDs = deletedIdentifiers.map{$0.recordName}
+            try self.deleteNotesForever(noteIDs: noteIDs)
+//            DispatchQueue.main.async {
+//                NotificationCenter.default.post(name: .noteDeleted, object: noteIDs)
+//            }
         }
         self.previousChangeToken = newChangedToken
+        
+        if updatedIdentifiers.isNotEmpty || deletedIdentifiers.isNotEmpty {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .remoteNotesChanged, object: [])
+            }
+        }
+        
     }
     
     /// Download a list of records from CloudKit and update the local database accordingly
