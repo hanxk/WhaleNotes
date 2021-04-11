@@ -13,10 +13,6 @@ open class BaseRepo {
     var db:SQLiteDatabase {
         return DBManager.shared.db
     }
-    var blockDao:BlockDao {
-        return DBManager.shared.blockDao
-    }
-    
     var noteDao:NoteDao {
         return DBManager.shared.noteDao
     }
@@ -26,10 +22,6 @@ open class BaseRepo {
     
     var noteTagDao:NoteTagDao {
         return DBManager.shared.noteTagDao
-    }
-    
-    var blockPositionDao:BlockPositionDao {
-        return DBManager.shared.blockPositionDao
     }
     internal init() {}
 }
@@ -65,19 +57,3 @@ extension BaseRepo {
     
 }
 
-
-extension BaseRepo {
-    internal func insertBlockInfo(_ blockInfo:BlockInfo) throws {
-        try blockDao.insert(blockInfo.block)
-        try blockPositionDao.insert(blockInfo.blockPosition)
-        
-        for content in blockInfo.contents {
-            try insertBlockInfo(content)
-        }
-    }
-    internal func deleteBlockInfo(_ blockInfo:BlockInfo) throws {
-        let blockId = blockInfo.block.id
-        try blockPositionDao.delete(ownerId: blockId)
-        try blockDao.delete(blockId)
-    }
-}

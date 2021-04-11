@@ -70,7 +70,7 @@ public class MarkdownTextStorage: NSTextStorage {
     
     
     public override func replaceCharacters(in range: NSRange, with str: String) {
-        print("replaceCharacters: \(str)")
+//        print("replaceCharacters: \(str)")
       beginEditing()
       backingStore.replaceCharacters(in: range, with:str)
       edited(.editedCharacters, range: range,

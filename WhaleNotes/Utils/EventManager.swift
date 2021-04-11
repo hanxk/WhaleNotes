@@ -34,3 +34,8 @@ extension Notification.Name {
     static let Tag_DELETED
                 = NSNotification.Name("Tag_DELETED")
 }
+
+extension Notification.Name {
+    static let REMOTE_DATA_CHANGED
+                = NSNotification.Name("REMOTE_DATA_CHANGED")
+}

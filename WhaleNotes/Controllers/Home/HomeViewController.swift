@@ -17,6 +17,14 @@ import RxSwift
 import Photos
 import FloatingPanel
 
+
+enum FloatButtonConstants {
+    static let btnSize:CGFloat = 52
+    static let trailing:CGFloat = 16
+    static let bottom:CGFloat = 16
+    static let iconSize:CGFloat = 20
+}
+
 class HomeViewController: UIViewController, UINavigationControllerDelegate {
     
     private lazy var disposeBag = DisposeBag()
@@ -92,18 +100,7 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.view.backgroundColor = .bg
         
         func openBoardSetting(board: BlockInfo) {
-            let settingVC = BoardSettingViewController()
-            settingVC.board = board
-            //            settingVC.callbackBoardSettingEdited = { boardEditedType in
-            //                switch boardEditedType {
-            //                case .update(let board):
-            //                    self.handleBoardUpdated(board: board)
-            //                case .delete(let board):
-            //                    self.handleBoardDeleted(board: board)
-            //                }
-            //            }
-            let vc = MyNavigationController(rootViewController: settingVC)
-            self.present(vc, animated: true, completion: nil)
+            
         }
         
         titleButton.callbackTapped = {
@@ -215,6 +212,7 @@ extension HomeViewController  {
         self.mode = NoteListMode.tag(tag: tag)
         titleButton.setTitle(tag.title, emoji: tag.icon)
         EventManager.shared.post(name:.Tag_CHANGED, object: tag, userInfo: nil)
+        NotesSyncEngine.shared.pushLocalToRemote()
     }
     
     func updateTag(tag:Tag,callback: @escaping ()->Void) {
@@ -248,6 +246,7 @@ extension HomeViewController  {
         NoteRepo.shared.deleteNotesTag(tag: tag)
             .subscribe(onNext: { newTag in
                 EventManager.shared.post(name: .Tag_DELETED)
+                NotesSyncEngine.shared.pushLocalToRemote()
             }, onError: {
                 Logger.error($0)
             })
@@ -312,12 +311,12 @@ extension HomeViewController {
     
     
     @objc func handleShowSearchbar() {
-        let vc = SearchViewController()
-        //        vc.boardsMap = sideMenuViewController.boardsMap
-        let navVC = MyNavigationController(rootViewController: vc)
-        navVC.modalPresentationStyle = .overFullScreen
-        navVC.modalTransitionStyle = .crossDissolve
-        self.navigationController?.present(navVC, animated: true, completion: nil)
+//        let vc = SearchViewController()
+//        //        vc.boardsMap = sideMenuViewController.boardsMap
+//        let navVC = MyNavigationController(rootViewController: vc)
+//        navVC.modalPresentationStyle = .overFullScreen
+//        navVC.modalTransitionStyle = .crossDissolve
+//        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
 }
 

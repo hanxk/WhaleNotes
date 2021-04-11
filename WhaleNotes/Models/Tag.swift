@@ -18,6 +18,8 @@ struct Tag:DiffAware {
     var createdAt:Date!
     var updatedAt:Date!
     
+    // 标识是否需要同步，默认未false，（该字段不会上传到iCloud）
+    var isDel:Bool = false
     
     init() {
         let date =  Date()
@@ -25,10 +27,11 @@ struct Tag:DiffAware {
         self.updatedAt = date
     }
     
-    init(id:String = UUID.init().uuidString,title:String,icon:String="",createdAt:Date,updatedAt:Date) {
+    init(id:String = UUID.init().uuidString,title:String,icon:String="",isDel:Bool = false,createdAt:Date,updatedAt:Date) {
         self.id = id
         self.icon = icon
         self.title = title
+        self.isDel = isDel
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -49,6 +52,7 @@ extension Tag:SQLTable {
                   "id" TEXT PRIMARY KEY NOT NULL,
                   "title" TEXT UNIQUE NOT NULL,
                   "icon" TEXT NOT NULL,
+                  "is_del" INTEGER DEFAULT 0,
                   "created_at" TIMESTAMP,
                   "updated_at" TIMESTAMP
                 );
@@ -68,13 +72,18 @@ extension Tag {
         return tag
     }
     
-    func tooRecord(zoneID:CKRecordZone.ID) -> CKRecord {
-        let record = CKRecord(recordType: "Tag",recordID: CKRecord.ID(recordName: id, zoneID: zoneID))
+    func toRecord() -> CKRecord {
+        let record = CKRecord(recordType: "Tag",recordID: self.recordID)
         record["id"] = self.id as CKRecordValue
         record["title"] = self.title as CKRecordValue
         record["icon"] = self.icon as CKRecordValue
         record["createdAt"] = self.createdAt as CKRecordValue
         record["updatedAt"] = self.updatedAt as CKRecordValue
         return record
+    }
+    
+    
+    var recordID: CKRecord.ID {
+        return CKRecord.ID(recordName: id, zoneID: NotesSyncEngine.shared.zone.zoneID)
     }
 }

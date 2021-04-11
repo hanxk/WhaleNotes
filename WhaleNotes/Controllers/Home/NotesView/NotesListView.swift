@@ -534,7 +534,7 @@ extension NotesListView {
 //        NotificationCenter.default.addObserver(self, selector: #selector(noteInserted(_:)), name: .noteInserted, object:nil)
 //        NotificationCenter.default.addObserver(self, selector: #selector(noteUpdated(_:)), name: .noteUpdated, object:nil)
 //        NotificationCenter.default.addObserver(self, selector: #selector(noteDeleted(_:)), name: .noteDeleted, object:nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(remoteNotesChanged(_:)), name: .remoteNotesChanged, object:nil)
+        EventManager.shared.addObserver(observer: self, selector: #selector(handleRemoteDataChanged), name: .REMOTE_DATA_CHANGED)
     }
     
     @objc func noteInserted(_ notification: Notification? = nil) {
@@ -553,7 +553,7 @@ extension NotesListView {
 //        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
 //        self.refreshDataSource(newNotes: newNotes)
     }
-    @objc func remoteNotesChanged(_ notification: Notification? = nil) {
+    @objc func handleRemoteDataChanged(_ notification: Notification? = nil) {
         self.refresh()
 //        guard let deletedNoteIDs = notification?.object as? [String] else {return }
 //

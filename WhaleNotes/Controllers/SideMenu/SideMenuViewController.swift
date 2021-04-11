@@ -225,12 +225,18 @@ class SideMenuViewController: UIViewController {
     private func refreshTags() {
         self.loadTags { [weak self]newTags in
             guard let self = self else { return }
-            let oldTags = self.visibleTagIds.map {self.tagsMap[$0]!}
+            let oldTags = self.tags
+            if diff(old:oldTags, new: newTags).count == 0 { return }
+            
+            let oldVisibleTags = self.visibleTagIds.map {self.tagsMap[$0]!}
             self.tags = newTags
-            let newTags = self.visibleTagIds.map {self.tagsMap[$0]!}
-            let changes = diff(old:oldTags, new: newTags)
-            UIView.performWithoutAnimation {
-                self.tableView.reload(changes: changes,section: 1) {
+            let newVisibleTags = self.visibleTagIds.map {self.tagsMap[$0]!}
+            
+            let changes = diff(old:oldVisibleTags, new: newVisibleTags)
+            if changes.count > 0 {
+                UIView.performWithoutAnimation {
+                    self.tableView.reload(changes: changes,section: 1) {
+                    }
                 }
             }
         }
@@ -288,6 +294,7 @@ extension SideMenuViewController {
     private func registerEvent() {
         EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_CHANGED)
         EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_DELETED)
+        EventManager.shared.addObserver(observer: self, selector: #selector(handleRemoteDataChanged), name: .REMOTE_DATA_CHANGED)
     }
     
     private func unRegisterEvent() {
@@ -313,6 +320,11 @@ extension SideMenuViewController {
             break
         }
     }
+    
+    @objc private func handleRemoteDataChanged(notification: Notification) {
+        self.needRefresh = true
+    }
+    
 }
 
 extension SideMenuViewController:UITableViewDataSource {

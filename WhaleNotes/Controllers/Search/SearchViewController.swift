@@ -10,9 +10,7 @@ import UIKit
 class SearchViewController: UIViewController {
     
     private var notesView:NotesListView!
-    var boardsMap:[String:BlockInfo]  = [:]
-    
-    var callbackOpenBoard:((_ boardBlock:BlockInfo) -> Void )?
+
     
     private lazy var  searchController = UISearchController(searchResultsController:  nil).then{
         $0.searchResultsUpdater = self

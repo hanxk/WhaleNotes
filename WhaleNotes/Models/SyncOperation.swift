@@ -22,7 +22,7 @@ private struct Constants {
     static let noteRecordType = "Note"
     static let tagRecordType = "Tag"
     static let zoneName = "mysparkZone"
-    static let lastSyncDate = "lastSyncDate"
+    static let lastPushDate = "lastSyncDate"
 }
 class SyncOperation: Operation {
     
@@ -40,7 +40,6 @@ class SyncOperation: Operation {
     }()
     private var newChangedToken: CKServerChangeToken? = nil
     
-    /// Holds the latest change token we got from CloudKit, storing it in UserDefaults
     private var previousChangeToken: CKServerChangeToken? {
         get {
             guard let tokenData = UserDefaults.standard.object(forKey: Constants.previousChangeToken) as? Data else { return nil }
@@ -62,6 +61,15 @@ class SyncOperation: Operation {
                 
             }
             
+        }
+    }
+    private var lastPushDate: Date {
+        get {
+           let date = UserDefaults.standard.date(forKey: Constants.lastPushDate) ?? Date.distantPast
+           return date
+        }
+        set {
+            UserDefaults.standard.set(Date(), forKey: Constants.lastPushDate)
         }
     }
     
@@ -86,12 +94,9 @@ class SyncOperation: Operation {
                 try applyLocalChanges()
                 break
             }
-//          print("COMPLETED SYNC ", storeContextSaveNotification!)
-//          onCompletion?(storeContextSaveNotification, nil)
            logi("COMPLETED SYNC")
         } catch {
           loge("COMPLETED SYNC WITH ERROR ",error)
-//          onCompletion?(nil, error)
         }
     }
     
@@ -141,35 +146,45 @@ class SyncOperation: Operation {
 //MARK: local changes
 extension SyncOperation {
     func applyLocalChanges() throws {
-        // 查询本地已被编辑的 note，然后上传
-        let notes = try NotesStore.shared.queryChanged()
-        if notes.isEmpty { return }
         
         var recordsToUpdate:[CKRecord] = []
         var recordIDsToDelete:[CKRecord.ID] = []
         
+        let notes = try NotesStore.shared.queryChangedNotes(date: lastPushDate)
         for note in notes {
-            if note.changedType == .delete {
+            if note.isDel {
                 recordIDsToDelete.append(note.recordID)
-            }else{
-                let record = note.tooRecord()
-                recordsToUpdate.append(record)
+                continue
             }
+            recordsToUpdate.append(note.toRecord())
         }
+        
+        let tags = try NotesStore.shared.queryChangedTags(date: lastPushDate)
+        for tag in tags {
+            if tag.isDel {
+                recordIDsToDelete.append(tag.recordID)
+                continue
+            }
+            recordsToUpdate.append(tag.toRecord())
+        }
+        
+        
+        if recordIDsToDelete.count + recordsToUpdate.count == 0 { return }
+        
         var error:Error? = nil
         pushRecordsToCloudKit(recordsToUpdate: recordsToUpdate, recordIDsToDelete: recordIDsToDelete) { err in
             error = err
         }
         if let err = error  { throw err }
         logi("push local changes")
-        // 重置 changed
-        try NotesStore.shared.clearChanged()
+        // 更新同步日期
+        self.lastPushDate = Date()
     }
     
     
     fileprivate func pushRecordsToCloudKit(recordsToUpdate: [CKRecord], recordIDsToDelete: [CKRecord.ID], completion: ((Error?) -> ())? = nil) {
         let modifyRecordsOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: recordIDsToDelete)
-        modifyRecordsOperation.savePolicy =  .changedKeys
+        modifyRecordsOperation.savePolicy =  .allKeys
 //        operation.addDependency(zoneCreateOption)
         modifyRecordsOperation.modifyRecordsCompletionBlock = { [weak self] _, _, error in
             guard error == nil else {
@@ -201,16 +216,17 @@ extension SyncOperation {
         
         let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: [self.zoneID], configurationsByRecordZoneID:[self.zoneID:options])
         
-        var updatedIdentifiers = [CKRecord.ID]()
-        var deletedIdentifiers = [CKRecord.ID]()
+        var updatedRecords = [CKRecord]()
+        
+        var deletedIdentifiers = [String:[CKRecord.ID]]()
         
         var error:Error? = nil
         
         operation.recordChangedBlock = {
-            updatedIdentifiers.append($0.recordID)
+            updatedRecords.append($0)
         }
         operation.recordWithIDWasDeletedBlock = { recordID,recordType in
-            deletedIdentifiers.append(recordID)
+            deletedIdentifiers[recordType]?.append(recordID)
         }
         operation.fetchRecordZoneChangesCompletionBlock = { err in
             error = err
@@ -230,48 +246,36 @@ extension SyncOperation {
         
         if let err = error { throw err }
         
-        // 更新本地 notes
-        try self.consolidateUpdatedCloudNotes(with: updatedIdentifiers)
-        if deletedIdentifiers.isNotEmpty {
-            let noteIDs = deletedIdentifiers.map{$0.recordName}
-            try self.deleteNotesForever(noteIDs: noteIDs)
-//            DispatchQueue.main.async {
-//                NotificationCenter.default.post(name: .noteDeleted, object: noteIDs)
-//            }
+        try processFetchedRecords(updatedRecords)
+        
+        // 删除
+        for (recordType,recordIDs) in deletedIdentifiers {
+            if recordType == Constants.noteRecordType {
+                let noteIDs = recordIDs.map{$0.recordName}
+                try self.deleteNotesForever(noteIDs: noteIDs)
+                continue
+            }
+            if recordType == Constants.tagRecordType {
+                let tagIDs = recordIDs.map{$0.recordName}
+                try self.deleteTagsForever(tagIDs: tagIDs)
+            }
         }
         self.previousChangeToken = newChangedToken
         
-        if updatedIdentifiers.isNotEmpty || deletedIdentifiers.isNotEmpty {
+        if updatedRecords.isNotEmpty || deletedIdentifiers.count > 0 {
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .remoteNotesChanged, object: [])
+                EventManager.shared.post(name: .REMOTE_DATA_CHANGED)
             }
         }
         
-    }
-    
-    /// Download a list of records from CloudKit and update the local database accordingly
-    private func consolidateUpdatedCloudNotes(with identifiers: [CKRecord.ID]) throws {
-        
-        var error:Error? = nil
-        var records:[CKRecord.ID : CKRecord] = [:]
-        
-        let operation = CKFetchRecordsOperation(recordIDs: identifiers)
-        operation.fetchRecordsCompletionBlock = { r, err in
-            error = err
-            if let r = r {
-               records = r
-            }
-        }
-        operationQueue.addOperation(operation)
-        operationQueue.waitUntilAllOperationsAreFinished()
-        if let error = error {
-            throw error
-        }
-        try processFetchedRecords(records)
     }
     private func deleteNotesForever(noteIDs:[String]) throws {
         logi("deleteNotesForever \(noteIDs)")
         try NotesStore.shared.deleteNotesForever(noteIDs: noteIDs)
+    }
+    private func deleteTagsForever(tagIDs:[String]) throws {
+        logi("deleteTagsForever \(tagIDs)")
+        try NotesStore.shared.deleteTagsForever(tagIDs: tagIDs)
     }
 }
 
@@ -290,15 +294,18 @@ extension SyncOperation {
       }
     }
     
-    private func processFetchedRecords(_ records:[CKRecord.ID : CKRecord]) throws {
+    private func processFetchedRecords(_ records:[CKRecord]) throws {
         var notes:[Note] = []
         var tags:[Tag] = []
-        records.values.forEach {
+        records.forEach {
             let recordType = $0.recordType
             switch recordType {
             case Constants.noteRecordType:
                 if let note = Note.from(from: $0) {
+//                    let note = noteAndTags.0
+//                    let noteTags = noteAndTags.1.map{NoteTag(noteId: note.id, tagId: $0)}
                     notes.append(note)
+//                    tags.append(noteTags)
                 }
                 break
             case Constants.tagRecordType:
@@ -316,4 +323,31 @@ extension SyncOperation {
         logi("更新来自 iCloud 中的数据")
         try NotesStore.shared.save(notes: notes, tags: tags)
     }
+    
+//    private func processFetchedRecords(_ records:[CKRecord.ID : CKRecord]) throws {
+//        var notes:[Note] = []
+//        var tags:[Tag] = []
+//        records.values.forEach {
+//            let recordType = $0.recordType
+//            switch recordType {
+//            case Constants.noteRecordType:
+//                if let note = Note.from(from: $0) {
+//                    notes.append(note)
+//                }
+//                break
+//            case Constants.tagRecordType:
+//                if let tag = Tag.from(from: $0) {
+//                    tags.append(tag)
+//                }
+//                break
+//            default:
+//                break
+//            }
+//        }
+//        if notes.count == 0 && tags.count == 0 {
+//            return
+//        }
+//        logi("更新来自 iCloud 中的数据")
+//        try NotesStore.shared.save(notes: notes, tags: tags)
+//    }
 }

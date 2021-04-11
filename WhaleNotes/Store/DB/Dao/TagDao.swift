@@ -53,6 +53,17 @@ extension TagDao {
         return extract(rows: rows)
     }
     
+    func queryDelTags() throws -> [Tag] {
+        let selectSQL = """
+                            SELECT * FROM tag WHERE is_del = 1 and id not in (
+                                 select tag_id from note_tag
+                            )
+                            order by title
+                            """
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
+    
     func queryValids() throws -> [Tag]  {
         let selectSQL = """
                             select * from tag where id in (
@@ -147,7 +158,7 @@ extension TagDao {
     
     
     func update( _ tag:Tag) throws {
-        let updateSQL = "update or ignore tag set title = ?,icon = ?,updated_at=strftime('%s', 'now') where id = ?"
+        let updateSQL = "update or ignore tag set title = ?,icon = ?,updated_at=\(Date().timeIntervalSince1970) where id = ?"
         try db.execute(updateSQL, args: tag.title,tag.icon,tag.id)
     }
     
@@ -157,8 +168,14 @@ extension TagDao {
     }
     
     func deleteUnused() throws {
-        let delSQL = "delete from tag where id not in (select tag_id from note_tag)"
+        let delSQL = "UPDATE tag set is_del = 1,updated_at=\(Date().timeIntervalSince1970) WHERE id not in (select tag_id from note_tag)"
         try db.execute(delSQL)
+    }
+    
+    func queryFromUpdatedDate(date:Date) throws -> [Tag]  {
+        let selectSQL = "select * from tag where updated_at > ?"
+        let rows = try db.query(selectSQL,args: date.timeIntervalSince1970)
+        return extract(rows: rows)
     }
     
 }
@@ -178,9 +195,9 @@ extension TagDao {
         let id = row["id"] as! String
         let title = row["title"] as! String
         let icon = row["icon"] as! String
-        //        let parent = row["parent"] as? String
+        let isDel = (row["is_del"] as! Int) == 1
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
-        return Tag(id: id, title: title,icon: icon,createdAt: createdAt, updatedAt: updatedAt)
+        return Tag(id: id, title: title,icon: icon,isDel: isDel,createdAt: createdAt, updatedAt: updatedAt)
     }
 }
