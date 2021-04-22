@@ -17,6 +17,7 @@ class NoteTitleCellNode:ASCellNode {
         $0.typingAttributes = getTitleAttributesString()
         $0.textContainerInset = UIEdgeInsets(top: 4, left: MDEditorConfig.paddingH, bottom: 8, right: MDEditorConfig.paddingH)
         $0.delegate = self
+        $0.tintColor = .cursor
         $0.textView.tag = EditViewTag.title.rawValue
     }
     private var textChanged: ((String) -> Void)?

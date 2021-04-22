@@ -274,10 +274,10 @@ extension MDEditorViewController {
         
         let navItem = UINavigationItem()
         myNavbar.items = [navItem]
-        myNavbar.tintColor = .iconColor
+        myNavbar.tintColor = .toolbarTint
         
         func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
-            let backButtonImage =  UIImage(systemName: "camera",pointSize: 18)?.withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
+            let backButtonImage =  UIImage(systemName: "camera",pointSize: 18)?.withTintColor(.toolbarTint).withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
             let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
             backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
             backButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
@@ -285,12 +285,22 @@ extension MDEditorViewController {
             navigationItem.leftBarButtonItems = [backBarButton]
         }
         createBackBarButton(forNavigationItem: navItem)
-        let menuButton = generateUIBarButtonItem(imageName: "checkmark", action:  #selector(saveIconTapped))
+        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(saveIconTapped))
         navItem.rightBarButtonItems = [menuButton]
+        
+        let closeButton =  UIButton().then {
+            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
+            let image = UIImage(systemName: "chevron.compact.down", pointSize: 44)?.withRenderingMode(.alwaysTemplate)
+            $0.setImage(image, for: .normal)
+            $0.tintColor = .toolbarTint
+            $0.addTarget(self, action: #selector(saveIconTapped), for: .touchUpInside)
+        }
+        navItem.titleView = closeButton
+        
     }
     
-    func generateUIBarButtonItem(imageName:String,action:Selector)  ->  UIBarButtonItem {
-        return  UIBarButtonItem(image: UIImage(systemName: imageName,pointSize: 15,weight: .regular)?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: action).then {
+    func generateUIBarButtonItem(imageName:String,iconSize:CGFloat = 15,action:Selector)  ->  UIBarButtonItem {
+        return  UIBarButtonItem(image: UIImage(systemName: imageName,pointSize: iconSize,weight: .regular)?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: action).then {
             $0.tintColor = .iconColor
         }
     }

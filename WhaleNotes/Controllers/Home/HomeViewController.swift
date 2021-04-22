@@ -19,7 +19,7 @@ import FloatingPanel
 
 
 enum FloatButtonConstants {
-    static let btnSize:CGFloat = 52
+    static let btnSize:CGFloat = 54
     static let trailing:CGFloat = 16
     static let bottom:CGFloat = 16
     static let iconSize:CGFloat = 20
@@ -573,16 +573,28 @@ extension HomeViewController  {
             $0.adjustsImageWhenHighlighted = false
             let layer0 = $0.layer
             
-            layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
-            layer0.shadowOpacity = 0
-            layer0.shadowRadius = 3
-            layer0.shadowOffset = CGSize(width: 1, height: 3)
+            if iconName == "plus" {
+                layer0.shadowColor = UIColor(red: 0.957, green: 0.745, blue: 0.259, alpha: 0.4).cgColor
+                $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .medium), for: .normal)
+                layer0.shadowColor = UIColor(red: 0.957, green: 0.745, blue: 0.259, alpha: 0.2).cgColor
+
+                layer0.shadowOpacity = 1
+
+                layer0.shadowRadius = 4
+
+                layer0.shadowOffset = CGSize(width: 2, height: 2)
+            }else {
+                layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
+                $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .regular), for: .normal)
+                layer0.shadowOpacity = 0
+                layer0.shadowRadius = 3
+                layer0.shadowOffset = CGSize(width: 2, height: 2)
+            }
             
             $0.backgroundColor = background
             $0.tintColor = .white
             $0.layer.cornerRadius = FloatButtonConstants.btnSize / 2
             
-            $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .regular), for: .normal)
             
         }
         

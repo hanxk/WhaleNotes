@@ -13,13 +13,19 @@ extension UIColor {
         get {
             
 //            return UIColor(hexString: "#F6C641")!
-            return UIColor(hexString: "#0087FE")! //#1D71E7
+            return UIColor(hexString: "#F4BE42")! //#1D71E7
         }
     }
     
     open class var link: UIColor {
         get {
-            return UIColor(hexString: "#0077CC")!
+//            return UIColor(hexString: "#F4B63F")!
+            return .brand
+        }
+    }
+    open class var cursor: UIColor {
+        get {
+            return UIColor(hexString: "#F4B63F")!
         }
     }
     
@@ -76,6 +82,12 @@ extension UIColor {
         }
     }
     
+    open class var toolbarTint: UIColor {
+        get {
+            return UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+        }
+    }
+    
     
     open class var divider: UIColor {
         get {
@@ -120,13 +132,13 @@ extension UIColor {
     
     open class var sidemenuBg: UIColor {
         get {
-            return .bg
+            return .white
 //            return .red
         }
     }
     open class var sidemenuSelectedBg: UIColor {
         get {
-            return UIColor.init(hexString: "#DAEDFE")
+            return UIColor.init(hexString: "#FEF9E8")
         }
     }
     

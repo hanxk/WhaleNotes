@@ -60,7 +60,16 @@ class MDKeyboardView: UIView {
         scrollView.contentSize = CGSize(width: CGFloat(items.count) * width+CGFloat(items.count+1)*spacing, height: width)
         
         addSubview(scrollView)
-        let keyboardButton = makeButton(btnParam:("checkmark",#selector(keyboardButtonTapped)),pointSize: 18)
+        
+        
+        let keyboardButton =  UIButton().then {
+            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
+            $0.setTitle("完成", for: .normal)
+            $0.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+            $0.setTitleColor(.brand, for: .normal)
+            $0.addTarget(self, action: #selector(keyboardButtonTapped), for: .touchUpInside)
+        }
+//        let keyboardButton = makeButton(btnParam:("checkmark",#selector(keyboardButtonTapped)),pointSize: 18)
         addSubview(keyboardButton)
         
         scrollView.snp.makeConstraints {
@@ -71,7 +80,7 @@ class MDKeyboardView: UIView {
         
         keyboardButton.snp.makeConstraints {
             $0.height.equalToSuperview()
-            $0.trailing.equalToSuperview()
+            $0.trailing.equalToSuperview().offset(-10)
             $0.width.equalTo(buttonW + spacing)
         }
         

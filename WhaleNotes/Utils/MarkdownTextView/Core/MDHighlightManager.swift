@@ -20,7 +20,7 @@ class MDHighlightManager {
     
     init(style:MDStyle) {
         headerHightlighter = MDHeaderHighlighter(maxLevel: 3)
-        let linkFont  = MDStyle.generateDefaultFont(fontSize: style.font.pointSize, weight: .regular)
+        let linkFont  = MDStyle.generateDefaultFont(fontSize: style.font.pointSize, weight: .medium)
         tagHightlighter =  MDTagHighlighter(font: linkFont)
         linkHightlighter = MDLinkHighlighter(font: linkFont)
         bulletHightlighter = MDBulletListHighlighter()
