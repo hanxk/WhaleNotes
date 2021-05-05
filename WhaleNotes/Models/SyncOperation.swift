@@ -158,9 +158,11 @@ extension SyncOperation {
         
         // notes
         let notes = try NotesStore.shared.queryChangedNotes(date: lastPushDate)
+        var deledNoteIDs:[String] = []
         for note in notes {
             if note.isDel {
                 recordIDsToDelete.append(note.recordID)
+                deledNoteIDs.append(note.id)
                 continue
             }
             recordsToUpdate.append(note.toRecord())
@@ -168,9 +170,11 @@ extension SyncOperation {
         
         // tags
         let tags = try NotesStore.shared.queryChangedTags(date: lastPushDate)
+        var deledTagIDs:[String] = []
         for tag in tags {
             if tag.isDel {
                 recordIDsToDelete.append(tag.recordID)
+                deledTagIDs.append(tag.id)
                 continue
             }
             recordsToUpdate.append(tag.toRecord())
@@ -184,9 +188,22 @@ extension SyncOperation {
             error = err
         }
         if let err = error  { throw err }
+        
+        // 删除本地被删除的数据
+        if deledNoteIDs.count > 0 {
+            try self.deleteNotesForever(noteIDs: deledNoteIDs)
+        }
+        if deledTagIDs.count > 0 {
+            try self.deleteTagsForever(tagIDs: deledTagIDs)
+        }
+        
+        
         logi("push local changes")
+        
         // 更新同步日期
         self.lastPushDate = Date()
+        // 删除本地数据
+        
     }
     
     
@@ -194,7 +211,7 @@ extension SyncOperation {
         let modifyRecordsOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: recordIDsToDelete)
         modifyRecordsOperation.savePolicy =  .allKeys
 //        operation.addDependency(zoneCreateOption)
-        modifyRecordsOperation.modifyRecordsCompletionBlock = { [weak self] _, _, error in
+        modifyRecordsOperation.modifyRecordsCompletionBlock = { [weak self] _, recordIDsToDelete, error in
             guard error == nil
                   else {
                 logi("Error modifying records: \(error!)")
