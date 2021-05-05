@@ -19,8 +19,8 @@ class NoteDao {
 
 extension NoteDao {
     func insert( _ note:Note) throws {
-        let insertSQL = "INSERT OR REPLACE INTO note(id,title,content,status,created_at,updated_at) values(?,?,?,?,?,?)"
-        try db.execute(insertSQL, args: note.id,note.title,note.content,note.status.rawValue,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
+        let insertSQL = "INSERT OR REPLACE INTO note(id,title,content,status,is_del,is_local,created_at,updated_at) values(?,?,?,?,?,?,?,?)"
+        try db.execute(insertSQL, args: note.id,note.title,note.content,note.status.rawValue,note.isDel ?1:0,note.isLocal ?1:0,note.createdAt.timeIntervalSince1970,note.updatedAt.timeIntervalSince1970)
     }
     
     func query(tagId:String) throws -> [Note]  {
@@ -28,18 +28,21 @@ extension NoteDao {
         let rows = try db.query(selectSQL,args: tagId)
         return extract(rows: rows)
     }
+    func query(tagTitle:String) throws -> [Note]  {
+        let selectSQL = "select * from note where id in (SELECT note_id FROM note_tag INNER JOIN tag ON tag.id = note_tag.tag_id AND (tag.title = ? OR tag.title LIKE '\(tagTitle)/%'))"
+        let rows = try db.query(selectSQL,args: tagTitle)
+        return extract(rows: rows)
+    }
     
     func queryPage(tagId:String,offset:Int,pageSize:Int = PAGESIZE) throws -> [Note]  {
 //        let offset = PAGESIZE * pageIndex
-        let selectSQL = "select * from note where id in (select note_id from note_tag where tag_id = ?) order by created_at desc  LIMIT \(pageSize) OFFSET \(offset)"
+        let selectSQL = "select * from note where is_del == 0 AND id in (select note_id from note_tag where tag_id = ?) order by created_at desc  LIMIT \(pageSize) OFFSET \(offset)"
         let rows = try db.query(selectSQL,args: tagId)
         return extract(rows: rows)
     }
     
     func query(status:NoteStatus = .normal,offset:Int) throws -> [Note]  {
-//        let offset = PAGESIZE * pageIndex
-        // 排除被删除的 notes
-        let selectSQL = "select * from note where status  = ? order by created_at desc LIMIT \(PAGESIZE) OFFSET \(offset)"
+        let selectSQL = "select * from note where status  = ? AND is_del == 0 order by created_at desc LIMIT \(PAGESIZE) OFFSET \(offset)"
         let rows = try db.query(selectSQL,args: status.rawValue)
         return extract(rows: rows)
     }
@@ -125,6 +128,16 @@ extension NoteDao {
         try db.execute(delSQL, args:Date().timeIntervalSince1970, NoteStatus.trash.rawValue)
     }
     
+    func updateNotes2Del(tag:Tag) throws {
+        let delSQL = "UPDATE note SET is_del = 1,updated_at= ? WHERE id in (SELECT note_id FROM note_tag INNER JOIN tag ON tag.id = note_tag.tag_id AND (tag.title = ? OR tag.title LIKE '\(tag.title)/%')) "
+        try db.execute(delSQL, args:Date().timeIntervalSince1970,tag.title)
+    }
+    
+    func deleteLocalNotes(tag:Tag) throws {
+        let delSQL = "DELETE FROM note WHERE is_local = 1 AND ( id in (SELECT note_id FROM note_tag INNER JOIN tag ON tag.id = note_tag.tag_id AND (tag.title = ? OR tag.title LIKE '\(tag.title)/%'))) "
+        try db.execute(delSQL, args:Date().timeIntervalSince1970,tag.title)
+    }
+    
     
     func updateUpdatedAt(id:String,updatedAt:Date) throws {
         let updateSQL = "update note set updated_at=? where id = ?"
@@ -153,8 +166,9 @@ extension NoteDao {
         let content = row["content"] as! String
         let status = row["status"] as! Int
         let isDel = (row["is_del"] as! Int) == 1
+        let isLocal = (row["is_local"] as! Int) == 1
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
-        return  Note(id: id,title: title, content: content,status: NoteStatus.init(rawValue: status)!,isDel: isDel,createdAt: createdAt, updatedAt: updatedAt)
+        return  Note(id: id,title: title, content: content,status: NoteStatus.init(rawValue: status)!,isDel: isDel,isLocal:isLocal,createdAt: createdAt, updatedAt: updatedAt)
     }
 }

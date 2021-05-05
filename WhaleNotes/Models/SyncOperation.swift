@@ -84,14 +84,15 @@ class SyncOperation: Operation {
             switch action {
             case .setup:
                 try setup()
-                try applyLocalChanges()
-                try applyServerChanges()
+                // 先拉取远程数据，更新前需要与本地数据比对修改时间
+                try fetchServerChanges()
+                try pushLocalChanges()
                 break
             case .fetch:
-                try applyServerChanges()
+                try fetchServerChanges()
                 break
             case .push:
-                try applyLocalChanges()
+                try pushLocalChanges()
                 break
             }
            logi("COMPLETED SYNC")
@@ -101,6 +102,11 @@ class SyncOperation: Operation {
     }
     
     func setup() throws {
+        
+        if UserDefaults.standard.date(forKey: Constants.lastPushDate) == nil { // date 初始化
+            self.lastPushDate = Date()
+        }
+        
       var zoneExists = false
       let fetchRecordZonesOperation = CKFetchRecordZonesOperation(recordZoneIDs: [zoneID])
       fetchRecordZonesOperation.fetchRecordZonesCompletionBlock = { recordZonesByID, error in
@@ -119,8 +125,8 @@ class SyncOperation: Operation {
     }
     
     func perform() throws {
-        try applyLocalChanges()
-        try applyServerChanges()
+        try pushLocalChanges()
+        try fetchServerChanges()
 //      do {
 //        try applyLocalChanges()
 //        if changeManager.hasChanges() == false {
@@ -145,11 +151,12 @@ class SyncOperation: Operation {
 
 //MARK: local changes
 extension SyncOperation {
-    func applyLocalChanges() throws {
+    func pushLocalChanges() throws {
         
         var recordsToUpdate:[CKRecord] = []
         var recordIDsToDelete:[CKRecord.ID] = []
         
+        // notes
         let notes = try NotesStore.shared.queryChangedNotes(date: lastPushDate)
         for note in notes {
             if note.isDel {
@@ -159,6 +166,7 @@ extension SyncOperation {
             recordsToUpdate.append(note.toRecord())
         }
         
+        // tags
         let tags = try NotesStore.shared.queryChangedTags(date: lastPushDate)
         for tag in tags {
             if tag.isDel {
@@ -187,30 +195,55 @@ extension SyncOperation {
         modifyRecordsOperation.savePolicy =  .allKeys
 //        operation.addDependency(zoneCreateOption)
         modifyRecordsOperation.modifyRecordsCompletionBlock = { [weak self] _, _, error in
-            guard error == nil else {
+            guard error == nil
+                  else {
                 logi("Error modifying records: \(error!)")
-//                self.retryCloudKitOperationIfPossible(with: error) {
-//                    self.pushRecordsToCloudKit(recordsToUpdate: recordsToUpdate,
+//                self?.retryCloudKitOperationIfPossible(with: error) {
+//                    self?.pushRecordsToCloudKit(recordsToUpdate: recordsToUpdate,
 //                                                recordIDsToDelete: recordIDsToDelete,
 //                                                completion: completion)
 //                }
+                completion?(error)
                 return
             }
             logi("Finished saving records")
             completion?(nil)
-//            DispatchQueue.main.async {
-//
-//            }
         }
         operationQueue.addOperation(modifyRecordsOperation)
         operationQueue.waitUntilAllOperationsAreFinished()
+    }
+    
+    /// Helper method to retry a CloudKit operation when its error suggests it
+    ///
+    /// - Parameters:
+    ///   - error: The error returned from a CloudKit operation
+    ///   - block: A block to be executed after a delay if the error is recoverable
+    /// - Returns: If the error can't be retried, returns the error
+    func retryCloudKitOperationIfPossible(with error: Error?, block: @escaping () -> ()) -> Error? {
+        guard let effectiveError = error as? CKError else {
+            // not a CloudKit error or no error present, just return the original error
+            return error
+        }
+        
+        guard let retryAfter = effectiveError.retryAfterSeconds else {
+        // CloudKit error, can't  be retried, return the error
+            return effectiveError
+        }
+
+        // CloudKit operation can be retried, schedule `block` to be executed later
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + retryAfter) {
+            block()
+        }
+        
+        return nil
     }
 }
 
 
 //MARK: server changes
 extension SyncOperation {
-    func applyServerChanges() throws {
+    func fetchServerChanges() throws {
         let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
         options.previousServerChangeToken = previousChangeToken
         
@@ -246,7 +279,6 @@ extension SyncOperation {
         
         if let err = error { throw err }
         
-        try processFetchedRecords(updatedRecords)
         
         // 删除
         for (recordType,recordIDs) in deletedIdentifiers {
@@ -260,6 +292,9 @@ extension SyncOperation {
                 try self.deleteTagsForever(tagIDs: tagIDs)
             }
         }
+        
+        // 保存更新
+        try processFetchedRecords(updatedRecords)
         self.previousChangeToken = newChangedToken
         
         if updatedRecords.isNotEmpty || deletedIdentifiers.count > 0 {

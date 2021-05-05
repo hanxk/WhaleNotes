@@ -452,15 +452,15 @@ extension NoteRepo {
     }
     
     
-    func deleteNotesTag(tag:Tag) -> Observable<Void>  {
+    func delteNotes(tag:Tag) -> Observable<Void>  {
         return Observable<Void>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Void in
                 var notes:[Note] = try self.noteDao.query(tagId: tag.id)
                 let updatedAt = Date()
                 
                 // 替换所有 notes
-                self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: "", updatedAt: updatedAt, notes: &notes)
-                
+                self.removeNoteInsideTagTitles(tagTitle:tag.title,updatedAt: updatedAt, notes: &notes)
+
                 for note in notes {
                     let tagTitles = MDEditorViewController.extractTags(text:note.content)
                     try self.noteTagDao.delete(noteId: note.id)
@@ -495,7 +495,11 @@ extension NoteRepo {
                 let updatedAt = Date()
                 
                 // 替换笔记内容
-                self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
+                if newTagTitle.isEmpty {
+                    self.removeNoteInsideTagTitles(tagTitle: tag.title, updatedAt: updatedAt, notes: &notes)
+                }else {
+                    self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
+                }
                 
                 func generateAllTagTitles(tagTitle:String) -> [String] {
                     let tagTitles = newTagTitle.components(separatedBy: "/").map {
@@ -552,8 +556,25 @@ extension NoteRepo {
     }
     
     
+    
+    private func removeNoteInsideTagTitles(tagTitle:String,updatedAt:Date, notes:inout [Note]){
+        let pattern = #"#\#(tagTitle)[^#\s]*#?"#
+        for (i,note) in notes.enumerated() {
+            let content = note.content
+            let newContent = content.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
+            if content != newContent {
+                print(newContent)
+                var newNote = note
+                newNote.updatedAt = updatedAt
+                newNote.content = newContent
+                notes[i] = newNote
+            }
+        }
+    }
+    
+    
     // 更新 note 中的 tag
-    private func replaceNoteInsideTagTitles(oldTitle:String,newTagTitle:String,updatedAt:Date, notes:inout [Note]){
+    private func replaceNoteInsideTagTitles(oldTitle:String,newTagTitle:String,includeChild:Bool=false,updatedAt:Date, notes:inout [Note]){
         let pattern = #"#\#(oldTitle)#?"#
         let replace = self.generateReplaceTagTitle(title: newTagTitle)
         for (i,note) in notes.enumerated() {
@@ -570,14 +591,9 @@ extension NoteRepo {
     }
     
     private func generateReplaceTagTitle(title:String) -> String {
-        if title.isEmpty {// 删除
-            return ""
-        }
-        
         if title.contains(" ") {
             return "#\(title)#$2"
         }
-        
         return "#\(title)$2"
     }
 }

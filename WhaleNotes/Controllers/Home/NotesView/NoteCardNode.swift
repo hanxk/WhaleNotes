@@ -16,8 +16,8 @@ protocol NoteCardProvider {
 }
 
 enum StyleConfig {
-    static let padding:CGFloat = 10
-    static let spacing:CGFloat = 12
+    static let padding:CGFloat = 12
+    static let spacing:CGFloat = 10
     static let insetH:CGFloat = 12
     static let insetV:CGFloat = 14
     static let cornerRadius:CGFloat = 6

@@ -23,11 +23,11 @@ class SideMenuCell: UITableViewCell {
         didSet {
             self.cellBgView.isHidden = !cellIsSelected
             
-            iconImageView.tintColor = self.cellIsSelected ? .brand : UIColor(hexString: "#6F6F6F")
+            iconImageView.tintColor = self.cellIsSelected ? .sidemenuSelectedTint : UIColor(hexString: "#6F6F6F")
             
             let weight:UIFont.Weight = self.cellIsSelected ? .medium : .regular
             titleLabel.font = UIFont.systemFont(ofSize: 17, weight: weight)
-            titleLabel.textColor = self.cellIsSelected ? .brand : .sidemenuText
+            titleLabel.textColor = self.cellIsSelected ? .sidemenuSelectedTint : .sidemenuText
         }
     }
     

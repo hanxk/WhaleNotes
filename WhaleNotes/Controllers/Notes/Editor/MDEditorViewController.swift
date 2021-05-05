@@ -381,13 +381,11 @@ extension MDEditorViewController:ASTableDataSource {
     
     private func updateInputContent(_ content:String) {
         if self.noteInfo.note.content == content{ return }
-        guard let contentCellNode = getNoteContentCellNode() else { return }
         let noteTagTitles = self.noteInfo.tags
-        
         let tagTitles = MDEditorViewController.extractTags(text: content)
 
-        let isEqual =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
-        if isEqual {
+        let isTagNotChange =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
+        if isTagNotChange { // 只更新内容
             self.model.updateNoteContent(content: content)
             return
         }

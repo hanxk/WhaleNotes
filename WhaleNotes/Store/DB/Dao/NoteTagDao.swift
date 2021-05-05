@@ -30,6 +30,11 @@ extension NoteTagDao {
         try db.execute(delSQL, args: noteId)
     }
     
+    func deleteLocal(tagTitle:String) throws {
+        let delSQL = "DELEFT FROM note_tag tag_id in (SELECT id FROM tag WHERE is_local = 1 AND (title = ? OR title LIKE '\(tagTitle)/%'))"
+        try db.execute(delSQL, args: tagTitle)
+    }
+    
     func delete(noteId:String,tagId:String) throws {
         let delSQL = "delete from note_tag where note_id = ? and tag_id = ?"
         try db.execute(delSQL, args: noteId,tagId)

@@ -107,6 +107,8 @@ extension SQLiteDatabase {
     func execute(_ sql:String,args:Any...) throws  {
         let stmt = try self.prepare(sql: sql, args: args)
         try stmt.run()
+        
+        logi("数据影响：\(self.changes)")
     }
     
     var changes:Int {

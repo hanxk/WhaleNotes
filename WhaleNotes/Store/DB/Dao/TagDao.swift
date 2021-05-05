@@ -21,9 +21,8 @@ class TagDao {
 
 extension TagDao {
     func insert( _ tag:Tag) throws {
-        let insertSQL = "INSERT OR REPLACE INTO tag(id,title,icon,created_at,updated_at) VALUES(?,?,?,?,?)"
-        try db.execute(insertSQL, args: tag.id,tag.title,tag.icon,tag.createdAt.timeIntervalSince1970,tag.updatedAt.timeIntervalSince1970)
-        //        return db.changes
+        let insertSQL = "INSERT OR REPLACE INTO tag(id,title,icon,is_del,is_local,created_at,updated_at) VALUES(?,?,?,?,?,?,?)"
+        try db.execute(insertSQL, args: tag.id,tag.title,tag.icon,tag.isDel ? 1 : 0,tag.isLocal ? 1 : 0,tag.createdAt.timeIntervalSince1970,tag.updatedAt.timeIntervalSince1970)
     }
     
     func query() throws -> [Tag]  {
@@ -48,17 +47,23 @@ extension TagDao {
     
     func queryByTitles(_ titles:[String]) throws -> [Tag] {
         let titlePara = "\"" + titles.joined(separator: "\",\"") + "\""
-        let selectSQL = "SELECT * FROM tag WHERE title in (\(titlePara))"
+        let selectSQL = "SELECT * FROM tag WHERE  is_del = 0 AND  title in (\(titlePara))"
+        let rows = try db.query(selectSQL)
+        return extract(rows: rows)
+    }
+    
+    
+    
+    func queryByIDs(_ ids:[String]) throws -> [Tag] {
+        let idPara = "\"" + ids.joined(separator: "\",\"") + "\""
+        let selectSQL = "SELECT * FROM tag WHERE id in (\(idPara))"
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
     }
     
     func queryDelTags() throws -> [Tag] {
         let selectSQL = """
-                            SELECT * FROM tag WHERE is_del = 1 and id not in (
-                                 select tag_id from note_tag
-                            )
-                            order by title
+                            SELECT * FROM tag WHERE is_del = 1
                             """
         let rows = try db.query(selectSQL)
         return extract(rows: rows)
@@ -66,7 +71,7 @@ extension TagDao {
     
     func queryValids() throws -> [Tag]  {
         let selectSQL = """
-                            select * from tag where id in (
+                            select * from tag where is_del = 0 AND id in (
                                 select tag_id from note_tag
                                 WHERE note_id in (SELECT id FROM note where status = ?)
                             )
@@ -172,6 +177,17 @@ extension TagDao {
         try db.execute(delSQL)
     }
     
+    func updateTags2Del(tagTitle:String) throws {
+        let delSQL = "UPDATE tag set is_del = 1,updated_at=\(Date().timeIntervalSince1970) WHERE title = ? OR title LIKE '\(tagTitle)/%'"
+        try db.execute(delSQL, args: tagTitle)
+        logi("删除了\(db.changes)")
+    }
+    
+    func deleteLocalTags(tagTitle:String) throws {
+        let delSQL = "DELEFT FROM TAG WHERE is_local = 1 AND (title = ? OR title LIKE '\(tagTitle)/%')"
+        try db.execute(delSQL, args: tagTitle)
+    }
+    
     func queryFromUpdatedDate(date:Date) throws -> [Tag]  {
         let selectSQL = "select * from tag where updated_at > ?"
         let rows = try db.query(selectSQL,args: date.timeIntervalSince1970)
@@ -196,8 +212,9 @@ extension TagDao {
         let title = row["title"] as! String
         let icon = row["icon"] as! String
         let isDel = (row["is_del"] as! Int) == 1
+        let isLocal = (row["is_local"] as! Int) == 1
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
-        return Tag(id: id, title: title,icon: icon,isDel: isDel,createdAt: createdAt, updatedAt: updatedAt)
+        return Tag(id: id, title: title,icon: icon,isDel: isDel,isLocal: isLocal,createdAt: createdAt, updatedAt: updatedAt)
     }
 }

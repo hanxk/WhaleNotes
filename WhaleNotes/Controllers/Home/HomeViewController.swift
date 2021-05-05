@@ -194,7 +194,7 @@ extension HomeViewController  {
     func handleDelTag(tag: Tag) {
         let alert = UIAlertController(title: "", message: "当前标签及子标签将会被删除。确认要删除吗？", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "确认删除", style: .destructive , handler:{ (UIAlertAction)in
-            self.delteNotesTag(tag: tag)
+            self.delteNotes(tag: tag)
         }))
         alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler:{ (UIAlertAction)in
             
@@ -242,8 +242,8 @@ extension HomeViewController  {
             .disposed(by: disposeBag)
     }
     
-    func delteNotesTag(tag:Tag) {
-        NoteRepo.shared.deleteNotesTag(tag: tag)
+    func delteNotes(tag:Tag) {
+        NoteRepo.shared.delteNotes(tag: tag)
             .subscribe(onNext: { newTag in
                 EventManager.shared.post(name: .Tag_DELETED)
                 NotesSyncEngine.shared.pushLocalToRemote()

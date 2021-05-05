@@ -40,8 +40,6 @@ class DBManager: NSObject {
     }
     
     private func setupTable() throws {
-        try db.createTable(table: Block.self)
-        try db.createTable(table: BlockPosition.self)
         
         try db.createTable(table: Note.self)
         try db.createTable(table: Tag.self)
@@ -49,9 +47,6 @@ class DBManager: NSObject {
         
         self.noteDao = NoteDao(dbCon: db)
         self.tagDao = TagDao(dbCon: db)
-        
-        self.blockDao = BlockDao(dbCon: db)
-        self.blockPositionDao = BlockPositionDao(dbCon: db)
         self.noteTagDao = NoteTagDao(dbCon: db)
     }
     

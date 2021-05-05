@@ -90,7 +90,7 @@ class NoteContentCellNode:ASCellNode {
                         $0.typingAttributes = getContentAttributesString()
                         $0.delegate = self
                         $0.textView.tag = EditViewTag.content.rawValue
-                        $0.tintColor =  UIColor.link
+                        $0.tintColor =  UIColor.cursor
          }
         
         

@@ -54,20 +54,27 @@ class NotesStore {
     
     func save(notes:[Note],tags:[Tag]) throws {
         try self.db.transaction {
+            
+            let existsTags = try self.tagDao.queryByIDs(tags.map { $0.id })
             for tag in tags {
+                if let existsTag = existsTags.first(where: {$0.id == tag.id}),existsTag.updatedAt >= tag.updatedAt {
+                    // 本地是最新的
+                    continue
+                }
                 try self.tagDao.insert(tag)
             }
+            
             let localNotes = try self.noteDao.queryByIDs(notes.map{ $0.id })
             for note in notes {
-                try self.noteDao.insert(note)
-                if let oldNote = localNotes.first(where: {$0.id == note.id}) {
-                    if  oldNote.content == note.content {
-                        // content 没有发生改变
-                        continue
-                    }
-                    try self.noteTagDao.delete(noteId: note.id)
+                if let existsNote = localNotes.first(where: {$0.id == note.id}),existsNote.updatedAt >= note.updatedAt {
+                    continue
                 }
-                // 关联关系
+                // 更新 note
+                try self.noteDao.insert(note)
+                
+                // 删除关联关系
+                try self.noteTagDao.delete(noteId: note.id)
+                // 重建关联关系
                 let tags = try self.extractTagsFromNote(note)
                 for tag  in tags {
                     try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))

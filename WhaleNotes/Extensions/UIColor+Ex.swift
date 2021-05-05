@@ -19,13 +19,15 @@ extension UIColor {
     
     open class var link: UIColor {
         get {
-//            return UIColor(hexString: "#F4B63F")!
-            return .brand
+//            return UIColor(hexString: "#0645ad")!
+            return UIColor(hexString: "#E6B91D")!
+//            return .brand
         }
     }
     open class var cursor: UIColor {
         get {
-            return UIColor(hexString: "#F4B63F")!
+//            return UIColor(hexString: "#F4B63F")!
+            return UIColor(hexString: "#E6B91D")!
         }
     }
     
@@ -134,11 +136,17 @@ extension UIColor {
         get {
             return .white
 //            return .red
+            
         }
     }
     open class var sidemenuSelectedBg: UIColor {
         get {
-            return UIColor.init(hexString: "#FEF9E8")
+            return UIColor.init(hexString: "#EBEBEB")
+        }
+    }
+    open class var sidemenuSelectedTint: UIColor {
+        get {
+            return UIColor.cardText
         }
     }
     
@@ -209,6 +217,7 @@ extension UIColor {
             
 //            return UIColor.init(hexString: "#F6F6F6")
             return UIColor.init(hexString: "#F7F7F7")
+//            return UIColor.white
 //            return UIColor.init(hexString: "#fafafa")
         }
     }

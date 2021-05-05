@@ -17,8 +17,9 @@ struct Note {
     var createdAt:Date!
     var updatedAt:Date!
     
-    // 标识是否删除，默认未false，（该字段不会上传到iCloud）
     var isDel:Bool = false
+    // 本地数据，还未同步（该字段不会上传到iCloud）
+    var isLocal:Bool = true
     
     init() {
         let date =  Date()
@@ -26,12 +27,13 @@ struct Note {
         self.updatedAt = date
     }
     
-    init(id:String,title:String,content:String,status:NoteStatus = .normal,isDel:Bool = false,createdAt:Date,updatedAt:Date) {
+    init(id:String,title:String,content:String,status:NoteStatus = .normal,isDel:Bool = false,isLocal:Bool = true,createdAt:Date,updatedAt:Date) {
         self.id = id
         self.title = title
         self.content = content
         self.status = status
         self.isDel = isDel
+        self.isLocal = isLocal
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -59,6 +61,7 @@ extension Note:SQLTable {
                       "content" TEXT,
                       "status" INTEGER,
                       "is_del" INTEGER DEFAULT 0,
+                      "is_local" INTEGER DEFAULT 1,
                       "created_at" TIMESTAMP,
                       "updated_at" TIMESTAMP
                     );
@@ -77,7 +80,7 @@ extension Note {
             let updatedAt = record["updatedAt"] as? Date
         else { return nil }
         guard let noteStatus = NoteStatus.init(rawValue: status) else { return nil }
-        let note = Note(id: id, title: title, content: content, status: noteStatus,createdAt: createdAt, updatedAt: updatedAt)
+        let note = Note(id: id, title: title, content: content, status: noteStatus,isLocal: false,createdAt: createdAt, updatedAt: updatedAt)
         return note
     }
 //    static func from(from record: CKRecord) -> (Note,[String])? {

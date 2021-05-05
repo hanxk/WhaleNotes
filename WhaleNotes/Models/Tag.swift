@@ -18,8 +18,10 @@ struct Tag:DiffAware {
     var createdAt:Date!
     var updatedAt:Date!
     
-    // 标识是否需要同步，默认未false，（该字段不会上传到iCloud）
     var isDel:Bool = false
+    
+    // 本地数据，还未同步（该字段不会上传到iCloud）
+    var isLocal:Bool = true
     
     init() {
         let date =  Date()
@@ -27,11 +29,12 @@ struct Tag:DiffAware {
         self.updatedAt = date
     }
     
-    init(id:String = UUID.init().uuidString,title:String,icon:String="",isDel:Bool = false,createdAt:Date,updatedAt:Date) {
+    init(id:String = UUID.init().uuidString,title:String,icon:String="",isDel:Bool = false,isLocal:Bool = true,createdAt:Date,updatedAt:Date) {
         self.id = id
         self.icon = icon
         self.title = title
         self.isDel = isDel
+        self.isLocal = isLocal
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -53,6 +56,7 @@ extension Tag:SQLTable {
                   "title" TEXT UNIQUE NOT NULL,
                   "icon" TEXT NOT NULL,
                   "is_del" INTEGER DEFAULT 0,
+                  "is_local" INTEGER DEFAULT 1,
                   "created_at" TIMESTAMP,
                   "updated_at" TIMESTAMP
                 );
@@ -68,7 +72,7 @@ extension Tag {
             let createdAt = record["createdAt"] as? Date,
             let updatedAt = record["updatedAt"] as? Date
         else { return nil }
-        let tag = Tag(id: id, title: title, icon: icon, createdAt: createdAt, updatedAt: updatedAt)
+        let tag = Tag(id: id, title: title, icon: icon,isLocal: false, createdAt: createdAt, updatedAt: updatedAt)
         return tag
     }
     
