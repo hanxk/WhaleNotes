@@ -124,7 +124,7 @@ extension ChooseTagViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         var newText = searchText.trimmingCharacters(in: .whitespaces)
         if let last = newText.last, last == "/" {
-            newText = newText.substring(to: newText.count-1)
+            newText = newText.subString(to: newText.count-1)
         }
         if let first = newText.first, first == "/" {
             if newText.count == 1 {

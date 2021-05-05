@@ -174,7 +174,7 @@ extension MDTextView {
         if let r =  line.leadingWhiteSpaceAndTabRange() {
             leadingLength = r.length
         }
-        let leadingText = line.substring(to: leadingLength)
+        let leadingText = line.subString(to: leadingLength)
         return  leadingText
     }
     
@@ -283,7 +283,7 @@ extension MDTextView {
     
     func getRightPreLineNumAndPending(lineRange:NSRange,lineLeadingText: String) -> (Int,String)?  {
         if lineRange.location == 0 { return nil }
-        let preText = self.text.substring(to: lineRange.location-1) // -1 是过滤掉回车
+        let preText = self.text.subString(to: lineRange.location-1) // -1 是过滤掉回车
         let lines = Array(preText.components(separatedBy: ENTER_KEY.toString).reversed())
         for line in lines {
             guard let symbolRange = highlightManager.numListHightlighter.matchSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
@@ -304,7 +304,7 @@ extension MDTextView {
         if let r =  line.leadingWhiteSpaceAndTabRange() {
             leadingLength = r.length
         }
-        let leadingText = line.substring(to: leadingLength)
+        let leadingText = line.subString(to: leadingLength)
         return  leadingText
     }
     
@@ -449,7 +449,7 @@ extension MDTextView:NSLayoutManagerDelegate {
     }
     
     func extractTag(characterIndex:Int) -> String? {
-        let str = self.text.substring(to: characterIndex)
+        let str = self.text.subString(to: characterIndex)
         let tagStart = str.lastIntIndex(of: "#")
         if tagStart == -1  { return nil}
         let newText  = self.text.substring(from: tagStart)
@@ -461,7 +461,7 @@ extension MDTextView:NSLayoutManagerDelegate {
     
     
     func extractLink(characterIndex:Int) -> String? {
-        let str = self.text.substring(to: characterIndex)
+        let str = self.text.subString(to: characterIndex)
         let start = str.lastIndex { $0 == "\n" || $0 == "\t" || $0 == " "}?.utf16Offset(in: str) ?? 0
         
         let newText  = self.text.substring(from: start)
@@ -473,7 +473,7 @@ extension MDTextView:NSLayoutManagerDelegate {
     
     
     func clipText(characterIndex:Int) -> String {
-        let str = self.text.substring(to: characterIndex)
+        let str = self.text.subString(to: characterIndex)
         let start = str.lastIndex { $0 == "\n" || $0 == "\t" || $0 == " "}?.utf16Offset(in: str) ?? -1
         
         let newText = self.text.substring(from: start+1)

@@ -167,12 +167,12 @@ extension TagDao {
         try db.execute(updateSQL, args: tag.title,tag.icon,tag.id)
     }
     
-    func delete( _ id:String) throws {
+    func deleteForever( _ id:String) throws {
         let delSQL = "delete from tag where id = ?"
         try db.execute(delSQL, args: id)
     }
     
-    func deleteUnused() throws {
+    func markUnusedTags2Deled() throws {
         let delSQL = "UPDATE tag set is_del = 1,updated_at=\(Date().timeIntervalSince1970) WHERE id not in (select tag_id from note_tag)"
         try db.execute(delSQL)
     }

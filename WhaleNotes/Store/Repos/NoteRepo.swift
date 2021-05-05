@@ -398,10 +398,10 @@ extension NoteRepo {
     }
     
     // 删除无用的tag
-    func deleteUnusedTags() -> Observable<Void>  {
+    func markUnusedTags2Deled() -> Observable<Void>  {
         return Observable<Void>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Void in
-                try self.tagDao.deleteUnused()
+                try self.tagDao.markUnusedTags2Deled()
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
@@ -459,7 +459,11 @@ extension NoteRepo {
                 let updatedAt = Date()
                 
                 // 替换所有 notes
-                self.removeNoteInsideTagTitles(tagTitle:tag.title,updatedAt: updatedAt, notes: &notes)
+                self.replaceNoteTags(oldTagTitle: tag.title, newTagTitle: "", updatedAt: updatedAt, notes: &notes)
+                
+                //删除当前tag及子tag
+                try self.tagDao.updateTags2Del(tagTitle: tag.title)
+                
 
                 for note in notes {
                     let tagTitles = MDEditorViewController.extractTags(text:note.content)
@@ -470,8 +474,6 @@ extension NoteRepo {
                         var tag:Tag!
                         if let existedTag = try self.tagDao.queryByTitle(title: tagTitle) { // 已存在,更新
                             tag = existedTag
-                            tag.updatedAt = updatedAt
-                            try self.tagDao.update(tag)
                         }else {
                             let newTag = Tag(title: tagTitle, createdAt: updatedAt, updatedAt: updatedAt)
                             try self.tagDao.insert(newTag)
@@ -495,11 +497,7 @@ extension NoteRepo {
                 let updatedAt = Date()
                 
                 // 替换笔记内容
-                if newTagTitle.isEmpty {
-                    self.removeNoteInsideTagTitles(tagTitle: tag.title, updatedAt: updatedAt, notes: &notes)
-                }else {
-                    self.replaceNoteInsideTagTitles(oldTitle:tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
-                }
+                self.replaceNoteTags(oldTagTitle: tag.title, newTagTitle: newTagTitle, updatedAt: updatedAt, notes: &notes)
                 
                 func generateAllTagTitles(tagTitle:String) -> [String] {
                     let tagTitles = newTagTitle.components(separatedBy: "/").map {
@@ -555,33 +553,53 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+}
+
+
+//MARK: replace tag title
+extension NoteRepo {
     
     
-    private func removeNoteInsideTagTitles(tagTitle:String,updatedAt:Date, notes:inout [Note]){
-        let pattern = #"#\#(tagTitle)[^#\s]*#?"#
-        for (i,note) in notes.enumerated() {
-            let content = note.content
-            let newContent = content.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
-            if content != newContent {
-                print(newContent)
-                var newNote = note
-                newNote.updatedAt = updatedAt
-                newNote.content = newContent
-                notes[i] = newNote
+    private func replaceNoteTags(oldTagTitle:String,newTagTitle:String,updatedAt:Date,notes:inout [Note]) {
+        var replace = ""
+        var pattern = ""
+        
+        if newTagTitle.isEmpty {
+            if let splitIndex = oldTagTitle.lastIndex(of: "/") { // old: #a/b/c  remove: #a/b/c  => #a/b
+                replace = "#"+oldTagTitle.subString(to: splitIndex)
             }
+            pattern = #"#\#(oldTagTitle)[^#\s]*#?"#
+        }else {
+//            pattern = #"#\#(oldTagTitle)([^#\s]*)(?=#?)"#
+            pattern = #"(?<=\s|^)#\#(oldTagTitle)(\/[^\s]+)*(?:#|(?=\s|$))"#
+            replace = "#\(newTagTitle)$1"
         }
+        self.replaceNoteContent(pattern: pattern, replace: replace, updatedAt: updatedAt, notes: &notes)
+        
     }
     
+    private func removeNoteInsideTagTitles(tagTitle:String,updatedAt:Date, notes:inout [Note]){
+        var replace = ""
+        if let splitIndex = tagTitle.lastIndex(of: "/") { // old: #a/b/c  remove: #a/b/c  => #a/b
+            replace = "#"+tagTitle.subString(to: splitIndex)
+        }
+        let pattern = #"#\#(tagTitle)[^#\s]*#?"#
+        self.replaceNoteContent(pattern: pattern, replace: replace, updatedAt: updatedAt, notes: &notes)
+    }
     
-    // 更新 note 中的 tag
+//  // 更新 note 中的 tag
     private func replaceNoteInsideTagTitles(oldTitle:String,newTagTitle:String,includeChild:Bool=false,updatedAt:Date, notes:inout [Note]){
-        let pattern = #"#\#(oldTitle)#?"#
-        let replace = self.generateReplaceTagTitle(title: newTagTitle)
+        let pattern = #"(?<=\s|^)#(\#(oldTitle)(?:(?: *[^#\s]+)*#)?)(?=[\s\n])"#
+        let replace = "#\(newTagTitle)$1"
+        self.replaceNoteContent(pattern: pattern, replace: replace, updatedAt: updatedAt, notes: &notes)
+    }
+    
+    private func replaceNoteContent(pattern:String,replace:String,updatedAt:Date,notes:inout [Note]) {
         for (i,note) in notes.enumerated() {
             let content = note.content
             let newContent = content.replacingOccurrences(of: pattern, with: replace, options: .regularExpression)
             if content != newContent {
-                print(newContent)
+                logi("新的 content: \(newContent)")
                 var newNote = note
                 newNote.updatedAt = updatedAt
                 newNote.content = newContent
@@ -590,10 +608,17 @@ extension NoteRepo {
         }
     }
     
-    private func generateReplaceTagTitle(title:String) -> String {
-        if title.contains(" ") {
-            return "#\(title)#$2"
+    
+    
+    private func generateReplaceTagTitle(oldTagTitle:String,newTagTitle:String) -> String {
+        var replace = ""
+        if newTagTitle.isEmpty { // 删除
+            if let splitIndex = oldTagTitle.lastIndex(of: "/") {
+                replace = "#"+oldTagTitle.subString(to: splitIndex)
+            }
+        }else {
+            replace = "#\(newTagTitle)$1"
         }
-        return "#\(title)$2"
+        return replace
     }
 }

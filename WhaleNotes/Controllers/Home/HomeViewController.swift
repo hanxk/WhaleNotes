@@ -535,7 +535,7 @@ extension HomeViewController: SideMenuNavigationControllerDelegate {
 //MARK
 extension HomeViewController {
     func deleteUnusedTags() {
-        NoteRepo.shared.deleteUnusedTags()
+        NoteRepo.shared.markUnusedTags2Deled()
             .subscribe(onNext: {
                 
             }, onError: {

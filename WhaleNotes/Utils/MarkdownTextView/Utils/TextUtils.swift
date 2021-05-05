@@ -20,7 +20,7 @@ class TextUtils {
     class func getLineRange(_ string: String, location: Int) -> Range<Int> {
 //        var end = location
         
-        let start = string.substring(to: location).lastIntIndex(of: "\n") + 1
+        let start = string.subString(to: location).lastIntIndex(of: "\n") + 1
         
         let endStr  = string.substring(from: location)
         var end = endStr.firstIntIndex(of: "\n")

@@ -221,10 +221,15 @@ extension String {
         return String(self[fromIndex...])
     }
 
-    func substring(to: Int) -> String {
+    func subString(to: Int) -> String {
         let toIndex = index(from: to)
         return String(self[..<toIndex])
     }
+    
+    func subString(to: String.Index) -> String {
+        return String(self[..<to])
+    }
+
 
     func substring(with r: Range<Int>) -> String {
         let startIndex = index(from: r.lowerBound)
