@@ -49,9 +49,7 @@ class HomeTitleView:UIView {
     
     
     func setTitle(_ title:String,emoji:String) {
-        if let emojiImage = emoji.emojiToImage(fontSize: 18)  {
-           button.setImage(emojiImage, for: .normal)
-        }
+        button.setImage(emoji.emojiToImage(fontSize: 18), for: .normal)
         button.setTitle(title, for: .normal)
     }
     

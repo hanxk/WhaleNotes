@@ -380,7 +380,12 @@ extension MDEditorViewController:ASTableDataSource {
     }
     
     private func updateInputContent(_ content:String) {
-        if self.noteInfo.note.content == content{ return }
+        if self.noteInfo.note.content == content{
+            if isNewCreated { // 删除
+                self.deleteNoteInfo()
+            }
+            return
+        }
         let noteTagTitles = self.noteInfo.tags
         let tagTitles = MDEditorViewController.extractTags(text: content)
 
@@ -394,6 +399,17 @@ extension MDEditorViewController:ASTableDataSource {
 
         // 通知侧边栏刷新
         EventManager.shared.post(name: .Tag_CHANGED)
+    }
+    
+    
+    func deleteNoteInfo() {
+        NoteRepo.shared.deleteNote(self.noteInfo)
+        .subscribe(onNext: { _  in
+            self.dismiss(animated: true, completion: nil)
+        },onError: {
+            Logger.error($0)
+        })
+        .disposed(by: disposeBag)
     }
     
     static func extractTags(text:String) -> [String]  {

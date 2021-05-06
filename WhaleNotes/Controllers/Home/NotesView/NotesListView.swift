@@ -93,6 +93,7 @@ class NotesListView: UIView {
     
     func loadData(mode:NoteListMode){
         self.mode = mode
+        self.noteTag = nil
         if self.notes.count != 0 { // mode changed
             self.notes = []
             self.tableView.reloadData(animated: false)

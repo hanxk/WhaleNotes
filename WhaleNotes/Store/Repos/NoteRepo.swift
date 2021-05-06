@@ -326,6 +326,7 @@ extension NoteRepo {
         return Observable<Void>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Void in
                 try self.noteDao.delete(noteInfo.id)
+                try self.noteTagDao.delete(noteId: noteInfo.id)
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
