@@ -311,12 +311,12 @@ extension HomeViewController {
     
     
     @objc func handleShowSearchbar() {
-//        let vc = SearchViewController()
+        let vc = SearchViewController()
 //        //        vc.boardsMap = sideMenuViewController.boardsMap
-//        let navVC = MyNavigationController(rootViewController: vc)
-//        navVC.modalPresentationStyle = .overFullScreen
-//        navVC.modalTransitionStyle = .crossDissolve
-//        self.navigationController?.present(navVC, animated: true, completion: nil)
+        let navVC = MyNavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+        navVC.modalTransitionStyle = .crossDissolve
+        self.navigationController?.present(navVC, animated: true, completion: nil)
     }
 }
 

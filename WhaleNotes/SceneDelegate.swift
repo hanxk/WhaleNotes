@@ -45,7 +45,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
         }
         
-        
         let homeVC = HomeViewController()
         let navVC = UINavigationController(rootViewController: homeVC)
         

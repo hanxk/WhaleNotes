@@ -18,9 +18,15 @@ class SearchViewController: UIViewController {
         $0.searchBar.delegate = self
         $0.searchBar.searchTextField.backgroundColor = .white
         $0.searchBar.showsCancelButton = true
+        $0.searchBar.tintColor = .brand
         $0.hidesNavigationBarDuringPresentation = false
         $0.obscuresBackgroundDuringPresentation = false
         $0.searchBar.placeholder = "搜索"
+        
+        let attributes:[NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.brand,
+        ]
+        $0.searchBar.setScopeBarButtonTitleTextAttributes(attributes, for: .normal)
         if let cancelButton = $0.searchBar.value(forKey: "cancelButton") as? UIButton {
             cancelButton.setTitle("取消", for: .normal)
         }
