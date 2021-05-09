@@ -137,7 +137,8 @@ class NotesListView: UIView {
             print("openEditorVC callback")
             self?.handleNoteInfoUpdated(noteInfo)
         }
-//        editorVC.modalPresentationStyle = .fullScreen
+        editorVC.modalTransitionStyle = .coverVertical
+        editorVC.modalPresentationStyle = .fullScreen
         self.controller?.present(editorVC, animated: true, completion: nil)
 //        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }

@@ -24,8 +24,9 @@ class MDEditorViewController: UIViewController {
     private  var disposeBag = DisposeBag()
     var noteInfo:NoteInfo!
     private var model:NoteInfoViewModel!
+    private var needDismiss = false
     private var isNoteUpdated:Bool = false
-    var cellNodeTypes:[EditorCellNodeType] = [.title,.content]
+    var cellNodeTypes:[EditorCellNodeType] = [.content]
     
     private var isKeyboardShow = false
     var isNewCreated = false
@@ -42,6 +43,10 @@ class MDEditorViewController: UIViewController {
         
         $0.scrollEdgeAppearance = barAppearance
         $0.standardAppearance.shadowColor = nil
+    }
+    
+    var contentCellIndex:Int {
+        return self.cellNodeTypes.count-1
     }
     
     private lazy var tableView = ASTableNode().then {
@@ -97,15 +102,13 @@ class MDEditorViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if isNewCreated {
-            if let cell = self.getNoteContentCellNode() {
-                cell.textNode.textView.becomeFirstResponder()
-            }
+        if let cell = self.getNoteContentCellNode() {
+            cell.textNode.textView.becomeFirstResponder()
         }
     }
     
     private func getNoteContentCellNode() -> NoteContentCellNode? {
-        return self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode
+        return self.tableView.nodeForRow(at: IndexPath(row: contentCellIndex, section: 0)) as?  NoteContentCellNode
     }
     private func getNoteTitleCell() -> NoteTitleCellNode? {
         return self.tableView.nodeForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCellNode
@@ -234,6 +237,11 @@ extension MDEditorViewController {
         isNoteUpdated = true
         switch event {
         case .updated(let noteInfo):
+            if needDismiss {
+                self.callbackNoteInfoEdited?(noteInfo)
+                self.dismiss(animated: true, completion: nil)
+                return
+            }
             self.noteInfo = noteInfo
         }
     }
@@ -263,7 +271,7 @@ extension MDEditorViewController: UIGestureRecognizerDelegate {
         if let _ = tableView.indexPathForRow(at: touch) { // 点击空白区域
             return
         }
-        if let contentCell = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as? NoteContentCellNode {
+        if let contentCell = self.tableView.nodeForRow(at: IndexPath(row: self.cellNodeTypes.count-1, section: 0)) as? NoteContentCellNode {
             contentCell.textNode.becomeFirstResponder()
         }
     }
@@ -284,18 +292,24 @@ extension MDEditorViewController {
             let backBarButton = UIBarButtonItem(customView: backButton)
             navigationItem.leftBarButtonItems = [backBarButton]
         }
-        createBackBarButton(forNavigationItem: navItem)
-        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(saveIconTapped))
-        navItem.rightBarButtonItems = [menuButton]
         
-        let closeButton =  UIButton().then {
-            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
-            let image = UIImage(systemName: "chevron.compact.down", pointSize: 44)?.withRenderingMode(.alwaysTemplate)
-            $0.setImage(image, for: .normal)
-            $0.tintColor = .toolbarTint
-            $0.addTarget(self, action: #selector(saveIconTapped), for: .touchUpInside)
-        }
-        navItem.titleView = closeButton
+        createBackBarButton(forNavigationItem: navItem)
+        
+//        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(saveIconTapped))
+        
+        let savevButton = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(saveIconTapped))
+        savevButton.tintColor = .brand
+        
+        navItem.rightBarButtonItems = [savevButton]
+        
+//        let closeButton =  UIButton().then {
+//            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
+//            let image = UIImage(systemName: "chevron.compact.down", pointSize: 44)?.withRenderingMode(.alwaysTemplate)
+//            $0.setImage(image, for: .normal)
+//            $0.tintColor = .toolbarTint
+//            $0.addTarget(self, action: #selector(saveIconTapped), for: .touchUpInside)
+//        }
+//        navItem.titleView = closeButton
         
     }
     
@@ -311,7 +325,18 @@ extension MDEditorViewController {
     }
     
     @objc func saveIconTapped() {
-        self.dismiss(animated: true, completion: nil)
+        guard let cell = self.getNoteContentCellNode() else { return }
+        let content = cell.textNode.textView.text ?? ""
+        if self.noteInfo.note.content == content{
+            if isNewCreated { // 删除
+                self.deleteNoteInfo()
+                return
+            }
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+        self.needDismiss = true
+        updateInputContent(content)
     }
     @objc func tagIconTapped() {
     }
@@ -357,7 +382,7 @@ extension MDEditorViewController:ASTableDataSource {
                 }
             }
             contentCellNode.textDidFinishEditing {[weak self] (newText: String) in
-                self?.updateInputContent(newText)
+//                self?.updateInputContent(newText)
             }
             contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
                 self?.focusedTextView = textView
@@ -366,7 +391,8 @@ extension MDEditorViewController:ASTableDataSource {
                 self?.focusedTextView = textView
             }
             contentCellNode.saveButtonTapped {[weak self]  in
-                self?.dismiss(animated: true, completion: nil)
+//                self?.dismiss(animated: true, completion: nil)
+                self?.saveIconTapped()
             }
 //            textView.inputAccessoryView = keyboardView
             //        if isEditable   {
@@ -380,12 +406,6 @@ extension MDEditorViewController:ASTableDataSource {
     }
     
     private func updateInputContent(_ content:String) {
-        if self.noteInfo.note.content == content{
-            if isNewCreated { // 删除
-                self.deleteNoteInfo()
-            }
-            return
-        }
         let noteTagTitles = self.noteInfo.tags
         let tagTitles = MDEditorViewController.extractTags(text: content)
 

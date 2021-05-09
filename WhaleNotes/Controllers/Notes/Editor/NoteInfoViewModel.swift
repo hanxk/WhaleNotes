@@ -71,6 +71,7 @@ class NoteInfoViewModel {
                 guard let self = self else { return }
                 self.note = note
                 self.noteInfoPub.onNext(.updated(noteInfo: self.noteInfo))
+//                callback?(note)
             }, onError: {
                 Logger.error($0)
             })
