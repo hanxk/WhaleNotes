@@ -11,6 +11,7 @@ import RxSwift
 import AsyncDisplayKit
 import FloatingPanel
 import DeepDiff
+import SwiftMessages
 
 
 enum NoteListMode {
@@ -69,10 +70,11 @@ class NotesListView: UIView {
     
     
     enum MenuAction:Int {
-        case edit =  1
+//        case edit =  1
         case trash =  2
         case share =  3
         case copy =  4
+        case delete =  5
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -410,20 +412,41 @@ extension NotesListView {
         guard let index =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
         let noteInfo = self.notes[index]
         
-        let trashRow = noteInfo.status == .normal ?
-            PopMenuRow(icon: UIImage(systemName:"trash"), title: "移到废纸篓",tag:MenuAction.trash.rawValue) :
-            PopMenuRow(icon: UIImage(systemName:"arrow.up.bin"), title: "恢复",tag:MenuAction.trash.rawValue)
         
-        let menuRows = [
-            trashRow,
-            PopMenuRow(icon: UIImage(systemName:"square.and.arrow.up"), title: "分享",tag:MenuAction.share.rawValue),
-            PopMenuRow(icon: UIImage(systemName:"doc.on.doc"), title: "复制",tag:MenuAction.copy.rawValue)
-        ]
+        var menuRows:[PopMenuRow] = []
+        if noteInfo.status == .trash {
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"arrow.up.bin"), title: "恢复",tag:MenuAction.trash.rawValue))
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"trash"), title: "删除",tag:MenuAction.delete.rawValue,isDestroy: true))
+        }else {
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"trash"), title: "移到废纸篓",tag:MenuAction.trash.rawValue))
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"square.and.arrow.up"), title: "分享",tag:MenuAction.share.rawValue))
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"doc.on.doc"), title: "复制",tag:MenuAction.copy.rawValue))
+        }
+
         let menuVC = PopMenuController(menuRows: menuRows)
         menuVC.rowSelected = {[weak self] menuRow in
             self?.handleMenuRowSelected(menuRow:menuRow,noteId: noteId)
         }
         menuVC.showModal(vc: self.controller!)
+
+    }
+    
+    func showMenu(sourceVC:UIViewController,menuRows:[PopMenuRow],callback: @escaping ((PopMenuRow)->Void)) {
+        let alert = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
+           
+        for menuRow in menuRows {
+            let style:UIAlertAction.Style = menuRow.isDestroy ? .destructive : .default
+            let action = UIAlertAction(title: menuRow.title, style: style) { _ in
+                callback(menuRow)
+            }
+            alert.addAction(action)
+        }
+           //uncomment for iPad Support
+           //alert.popoverPresentationController?.sourceView = self.view
+
+        sourceVC.present(alert, animated: true, completion: {
+               print("completion block")
+           })
     }
     
     fileprivate func handleTagAction(noteId:String) {
@@ -467,29 +490,49 @@ extension NotesListView {
 }
 
 
-//MARK: card menu action
+//MARK: 笔记菜单
 extension NotesListView {
     fileprivate func handleMenuRowSelected(menuRow:PopMenuRow,noteId:String) {
         guard let menuAcion = MenuAction(rawValue: menuRow.tag) else { return }
+        guard let index =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
+        let noteInfo = self.notes[index]
         switch menuAcion {
-        case .edit:
-            self.handleEditAction(noteId: noteId)
         case .trash:
-            self.handleTrashAction(noteId: noteId)
-        default:
-            break
+            self.handleTrashAction(noteInfo: noteInfo)
+        case .share:
+            self.handleShareAction(noteInfo: noteInfo)
+        case .copy:
+            let pasteboard = UIPasteboard.general
+            pasteboard.string = noteInfo.content
+        case .delete:
+            self.deleteNotes(noteInfo: noteInfo)
         }
     }
     
-    private func handleTrashAction(noteId:String) {
-        guard let index =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
-        let note = self.notes[index]
-        let status:NoteStatus = note.note.status == .normal ? .trash : .normal
-        var noteinfo = note
-        NoteRepo.shared.updateNoteStatus(note.note, status: status)
+    private func handleTrashAction(noteInfo:NoteInfo) {
+        let status:NoteStatus = noteInfo.note.status == .normal ? .trash : .normal
+        NoteRepo.shared.updateNoteStatus(noteInfo.note, status: status)
             .subscribe(onNext: { [weak self] note in
-                noteinfo.note = note
-                self?.updateNoteInfoDataSource(newNoteInfo: noteinfo)
+                var newNoteInfo = noteInfo
+                newNoteInfo.note = note
+                self?.updateNoteInfoDataSource(newNoteInfo: newNoteInfo)
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func handleShareAction(noteInfo:NoteInfo) {
+        let activityVC = UIActivityViewController(activityItems: [noteInfo.content], applicationActivities: nil)
+        // 顯示出我們的 activityVC。
+        self.controller?.present(activityVC, animated: true, completion: nil)
+    }
+    
+    // 彻底删除
+    private func handleDeleteAction(noteInfo:NoteInfo) {
+        NoteRepo.shared.deleteNote(noteInfo)
+            .subscribe(onNext: { [weak self]  in
+                self?.deleteNoteInfoFromDataSource(noteInfo: noteInfo)
             }, onError: {
                 Logger.error($0)
             })
@@ -501,9 +544,21 @@ extension NotesListView {
 //MARK: 清空回收站
 extension NotesListView {
     
+    func deleteNotes(noteInfo:NoteInfo) {
+        if self.notes.isEmpty {return}
+        let alert = UIAlertController(title: "", message: "笔记被删除后将不能够被恢复。确认要删除吗？", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "确认删除", style: .destructive , handler:{ (UIAlertAction)in
+            self.handleDeleteAction(noteInfo:noteInfo)
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler:{ (UIAlertAction)in
+            print("User click Dismiss button")
+        }))
+        self.controller?.present(alert, animated: true, completion:nil)
+    }
+    
     func clearTrash() {
         if self.notes.isEmpty {return}
-        let alert = UIAlertController(title: "", message: "清空后的内容将不能够被恢复。确认要清空吗？", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "", message: "笔记被清空后将不能够被恢复。确认要清空吗？", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "确认清空", style: .destructive , handler:{ (UIAlertAction)in
             self.handleClearTrash()
         }))

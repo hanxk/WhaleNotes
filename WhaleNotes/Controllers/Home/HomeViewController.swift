@@ -316,7 +316,7 @@ extension HomeViewController {
         let navVC = MyNavigationController(rootViewController: vc)
         navVC.modalPresentationStyle = .overFullScreen
         navVC.modalTransitionStyle = .crossDissolve
-        self.navigationController?.present(navVC, animated: true, completion: nil)
+        self.present(navVC, animated: true, completion: nil)
     }
 }
 

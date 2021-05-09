@@ -36,6 +36,7 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
+        self.definesPresentationContext = true
     }
     
     override func viewWillAppear(_ animated: Bool) {

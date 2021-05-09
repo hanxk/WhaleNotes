@@ -39,8 +39,8 @@ class NotesStore {
     func deleteNotesForever(noteIDs:[String]) throws {
         try self.db.transaction {
             for noteID in noteIDs {
-                try noteDao.delete(noteID, softDel: false)
                 try self.noteTagDao.delete(noteId: noteID)
+                try noteDao.delete(noteID)
             }
         }
     }

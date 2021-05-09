@@ -30,6 +30,7 @@ target 'WhaleNotes' do
   pod 'Zip'
   pod 'Alamofire', '~> 5.2'
   pod 'Cache'
+  pod 'SwiftMessages'
 #  pod 'EZSwiftExtensions'
 #  pod 'QuickTableViewController'
   # Pods for WhaleNotes

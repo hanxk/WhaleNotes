@@ -325,7 +325,7 @@ extension NoteRepo {
     func deleteNote(_ noteInfo:NoteInfo) -> Observable<Void> {
         return Observable<Void>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Void in
-                try self.noteDao.delete(noteInfo.id)
+                try self.noteDao.mark2Del(noteInfo.id)
                 try self.noteTagDao.delete(noteId: noteInfo.id)
             }
         }

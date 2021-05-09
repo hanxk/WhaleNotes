@@ -112,13 +112,13 @@ extension NoteDao {
         try db.execute(updateSQL, args: status.rawValue,updatedAt.timeIntervalSince1970,noteId)
     }
     
-    func delete( _ id:String,softDel:Bool=false) throws {
-        var sql:String
-        if softDel {
-            sql = "UPDATE note SET is_del = 1,updated_at = \(Date().timeIntervalSince1970) WHERE id = ?"
-        }else {
-            sql = "delete from note where id = ?"
-        }
+    func mark2Del( _ id:String) throws {
+        let sql = "UPDATE note SET is_del = 1,updated_at = \(Date().timeIntervalSince1970) WHERE id = ?"
+        try db.execute(sql, args: id)
+    }
+    
+    func delete( _ id:String) throws {
+        let sql:String = "delete from note where id = ?"
         try db.execute(sql, args: id)
     }
     

@@ -8,6 +8,7 @@
 
 import UIKit
 import FloatingPanel
+import SwiftMessages
 
 class PopMenuController:UITableViewController  {
     
@@ -35,15 +36,13 @@ class PopMenuController:UITableViewController  {
         fpc.surfaceView.appearance = appearance
         fpc.surfaceView.contentPadding = contentVC.contentPadding
         // Define shadows
-//        let shadow = SurfaceAppearance.Shadow()
-//        shadow.color = UIColor.black
-//        shadow.offset = CGSize(width: 0, height: 16)
-//        shadow.radius = 16
-//        shadow.spread = 8
-
-        // Define corner radius and background color
+        let shadow = SurfaceAppearance.Shadow()
+        shadow.color = UIColor.black
+        shadow.offset = CGSize(width: 0, height: 16)
+        shadow.radius = 16
+        shadow.spread = 8
         
-//        fpc.surfaceView.cornerRadius = 12.0
+        fpc.surfaceView.cornerRadius = 12.0
         fpc.backdropView.backgroundColor = .black
         fpc.surfaceView.grabberHandle.isHidden = true
         fpc.panGestureRecognizer.isEnabled = false
@@ -52,7 +51,17 @@ class PopMenuController:UITableViewController  {
         fpc.backdropView.dismissalTapGestureRecognizer.isEnabled = true
         fpc.delegate = contentVC
         fpc.set(contentViewController: contentVC)
+        
         vc.present(fpc, animated: true, completion: nil)
+
+        
+//        let segue = SwiftMessagesSegue(identifier: "123", source: vc, destination: self)
+//        segue.configure(layout: .bottomCard)
+//        segue.perform()
+        
+//        var config = SwiftMessages.defaultConfig
+//        config.duration = .forever
+//        SwiftMessages.show(config: config, view: fpc.view)
     }
     
     override func viewDidLoad() {
