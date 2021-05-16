@@ -17,14 +17,14 @@ protocol NoteCardProvider {
 
 enum StyleConfig {
     static let padding:CGFloat = 12
-    static let spacing:CGFloat = 10
+    static let spacing:CGFloat = 14
     static let insetH:CGFloat = 12
     static let insetV:CGFloat = 14
-    static let cornerRadius:CGFloat = 6
+    static let cornerRadius:CGFloat = 8
     
-    static let footerHeight:CGFloat = 48
+    static let footerHeight:CGFloat = 46
     
-    static let iconTintColor  = UIColor(hexString: "#A4A4A4")
+    static let iconTintColor  = UIColor(hexString: "#777777")
 }
 
 enum NoteCardAction: Int {
@@ -91,30 +91,15 @@ class NoteCardNode: ASCellNode {
     let shadowOffsetY:CGFloat = 4
     private lazy var  cardbackground = ASDisplayNode().then {
         $0.backgroundColor = .white
+        
         $0.cornerRadius = StyleConfig.cornerRadius
+        $0.borderWidth = 1
+        $0.borderColor = UIColor(red: 0.937, green: 0.945, blue: 0.957, alpha: 1).cgColor
         
-        
-        if isEditing  {
-//            $0.shadowColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.7).cgColor
-//            $0.shadowOpacity = 1
-//            $0.shadowRadius = 4
-//            $0.shadowOffset = .zero
-            
-            //            $0.layer.borderWidth = 1
-            //            $0.layer.borderColor = UIColor(red: 0.094, green: 0.075, blue: 0.125, alpha: 0.1).cgColor
-        }
-        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.005).cgColor
+        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
         $0.shadowOpacity = 1
-        $0.shadowRadius = 1
-        $0.shadowOffset = CGSize(width: 0, height: 0)
-//        $0.shadowOpacity = 1
-//        $0.shadowRadius = 6
-//        $0.shadowOffset = .zero
-        
-        //        $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03).cgColor
-        //        $0.shadowRadius = 5
-        //        $0.shadowOffset = CGSize(width: 0, height: 0)
-        //        $0.shadowOpacity = 1
+        $0.shadowRadius = 5
+        $0.shadowOffset = CGSize(width: 0, height: 2)
     }
     
     
@@ -134,7 +119,7 @@ class NoteCardNode: ASCellNode {
                 $0.scrollEnabled = false
                 $0.typingAttributes = getTitleAttributesString()
                 $0.textView.isEditable = isEditing
-                $0.isUserInteractionEnabled =  isEditing
+//                $0.isUserInteractionEnabled =  isEditing
                 $0.delegate = self
                 $0.textView.tag = EditViewTag.title.rawValue
             }
@@ -144,9 +129,6 @@ class NoteCardNode: ASCellNode {
         
         // 内容
         if isEditing || note.content.isNotEmpty {
-            
-            
-            
             
             let content = note.content.trimmingCharacters(in: .whitespacesAndNewlines)
             

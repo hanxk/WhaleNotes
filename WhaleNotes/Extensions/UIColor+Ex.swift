@@ -11,23 +11,26 @@ import UIKit
 extension UIColor {
     open class var brand: UIColor {
         get {
-            
+           
 //            return UIColor(hexString: "#F6C641")!
-            return UIColor(hexString: "#F4BE42")! //#1D71E7
+//            return UIColor(hexString: "#F7D549")!
+            return UIColor(hexString: "#F1B029")!
+//            return UIColor(hexString: "#EC5564")!
+//            return .link
         }
     }
     
     open class var link: UIColor {
         get {
-//            return UIColor(hexString: "#0645ad")!
-            return UIColor(hexString: "#E6B91D")!
-//            return .brand
+            return UIColor(hexString: "#385898")!
+//            return UIColor(hexString: "#DEBF43")!
         }
     }
     open class var cursor: UIColor {
         get {
 //            return UIColor(hexString: "#F4B63F")!
-            return UIColor(hexString: "#E6B91D")!
+            return .link
+//            return UIColor(hexString: "#E6B91D")!
         }
     }
     
@@ -35,7 +38,7 @@ extension UIColor {
         get {
             //  2b292e          return UIColor(named: "PrimaryText")!
 //            UIColor.init(hexString: "#37352F")
-            UIColor.init(hexString: "#333333")
+            UIColor.init(hexString: "#373535")
         }
     }
     open class var primaryText2: UIColor {
@@ -146,14 +149,13 @@ extension UIColor {
     }
     open class var sidemenuSelectedTint: UIColor {
         get {
-            return UIColor.cardText
+            return UIColor.init(hexString: "#333333")
         }
     }
     
     open class var sidemenuText: UIColor {
         get {
-//            return UIColor.init(hexString: "#202020")
-            return UIColor.cardText
+            return UIColor.init(hexString: "#444444")
         }
     }
     
@@ -216,8 +218,8 @@ extension UIColor {
         get {
             
 //            return UIColor.init(hexString: "#F6F6F6")
-            return UIColor.init(hexString: "#F7F7F7")
-//            return UIColor.white
+//            return UIColor.init(hexString: "#F7F7F7")
+            return UIColor.white
 //            return UIColor.init(hexString: "#fafafa")
         }
     }

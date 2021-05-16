@@ -15,7 +15,7 @@ import UIKit
 
 let lineHeight:CGFloat = 30
 let defaultFont = MarkdownAttributes.MonospaceFont
-let fontName  = "Avenir Next"
+//let fontName  = "Avenir Next"
 public struct MarkdownAttributes {
     
     private static let paragraphStyle = { () -> NSMutableParagraphStyle in
@@ -85,7 +85,8 @@ public struct MarkdownAttributes {
 //        let bodyFont = UIFont.preferredFont(forTextStyle: .body)
         let size:CGFloat = 16
 //        return bodyFont
-        return UIFont(name:fontName,size: size)!
+//        return UIFont(name:fontName,size: size)!
+        return UIFont.systemFont(ofSize: size)
 //        return UIFont(name:"Courier",size: size)!
 //        return UIFont(name: "Menlo", size: size) ?? UIFont(name: "Courier", size: size) ?? bodyFont
     }()
@@ -100,7 +101,7 @@ public struct MarkdownAttributes {
     static let headerFont2: UIFont = {
 //        let headerFont = UIFont.preferredFont(forTextStyle: .headline)
         let size:CGFloat =  20
-       let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
+//       let font =  UIFont(name:fontName,size: size) ?? UIFont.systemFont(ofSize: size)
        return fontWithTraits(traits: .traitBold, font: font)
    }()
     

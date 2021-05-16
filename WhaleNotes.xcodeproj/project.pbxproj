@@ -562,7 +562,6 @@
 			isa = PBXGroup;
 			children = (
 				1899EB50258A28C70003F4D6 /* Provider */,
-				1899EB412587724B0003F4D6 /* Cells */,
 				18286BA725876BED00541526 /* NotesListView.swift */,
 				1899EB43258772920003F4D6 /* NoteCardNode.swift */,
 				188BD405259315D70050D896 /* MdEditorNode.swift */,
@@ -926,13 +925,6 @@
 				188BD41325946FE10050D896 /* NoteContentCellNode.swift */,
 			);
 			path = Nodes;
-			sourceTree = "<group>";
-		};
-		1899EB412587724B0003F4D6 /* Cells */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Cells;
 			sourceTree = "<group>";
 		};
 		1899EB50258A28C70003F4D6 /* Provider */ = {

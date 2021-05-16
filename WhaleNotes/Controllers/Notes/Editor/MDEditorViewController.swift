@@ -55,7 +55,7 @@ class MDEditorViewController: UIViewController {
         $0.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: bottomExtraSpace, right: 0)
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
-        $0.view.keyboardDismissMode = .interactive
+        $0.view.keyboardDismissMode = .none
     }
     
     
@@ -89,6 +89,11 @@ class MDEditorViewController: UIViewController {
         
         self.setupNavgationBar()
         self.registerTableViewTaped()
+        
+        
+        if let cell = self.getNoteContentCellNode() {
+            cell.textNode.textView.becomeFirstResponder()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -102,9 +107,6 @@ class MDEditorViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let cell = self.getNoteContentCellNode() {
-            cell.textNode.textView.becomeFirstResponder()
-        }
     }
     
     private func getNoteContentCellNode() -> NoteContentCellNode? {

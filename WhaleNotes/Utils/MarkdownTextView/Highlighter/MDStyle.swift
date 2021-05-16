@@ -34,6 +34,7 @@ extension MDStyle {
             fontName = "AvenirNext-Medium"
         }
         return UIFont(name:fontName,size: fontSize) ?? UIFont.systemFont(ofSize: fontSize,weight: weight)
+//        return UIFont.systemFont(ofSize: fontSize,weight: weight)
     }
 }
 

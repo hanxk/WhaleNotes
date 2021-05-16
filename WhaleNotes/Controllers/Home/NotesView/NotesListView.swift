@@ -274,8 +274,8 @@ extension NotesListView {
 //MARK: ASTableDelegate
 extension NotesListView:ASTableDelegate {
     func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
-        let noteInfo = self.notes[indexPath.row]
-        self.openEditorVC(noteInfo: noteInfo)
+//        let noteInfo = self.notes[indexPath.row]
+//        self.openEditorVC(noteInfo: noteInfo)
     }
     
     func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
@@ -289,6 +289,9 @@ extension NotesListView:ASTableDelegate {
         }
     }
     
+}
+class MyTapGesture: UITapGestureRecognizer {
+    var noteInfo:NoteInfo!
 }
 
 //MARK: ASTableDataSource
@@ -313,8 +316,19 @@ extension NotesListView:ASTableDataSource {
         node.textEdited {[weak self] text,editViewTag in
             self?.handleEditText(text: text, editViewTag: editViewTag, noteId: noteInfo.note.id)
         }
+        let doubleTapGesture = MyTapGesture(target: self, action: #selector(handleDoubleTap))
+        doubleTapGesture.numberOfTapsRequired = 2
+        doubleTapGesture.noteInfo = noteInfo
+        node.view.addGestureRecognizer(doubleTapGesture)
+
         return node
     }
+    
+    @objc private func handleDoubleTap(_ tapGesture: UITapGestureRecognizer) {
+        guard let tapGesture = tapGesture as?MyTapGesture else { return }
+        self.openEditorVC(noteInfo: tapGesture.noteInfo)
+    }
+    
     private func handleEditAction(noteId:String) {
         guard let newIndex =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
         

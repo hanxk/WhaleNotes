@@ -19,9 +19,9 @@ import FloatingPanel
 
 
 enum FloatButtonConstants {
-    static let btnSize:CGFloat = 54
+    static let btnSize:CGFloat = 56
     static let trailing:CGFloat = 16
-    static let bottom:CGFloat = 16
+    static let bottom:CGFloat = 12
     static let iconSize:CGFloat = 20
 }
 
@@ -552,14 +552,14 @@ extension HomeViewController  {
         switch mode {
         case .trash:
             if self.trashFloatButton == nil {
-                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 19)
+                self.trashFloatButton =  self.generateFloatButton(background: UIColor(hexString: "#DD4C4F"), iconName: "xmark.bin", imageSize: 22)
                 return
             }
             self.newNoteFloatButton?.isHidden  = true
             self.trashFloatButton?.isHidden  = false
         default:
             if self.newNoteFloatButton == nil {
-                self.newNoteFloatButton =  self.generateFloatButton(background: UIColor.brand, iconName: "plus", imageSize: 21)
+                self.newNoteFloatButton =  self.generateFloatButton(background: .brand, iconName: "plus", imageSize: 24)
                 return
             }
             self.trashFloatButton?.isHidden  = true
@@ -573,22 +573,22 @@ extension HomeViewController  {
             $0.adjustsImageWhenHighlighted = false
             let layer0 = $0.layer
             
+            
+            layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.17).cgColor
+
+            layer0.shadowOpacity = 1
+
+            layer0.shadowRadius = 4
+
+            layer0.shadowOffset = CGSize(width: 0, height: 4)
+            
             if iconName == "plus" {
-                layer0.shadowColor = UIColor(red: 0.957, green: 0.745, blue: 0.259, alpha: 0.4).cgColor
+                
                 $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .medium), for: .normal)
-                layer0.shadowColor = UIColor(red: 0.957, green: 0.745, blue: 0.259, alpha: 0.2).cgColor
 
-                layer0.shadowOpacity = 1
 
-                layer0.shadowRadius = 4
-
-                layer0.shadowOffset = CGSize(width: 2, height: 2)
             }else {
-                layer0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
-                $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .regular), for: .normal)
-                layer0.shadowOpacity = 0
-                layer0.shadowRadius = 3
-                layer0.shadowOffset = CGSize(width: 2, height: 2)
+                $0.setImage( UIImage(systemName: iconName, pointSize: imageSize, weight: .medium), for: .normal)
             }
             
             $0.backgroundColor = background

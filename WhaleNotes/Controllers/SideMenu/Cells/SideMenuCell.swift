@@ -12,10 +12,10 @@ class SideMenuCell: UITableViewCell {
   
     private lazy var cellBgView = SideMenuViewController.generateCellSelectedView()
     
-    private  let arrowButtonWidth = 36
+    private  let arrowButtonWidth = 32
     private  let arrowButtonSpace = 0
     
-    let iconSize:CGFloat = 18
+    let iconSize:CGFloat = 16
     
     var arrowButtonTapAction:(() -> Void)?
     
@@ -23,7 +23,8 @@ class SideMenuCell: UITableViewCell {
         didSet {
             self.cellBgView.isHidden = !cellIsSelected
             
-            iconImageView.tintColor = self.cellIsSelected ? .sidemenuSelectedTint : UIColor(hexString: "#6F6F6F")
+//            iconImageView.tintColor = self.cellIsSelected ? .sidemenuSelectedTint : UIColor(hexString: "#777777")
+            iconImageView.tintColor = UIColor(hexString: "#777777")
             
             let weight:UIFont.Weight = self.cellIsSelected ? .medium : .regular
             titleLabel.font = UIFont.systemFont(ofSize: 17, weight: weight)
@@ -41,7 +42,7 @@ class SideMenuCell: UITableViewCell {
     private lazy var arrowButton:UIButton = UIButton().then {
 //        let img = UIImage(systemName: "chevron.right",pointSize: 14)?.withRenderingMode(.alwaysTemplate)
 //        $0.setImage(img, for: .normal)
-        $0.tintColor = UIColor(hexString: "#6F6F6F")
+        $0.tintColor = UIColor(hexString: "#777777")
         $0.addTarget(self, action: #selector(arrowButtonTapped), for: .touchUpInside)
 //        $0.backgroundColor = .red
     }
@@ -78,7 +79,7 @@ class SideMenuCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(arrowButton)
         titleLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(SideMenuCellContants.titlePaddingRight)
+            make.leading.equalTo(iconImageView.snp.trailing).offset(16)
             make.trailing.equalTo(arrowButton.snp.leading)
             make.centerY.equalToSuperview()
         }

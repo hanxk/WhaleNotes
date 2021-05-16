@@ -53,12 +53,12 @@ extension  ToolbarProvider {
         menuButtonNode = ToolbarProvider.generateIconButton(imgName: "ellipsis", cardAction: .menu)
         menuButtonNode.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
         
-        editButtonNode = ToolbarProvider.generateIconButton(imgName: "pencil", cardAction: .edit)
-        editButtonNode.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
+//        editButtonNode = ToolbarProvider.generateIconButton(imgName: "pencil", cardAction: .edit)
+//        editButtonNode.addTarget(self, action: #selector(actionButtonTapped), forControlEvents: .touchUpInside)
         
         cell.addSubnode(dateNode)
         cell.addSubnode(menuButtonNode)
-        cell.addSubnode(editButtonNode)
+//        cell.addSubnode(editButtonNode)
     }
     
     func layout(constrainedSize: ASSizeRange) -> ASLayoutSpec {
@@ -83,7 +83,7 @@ extension  ToolbarProvider {
     func getDateLabelAttributes(text: String) -> NSAttributedString {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 13, weight: .regular),
-            .foregroundColor: UIColor(hexString: "#888888"),
+            .foregroundColor: UIColor(hexString: "#777777"),
         ]
         return NSMutableAttributedString(string: text, attributes: attributes)
     }
