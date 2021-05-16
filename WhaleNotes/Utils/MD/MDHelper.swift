@@ -11,7 +11,7 @@ import UIKit
 class MDHelper:NSObject   {
     
     let markdownRenderer = MarkdownRender.shared()
-    var highlightmanager = MarkdownHighlightManager()
+    var highlightmanager = MDSyntaxHighlighter()
     let bag = DisposeBag()
     
     var shouldRender = false

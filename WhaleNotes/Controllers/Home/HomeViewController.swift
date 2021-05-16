@@ -73,19 +73,6 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
         self.setup()
         
         NotesSyncEngine.shared.setup()
-        
-//        CloudModel.currentModel.refresh { error in
-//            if let error = error {
-//              let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
-//              alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-//              self.present(alert, animated: true, completion: nil)
-////              self.tableView.refreshControl?.endRefreshing()
-//              return
-//            }
-//            print(CloudModel.currentModel.notes)
-////            self.tableView.refreshControl?.endRefreshing()
-////            self.reloadSnapshot(animated: true)
-//        }
     }
     
     

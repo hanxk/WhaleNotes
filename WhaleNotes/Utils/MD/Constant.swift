@@ -66,3 +66,10 @@ let cloudPath: String = {
 }()
 
 let PAGESIZE = 10
+
+
+var window:UIWindow  {
+    return UIApplication.shared.windows[0]
+//       let topPadding = window.safeAreaInsets.top
+//       let bottomPadding = window.safeAreaInsets.bottom
+}

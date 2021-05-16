@@ -9,15 +9,21 @@ import UIKit
 
 let paragraphStyle = { () -> NSMutableParagraphStyle in
     let paraStyle = NSMutableParagraphStyle()
-    paraStyle.lineHeightMultiple = 1.2
+    paraStyle.lineSpacing = 6
     return paraStyle
 }()
 
-class HighlightStyle {
-    static var boldFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(16), weight: UIFont.Weight.medium)
-    static var normalFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(16), weight: UIFont.Weight.regular)
+enum MDStyleConfig {
     
-//    var textColor: UIColor = Configure.shared.theme.value == .black ? rgb(200,200,190) : rgb(54,54,64)
+    static let headerFont:UIFont = UIFont.systemFont(ofSize: 18,weight: .medium)
+    static let boldFont:UIFont = UIFont.systemFont(ofSize: 16,weight: .medium)
+    static let normalFont:UIFont = UIFont.systemFont(ofSize: 16)
+}
+
+class HighlightStyle {
+//    static var boldFont:UIFont = MDConfig.font.bold()!
+//    static var normalFont = MDConfig.font
+    
     var textColor: UIColor = UIColor.primaryText
     var backgroundColor: UIColor = .clear
     var italic: Bool = false
@@ -26,7 +32,7 @@ class HighlightStyle {
 
     var attrs: [NSAttributedString.Key : Any] {
         
-        return [NSAttributedString.Key.font : bold ? HighlightStyle.boldFont : HighlightStyle.normalFont,
+        return [NSAttributedString.Key.font : bold ? MDStyleConfig.boldFont : MDStyleConfig.normalFont,
                 .obliqueness : italic ? 0.3 : 0,
                 .foregroundColor : textColor,
                 .backgroundColor : backgroundColor,
@@ -49,7 +55,7 @@ struct Syntax {
     }
 }
 
-struct MarkdownHighlightManager {
+struct MDSyntaxHighlighter {
     var isEdit:Bool
     init(isEdit:Bool=true) {
         self.isEdit = isEdit
@@ -78,7 +84,12 @@ struct MarkdownHighlightManager {
         Syntax("- \\[( |x)\\] .*",.anchorsMatchLines){
 //            $0.textColor = rgb(6,82,120)
             $0.textColor = .primaryText
-        },//TodoList
+        },
+        Syntax(#"(?<=\s|^)#([^#\s]+(?:(?: *[^#\s]+)*#)?)"#,.anchorsMatchLines){
+            $0.bold = true
+            $0.textColor = .link
+        }
+        //TodoList
 //        Syntax("(\\[.+\\]\\([^\\)]+\\))|(<.+>)") {
 //            $0.textColor = rgb(66,110,179)
 //        },//Links
@@ -145,7 +156,7 @@ struct MarkdownHighlightManager {
         
         let nomarlColor = Configure.shared.theme.value == .black ? rgb(160,160,160) : rgb(54,54,64)
  
-        text.setAttributes([.font : HighlightStyle.normalFont,
+        text.setAttributes([.font : MDStyleConfig.normalFont,
                               .paragraphStyle : paragraphStyle,
                               .foregroundColor : nomarlColor], range: validRange)
         syntaxArray.forEach { (syntax) in
@@ -189,7 +200,7 @@ struct MarkdownHighlightManager {
     
     func getTextStyleAttributes() -> [NSAttributedString.Key : Any] {
         let nomarlColor = Configure.shared.theme.value == Theme.black ? rgb(160,160,160) : rgb(54,54,64)
-        return [.font : HighlightStyle.normalFont,
+        return [.font : MDStyleConfig.normalFont,
                 .paragraphStyle : paragraphStyle,
                 .foregroundColor : nomarlColor]
     }

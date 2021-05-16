@@ -151,7 +151,31 @@ class SideMenuViewController: UIViewController {
     var sysMenuItems:[SystemMenuItem] = []
     var visibleTagIds:[String] = []
     
+//    var selectedMenu:SideMenuItem! {
+//        didSet {
+//            switch self.selectedMenu {
+//            case .tag(let tag):
+//                break
+//            case .system(let sysMenuItem)
+//                break
+//            }
+//        }
+//    }
     var selectedMenu:SideMenuItem!
+//        didSet {
+//            switch self.selectedMenu {
+//            case .tag(let tagId):
+//                if let tag = tagsMap[tagId] {
+//                    self.delegate?.sideMenuItemSelected(tag: tag)
+//                }
+//                break
+//            case .system(let sysMenuItem):
+//                break
+//            case .none:
+//                break
+//            }
+//        }
+//    }
     
     func getVisibleTagIds() -> [String] {
         var expandTags:[String] = []
@@ -308,6 +332,7 @@ extension SideMenuViewController {
         case .Tag_CHANGED:
             if let tag = notification.object as? Tag {
                 self.selectedMenu = SideMenuItem.tag(id: tag.id)
+                self.delegate?.sideMenuItemSelected(tag: tag)
             }
             break
         case .Tag_DELETED:

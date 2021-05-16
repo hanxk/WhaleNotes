@@ -12,6 +12,8 @@ import AsyncDisplayKit
 import FloatingPanel
 import DeepDiff
 import SwiftMessages
+import MarkdownKit
+import SwiftyMarkdown
 
 
 enum NoteListMode {
@@ -57,6 +59,7 @@ class NotesListView: UIView {
         $0.dataSource = self
         $0.contentInset = UIEdgeInsets(top: NotesListViewConstants.topPadding, left: 0, bottom: NotesListViewConstants.bottomPadding, right: 0)
         $0.leadingScreensForBatching = 1.0
+        $0.allowsSelection = true
         $0.backgroundColor = .clear
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .onDrag
@@ -68,6 +71,7 @@ class NotesListView: UIView {
     
     private lazy var insetsTop:CGPoint = tableView.contentOffset
     
+    private var markdownParser:MarkdownParser!
     
     enum MenuAction:Int {
 //        case edit =  1
@@ -90,7 +94,6 @@ class NotesListView: UIView {
         tableView.frame = self.frame
         tableView.backgroundColor = .bg
         self.addSubnode(tableView)
-        
     }
     
     func loadData(mode:NoteListMode){
@@ -130,10 +133,10 @@ class NotesListView: UIView {
     }
     
     func openEditorVC(noteInfo:NoteInfo,isNewCreated:Bool = false) {
-        let editorVC  = MDEditorViewController()
+        let editorVC  = NoteMDViewController()
         editorVC.noteInfo = noteInfo
         editorVC.isNewCreated = isNewCreated
-        editorVC.callbackNoteInfoEdited {[weak self] noteInfo in
+        editorVC.callbackNoteInfoEdited = {[weak self] noteInfo in
             print("openEditorVC callback")
             self?.handleNoteInfoUpdated(noteInfo)
         }
@@ -303,19 +306,21 @@ extension NotesListView:ASTableDataSource {
     func tableNode(_ tableNode: ASTableNode, nodeForRowAt indexPath: IndexPath) -> ASCellNode {
         
         let noteInfo = self.notes[indexPath.row]
-        let isEditing = noteInfo.note.id == (selectedNoteId ?? "")
-        let tagTitlesWidth  = getTagsTitleWidth(tags: noteInfo.tags)
-        let node = NoteCardNode(noteInfo:noteInfo, tagTitlesWidth: tagTitlesWidth, isEditing: isEditing,action: { [weak self] action in
+        
+        let attString = MDParser.shared.parse(markdown: noteInfo.content)
+        
+        let node = NoteCardNode(noteInfo:noteInfo, attString: attString,action: { [weak self] action in
             self?.handleCardAction(action,noteId: noteInfo.note.id)
         })
-        node.textChanged {[weak node] (newText: String) in
-            UIView.performWithoutAnimation {
-                node?.setNeedsLayout()
-            }
-        }
-        node.textEdited {[weak self] text,editViewTag in
-            self?.handleEditText(text: text, editViewTag: editViewTag, noteId: noteInfo.note.id)
-        }
+        node.delegate = self
+//        node.textChanged {[weak node] (newText: String) in
+//            UIView.performWithoutAnimation {
+//                node?.setNeedsLayout()
+//            }
+//        }
+//        node.textEdited {[weak self] text,editViewTag in
+//            self?.handleEditText(text: text, editViewTag: editViewTag, noteId: noteInfo.note.id)
+//        }
         let doubleTapGesture = MyTapGesture(target: self, action: #selector(handleDoubleTap))
         doubleTapGesture.numberOfTapsRequired = 2
         doubleTapGesture.noteInfo = noteInfo
@@ -401,6 +406,13 @@ extension NotesListView:ASTableDataSource {
                 Logger.error($0)
             })
             .disposed(by: disposeBag)
+    }
+}
+
+
+extension NotesListView:NoteCardNodeDelegate{
+    func tagTapped(tag: Tag) {
+        EventManager.shared.post(name: .Tag_CHANGED,object: tag)
     }
 }
 
@@ -635,5 +647,18 @@ extension NotesListView {
 //        // 过滤掉被删除的notes
 //        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
 //        self.refreshDataSource(newNotes: newNotes)
+    }
+}
+
+extension NSMutableAttributedString {
+    func setLineSpacing(_ spacing: CGFloat) {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = spacing
+        let attributes: [NSAttributedString.Key: Any] = [
+            NSAttributedString.Key.paragraphStyle: paragraphStyle
+        ]
+
+        let range = (string as NSString).range(of: string)
+        addAttributes(attributes, range: range)
     }
 }

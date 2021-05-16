@@ -98,7 +98,7 @@
 		186A340325831B0F0003E926 /* Protocols+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A340125831B0E0003E926 /* Protocols+Helpers.swift */; };
 		186A340425831B0F0003E926 /* InteractiveModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A340225831B0E0003E926 /* InteractiveModal.swift */; };
 		186A3424258323310003E926 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A3423258323310003E926 /* Config.swift */; };
-		186A34F4258349130003E926 /* HighlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A34F3258349130003E926 /* HighlightManager.swift */; };
+		186A34F4258349130003E926 /* MDSyntaxHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A34F3258349130003E926 /* MDSyntaxHighlighter.swift */; };
 		186A34F8258349550003E926 /* Configure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A34F7258349550003E926 /* Configure.swift */; };
 		186A351925834A850003E926 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A351825834A850003E926 /* Utils.swift */; };
 		186A351D25834BF00003E926 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A351C25834BF00003E926 /* Theme.swift */; };
@@ -162,6 +162,14 @@
 		18C13259259B4AFA00D1529B /* NoteContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C13258259B4AFA00D1529B /* NoteContentCell.swift */; };
 		18C6379824BC1091007E01B9 /* BlockPositionDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379724BC1091007E01B9 /* BlockPositionDao.swift */; };
 		18C6379C24BC5159007E01B9 /* BlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6379B24BC5159007E01B9 /* BlockInfo.swift */; };
+		18CD52CB2650DC2800F0039D /* NoteMDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52CA2650DC2800F0039D /* NoteMDViewController.swift */; };
+		18CD52CD2650DD2800F0039D /* MDTextViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52CC2650DD2800F0039D /* MDTextViewWrapper.swift */; };
+		18CD52CF2650ECCD00F0039D /* EditorToolbarWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52CE2650ECCD00F0039D /* EditorToolbarWrapper.swift */; };
+		18CD52D12650F6FB00F0039D /* MyTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52D02650F6FB00F0039D /* MyTextView.swift */; };
+		18CD52D426510D4C00F0039D /* MDParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52D326510D4C00F0039D /* MDParser.swift */; };
+		18CD52D7265115FB00F0039D /* MDHeaderCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52D6265115FB00F0039D /* MDHeaderCommon.swift */; };
+		18CD52D92651163500F0039D /* MDTagParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52D82651163500F0039D /* MDTagParser.swift */; };
+		18CD52DB26511F1D00F0039D /* MDLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CD52DA26511F1D00F0039D /* MDLinkParser.swift */; };
 		18D1BEA824BED44900817D02 /* BaseRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D1BEA724BED44900817D02 /* BaseRepo.swift */; };
 		18D3A13526230A1B0053262E /* EmojiSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3A13126230A1B0053262E /* EmojiSectionHeaderView.swift */; };
 		18D3A13626230A1B0053262E /* EmojiSearchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3A13226230A1B0053262E /* EmojiSearchInputView.swift */; };
@@ -304,7 +312,7 @@
 		186A340125831B0E0003E926 /* Protocols+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Protocols+Helpers.swift"; sourceTree = "<group>"; };
 		186A340225831B0E0003E926 /* InteractiveModal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveModal.swift; sourceTree = "<group>"; };
 		186A3423258323310003E926 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		186A34F3258349130003E926 /* HighlightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightManager.swift; sourceTree = "<group>"; };
+		186A34F3258349130003E926 /* MDSyntaxHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDSyntaxHighlighter.swift; sourceTree = "<group>"; };
 		186A34F7258349550003E926 /* Configure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configure.swift; sourceTree = "<group>"; };
 		186A351825834A850003E926 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		186A351C25834BF00003E926 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -380,6 +388,14 @@
 		18C13258259B4AFA00D1529B /* NoteContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteContentCell.swift; sourceTree = "<group>"; };
 		18C6379724BC1091007E01B9 /* BlockPositionDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPositionDao.swift; sourceTree = "<group>"; };
 		18C6379B24BC5159007E01B9 /* BlockInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockInfo.swift; sourceTree = "<group>"; };
+		18CD52CA2650DC2800F0039D /* NoteMDViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteMDViewController.swift; sourceTree = "<group>"; };
+		18CD52CC2650DD2800F0039D /* MDTextViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDTextViewWrapper.swift; sourceTree = "<group>"; };
+		18CD52CE2650ECCD00F0039D /* EditorToolbarWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolbarWrapper.swift; sourceTree = "<group>"; };
+		18CD52D02650F6FB00F0039D /* MyTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTextView.swift; sourceTree = "<group>"; };
+		18CD52D326510D4C00F0039D /* MDParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDParser.swift; sourceTree = "<group>"; };
+		18CD52D6265115FB00F0039D /* MDHeaderCommon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDHeaderCommon.swift; sourceTree = "<group>"; };
+		18CD52D82651163500F0039D /* MDTagParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDTagParser.swift; sourceTree = "<group>"; };
+		18CD52DA26511F1D00F0039D /* MDLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDLinkParser.swift; sourceTree = "<group>"; };
 		18D1BEA724BED44900817D02 /* BaseRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRepo.swift; sourceTree = "<group>"; };
 		18D3A13126230A1B0053262E /* EmojiSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiSectionHeaderView.swift; sourceTree = "<group>"; };
 		18D3A13226230A1B0053262E /* EmojiSearchInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiSearchInputView.swift; sourceTree = "<group>"; };
@@ -788,7 +804,6 @@
 				186A354E2583505D0003E926 /* Resource */,
 				18F57C34256FD70800834DB5 /* MDEditorView.swift */,
 				186A352225834D140003E926 /* Core */,
-				186A34F3258349130003E926 /* HighlightManager.swift */,
 				186A34F7258349550003E926 /* Configure.swift */,
 				186A351825834A850003E926 /* Utils.swift */,
 				186A351C25834BF00003E926 /* Theme.swift */,
@@ -1015,6 +1030,30 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		18CD52C92650DC0400F0039D /* NotesEditor */ = {
+			isa = PBXGroup;
+			children = (
+				18CD52D5265115EB00F0039D /* Parsers */,
+				18CD52CA2650DC2800F0039D /* NoteMDViewController.swift */,
+				18CD52CC2650DD2800F0039D /* MDTextViewWrapper.swift */,
+				18CD52CE2650ECCD00F0039D /* EditorToolbarWrapper.swift */,
+				18CD52D02650F6FB00F0039D /* MyTextView.swift */,
+				186A34F3258349130003E926 /* MDSyntaxHighlighter.swift */,
+			);
+			path = NotesEditor;
+			sourceTree = "<group>";
+		};
+		18CD52D5265115EB00F0039D /* Parsers */ = {
+			isa = PBXGroup;
+			children = (
+				18CD52D326510D4C00F0039D /* MDParser.swift */,
+				18CD52D6265115FB00F0039D /* MDHeaderCommon.swift */,
+				18CD52D82651163500F0039D /* MDTagParser.swift */,
+				18CD52DA26511F1D00F0039D /* MDLinkParser.swift */,
+			);
+			path = Parsers;
+			sourceTree = "<group>";
+		};
 		18D3A12F26230A1B0053262E /* Emoji */ = {
 			isa = PBXGroup;
 			children = (
@@ -1118,6 +1157,7 @@
 		18E956882449AABA003755BF /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				18CD52C92650DC0400F0039D /* NotesEditor */,
 				18EC4593258CA5FA00CB97A9 /* Tag */,
 				18E7663C24A46F5D005DCB03 /* ArchiveNotes */,
 				183FFA9E2469533C00FDA179 /* ContextMenu */,
@@ -1351,8 +1391,10 @@
 				1865AF06244D4D580006B48D /* DBResult.swift in Sources */,
 				18E7BF79248BAEB300B8AEC1 /* SideMenuBottomView.swift in Sources */,
 				1848ABCF24ED1ACF00BFE0DF /* ImageZoomView.swift in Sources */,
+				18CD52D426510D4C00F0039D /* MDParser.swift in Sources */,
 				18286B932587632000541526 /* Note.swift in Sources */,
 				18C132322599C02600D1529B /* MarkdownTextStorage.swift in Sources */,
+				18CD52CB2650DC2800F0039D /* NoteMDViewController.swift in Sources */,
 				182BE8F7249A00C200C85F8F /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				18E6E677247BBDBF00D598C5 /* BlockDao.swift in Sources */,
 				182BE8F32499F2FF00C85F8F /* BoardsCell.swift in Sources */,
@@ -1360,6 +1402,7 @@
 				1860D5B1261B41D500E1423D /* SyncOperation.swift in Sources */,
 				18E6E670247BB9D700D598C5 /* Block.swift in Sources */,
 				1865AEF6244C61F80006B48D /* UIColor+Ex.swift in Sources */,
+				18CD52DB26511F1D00F0039D /* MDLinkParser.swift in Sources */,
 				181636722591E239004F7108 /* TagExpandCache.swift in Sources */,
 				186A354125834E2E0003E926 /* document.c in Sources */,
 				1879E6F0248F7E640014F3A7 /* MessageAlertViewController.swift in Sources */,
@@ -1375,6 +1418,7 @@
 				184BE518258C83F9001429DD /* PopMenuController.swift in Sources */,
 				18C1323E2599C5D000D1529B /* MDEditorSimpleViewController.swift in Sources */,
 				18058EEF247238C600543B5F /* WaterfallCollectionLayoutInfo.swift in Sources */,
+				18CD52D7265115FB00F0039D /* MDHeaderCommon.swift in Sources */,
 				18E7BF8C248C94F300B8AEC1 /* IconLabel.swift in Sources */,
 				1865AEF9244C79870006B48D /* EditorViewController.swift in Sources */,
 				18C1322D2599C02600D1529B /* MarkdownAttributes.swift in Sources */,
@@ -1426,7 +1470,7 @@
 				1899EB4A258A24310003F4D6 /* ToolbarEditingProvider.swift in Sources */,
 				186A33FA25831A570003E926 /* UIControlMenuAction.swift in Sources */,
 				1860D5B4261B48FE00E1423D /* NotesStore.swift in Sources */,
-				186A34F4258349130003E926 /* HighlightManager.swift in Sources */,
+				186A34F4258349130003E926 /* MDSyntaxHighlighter.swift in Sources */,
 				181F48F62617FF9300B92E82 /* NotesSyncEngine.swift in Sources */,
 				18006F7525A1BEAD00DA4AAA /* MDTagHighlighter.swift in Sources */,
 				18251C18249AF3D500484D23 /* NoteDateCell.swift in Sources */,
@@ -1455,12 +1499,14 @@
 				182BE903249A55C000C85F8F /* NoteDetailMenuCell.swift in Sources */,
 				186A351D25834BF00003E926 /* Theme.swift in Sources */,
 				1879E6EC248E455D0014F3A7 /* BaseAlertViewController.swift in Sources */,
+				18CD52D92651163500F0039D /* MDTagParser.swift in Sources */,
 				188BD40025930AFC0050D896 /* MDHelper.swift in Sources */,
 				182BE8F52499F3D000C85F8F /* BoardTagCell.swift in Sources */,
 				18C13253259B413B00D1529B /* NoteEditorViewController.swift in Sources */,
 				189E6BF9258EF2B3002DE0C8 /* FlowCollectionLayoutDelegate.swift in Sources */,
 				18E956952449B493003755BF /* SideMenuViewController.swift in Sources */,
 				186A3389258102C80003E926 /* HomeActionView.swift in Sources */,
+				18CD52CF2650ECCD00F0039D /* EditorToolbarWrapper.swift in Sources */,
 				18286B962587636400541526 /* Tag.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				18E0521E25A6EC30001E041C /* MDHighlightManager.swift in Sources */,
@@ -1482,6 +1528,7 @@
 				18F3A07624CD8F9000C023EA /* EditorViewModel.swift in Sources */,
 				18A9C54524B0093D0025E0EB /* ImageFetchInfo.swift in Sources */,
 				181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */,
+				18CD52D12650F6FB00F0039D /* MyTextView.swift in Sources */,
 				1859303424BA9E3500D1352A /* Board.swift in Sources */,
 				18E6E674247BBC5800D598C5 /* DBStore.swift in Sources */,
 				18F3D50F24E8C6EE000E94F7 /* EventManager.swift in Sources */,
@@ -1516,6 +1563,7 @@
 				188328F624540FB40097A01D /* Logger.swift in Sources */,
 				18F3A07424CD5F6300C023EA /* BottomPresentationController.swift in Sources */,
 				18ECA6A2245D4A9900E8CE14 /* TLPHAsset+Ex.swift in Sources */,
+				18CD52CD2650DD2800F0039D /* MDTextViewWrapper.swift in Sources */,
 				186A351925834A850003E926 /* Utils.swift in Sources */,
 				189E6C01258EFC29002DE0C8 /* NoteTagsProvider.swift in Sources */,
 				183B00F1258CB5D300A52BDC /* NoteTagDao.swift in Sources */,

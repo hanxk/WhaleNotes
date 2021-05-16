@@ -10,6 +10,7 @@ PODS:
   - Kingfisher (5.15.8):
     - Kingfisher/Core (= 5.15.8)
   - Kingfisher/Core (5.15.8)
+  - MarkdownKit (1.7.1)
   - MBProgressHUD (1.2.0)
   - NewPopMenu (2.1.2)
   - PINCache (3.0.3):
@@ -80,6 +81,7 @@ DEPENDENCIES:
   - FloatingPanel
   - JXPhotoBrowser (~> 3.0)
   - Kingfisher (~> 5.0)
+  - MarkdownKit
   - MBProgressHUD (~> 1.2.0)
   - NewPopMenu (~> 2.0)
   - RxCocoa (~> 5)
@@ -108,6 +110,7 @@ SPEC REPOS:
     - FloatingPanel
     - JXPhotoBrowser
     - Kingfisher
+    - MarkdownKit
     - MBProgressHUD
     - NewPopMenu
     - PINCache
@@ -150,6 +153,7 @@ SPEC CHECKSUMS:
   FloatingPanel: 1af47b69e26df98b8728307254a9a0f4eb3cd645
   JXPhotoBrowser: 7f0bc11f02fbc84ae06829f922f32ce822aa9661
   Kingfisher: a3c03d702433fa6cfedabb2bddbe076fb8f2e902
+  MarkdownKit: 0b15195c63cf3e39387949c4bdeccde0055e252a
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   NewPopMenu: c6129e08e8192f6257ceb5f9a4357e1b59c6e2e7
   PINCache: 7a8fc1a691173d21dbddbf86cd515de6efa55086
@@ -172,6 +176,6 @@ SPEC CHECKSUMS:
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   Zip: 414f59909701fda9a84ab774ebe0f5449b1082cc
 
-PODFILE CHECKSUM: be480eb8f4483d29f0d93b313f99e3285dcd65cd
+PODFILE CHECKSUM: 9c0eb65f8da3aa6e230f3e5e05582e3d0ada351a
 
 COCOAPODS: 1.9.1

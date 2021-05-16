@@ -13,7 +13,7 @@ import EZSwiftExtensions
 class MDEditorView: UIView {
     
     private let textViewInset = UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16)
-    var highlightmanager = MarkdownHighlightManager()
+    var highlightmanager = MDSyntaxHighlighter()
     
     let editView: TextView = TextView().then {
         $0.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -401,16 +401,16 @@ extension MDEditorView {
         }).disposed(by: bag)
         
         Configure.shared.theme.asObservable().subscribe(onNext: { [unowned self] _ in
-            self.highlightmanager = MarkdownHighlightManager()
+            self.highlightmanager = MDSyntaxHighlighter()
             self.textViewDidChange(self.editView)
         }).disposed(by: bag)
         
-        Configure.shared.fontSize.asObservable().subscribe(onNext: { [unowned self] (size) in
-            HighlightStyle.boldFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(size), weight: UIFont.Weight.medium)
-            HighlightStyle.normalFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(size), weight: UIFont.Weight.regular)
-            self.highlightmanager = MarkdownHighlightManager()
-            self.textViewDidChange(self.editView)
-        }).disposed(by: bag)
+//        Configure.shared.fontSize.asObservable().subscribe(onNext: { [unowned self] (size) in
+//            HighlightStyle.boldFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(size), weight: UIFont.Weight.medium)
+//            HighlightStyle.normalFont = UIFont.monospacedDigitSystemFont(ofSize: CGFloat(size), weight: UIFont.Weight.regular)
+//            self.highlightmanager = MDSyntaxHighlighter()
+//            self.textViewDidChange(self.editView)
+//        }).disposed(by: bag)
     }
 }
 

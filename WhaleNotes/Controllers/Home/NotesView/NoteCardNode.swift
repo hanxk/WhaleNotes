@@ -15,6 +15,13 @@ protocol NoteCardProvider {
     func layout(constrainedSize: ASSizeRange) -> ASLayoutSpec
 }
 
+protocol NoteCardNodeDelegate {
+    func tagTapped(tag:Tag)
+}
+
+
+
+
 enum StyleConfig {
     static let padding:CGFloat = 12
     static let spacing:CGFloat = 14
@@ -67,6 +74,8 @@ class NoteCardNode: ASCellNode {
         return note.createdAt == note.updatedAt
     }
     
+    var delegate:NoteCardNodeDelegate? = nil
+    
     private var textChanged: ((String) -> Void)?
     private var cardActionEmit: ((NoteCardAction) -> Void)?
     private var textEdited: ((String,EditViewTag) -> Void)?
@@ -76,7 +85,7 @@ class NoteCardNode: ASCellNode {
     private var titleEditNode :ASEditableTextNode?
     
     private var mdTextViewWrapper:MDTextViewWapper?
-    private var contentEditNode :ASEditableTextNode?
+    private var contentNode :ASTextNode!
     
     private var footerProvider:NoteCardProvider!
     
@@ -86,7 +95,7 @@ class NoteCardNode: ASCellNode {
     
     private var mdHelper:MDHelper?
     
-    var highlightmanager = MarkdownHighlightManager()
+    var highlightmanager = MDSyntaxHighlighter()
     
     let shadowOffsetY:CGFloat = 4
     private lazy var  cardbackground = ASDisplayNode().then {
@@ -103,92 +112,21 @@ class NoteCardNode: ASCellNode {
     }
     
     
-    init(noteInfo:NoteInfo,tagTitlesWidth:[CGFloat],isEditing:Bool = false,action: @escaping (NoteCardAction) -> Void) {
+    init(noteInfo:NoteInfo,attString:NSAttributedString,action: @escaping (NoteCardAction) -> Void) {
         super.init()
-        self.isEditing = isEditing
         self.noteInfo = noteInfo
-        self.tagTitlesWidth = tagTitlesWidth
         self.addSubnode(cardbackground)
+        self.isUserInteractionEnabled = true
         
-        // 标题
-        if isEditing || note.title.isNotEmpty {
-            let titleNode = ASEditableTextNode().then {
-                $0.placeholderEnabled  = isEditing
-                $0.attributedText = NSMutableAttributedString(string: note.title, attributes: getTitleAttributes())
-                $0.attributedPlaceholderText = getTitlePlaceHolderAttributesString()
-                $0.scrollEnabled = false
-                $0.typingAttributes = getTitleAttributesString()
-                $0.textView.isEditable = isEditing
-//                $0.isUserInteractionEnabled =  isEditing
-                $0.delegate = self
-                $0.textView.tag = EditViewTag.title.rawValue
-            }
-            self.addSubnode(titleNode)
-            self.titleEditNode = titleNode
-        }
-        
-        // 内容
-        if isEditing || note.content.isNotEmpty {
-            
-            let content = note.content.trimmingCharacters(in: .whitespacesAndNewlines)
-            
-            let containerSize = CGSize.zero
-            
-            let style = MDStyle(fontSize: 16)
-            let textStorage =  MarkdownTextStorage(style: style)
-            let layoutManager = MyLayoutManger()
-            
-            let textKitComponents: ASTextKitComponents =
-                .init(textStorage: textStorage,
-                      textContainerSize: containerSize,
-                      layoutManager: layoutManager)
-            
-            let placeholderTextKit: ASTextKitComponents =
-                .init(attributedSeedString:  getContentPlaceholderAttributes(attrs: style.mdDefaultAttributes),
-                      textContainerSize: containerSize)
-            
-            
-            let contentNode = ASEditableTextNode.init(textKitComponents: textKitComponents,
-                                                      placeholderTextKitComponents: placeholderTextKit).then {
-                                                        $0.placeholderEnabled  = isEditing
-                                                        //                                $0.attributedPlaceholderText = getContentPlaceholderAttributes()
-                                                        $0.attributedText =  NSMutableAttributedString(string: content, attributes: style.mdDefaultAttributes)
-                                                        $0.scrollEnabled = false
-                                                        //                $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0)
-                                                        $0.textView.isEditable = isEditing
-                                                        $0.typingAttributes = Dictionary(uniqueKeysWithValues:
-                                                                                            style.mdDefaultAttributes.map { key, value in (key.rawValue, value) })
-                                                        $0.delegate = self
-                                                        $0.isUserInteractionEnabled =  isEditing
-                                                        $0.textView.tag = EditViewTag.content.rawValue
-                                                        $0.tintColor =  UIColor.link
-                                                        //                                                $0.backgroundColor = .red
-                                                      }
-            self.addSubnode(contentNode)
-            self.contentEditNode = contentNode
-            
-            
-            let mdTextViewWrapper = MDTextViewWapper(textView: contentNode.textView)
-            mdTextViewWrapper.textviewTappedDelegate =  self
-            self.mdTextViewWrapper = mdTextViewWrapper
-            
-            
-            if isNew { // 新建
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    // your code here
-                    contentNode.becomeFirstResponder()
-                }
-            }
-        }
+        let contentNode = ASTextNode()
+        contentNode.attributedText = attString
+        contentNode.delegate = self
+        contentNode.isSelected = true
+        contentNode.attributedText = attString
+        self.contentNode = contentNode
+        self.addSubnode(contentNode)
         
         self.cardActionEmit  = action
-        
-        // 标签
-        //        if noteInfo.tags.count > 0 {
-        //            let tagsProvider = NoteTagsProvider(noteInfo: noteInfo, tagsSize: tagTitlesWidth)
-        //            self.tagsProvider = tagsProvider
-        //            tagsProvider.attach(cell: self)
-        //        }
         
         // footer
         if isEditing {
@@ -204,6 +142,9 @@ class NoteCardNode: ASCellNode {
         
         self.selectionStyle = .none
         self.backgroundColor = .clear
+        
+        contentNode.linkAttributeNames = [NSAttributedString.Key.tag.rawValue,NSAttributedString.Key.link.rawValue]
+        contentNode.isUserInteractionEnabled = true
     }
     
     
@@ -216,12 +157,13 @@ class NoteCardNode: ASCellNode {
             $0.style.flexShrink = 1.0
             $0.spacing = 4
         }
-        if let titleEditNode = self.titleEditNode {
-            vContentLayout.children?.append(titleEditNode)
-        }
-        if let contentEditNode = self.contentEditNode {
-            vContentLayout.children?.append(contentEditNode)
-        }
+//        if let titleEditNode = self.titleEditNode {
+//            vContentLayout.children?.append(titleEditNode)
+//        }
+//        if let contentEditNode = self.contentEditNode {
+//            vContentLayout.children?.append(contentEditNode)
+//        }
+        vContentLayout.children?.append(contentNode)
         
         // tags
         if let tagsProvider = self.tagsProvider {
@@ -266,23 +208,7 @@ class NoteCardNode: ASCellNode {
     }
 }
 
-extension NoteCardNode:MDTextViewTappedDelegate {
-    func textViewTagTapped(_ textView: UITextView, tag: String) {
-        
-    }
-    
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        
-        guard let contentNode = self.contentEditNode else {
-            return super.hitTest(point, with: event)
-        }
-        if let view = mdTextViewWrapper?.hitTest(self.convert(point, to: contentNode), with: event)
-        {
-            return view
-        }
-        return super.hitTest(point, with: event)
-    }
-}
+
 
 extension NoteCardNode {
     
@@ -327,158 +253,26 @@ extension NoteCardNode {
     }
 }
 
-//MARK: ASEditableTextNodeDelegate
-extension NoteCardNode: ASEditableTextNodeDelegate {
+
+extension NoteCardNode: ASTextNodeDelegate {
     
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
+    func textNode(_ textNode: ASTextNode!, tappedLinkAttribute attribute: String!, value: Any!, at point: CGPoint, textRange: NSRange) {
         
-        // your action here
-        
-        return true
-    }
-    
-    
-    func editableTextNodeDidUpdateText(_ editableTextNode: ASEditableTextNode) {
-        let textView = editableTextNode.textView
-        let newText = textView.text ??  ""
-        
-        //        mdHelper?.textViewDidChange(editableTextNode.textView)
-        //        if  editableTextNode.textView.tag == 1 {
-        //            titleEditNode?.attributedText = getTitleAttributes(text: text)
-        //        }else {
-        //            contentEditNode?.attributedText = getContentAttributes(text: text)
-        //        }
-        if  editableTextNode.textView.tag == EditViewTag.title.rawValue {
-            note.title  = newText
+        if attribute == NSAttributedString.Key.tag.rawValue {// tag
+            
+            
+            if let tagTitle = value as? String, let tag = self.noteInfo.tags.first(where: {$0.title == tagTitle}) {
+                delegate?.tagTapped(tag: tag)
+            }
             return
         }
-        
-        //  找到最后一行尝试去 highlight
-        
-        //1. 先找到光标所在行
-        if let selectedRange = textView.selectedTextRange {
-            let cursorPosition = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
-            print("\(cursorPosition)")
+        if let  url =  value as? URL {
+            UIApplication.shared.open(url)
         }
-        
-        guard let textRange = textView.getCursorTextRange()
-        else { return }
-        let start = textView.offset(from: textView.beginningOfDocument, to: textRange.start)
-        let end = textView.offset(from: textView.beginningOfDocument, to: textRange.end)
-        
-        let range = NSRange(location: start, length: end-start)
-        //        let oldLength = note.content.length
-        //
-        //        var start  =  oldLength > 0 ? oldLength : oldLength
-        //
-        //        let newLength = newText.length
-        //        var len  = abs(oldLength - newLength)
-        //        if len == 0  {
-        //            start  -= 1
-        //            len = 1
-        //            print(newText)
-        //        }
-        //        let visibleRange =  NSMakeRange(start, len)
-        //        note.content  = newText
-        //        highlightmanager.highlight(editableTextNode.textView.textStorage,visibleRange: visibleRange)
-        
-        timer2?.invalidate()
-        timer2 = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(highlight(sender:)), userInfo: range, repeats: false)
-        //        _textWidth = 0
     }
     
-    func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
-        let text = editableTextNode.textView.text ??  ""
-        guard let tag = EditViewTag(rawValue: editableTextNode.textView.tag)  else  { return }
-        self.textEdited?(text,tag)
-    }
-    
-    
-    
-    func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        //       return self.mdHelper?.textView(editableTextNode.textView, shouldChangeTextIn: range, replacementText: text) ?? false
-        let textView = editableTextNode.textView
-        if text == "\n" {
-            let begin = max(range.location - 100, 0)
-            let len = range.location - begin
-            let nsString = textView.text! as NSString
-            let nearText = nsString.substring(with: NSRange(location:begin, length: len))
-            let texts = nearText.components(separatedBy: "\n")
-            //            if texts.count < 2 {
-            //                return true
-            //            }
-            
-            //            let lastLineCount = texts.last!.count   // emoji bug
-            //            let lastLineCount = texts.last!.utf16.count
-            //            let beginning = textView.beginningOfDocument
-            //            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
-            //                let to = textView.position(from: beginning, offset: range.location),
-            //                let textRange = textView.textRange(from: from, to: to) else {
-            //                return true
-            //            }
-            let newText  =  newLine2(texts.last!)
-            if  newText == "\n" {
-                return  true
-            }
-            //            textView.replace(textRange, withText: newText)
-            let from = textView.text.count
-            textView.insertText(newText)
-            let to = textView.text.count
-            
-            //            let textRange = textView.textRange(from: from, to: to)
-            
-            return false
-        }
+    func textNode(_ textNode: ASTextNode!, shouldHighlightLinkAttribute attribute: String!, value: Any!, at point: CGPoint) -> Bool {
         return true
-    }
-    
-    @objc func highlight(sender: Timer) {
-        let range = sender.userInfo as! NSRange
-        highlightmanager.highlight(contentEditNode!.textView.textStorage,visibleRange: range)
-        self.textChanged?(self.contentEditNode!.textView.text)
-    }
-    
-    func newLine2(_ last: String) -> String {
-        if last.hasPrefix("- [x] ") {
-            return "\n- [x] "
-        }
-        if last.hasPrefix("- [ ] ") {
-            return "\n- [ ] "
-        }
-        if let str = last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ") {
-            if last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) +[\\S]+") == nil {
-                return "\n"
-            }
-            guard let range = str.firstMatchRange("[0-9]+") else { return "\n" + str }
-            let num = str.substring(with: range).toInt() ?? 0
-            return "\n" + str.replacingCharacters(in: range, with: "\(num+1)")
-        }
-        if let str = last.firstMatch("^( {4}|\\t)+") {
-            return "\n" + str
-        }
-        return "\n"
-    }
-    
-    
-    func newLine(_ last: String) -> String {
-        if last.hasPrefix("- [x] ") {
-            return last + "\n- [x] "
-        }
-        if last.hasPrefix("- [ ] ") {
-            return last + "\n- [ ] "
-        }
-        if let str = last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ") {
-            if last.firstMatch("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) +[\\S]+") == nil {
-                return "\n"
-            }
-            guard let range = str.firstMatchRange("[0-9]+") else { return last + "\n" + str }
-            let num = str.substring(with: range).toInt() ?? 0
-            return last + "\n" + str.replacingCharacters(in: range, with: "\(num+1)")
-        }
-        if let str = last.firstMatch("^( {4}|\\t)+") {
-            return last + "\n" + str
-        }
-        return last + "\n"
     }
 }
 
@@ -496,6 +290,6 @@ extension NoteCardNode {
         //            self.handleActionType(actionType: $0)
         //        }
         //        editView.inputAccessoryView = toolbar
-        self.contentEditNode?.textView.inputAccessoryView = toolbar
+//        self.contentEditNode?.textView.inputAccessoryView = toolbar
     }
 }
