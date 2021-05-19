@@ -11,10 +11,10 @@ import UIKit
 public final class MDNumListHighlighter: MDHighlighterType {
     private let regex:NSRegularExpression
     private let attributes:TextAttributes
-    private let regexStr = "^(?:[ \\t]*)(\\d+[.][ \\t]+)(?:.*)$"
+    static let regexStr = "^(?:[ \\t]*)(\\d+[.][ \\t]+)(?:.*)$"
     
     init() {
-        self.regex = regexFromPattern(pattern: regexStr)
+        self.regex = regexFromPattern(pattern: MDNumListHighlighter.regexStr)
         self.attributes = MarkdownAttributes().orderedListAttributes!
     }
     

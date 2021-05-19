@@ -9,8 +9,8 @@ import UIKit
 
 let paragraphStyle = { () -> NSMutableParagraphStyle in
     let paraStyle = NSMutableParagraphStyle()
-    paraStyle.lineSpacing = 6
-//    paraStyle.lineHeightMultiple = 1.2
+    paraStyle.lineSpacing = MDStyleConfig.lineSpacing
+    paraStyle.lineHeightMultiple = 1.2
     return paraStyle
 }()
 
@@ -19,6 +19,7 @@ enum MDStyleConfig {
     static let headerFont:UIFont = UIFont.systemFont(ofSize: 18,weight: .medium)
     static let boldFont:UIFont = UIFont.systemFont(ofSize: 16,weight: .medium)
     static let normalFont:UIFont = UIFont.systemFont(ofSize: 16)
+    static let lineSpacing:CGFloat = 4
 }
 
 struct HighlightStyle {

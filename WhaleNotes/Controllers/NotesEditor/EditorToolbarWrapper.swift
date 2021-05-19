@@ -63,14 +63,3 @@ extension EditorToolbarWrapper:MDKeyboarActionDelegate {
       
     }
 }
-
-
-
-//MARK: number list
-extension EditorToolbarWrapper {
-    
-    
-}
-
-extension MDTextViewWapper {
-}

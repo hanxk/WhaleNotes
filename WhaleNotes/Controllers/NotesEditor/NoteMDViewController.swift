@@ -55,6 +55,8 @@ class NoteMDViewController:UIViewController {
         textView = MyTextView(frame: self.view.frame).then {
             $0.contentInset = UIEdgeInsets(top: top, left: left, bottom: left, right: left)
             $0.inputAccessoryView = keyboardView
+            $0.isScrollEnabled = true
+            $0.isUserInteractionEnabled = true
         }
         self.view.addSubview(textView)
         
@@ -89,11 +91,11 @@ extension NoteMDViewController {
 
 extension NoteMDViewController:MDKeyboarActionDelegate {
     func listButtonTapped() {
-//        self.mdTextViewWrapper.changeCurrentLine2List()
+        self.highlighter.changeCurrentLine2List()
     }
     
     func orderListButtonTapped() {
-//        self.mdTextViewWrapper.changeCurrentLine2OrderList()
+        self.highlighter.changeCurrentLine2OrderList()
     }
     
     func keyboardButtonTapped() {
