@@ -316,8 +316,9 @@ class SideMenuViewController: UIViewController {
 //MARK: Event
 extension SideMenuViewController {
     private func registerEvent() {
-        EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_CHANGED)
+        EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_UPDATED)
         EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_DELETED)
+        EventManager.shared.addObserver(observer: self, selector: #selector(handleTagChanged), name: .Tag_CHANGED)
         EventManager.shared.addObserver(observer: self, selector: #selector(handleRemoteDataChanged), name: .REMOTE_DATA_CHANGED)
     }
     
@@ -327,20 +328,28 @@ extension SideMenuViewController {
     
     @objc private func handleTagChanged(notification: Notification) {
         print("tag changed")
-        self.needRefresh = true
         switch notification.name {
-        case .Tag_CHANGED:
+        case .Tag_UPDATED:
+            self.needRefresh = true
             if let tag = notification.object as? Tag {
                 self.selectedMenu = SideMenuItem.tag(id: tag.id)
                 self.delegate?.sideMenuItemSelected(tag: tag)
             }
             break
         case .Tag_DELETED:
+            self.needRefresh = true
             let all = IndexPath(row: 0, section: 0)
             self.setSelectedIndexPath(all)
             if let cell = self.tableView.cellForRow(at: all) as? SideMenuCell {
                 cell.cellIsSelected = true
             }
+        case .Tag_CHANGED:
+            self.needRefresh = false
+            if let tag = notification.object as? Tag {
+                self.selectedMenu = SideMenuItem.tag(id: tag.id)
+                self.delegate?.sideMenuItemSelected(tag: tag)
+            }
+            break
         default:
             break
         }

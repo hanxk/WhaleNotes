@@ -17,7 +17,7 @@ class  MDParser {
     private init() {
         mdParser = MarkdownParser(font: UIFont.systemFont(ofSize: 16),color: UIColor.primaryText)
         mdParser.enabledElements = [.list,.bold]
-        mdParser.customElements = [MDHeaderCommon(),MDTagParser(),MDLinkParser(font: font,color: .link)]
+        mdParser.customElements = [MDHeaderCommon(),MDTagParser(),MDLinkParser(font: MDStyleConfig.normalFont,color: .link)]
     }
     
     func parse(markdown:String) -> NSAttributedString {

@@ -11,8 +11,6 @@ import MarkdownKit
 
 class MDTagParser: MarkdownLink {
     
-    private static let regex = #"(?<=\s|^)#([^#\s]+(?:(?: *[^#\s]+)*#)?)"#
-    
     init() {
         super.init()
         self.font = MDStyleConfig.boldFont
@@ -20,7 +18,7 @@ class MDTagParser: MarkdownLink {
     }
     
     override var regex: String {
-        return MDTagParser.regex
+        return MDTagHighlighter.regexStr
     }
     
     override func match(_ match: NSTextCheckingResult,

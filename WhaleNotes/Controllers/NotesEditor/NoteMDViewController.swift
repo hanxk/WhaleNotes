@@ -36,8 +36,17 @@ class NoteMDViewController:UIViewController {
         self.textView.text = noteInfo.content
         highlighter.processHighlight()
         
+        // set observer for UIApplication.willEnterForegroundNotification
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         
         self.registerNoteInfoEvent()
+    }
+    
+    @objc func appMovedToBackground() {
+        print("App moved to background!")
+        if noteInfo.content != self.textView.text {
+            self.updateInputContent(self.textView.text)
+        }
     }
     
     private func setup() {
@@ -119,7 +128,7 @@ extension NoteMDViewController {
         self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
 
         // 通知侧边栏刷新
-        EventManager.shared.post(name: .Tag_CHANGED)
+        EventManager.shared.post(name: .Tag_UPDATED)
     }
     
     func deleteNoteInfo() {

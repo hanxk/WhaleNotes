@@ -420,7 +420,7 @@ extension MDEditorViewController:ASTableDataSource {
         self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
 
         // 通知侧边栏刷新
-        EventManager.shared.post(name: .Tag_CHANGED)
+        EventManager.shared.post(name: .Tag_UPDATED)
     }
     
     

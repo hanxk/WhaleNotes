@@ -13,7 +13,6 @@ import FloatingPanel
 import DeepDiff
 import SwiftMessages
 import MarkdownKit
-import SwiftyMarkdown
 
 
 enum NoteListMode {
@@ -150,7 +149,7 @@ class NotesListView: UIView {
 //MARK: data handle
 extension NotesListView {
     
-    private func loadData(tag:Tag? = nil,offset:Int) {
+    private func loadData(tag:Tag? = nil,offset:Int = 0) {
         self.noteTag = tag
         let tagId = tag?.id ?? ""
         NoteRepo.shared.getNotes(tag: tagId,offset: offset)
@@ -188,14 +187,14 @@ extension NotesListView {
     }
     
     private func reloadTableView(notes:[NoteInfo],offset:Int)  {
-        var newNotes:[NoteInfo] = []
         if offset == 0 {
-            newNotes = notes
+            self.notes = notes
+            self.tableView.reloadData()
         }else {
-            newNotes = self.notes
+            var newNotes = self.notes
             newNotes.append(contentsOf: notes)
+            self.refreshDataSource(newNotes: newNotes)
         }
-        self.refreshDataSource(newNotes: newNotes)
     }
     
     func createNewNote() {
@@ -410,8 +409,13 @@ extension NotesListView:ASTableDataSource {
 }
 
 
+//MARK: NoteCardNodeDelegate
 extension NotesListView:NoteCardNodeDelegate{
     func tagTapped(tag: Tag) {
+        if let currentTag = self.noteTag,
+           currentTag.id == tag.id{
+            return
+        }
         EventManager.shared.post(name: .Tag_CHANGED,object: tag)
     }
 }
@@ -504,7 +508,7 @@ extension NotesListView {
         if self.notes[newIndex].status != newNoteInfo.status {
             // 刷新 tag
             if self.notes[newIndex].tags.count  > 0  {
-                EventManager.shared.post(name: .Tag_CHANGED)
+                EventManager.shared.post(name: .Tag_UPDATED)
             }
             self.notes.remove(at: newIndex)
             self.tableView.deleteRows(at: [newIndexPath], with: .none)

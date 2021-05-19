@@ -198,7 +198,7 @@ extension HomeViewController  {
     func updateTagDatasource(tag:Tag) {
         self.mode = NoteListMode.tag(tag: tag)
         titleButton.setTitle(tag.title, emoji: tag.icon)
-        EventManager.shared.post(name:.Tag_CHANGED, object: tag, userInfo: nil)
+        EventManager.shared.post(name:.Tag_UPDATED, object: tag, userInfo: nil)
         NotesSyncEngine.shared.pushLocalToRemote()
     }
     

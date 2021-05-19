@@ -12,7 +12,8 @@ public final class MDTagHighlighter: MDHighlighterType {
     
     let regex:NSRegularExpression
     private let attributes:TextAttributes
-    static let regexStr = #"(?<=\s|^)#([^#\s]+(?:(?: *[^#\s]+)*#)?)"#
+//    static let regexStr = #"(?<=\s|^)#([^#\s]+(?:(?: *[^#\s]+)*#)?)"#
+    static let regexStr = #"#([^#\s]+(?:(?: *[^#\s]+)*#)?)"#
 //    static let regexStr = #"(?:#([^#\/\s]|[^#\/\s][^#\n\r]*[^#\s])#)|(?:(?<=\s|^)#([^#\/\s][^#\s]*(?=\s|$)))"#
 //    static let regexStr = #"\B#[^#\/\s]+(\/[^#\/\s]*)*(?=\s|$)"#
 //    static let regexStr = "(?:^|\\s)(?:#)(\\S+)(?:$|(?=\\s?))"
