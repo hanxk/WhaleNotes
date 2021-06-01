@@ -535,6 +535,7 @@ extension NotesListView {
         case .copy:
             let pasteboard = UIPasteboard.general
             pasteboard.string = noteInfo.content
+            self.controller?.showToast("已复制到剪贴板")
         case .delete:
             self.deleteNotes(noteInfo: noteInfo)
         }

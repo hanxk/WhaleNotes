@@ -9,17 +9,25 @@ import UIKit
 
 let paragraphStyle = { () -> NSMutableParagraphStyle in
     let paraStyle = NSMutableParagraphStyle()
-    paraStyle.lineSpacing = MDStyleConfig.lineSpacing
-    paraStyle.lineHeightMultiple = 1.2
+    paraStyle.lineSpacing = MDEditStyleConfig.lineSpacing
+//    paraStyle.lineHeightMultiple = MDStyleConfig.lineHeight
+//    paragraphStyle.lineHeightMultiple = MDStyleConfig.lineHeight
+//    paraStyle.maximumLineHeight = MDStyleConfig.lineHeight
+//    paraStyle.minimumLineHeight = MDStyleConfig.lineHeight
     return paraStyle
 }()
 
 enum MDStyleConfig {
-    
     static let headerFont:UIFont = UIFont.systemFont(ofSize: 18,weight: .medium)
     static let boldFont:UIFont = UIFont.systemFont(ofSize: 16,weight: .medium)
     static let normalFont:UIFont = UIFont.systemFont(ofSize: 16)
     static let lineSpacing:CGFloat = 4
+}
+enum MDEditStyleConfig {
+    static let headerFont:UIFont = UIFont.systemFont(ofSize: 19,weight: .medium)
+    static let boldFont:UIFont = UIFont.systemFont(ofSize: 17,weight: .medium)
+    static let normalFont:UIFont = UIFont.systemFont(ofSize: 17)
+    static let lineSpacing:CGFloat = 5
 }
 
 struct HighlightStyle {
@@ -65,15 +73,15 @@ struct MDSyntaxHighlighter {
         self.isEdit = isEdit
     }
     
-    let normalStyle = HighlightStyle(font: MDStyleConfig.normalFont)
+    let normalStyle = HighlightStyle(font: MDEditStyleConfig.normalFont)
     
     let syntaxArray: [Syntax] = [
-        Syntax("^#{1,6} .*", style: HighlightStyle(font: MDStyleConfig.headerFont)),
-        Syntax("^.*\\n={2,}$",style:HighlightStyle(font: MDStyleConfig.normalFont)),
-        Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDStyleConfig.normalFont,textColor: .link)),
-        Syntax("- \\[( |x)\\] .*",style:HighlightStyle(font: MDStyleConfig.normalFont)),
-        Syntax("^.*\\n-{2,}$", style:HighlightStyle(font: MDStyleConfig.normalFont)),
-        Syntax("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ",style: HighlightStyle(font: MDStyleConfig.normalFont))
+        Syntax("^#{1,6} .*", style: HighlightStyle(font: MDEditStyleConfig.headerFont)),
+        Syntax("^.*\\n={2,}$",style:HighlightStyle(font: MDEditStyleConfig.normalFont)),
+        Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link)),
+        Syntax("- \\[( |x)\\] .*",style:HighlightStyle(font: MDEditStyleConfig.normalFont)),
+        Syntax("^.*\\n-{2,}$", style:HighlightStyle(font: MDEditStyleConfig.normalFont)),
+        Syntax("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ",style: HighlightStyle(font: MDEditStyleConfig.normalFont))
     ]
     
     func highlight(_ text: NSTextStorage, visibleRange: NSRange? = nil) {
@@ -98,7 +106,7 @@ struct MDSyntaxHighlighter {
     
     func getTextStyleAttributes() -> [NSAttributedString.Key : Any] {
         let nomarlColor = UIColor.primaryText
-        return [.font : MDStyleConfig.normalFont,
+        return [.font : MDEditStyleConfig.normalFont,
                 .paragraphStyle : paragraphStyle,
                 .foregroundColor : nomarlColor]
     }

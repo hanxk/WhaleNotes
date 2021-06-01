@@ -50,12 +50,6 @@ extension UIView {
 //        self.layer.addSublayer(border)
 //    }
     
-    func showToast(_ message:String) {
-        var style = ToastStyle()
-        style.messageColor = UIColor.white
-//        style.verticalPadding = 40
-        self.makeToast(message,position: .bottom, style: style)
-    }
     
 }
 

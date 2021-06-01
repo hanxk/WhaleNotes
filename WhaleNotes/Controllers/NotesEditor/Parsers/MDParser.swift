@@ -22,7 +22,7 @@ class  MDParser {
     
     func parse(markdown:String) -> NSAttributedString {
         let attrString = mdParser.parse(markdown) as! NSMutableAttributedString
-        attrString.setLineSpacing(8)
+        attrString.setLineSpacing(MDStyleConfig.lineSpacing)
         return attrString
     }
 }

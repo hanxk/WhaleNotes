@@ -9,6 +9,7 @@
 import UIKit
 import MBProgressHUD
 import ContextMenu
+import Toast_Swift
 
 
 extension UITableViewController {
@@ -42,6 +43,23 @@ extension UIViewController {
          return 
              (self.navigationController?.navigationBar.frame.height ?? 0.0)
      }
+    
+    
+    func showToast(_ message:String) {
+        var style = ToastStyle()
+//        style.messageColor = UIColor.white
+        style.messageColor = .black
+        style.titleColor = .black
+        style.backgroundColor = .white
+//        style.verticalPadding = 40
+        style.verticalPadding = 20
+        style.horizontalPadding = 30
+        style.shadowOpacity = 0.18
+        style.displayShadow = true
+        self.view.window?.makeToast(message,position: .top, style: style)
+//        let toast = ToastView(title: message)
+//        toast.show()
+    }
 }
 
 extension UIViewController {
