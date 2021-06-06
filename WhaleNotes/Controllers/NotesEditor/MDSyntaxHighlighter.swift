@@ -65,24 +65,39 @@ struct Syntax {
         self.style = style
         self.pattern = pattern
     }
+    
+    func isMatch(text:String) -> Bool {
+        return expression.firstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range:  NSMakeRange(0, text.count)) != nil
+    }
+    
+    func matchSymbol(text:String,symbolEnd:Character = " ") -> String? {
+        if !isMatch(text: text) { return nil }
+        if let index = text.firstIndex(of: symbolEnd) {
+            return text.subString(to: index)
+        }
+        return nil
+    }
 }
 
 struct MDSyntaxHighlighter {
     var isEdit:Bool
-    init(isEdit:Bool=true) {
-        self.isEdit = isEdit
-    }
+    
+    let headerSyntax:Syntax!
+    let tagSyntax:Syntax!
+    let bulletSyntax:Syntax!
+    let numberSyntax:Syntax!
+    let syntaxArray: [Syntax]!
     
     let normalStyle = HighlightStyle(font: MDEditStyleConfig.normalFont)
     
-    let syntaxArray: [Syntax] = [
-        Syntax("^#{1,6} .*", style: HighlightStyle(font: MDEditStyleConfig.headerFont)),
-        Syntax("^.*\\n={2,}$",style:HighlightStyle(font: MDEditStyleConfig.normalFont)),
-        Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link)),
-        Syntax("- \\[( |x)\\] .*",style:HighlightStyle(font: MDEditStyleConfig.normalFont)),
-        Syntax("^.*\\n-{2,}$", style:HighlightStyle(font: MDEditStyleConfig.normalFont)),
-        Syntax("^[\\s]*(-|\\*|\\+|([0-9]+\\.)) ",style: HighlightStyle(font: MDEditStyleConfig.normalFont))
-    ]
+    init(isEdit:Bool=true) {
+        self.isEdit = isEdit
+        headerSyntax =  Syntax("^#{1,6} .*", style: HighlightStyle(font: MDEditStyleConfig.headerFont))
+        tagSyntax =  Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link))
+        bulletSyntax = Syntax(#"^(?:[ \t]*)([\*\+\-])(?:[ ])(?:.*)$"#,style:HighlightStyle(font: MDEditStyleConfig.normalFont))
+        numberSyntax = Syntax("^(?:[ \\t]*)(\\d+[.][ \\t]+)(?:.*)$",style: HighlightStyle(font: MDEditStyleConfig.normalFont))
+        syntaxArray = [headerSyntax,tagSyntax,bulletSyntax,numberSyntax]
+    }
     
     func highlight(_ text: NSTextStorage, visibleRange: NSRange? = nil) {
         let len = (text.string as NSString).length

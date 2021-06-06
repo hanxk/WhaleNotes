@@ -16,6 +16,8 @@ class MDTextViewWrapper:NSObject {
         return textView?.text ?? ""
     }
     
+    
+    
     var selectedRange:NSRange {
         return textView?.selectedRange ?? NSRange.init()
     }
@@ -46,7 +48,8 @@ extension MDTextViewWrapper: UITextViewDelegate {
                 return true
             }
             let newText  =  newLine(texts.last!)
-            textView.replace(textRange, withText: newText)
+            textView.insertText(newText)
+//            textView.replace(textRange, withText: newText)
             return false
         }
         return true
@@ -68,7 +71,21 @@ extension MDTextViewWrapper {
         highlight.highlight(textView.textStorage)
     }
     
-    func newLine(_ last: String) -> String {
+    func newLine(_ last: String) -> String{
+        let line = "\n"
+        if highlight.bulletSyntax.isMatch(text: last) {
+            return line + "- "
+        }
+        
+        if let numberSymbol = highlight.numberSyntax.matchSymbol(text: last,symbolEnd: "."),
+           let number = Int(numberSymbol){
+            return line +  String(number + 1)+". "
+        }
+        
+        return line
+    }
+    
+    func newLine2(_ last: String) -> String {
         if last.hasPrefix("- [x] ") {
             return last + "\n- [x] "
         }
@@ -109,20 +126,22 @@ extension MDTextViewWrapper {
     
     func changeCurrentLine2List() {
         let lineRange  = (text as NSString).lineRange(for: selectedRange)
-        if let bulletSymbolRange = matchBulletSymbol(text: text, lineRange: lineRange){
+        let line = getSelectedLine()
+        
+        if highlight.bulletSyntax.isMatch(text: line){
             // 移除 symbol
-            replaceAndMoveSelected(range: NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length), replace: "")
+            replaceAndMoveSelected(range: NSMakeRange(lineRange.location,2), replace: "")
             return
         }
         
         let symbolStr = "- "
-        let line = getSelectedLine()
-        let lineLeadingText = getLeadingText(line: line)
+//        let lineLeadingText = getLeadingText(line: line)
         
-        if let numSymbolRange = matchListSymbol(text: text, lineRange: lineRange)  {
-            let move = abs(numSymbolRange.length - symbolStr.count)
-            replaceAndMoveSelected(range: NSMakeRange(lineRange.location, numSymbolRange.length), replace: symbolStr)
-            self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound - move, lineLeadingText: lineLeadingText)
+        if highlight.numberSyntax.isMatch(text: line)  {
+//            let move = abs(numSymbolRange.length - symbolStr.count)
+//            replaceAndMoveSelected(range: NSMakeRange(lineRange.location, numSymbolRange.length), replace: symbolStr)
+            replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound,1), replace: "")
+//            self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound - move, lineLeadingText: lineLeadingText)
             return
         }
         
@@ -155,7 +174,7 @@ extension MDTextViewWrapper {
     }
     
     func matchBulletSymbol(text:String,lineRange:NSRange) -> (NSRange)? {
-        let regex = regexFromPattern(pattern: MDTagHighlighter.regexStr)
+        let regex = regexFromPattern(pattern: MDBulletListHighlighter.regexStr)
         if let match = regex.firstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: lineRange) {
             if match.range.location != NSNotFound {
                 var range = match.range(at: 1)
