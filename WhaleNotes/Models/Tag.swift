@@ -23,6 +23,9 @@ struct Tag:DiffAware {
     // 本地数据，还未同步（该字段不会上传到iCloud）
     var isLocal:Bool = true
     
+    //（该字段不会上传到iCloud）
+    var isExpand:Bool = false
+    
     init() {
         let date =  Date()
         self.createdAt = date
@@ -37,6 +40,8 @@ struct Tag:DiffAware {
         self.isLocal = isLocal
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        
+        self.isExpand = TagExpandCache.shared.get(key: title) != nil
     }
     
     
@@ -44,7 +49,7 @@ struct Tag:DiffAware {
     typealias DiffId = String
     var diffId: DiffId { return self.id }
     static func compareContent(_ a: Self, _ b: Self) -> Bool {
-        (a.id == b.id) && (a.updatedAt  ==  b.updatedAt)
+        (a.id == b.id) && (a.updatedAt  ==  b.updatedAt) && (a.isExpand == b.isExpand)
     }
 }
 

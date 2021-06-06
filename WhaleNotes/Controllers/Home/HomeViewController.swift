@@ -79,9 +79,9 @@ class HomeViewController: UIViewController, UINavigationControllerDelegate {
     private func setup() {
         
         self.setupNavgationBar()
-        self.setupSideMenu()
         self.setupToolbar()
         self.setupNoteListView()
+        self.setupSideMenu()
         
         //        self.extendedLayoutIncludesOpaqueBars = true
         self.view.backgroundColor = .bg
@@ -171,10 +171,13 @@ extension HomeViewController  {
     }
     
     func handleEmojiSelected(_ emoji:String) {
-        guard var tag = self.mode?.tag else { return}
-        tag.icon = emoji
-        self.updateTag(tag: tag) {
-            self.updateTagDatasource(tag: tag)
+        guard let tag = self.mode?.tag else { return}
+        
+        var newTag = tag
+        newTag.icon = emoji
+        
+        self.updateTag(tag: newTag) {
+            self.updateTagDatasource(newTag: newTag, oldTag: tag)
         }
     }
     
@@ -189,16 +192,20 @@ extension HomeViewController  {
         self.present(alert, animated: true, completion:nil)
     }
     
-    func handleTagUpdated(_ tag:Tag) {
-        self.updateTag(tag: tag) {
-            self.updateTagDatasource(tag: tag)
-        }
-    }
+//    func handleTagUpdated(_ tag:Tag) {
+//        self.updateTag(tag: tag) {
+//            self.updateTagDatasource(tag: tag)
+//        }
+//    }
     
-    func updateTagDatasource(tag:Tag) {
-        self.mode = NoteListMode.tag(tag: tag)
-        titleButton.setTitle(tag.title, emoji: tag.icon)
-        EventManager.shared.post(name:.Tag_UPDATED, object: tag, userInfo: nil)
+    func updateTagDatasource(newTag:Tag,oldTag:Tag) {
+        self.mode = NoteListMode.tag(tag: newTag)
+        if let value = TagExpandCache.shared.get(key: oldTag.title){
+            TagExpandCache.shared.remove(key: oldTag.title)
+            TagExpandCache.shared.set(key: newTag.title, value: value)
+        }
+        titleButton.setTitle(newTag.title, emoji: newTag.icon)
+        EventManager.shared.post(name:.Tag_UPDATED, object: newTag, userInfo: nil)
         NotesSyncEngine.shared.pushLocalToRemote()
     }
     
@@ -216,9 +223,10 @@ extension HomeViewController  {
         // 更新笔记的tag
         NoteRepo.shared.updateNotesTag(tag: tag, newTagTitle: newTagTitle)
             .subscribe(onNext: { [weak self] newTag in
-                if let tag = newTag,
+                if let newTag = newTag,
                    let self = self {
-                    self.updateTagDatasource(tag: tag)
+                    // tag 更新
+                    self.updateTagDatasource(newTag: newTag, oldTag: tag)
                     //刷新列表
                     self.contentView.loadData(mode: NoteListMode.tag(tag: tag))
                 }

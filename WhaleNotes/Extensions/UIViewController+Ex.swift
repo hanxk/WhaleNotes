@@ -51,12 +51,14 @@ extension UIViewController {
         style.messageColor = .black
         style.titleColor = .black
         style.backgroundColor = .white
+//        style.fadeDuration = 0.1
 //        style.verticalPadding = 40
         style.verticalPadding = 20
         style.horizontalPadding = 30
         style.shadowOpacity = 0.18
         style.displayShadow = true
-        self.view.window?.makeToast(message,position: .top, style: style)
+        style.cornerRadius = StyleConfig.cornerRadius
+        self.view.window?.makeToast(message,duration:1, position: .top, style: style)
 //        let toast = ToastView(title: message)
 //        toast.show()
     }
