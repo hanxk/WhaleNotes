@@ -9,12 +9,16 @@
 import UIKit
 
 
-fileprivate var width: CGFloat = {
-    return isPad ? 50 : 40
+fileprivate var btnWidth: CGFloat = {
+    return isPad ? 50 : 44
+}()
+
+fileprivate var btnHeight: CGFloat = {
+    return isPad ? 52 : 46
 }()
 
 fileprivate var spacing: CGFloat = {
-    return 10
+    return 6
 }()
 fileprivate var vSpacing: CGFloat = {
     return 0
@@ -25,6 +29,8 @@ class MDKeyboardView: UIView {
     let scrollView = UIScrollView()
     
     private var items:[(String,Selector)] = [
+        ("grid",#selector(tagButtonTapped)),
+        ("h.circle",#selector(headerButtonTapped)),
         ("list.bullet",#selector(listButtonTapped)),
         ("list.number",#selector(orderListButtonTapped))
     ]
@@ -32,10 +38,8 @@ class MDKeyboardView: UIView {
     weak var delegate:MDKeyboarActionDelegate?
     
     init() {
-        super.init(frame: CGRect(x: 0, y: 0, width:windowWidth, height: width))
+        super.init(frame: CGRect(x: 0, y: 0, width:windowWidth, height: btnHeight))
         self.setupButtons()
-        
-        
         self.backgroundColor = .white
 //        self.layer.shadowColor = UIColor(red: 0.875, green: 0.875, blue: 0.875, alpha: 1).cgColor
 //        self.layer.shadowOpacity = 1
@@ -48,22 +52,21 @@ class MDKeyboardView: UIView {
     }
     
     private func setupButtons() {
-        var x:CGFloat = 0
-        let buttonW = width-vSpacing*2
+        var x:CGFloat = 4
         for i in 0..<items.count {
             let button = makeButton(btnParam:items[i])
             button.tag = i
-            x += (CGFloat(i) * width + spacing)
-            button.frame = CGRect(x: x, y: vSpacing, width: buttonW, height: buttonW)
+            button.frame = CGRect(x: x, y: vSpacing, width: btnWidth, height: btnHeight)
+            x += (btnWidth+spacing)
             self.scrollView.addSubview(button)
         }
-        scrollView.contentSize = CGSize(width: CGFloat(items.count) * width+CGFloat(items.count+1)*spacing, height: width)
+        scrollView.contentSize = CGSize(width: CGFloat(items.count) * btnWidth+CGFloat(items.count+1)*spacing, height: btnHeight)
         
         addSubview(scrollView)
         
         
         let keyboardButton =  UIButton().then {
-            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
+            $0.frame = CGRect(x: 0, y: 0, width: 100, height: btnHeight)
             $0.setTitle("完成", for: .normal)
             $0.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .medium)
             $0.setTitleColor(.brand, for: .normal)
@@ -81,7 +84,7 @@ class MDKeyboardView: UIView {
         keyboardButton.snp.makeConstraints {
             $0.height.equalToSuperview()
             $0.trailing.equalToSuperview().offset(-10)
-            $0.width.equalTo(buttonW + spacing)
+            $0.width.equalTo(btnWidth + spacing)
         }
         
     }
@@ -91,19 +94,25 @@ class MDKeyboardView: UIView {
 //        scrollView.frame = CGRect(x: 0, y: 0, width: self.frame.size.width, height: width)
     }
     
-    private func makeButton(btnParam:(String,Selector),pointSize:CGFloat = 22) -> UIButton {
+    private func makeButton(btnParam:(String,Selector),pointSize:CGFloat = 20) -> UIButton {
         let button = UIButton(type: .custom)
 //        button.backgroundColor = UIColor(hexString: "#EFEEF1")
         button.layer.cornerRadius = 4
-        button.setImage(UIImage(systemName: btnParam.0,pointSize: pointSize,weight: .regular)?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.setImage(UIImage(systemName: btnParam.0,pointSize: pointSize,weight: .medium)?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = UIColor(hexString: "#414141")
         button.addTarget(self, action: btnParam.1, for: .touchUpInside)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: isPad ? 18 : 16)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: isPad ? 18 : 15)
         return button
     }
 }
 
 extension MDKeyboardView {
+    @objc fileprivate func headerButtonTapped() {
+        delegate?.headerButtonTapped()
+    }
+    @objc fileprivate func tagButtonTapped() {
+        delegate?.tagButtonTapped()
+    }
     @objc fileprivate func listButtonTapped() {
         delegate?.listButtonTapped()
     }
@@ -116,6 +125,8 @@ extension MDKeyboardView {
 }
 
 protocol MDKeyboarActionDelegate: AnyObject {
+    func headerButtonTapped()
+    func tagButtonTapped()
     func listButtonTapped()
     func orderListButtonTapped()
     func keyboardButtonTapped()

@@ -170,6 +170,14 @@ extension NoteContentCellNode:UITextViewDelegate {
 }
 
 extension NoteContentCellNode:MDKeyboarActionDelegate {
+    func headerButtonTapped() {
+        
+    }
+    
+    func tagButtonTapped() {
+        
+    }
+    
     func listButtonTapped() {
         self.mdTextViewWrapper.changeCurrentLine2List()
     }

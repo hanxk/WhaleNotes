@@ -191,6 +191,14 @@ extension MDTextView {
 
 //MARK: 键盘 
 extension MDTextView:MDKeyboarActionDelegate {
+    func headerButtonTapped() {
+        
+    }
+    
+    func tagButtonTapped() {
+        
+    }
+    
     func listButtonTapped() {
         self.changeCurrentLine2List()
     }

@@ -66,6 +66,7 @@ let cloudPath: String = {
 }()
 
 let PAGESIZE = 10
+let HASHTAG = "#"
 
 
 var window:UIWindow  {

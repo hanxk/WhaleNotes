@@ -73,7 +73,7 @@ class NotesListView: UIView {
     private var markdownParser:MarkdownParser!
     
     enum MenuAction:Int {
-//        case edit =  1
+        case edit =  1
         case trash =  2
         case share =  3
         case copy =  4
@@ -449,9 +449,10 @@ extension NotesListView {
             menuRows.append(PopMenuRow(icon: UIImage(systemName:"arrow.up.bin"), title: "恢复",tag:MenuAction.trash.rawValue))
             menuRows.append(PopMenuRow(icon: UIImage(systemName:"trash"), title: "删除",tag:MenuAction.delete.rawValue,isDestroy: true))
         }else {
-            menuRows.append(PopMenuRow(icon: UIImage(systemName:"trash"), title: "移到废纸篓",tag:MenuAction.trash.rawValue))
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"pencil"), title: "编辑",tag:MenuAction.edit.rawValue))
             menuRows.append(PopMenuRow(icon: UIImage(systemName:"square.and.arrow.up"), title: "分享",tag:MenuAction.share.rawValue))
             menuRows.append(PopMenuRow(icon: UIImage(systemName:"doc.on.doc"), title: "复制",tag:MenuAction.copy.rawValue))
+            menuRows.append(PopMenuRow(icon: UIImage(systemName:"trash"), title: "移到废纸篓",tag:MenuAction.trash.rawValue))
         }
 
         let menuVC = PopMenuController(menuRows: menuRows)
@@ -528,6 +529,8 @@ extension NotesListView {
         guard let index =  self.notes.firstIndex(where: {$0.note.id == noteId}) else { return }
         let noteInfo = self.notes[index]
         switch menuAcion {
+        case .edit:
+            self.openEditorVC(noteInfo: noteInfo)
         case .trash:
             self.handleTrashAction(noteInfo: noteInfo)
         case .share:

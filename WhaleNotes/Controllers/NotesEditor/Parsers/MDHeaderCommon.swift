@@ -11,6 +11,9 @@ import MarkdownKit
 
 class MDHeaderCommon: MarkdownHeader {
     
+    
+    static let regexStr = "^(#{1,\(6)})\\s+(.*)$"
+    
     init() {
         super.init()
         self.font = MDStyleConfig.headerFont
@@ -18,7 +21,7 @@ class MDHeaderCommon: MarkdownHeader {
     }
     
     override var regex: String {
-        return "^(#{1,\(6)})\\s+(.*)$"
+        return MDHeaderCommon.regexStr
     }
     
     override func formatText(_ attributedString: NSMutableAttributedString, range: NSRange, level: Int) {

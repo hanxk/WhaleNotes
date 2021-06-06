@@ -93,7 +93,7 @@ struct MDSyntaxHighlighter {
             validRange  = NSRange(location:0, length: len)
         }
         
-        text.setAttributes(getTextStyleAttributes(), range: validRange)
+        text.setAttributes(normalStyle.attrs, range: validRange)
         
         syntaxArray.forEach { (syntax) in
             syntax.expression.enumerateMatches(in: text.string, options: .reportCompletion, range: validRange, using: { (match, _, _) in
@@ -104,11 +104,11 @@ struct MDSyntaxHighlighter {
         }
     }
     
-    func getTextStyleAttributes() -> [NSAttributedString.Key : Any] {
-        let nomarlColor = UIColor.primaryText
-        return [.font : MDEditStyleConfig.normalFont,
-                .paragraphStyle : paragraphStyle,
-                .foregroundColor : nomarlColor]
-    }
+//    func getTextStyleAttributes() -> [NSAttributedString.Key : Any] {
+//        let nomarlColor = UIColor.primaryText
+//        return [.font : MDEditStyleConfig.normalFont,
+//                .paragraphStyle : paragraphStyle,
+//                .foregroundColor : nomarlColor]
+//    }
     
 }

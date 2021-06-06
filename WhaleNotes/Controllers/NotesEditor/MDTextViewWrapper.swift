@@ -92,6 +92,21 @@ extension MDTextViewWrapper {
 
 extension MDTextViewWrapper {
     
+    func changeHeaderLine() {
+        let lineRange  = (text as NSString).lineRange(for: selectedRange)
+        let line = getSelectedLine()
+        
+        var tagApend = ""
+        if let _ = matchHeaderSymbol(text: line, lineRange: NSMakeRange(0, line.count)) {
+            tagApend = HASHTAG
+        }else {
+            tagApend = HASHTAG + " "
+        }
+        self.textView?.textStorage.replaceCharacters(in: NSMakeRange(lineRange.lowerBound, 0), with: tagApend)
+        textView?.selectedRange = NSMakeRange(selectedRange.location+tagApend.count, 0)
+        self.processHighlight()
+    }
+    
     func changeCurrentLine2List() {
         let lineRange  = (text as NSString).lineRange(for: selectedRange)
         if let bulletSymbolRange = matchBulletSymbol(text: text, lineRange: lineRange){
@@ -112,6 +127,7 @@ extension MDTextViewWrapper {
         }
         
         replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound, 0), replace: symbolStr)
+        self.processHighlight()
         
     }
     
@@ -125,6 +141,18 @@ extension MDTextViewWrapper {
         return  leadingText
     }
     
+    
+    func matchHeaderSymbol(text:String,lineRange:NSRange) -> (NSRange)? {
+        let regex = regexFromPattern(pattern: MDHeaderCommon.regexStr)
+        if let match = regex.firstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: lineRange) {
+            if match.range.location != NSNotFound {
+                var range = match.range(at: 1)
+                range.length += 1
+                return range
+            }
+        }
+        return nil
+    }
     
     func matchBulletSymbol(text:String,lineRange:NSRange) -> (NSRange)? {
         let regex = regexFromPattern(pattern: MDTagHighlighter.regexStr)

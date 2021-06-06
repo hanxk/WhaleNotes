@@ -68,6 +68,14 @@ class MDTextViewWapper: NSObject {
 }
 
 extension MDTextViewWapper:MDKeyboarActionDelegate {
+    func headerButtonTapped() {
+        
+    }
+    
+    func tagButtonTapped() {
+        
+    }
+    
     func listButtonTapped() {
         self.changeCurrentLine2List()
     }

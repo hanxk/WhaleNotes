@@ -33,10 +33,10 @@ class NoteMDViewController:UIViewController {
         super.viewDidLoad()
         self.setup()
         
+        textView.font = MDStyleConfig.normalFont
         self.textView.text = noteInfo.content
         highlighter.processHighlight()
         
-        // set observer for UIApplication.willEnterForegroundNotification
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         
         self.registerNoteInfoEvent()
@@ -90,14 +90,22 @@ extension NoteMDViewController {
 }
 
 extension NoteMDViewController:MDKeyboarActionDelegate {
+    func headerButtonTapped() {
+        self.highlighter.changeHeaderLine()
+    }
+    
+    func tagButtonTapped() {
+        self.textView.insertText(HASHTAG)
+    }
+    
     func listButtonTapped() {
         self.highlighter.changeCurrentLine2List()
     }
-    
+
     func orderListButtonTapped() {
         self.highlighter.changeCurrentLine2OrderList()
     }
-    
+
     func keyboardButtonTapped() {
         let content = self.textView.text
         if self.noteInfo.note.content == content{

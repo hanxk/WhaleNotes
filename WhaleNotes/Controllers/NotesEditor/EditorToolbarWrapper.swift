@@ -46,6 +46,14 @@ class EditorToolbarWrapper: NSObject {
 }
 
 extension EditorToolbarWrapper:MDKeyboarActionDelegate {
+    func headerButtonTapped() {
+        
+    }
+    
+    func tagButtonTapped() {
+        
+    }
+    
     func listButtonTapped() {
         self.changeCurrentLine2List()
     }
