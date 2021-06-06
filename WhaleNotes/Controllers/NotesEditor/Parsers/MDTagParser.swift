@@ -23,7 +23,7 @@ class MDTagParser: MarkdownLink {
     
     override func match(_ match: NSTextCheckingResult,
                         attributedString: NSMutableAttributedString) {
-        let tagName = attributedString.attributedSubstring(from: match.range(at: 1)).string
+        let tagName = attributedString.attributedSubstring(from: match.range(at: 0)).string
         attributedString.addAttribute(.tag, value: tagName, range: match.range)
         addAttributes(attributedString, range: match.range, link: tagName)
     }

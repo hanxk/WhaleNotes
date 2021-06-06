@@ -261,8 +261,13 @@ extension NoteCardNode: ASTextNodeDelegate {
         if attribute == NSAttributedString.Key.tag.rawValue {// tag
             
             
-            if let tagTitle = value as? String, let tag = self.noteInfo.tags.first(where: {$0.title == tagTitle}) {
-                delegate?.tagTapped(tag: tag)
+            if let tagTitle = value as? String {
+                let tagTitles = tagTitle.split("#")
+                if tagTitles.count == 0 { return }
+                let tagValue = tagTitles[tagTitles.count-1]
+                if let tag = self.noteInfo.tags.first(where: {$0.title == tagValue}) {
+                    delegate?.tagTapped(tag: tag)
+                }
             }
             return
         }

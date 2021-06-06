@@ -440,14 +440,20 @@ extension MDEditorViewController:ASTableDataSource {
         tagRegex.enumerateMatches(in: text,range:NSMakeRange(0, text.length)) {
             match, flags, stop in
             if  let  match = match {
-                let  tagRange = match.range(at: 1)
+                let  tagRange = match.range(at: 0)
                 if tagRange.length > 0 {
-                    var tag = text.substring(with: tagRange).trimmingCharacters(in: .whitespacesAndNewlines)
-                    if let hashTagIndex = tag.firstIndex(of: "#") {
-                        let range = tag.startIndex..<hashTagIndex
-                        tag = String(tag[range])
+                    let tag = text.substring(with: tagRange).trimmingCharacters(in: .whitespacesAndNewlines)
+                    let tagTitles = tag.split("#")
+                    if tagTitles.count > 0 {
+                        let tagValue = tagTitles[tagTitles.count-1]
+                        tags.append(tagValue)
                     }
-                    tags.append(tag)
+                    
+//                    if let hashTagIndex = tag.firstIndex(of: "#") {
+//                        let range = tag.startIndex..<hashTagIndex
+//                        tag = String(tag[range])
+//                    }
+                    
                 }
             }
         }
