@@ -125,9 +125,7 @@ extension NoteContentCellNode:MDTextViewTappedDelegate {
 extension NoteContentCellNode: ASEditableTextNodeDelegate {
     func editableTextNodeDidUpdateText(_ editableTextNode: ASEditableTextNode) {
         let textView = editableTextNode.textView
-        
-//        self.mdTextViewWrapper.textViewDidChange(textView)
-//        self.textChanged?(newText)
+        self.mdTextViewWrapper.textViewDidChange(textView)
         delegate?.textChanged(self)
     }
 //    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {

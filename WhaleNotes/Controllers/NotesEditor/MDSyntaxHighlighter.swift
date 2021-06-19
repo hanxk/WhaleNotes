@@ -31,7 +31,7 @@ enum MDEditStyleConfig {
 }
 
 struct HighlightStyle {
-    var textColor: UIColor = UIColor.primaryText
+    var textColor: UIColor
     var backgroundColor: UIColor = .clear
     var italic: Bool = false
     var deletionLine: Bool = false
