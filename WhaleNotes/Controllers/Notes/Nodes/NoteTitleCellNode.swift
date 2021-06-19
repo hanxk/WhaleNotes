@@ -10,6 +10,11 @@ import UIKit
 import AsyncDisplayKit
 
 
+protocol NoteTitleCellNodeDelegate: AnyObject {
+    func textChanged(_ cellNode:NoteTitleCellNode)
+    func saveButtonTapped(_ cellNode:NoteTitleCellNode)
+}
+
 class NoteTitleCellNode:ASCellNode {
     private(set) lazy var titleNode = ASEditableTextNode().then {
         $0.attributedPlaceholderText = getTitlePlaceHolderAttributesString()
@@ -20,16 +25,27 @@ class NoteTitleCellNode:ASCellNode {
         $0.tintColor = .cursor
         $0.textView.tag = EditViewTag.title.rawValue
     }
-    private var textChanged: ((String) -> Void)?
-    private var textDidFinishEditing: ((String) -> Void)?
-    private var textEnterkeyInput: (() -> Void)?
-    private var textShouldBeginEditing: ((UITextView) -> Void)?
+    
+    var textView:UITextView {
+        return titleNode.textView
+    }
+    
+    private lazy var keyboardView = MDKeyboardView(hasActions: false).then {
+        $0.delegate = self
+    }
+    var delegate:NoteTitleCellNodeDelegate?
+//    private var textChanged: ((String) -> Void)?
+//    private var textDidFinishEditing: ((String) -> Void)?
+//    private var textEnterkeyInput: (() -> Void)?
+//    private var textShouldBeginEditing: ((UITextView) -> Void)?
+//    private var saveButtonTapped: (() -> Void)?
     
     private(set) var title = ""
     
     init(title:String) {
         super.init()
         self.title = title
+        self.titleNode.textView.inputAccessoryView = keyboardView
         titleNode.attributedText = NSMutableAttributedString(string: title, attributes: getTitleAttributes())
         self.addSubnode(titleNode)
     }
@@ -39,20 +55,20 @@ class NoteTitleCellNode:ASCellNode {
         return  ASInsetLayoutSpec(insets: insets, child: titleNode)
     }
     
-    func textChanged(action: @escaping (String) -> Void) {
-        self.textChanged = action
-    }
-    
-    func textDidFinishEditing(action: @escaping (String) -> Void) {
-        self.textDidFinishEditing = action
-    }
-    func textEnterkeyInput(action: @escaping () -> Void) {
-        self.textEnterkeyInput = action
-    }
-    
-    func textShouldBeginEditing(action: @escaping (UITextView) -> Void) {
-        self.textShouldBeginEditing = action
-    }
+//    func textChanged(action: @escaping (String) -> Void) {
+//        self.textChanged = action
+//    }
+//
+//    func textDidFinishEditing(action: @escaping (String) -> Void) {
+//        self.textDidFinishEditing = action
+//    }
+//    func textEnterkeyInput(action: @escaping () -> Void) {
+//        self.textEnterkeyInput = action
+//    }
+//
+//    func textShouldBeginEditing(action: @escaping (UITextView) -> Void) {
+//        self.textShouldBeginEditing = action
+//    }
 }
 
 extension NoteTitleCellNode {
@@ -70,7 +86,8 @@ extension NoteTitleCellNode {
     
 
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
-        let font = MDStyle.generateDefaultFont(fontSize: 22,weight: .medium)
+//        let font = MDStyle.generateDefaultFont(fontSize: 22,weight: .medium)
+        let font = MDStyleConfig.headerFont
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.lineBreakMode = .byWordWrapping;
@@ -90,26 +107,49 @@ extension NoteTitleCellNode: ASEditableTextNodeDelegate {
         let textView = editableTextNode.textView
         let newText = textView.text ??  ""
         self.title = newText
-        self.textChanged?(newText)
+//        self.textChanged?(newText)
+        delegate?.textChanged(self)
     }
     
-    func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
-        let text = editableTextNode.textView.text ??  ""
-        self.textDidFinishEditing?(text)
-    }
-    
-    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
-        self.textShouldBeginEditing?(editableTextNode.textView)
-        return true
-    }
+//    func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
+//        let text = editableTextNode.textView.text ??  ""
+//        self.textDidFinishEditing?(text)
+//    }
+//
+//    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
+//        self.textShouldBeginEditing?(editableTextNode.textView)
+//        return true
+//    }
     
     func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 //       return self.mdHelper?.textView(editableTextNode.textView, shouldChangeTextIn: range, replacementText: text) ?? false
 //        let textView = editableTextNode.textView
-        if text == "\n" {
-            textEnterkeyInput?()
-            return  false
-        }
+//        if text == "\n" {
+//            textEnterkeyInput?()
+//            return  false
+//        }
         return  true
+    }
+}
+
+extension NoteTitleCellNode:MDKeyboarActionDelegate {
+    func headerButtonTapped() {
+        
+    }
+    func boldButtonTapped() {
+        
+    }
+    
+    func tagButtonTapped() {
+    }
+    
+    func listButtonTapped() {
+    }
+    
+    func orderListButtonTapped() {
+    }
+    
+    func keyboardButtonTapped() {
+        self.delegate?.saveButtonTapped(self)
     }
 }

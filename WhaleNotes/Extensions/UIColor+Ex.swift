@@ -14,7 +14,9 @@ extension UIColor {
            
 //            return UIColor(hexString: "#F6C641")!
 //            return UIColor(hexString: "#F7D549")!
-            return UIColor(hexString: "#F1B029")!
+//            return UIColor(hexString: "#F1B029")!
+            return UIColor(hexString: "#CD4D48")!
+            
 //            return UIColor(hexString: "#EC5564")!
 //            return .link
         }
@@ -29,7 +31,8 @@ extension UIColor {
     open class var cursor: UIColor {
         get {
 //            return UIColor(hexString: "#F4B63F")!
-            return .link
+//            return .link
+            return .brand
 //            return UIColor(hexString: "#E6B91D")!
         }
     }

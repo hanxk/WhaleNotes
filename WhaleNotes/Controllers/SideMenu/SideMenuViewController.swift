@@ -44,7 +44,7 @@ enum SideMenuItem:Equatable {
 }
 
 enum SystemMenuItem:Equatable {
-    case all(icon:String="doc.text",title:String="全部")
+    case all(icon:String="doc.text",title:String="笔记")
     case trash(icon:String="trash",title:String="废纸篓")
     
     var title:String {
@@ -143,7 +143,7 @@ class SideMenuViewController: UIViewController {
     }
     
     enum Constants {
-        static let all = SystemMenuItem.all(icon: "doc.text", title: "全部")
+        static let all = SystemMenuItem.all(icon: "doc.text", title: "笔记")
         static let trash = SystemMenuItem.trash(icon: "trash", title: "废纸篓")
     }
     

@@ -82,10 +82,11 @@ class NoteCardNode: ASCellNode {
     
     
     var timer2: Timer? = nil
-    private var titleEditNode :ASEditableTextNode?
+    
+    private var titleNode :ASTextNode?
+    private var contentNode :ASTextNode?
     
     private var mdTextViewWrapper:MDTextViewWapper?
-    private var contentNode :ASTextNode!
     
     private var footerProvider:NoteCardProvider!
     
@@ -118,14 +119,25 @@ class NoteCardNode: ASCellNode {
         self.addSubnode(cardbackground)
         self.isUserInteractionEnabled = true
         
-        let contentNode = ASTextNode()
-        contentNode.attributedText = attString
-        contentNode.delegate = self
-        contentNode.isSelected = true
-        contentNode.attributedText = attString
-        self.contentNode = contentNode
-        self.addSubnode(contentNode)
-        
+        if note.title.isNotEmpty {
+            let titleNode = ASTextNode()
+            titleNode.attributedText = self.getTitleAttributesString(title: note.title)
+            self.titleNode = titleNode
+            self.addSubnode(titleNode)
+        }
+        if note.content.isNotEmpty {
+            let contentNode = ASTextNode()
+            contentNode.attributedText = attString
+            contentNode.delegate = self
+            contentNode.isSelected = true
+            contentNode.attributedText = attString
+            
+            contentNode.linkAttributeNames = [NSAttributedString.Key.tag.rawValue,NSAttributedString.Key.link.rawValue]
+            contentNode.isUserInteractionEnabled = true
+            
+            self.contentNode = contentNode
+            self.addSubnode(contentNode)
+        }
         self.cardActionEmit  = action
         
         // footer
@@ -143,8 +155,6 @@ class NoteCardNode: ASCellNode {
         self.selectionStyle = .none
         self.backgroundColor = .clear
         
-        contentNode.linkAttributeNames = [NSAttributedString.Key.tag.rawValue,NSAttributedString.Key.link.rawValue]
-        contentNode.isUserInteractionEnabled = true
     }
     
     
@@ -157,13 +167,12 @@ class NoteCardNode: ASCellNode {
             $0.style.flexShrink = 1.0
             $0.spacing = 4
         }
-//        if let titleEditNode = self.titleEditNode {
-//            vContentLayout.children?.append(titleEditNode)
-//        }
-//        if let contentEditNode = self.contentEditNode {
-//            vContentLayout.children?.append(contentEditNode)
-//        }
-        vContentLayout.children?.append(contentNode)
+        if let titleNode = self.titleNode {
+            vContentLayout.children?.append(titleNode)
+        }
+        if let contentNode = self.contentNode {
+            vContentLayout.children?.append(contentNode)
+        }
         
         // tags
         if let tagsProvider = self.tagsProvider {
@@ -223,6 +232,11 @@ extension NoteCardNode {
         return NSMutableAttributedString(string: "标题", attributes: titleAttr)
     }
     
+    
+    func getTitleAttributesString(title:String) -> NSAttributedString {
+        var titleAttr = getTitleAttributes()
+        return NSMutableAttributedString(string: title, attributes: titleAttr)
+    }
     
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
         let font =  MDStyle.generateDefaultFont(fontSize: 18,weight: .medium)

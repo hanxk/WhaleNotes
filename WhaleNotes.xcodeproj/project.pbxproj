@@ -21,6 +21,7 @@
 		181D63EA248BA14D00B34E20 /* MenuBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */; };
 		181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */; };
 		181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181E395624BC0BFC00631EF0 /* BlockPosition.swift */; };
+		181EE032267DFAF200098A03 /* MDBoldParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181EE031267DFAF200098A03 /* MDBoldParser.swift */; };
 		181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */; };
 		181F48F62617FF9300B92E82 /* NotesSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */; };
 		181F48F9261827E700B92E82 /* UserDefaults+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */; };
@@ -235,6 +236,7 @@
 		181D63E9248BA14D00B34E20 /* MenuBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBoardCell.swift; sourceTree = "<group>"; };
 		181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCategoryCell.swift; sourceTree = "<group>"; };
 		181E395624BC0BFC00631EF0 /* BlockPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPosition.swift; sourceTree = "<group>"; };
+		181EE031267DFAF200098A03 /* MDBoldParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDBoldParser.swift; sourceTree = "<group>"; };
 		181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTitleView.swift; sourceTree = "<group>"; };
 		181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesSyncEngine.swift; sourceTree = "<group>"; };
 		181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Ex.swift"; sourceTree = "<group>"; };
@@ -1052,6 +1054,7 @@
 				18CD52D6265115FB00F0039D /* MDHeaderCommon.swift */,
 				18CD52D82651163500F0039D /* MDTagParser.swift */,
 				18CD52DA26511F1D00F0039D /* MDLinkParser.swift */,
+				181EE031267DFAF200098A03 /* MDBoldParser.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -1514,6 +1517,7 @@
 				18286B962587636400541526 /* Tag.swift in Sources */,
 				18251C20249B305300484D23 /* NoteColorCell.swift in Sources */,
 				18E0521E25A6EC30001E041C /* MDHighlightManager.swift in Sources */,
+				181EE032267DFAF200098A03 /* MDBoldParser.swift in Sources */,
 				18E7663E24A46F84005DCB03 /* ArchiveNotesViewController.swift in Sources */,
 				18286BA2258766A700541526 /* TagDao.swift in Sources */,
 				188BD417259488D30050D896 /* NoteInfoViewModel.swift in Sources */,

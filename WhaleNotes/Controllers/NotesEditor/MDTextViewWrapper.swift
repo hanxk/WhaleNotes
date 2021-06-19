@@ -24,9 +24,7 @@ class MDTextViewWrapper:NSObject {
     
     init(textView:UITextView) {
         super.init()
-        textView.isSelectable = true
         self.textView = textView
-        self.textView?.delegate = self
     }
 }
 
@@ -121,7 +119,17 @@ extension MDTextViewWrapper {
         }
         self.textView?.textStorage.replaceCharacters(in: NSMakeRange(lineRange.lowerBound, 0), with: tagApend)
         textView?.selectedRange = NSMakeRange(selectedRange.location+tagApend.count, 0)
-        self.processHighlight()
+//        self.processHighlight()
+    }
+    
+    func change2Bold() {
+        self.textView?.insertText("****")
+        textView?.selectedRange = NSMakeRange(selectedRange.location-2, 0)
+    }
+    
+    
+    func change2Tag() {
+      self.textView?.insertText(HASHTAG)
     }
     
     func changeCurrentLine2List() {
@@ -146,7 +154,7 @@ extension MDTextViewWrapper {
         }
         
         replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound, 0), replace: symbolStr)
-        self.processHighlight()
+//        self.processHighlight()
         
     }
     

@@ -46,6 +46,10 @@ class EditorToolbarWrapper: NSObject {
 }
 
 extension EditorToolbarWrapper:MDKeyboarActionDelegate {
+    func boldButtonTapped() {
+        
+    }
+    
     func headerButtonTapped() {
         
     }

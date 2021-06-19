@@ -71,6 +71,9 @@ extension MDTextViewWapper:MDKeyboarActionDelegate {
     func headerButtonTapped() {
         
     }
+    func boldButtonTapped() {
+        
+    }
     
     func tagButtonTapped() {
         

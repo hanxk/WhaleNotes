@@ -178,10 +178,8 @@ extension NoteRepo {
     func updateNote(_ note:Note) -> Observable<Note> {
         return Observable<Note>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Note in
-                var newNote = note
-                newNote.updatedAt = Date()
-                try self.noteDao.update(newNote)
-                return newNote
+                try self.noteDao.update(note)
+                return note
             }
         }
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
@@ -226,7 +224,6 @@ extension NoteRepo {
         .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
         .observeOn(MainScheduler.instance)
     }
-    
     func updateNoteContent(_ note:Note,newContent:String) -> Observable<Note> {
         return Observable<Note>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> Note in
@@ -241,23 +238,18 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    func updateNoteContentAndTags(_ noteInfo:NoteInfo,newContent:String,tagTitles:[String]) -> Observable<NoteInfo> {
+    func updateNoteAndTags(_ noteInfo:NoteInfo,note:Note,tagTitles:[String]) -> Observable<NoteInfo> {
         return Observable<NoteInfo>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> NoteInfo in
                 
                 // 更新tag
-                var newTags:[Tag] = try self.handleTags(note: noteInfo.note, tagTitles: tagTitles)
-                
-                var newNote = noteInfo.note
-                newNote.content  = newContent
-                newNote.updatedAt = Date()
-                
+                let newTags:[Tag] = try self.handleTags(noteId:noteInfo.id, tagTitles: tagTitles)
                 
                 var newNoteInfo = noteInfo
+                newNoteInfo.note  = note
                 newNoteInfo.tags = newTags
-                newNoteInfo.note  = newNote
                 
-                try self.noteDao.updateContent(newContent, noteId: newNote.id,updatedAt: newNote.updatedAt)
+                try self.noteDao.update(note)
                 return newNoteInfo
             }
         }
@@ -265,8 +257,8 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
-    private func handleTags(note:Note,tagTitles:[String]) throws  -> [Tag]  {
-        try self.noteTagDao.delete(noteId: note.id)
+    private func handleTags(noteId:String,tagTitles:[String]) throws  -> [Tag]  {
+        try self.noteTagDao.delete(noteId: noteId)
         
         if tagTitles.isEmpty { return [] }
         
@@ -288,26 +280,9 @@ extension NoteRepo {
                 tag  = newTag
             }
             noteTags.append(tag)
-            try self.noteTagDao.insert(NoteTag(noteId: note.id, tagId: tag.id))
+            try self.noteTagDao.insert(NoteTag(noteId: noteId, tagId: tag.id))
         }
         return noteTags
-        //        var tagTitles:[String] = []
-        //        for title in sortedTitles {
-        //            //新增 parent tag
-        //            let parentTitles = title.components(separatedBy: "/").dropLast()
-        //            var pTitle = ""
-        //            for (index,title) in parentTitles.enumerated() {
-        //
-        //                if index > 0 { pTitle += "/" }
-        //                pTitle += title
-        //                tagTitles.append(pTitle)
-        ////                        let tag = try self.insertTag(tagTitle: pTitle, date: date, noteId: note.id)
-        ////                        newTags.append(tag)
-        //            }
-        ////                    let tag = try self.insertTag(tagTitle: title, date: date, noteId: note.id)
-        ////                    newTags.append(tag)
-        //            tagTitles.append(title)
-        //        }
     }
     
     private func insertTag(tagTitle:String,date:Date,noteId:String) throws -> Tag {

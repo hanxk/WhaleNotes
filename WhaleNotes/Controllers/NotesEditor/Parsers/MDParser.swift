@@ -17,6 +17,7 @@ class  MDParser {
     private init() {
         mdParser = MarkdownParser(font: UIFont.systemFont(ofSize: 16),color: UIColor.primaryText)
         mdParser.enabledElements = [.list,.bold]
+        mdParser.bold.color = .primaryText
         mdParser.customElements = [MDHeaderCommon(),MDTagParser(),MDLinkParser(font: MDStyleConfig.normalFont,color: .link)]
     }
     

@@ -93,8 +93,8 @@ extension NoteDao {
     }
     
     func update( _ note:Note) throws {
-        let updateSQL = "update note set title = ?,content = ?,need_sync = 1, status = ?,updated_at=strftime('%s', 'now') where id = ?"
-        try db.execute(updateSQL, args: note.title,note.content,note.status,note.id)
+        let updateSQL = "update note set title = ?,content = ?,status = ?,updated_at= \(note.updatedAt.timeIntervalSince1970) where id = ?"
+        try db.execute(updateSQL, args: note.title,note.content,note.status.rawValue,note.id)
     }
     
     func updateContent( _ content:String,noteId:String,updatedAt:Date) throws {
@@ -164,7 +164,10 @@ extension NoteDao {
         let id = row["id"] as! String
         let title = row["title"] as! String
         let content = row["content"] as! String
-        let status = row["status"] as! Int
+        var status = NoteStatus.normal.rawValue
+        if let statusV = row["status"] as? Int {
+            status = statusV
+        }
         let isDel = (row["is_del"] as! Int) == 1
         let isLocal = (row["is_local"] as! Int) == 1
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)

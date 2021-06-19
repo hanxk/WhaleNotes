@@ -35,7 +35,7 @@ class NoteMDViewController:UIViewController {
         
         textView.font = MDStyleConfig.normalFont
         self.textView.text = noteInfo.content
-        highlighter.processHighlight()
+//        highlighter.processHighlight()
         
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         
@@ -45,7 +45,8 @@ class NoteMDViewController:UIViewController {
     @objc func appMovedToBackground() {
         print("App moved to background!")
         if noteInfo.content != self.textView.text {
-            self.updateInputContent(self.textView.text)
+//            self.updateInputContent(self.textView.text)
+            
         }
     }
     
@@ -93,6 +94,9 @@ extension NoteMDViewController:MDKeyboarActionDelegate {
     func headerButtonTapped() {
         self.highlighter.changeHeaderLine()
     }
+    func boldButtonTapped() {
+        self.highlighter.change2Bold()
+    }
     
     func tagButtonTapped() {
         self.textView.insertText(HASHTAG)
@@ -117,29 +121,29 @@ extension NoteMDViewController:MDKeyboarActionDelegate {
             return
         }
         self.needDismiss = true
-        self.updateInputContent(self.textView.text)
+//        self.updateInputContent(self.textView.text)
     }
 }
 
 
 extension NoteMDViewController {
     
-    private func updateInputContent(_ content:String) {
-        
-        let noteTagTitles = self.noteInfo.tags
-        let tagTitles = MDEditorViewController.extractTags(text: content)
-
-        let isTagNotChange =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
-        if isTagNotChange { // 只更新内容
-            self.model.updateNoteContent(content: content)
-            return
-        }
-        // 提取标签并更新
-        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
-
-        // 通知侧边栏刷新
-        EventManager.shared.post(name: .Tag_UPDATED)
-    }
+//    private func updateInputContent(_ content:String) {
+//        
+//        let noteTagTitles = self.noteInfo.tags
+//        let tagTitles = MDEditorViewController.extractTags(text: content)
+//
+//        let isTagNotChange =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
+//        if isTagNotChange { // 只更新内容
+//            self.model.updateNoteContent(content: content)
+//            return
+//        }
+//        // 提取标签并更新
+//        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
+//
+//        // 通知侧边栏刷新
+//        EventManager.shared.post(name: .Tag_UPDATED)
+//    }
     
     func deleteNoteInfo() {
         NoteRepo.shared.deleteNote(self.noteInfo)

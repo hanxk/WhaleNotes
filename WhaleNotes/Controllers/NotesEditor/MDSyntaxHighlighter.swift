@@ -83,20 +83,22 @@ struct MDSyntaxHighlighter {
     var isEdit:Bool
     
     let headerSyntax:Syntax!
+    let boldSyntax:Syntax!
     let tagSyntax:Syntax!
     let bulletSyntax:Syntax!
     let numberSyntax:Syntax!
     let syntaxArray: [Syntax]!
     
-    let normalStyle = HighlightStyle(font: MDEditStyleConfig.normalFont)
+    static let normalStyle = HighlightStyle(font: MDEditStyleConfig.normalFont)
     
     init(isEdit:Bool=true) {
         self.isEdit = isEdit
         headerSyntax =  Syntax("^#{1,6} .*", style: HighlightStyle(font: MDEditStyleConfig.headerFont))
+        boldSyntax =  Syntax("(.?|^)(\\*\\*|__)(?=\\S)(.+?)(?<=\\S)(\\2)", style: HighlightStyle(font: MDEditStyleConfig.boldFont))
         tagSyntax =  Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link))
         bulletSyntax = Syntax(#"^(?:[ \t]*)([\*\+\-])(?:[ ])(?:.*)$"#,style:HighlightStyle(font: MDEditStyleConfig.normalFont))
         numberSyntax = Syntax("^(?:[ \\t]*)(\\d+[.][ \\t]+)(?:.*)$",style: HighlightStyle(font: MDEditStyleConfig.normalFont))
-        syntaxArray = [headerSyntax,tagSyntax,bulletSyntax,numberSyntax]
+        syntaxArray = [headerSyntax,boldSyntax,tagSyntax,bulletSyntax,numberSyntax]
     }
     
     func highlight(_ text: NSTextStorage, visibleRange: NSRange? = nil) {
@@ -108,7 +110,7 @@ struct MDSyntaxHighlighter {
             validRange  = NSRange(location:0, length: len)
         }
         
-        text.setAttributes(normalStyle.attrs, range: validRange)
+        text.setAttributes(MDSyntaxHighlighter.normalStyle.attrs, range: validRange)
         
         syntaxArray.forEach { (syntax) in
             syntax.expression.enumerateMatches(in: text.string, options: .reportCompletion, range: validRange, using: { (match, _, _) in

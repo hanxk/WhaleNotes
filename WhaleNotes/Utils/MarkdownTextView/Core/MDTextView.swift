@@ -194,6 +194,9 @@ extension MDTextView:MDKeyboarActionDelegate {
     func headerButtonTapped() {
         
     }
+    func boldButtonTapped() {
+        
+    }
     
     func tagButtonTapped() {
         

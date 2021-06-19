@@ -26,12 +26,12 @@ class MDEditorViewController: UIViewController {
     private var model:NoteInfoViewModel!
     private var needDismiss = false
     private var isNoteUpdated:Bool = false
-    var cellNodeTypes:[EditorCellNodeType] = [.content]
+    var cellNodeTypes:[EditorCellNodeType] = [.title,.content]
     
     private var isKeyboardShow = false
     var isNewCreated = false
     
-    private var callbackNoteInfoEdited:((NoteInfo)->Void)?
+    var callbackNoteInfoEdited:((NoteInfo)->Void)?
     
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = false
@@ -49,8 +49,9 @@ class MDEditorViewController: UIViewController {
         return self.cellNodeTypes.count-1
     }
     
+    
     private lazy var tableView = ASTableNode().then {
-        $0.delegate = self
+//        $0.delegate = self
         $0.dataSource = self
         $0.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: bottomExtraSpace, right: 0)
         $0.view.allowsSelection = false
@@ -116,9 +117,6 @@ class MDEditorViewController: UIViewController {
         return self.tableView.nodeForRow(at: IndexPath(row: 0, section: 0)) as?  NoteTitleCellNode
     }
     override func viewWillDisappear(_ animated: Bool) {
-        tryUpdateInputing()
-//        tryEmitUpdateEvent(isDelay: isKeyboardShow)
-        print("viewWillDisappear")
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
     }
@@ -126,55 +124,17 @@ class MDEditorViewController: UIViewController {
     @objc func appMovedToBackground() {
         tryUpdateInputing()
     }
-    
-    
-    func callbackNoteInfoEdited(action: @escaping (NoteInfo) -> Void) {
-        self.callbackNoteInfoEdited = action
-    }
-    
-    func tryEmitUpdateEvent(isDelay:Bool)  {
-        if isDelay {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                guard let self = self  else {  return }
-                
-                if self.isNoteUpdated {
-                    self.callbackNoteInfoEdited?(self.noteInfo)
-                }
-            }
-            return
-        }
-        if self.isNoteUpdated {
-            self.callbackNoteInfoEdited?(self.noteInfo)
-        }
-    }
 }
+
 
 extension MDEditorViewController {
     
     func tryUpdateInputing() {
-        guard let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode else { return }
-        var newNoteInfo = self.model.noteInfo!
-        if isNoteUpdated {//
-            self.callbackNoteInfoEdited?(newNoteInfo)
-            return
+        if let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode  {
+//            self.updateInputContent(contentCellNode.textView.text)
         }
-//        print("newNoteInfo.note.content \(newNoteInfo.note.content)")
-//        print("contentCellNode.textNode.textView.text \(contentCellNode.textNode.textView.text)")
-        let newContent = contentCellNode.textNode.textView.text!
-        if newNoteInfo.note.content != newContent {
-            newNoteInfo.note.content = newContent
-            self.callbackNoteInfoEdited?(newNoteInfo)
-        }
-//        guard let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode else { return }
-//        if let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode,
-//           let newContent = contentCellNode.textNode.textView.text
-//           {
-//            var noteInfo = self.noteInfo!
-//            if noteInfo.note.content != newContent {
-//                noteInfo.note.content = newContent
-//                self.callbackNoteInfoEdited?(noteInfo)
-//            }
-//        }
+        
+        
     }
 }
 
@@ -326,27 +286,50 @@ extension MDEditorViewController {
         
     }
     
-    @objc func saveIconTapped() {
-        guard let cell = self.getNoteContentCellNode() else { return }
-        let content = cell.textNode.textView.text ?? ""
-        if self.noteInfo.note.content == content{
-            if isNewCreated { // 删除
-                self.deleteNoteInfo()
-                return
-            }
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
-        self.needDismiss = true
-        updateInputContent(content)
-    }
     @objc func tagIconTapped() {
     }
 }
 
-
-extension MDEditorViewController:ASTableDelegate {
+extension MDEditorViewController:NoteTitleCellNodeDelegate {
+    func textChanged(_ cellNode: NoteTitleCellNode) {
+        self.refreshTableNode(node: cellNode)
+    }
     
+    func saveButtonTapped(_ cellNode: NoteTitleCellNode) {
+        self.saveIconTapped()
+    }
+}
+
+extension MDEditorViewController:NoteContentCellNodeDelegate {
+    func textChanged(_ cellNode: NoteContentCellNode) {
+        self.refreshTableNode(node: cellNode)
+    }
+    
+    func saveButtonTapped(_ cellNode: NoteContentCellNode) {
+        self.saveIconTapped()
+    }
+    
+    
+    @objc func saveIconTapped() {
+        var title = ""
+        if let titleCell = self.getNoteTitleCell()  {
+            title = titleCell.textView.text
+        }
+        
+        var content = ""
+        if let contentCell = self.getNoteContentCellNode()  {
+            content = contentCell.textView.text
+        }
+        
+        let isUpdated = noteInfo.title != title  || noteInfo.content != content
+        if isUpdated == false {
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+        self.needDismiss = true
+        self.updateInputContent(title: title, content: content)
+        
+    }
 }
 
 extension MDEditorViewController:ASTableDataSource {
@@ -359,66 +342,37 @@ extension MDEditorViewController:ASTableDataSource {
         switch cellNodeType {
         case .title:
             let titleCellNode = NoteTitleCellNode(title: self.noteInfo.note.title)
-            titleCellNode.textChanged {[weak titleCellNode] (newText: String) in
-                if let titleCellNode = titleCellNode {
-                    self.refreshTableNode(node: titleCellNode)
-                }
-            }
-            titleCellNode.textDidFinishEditing {[weak self] (newText: String) in
-                self?.updateInputTitle(newText)
-            }
-            titleCellNode.textEnterkeyInput {[weak self] in
-                self?.jump2ContentFirstWord()
-            }
-            titleCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
-//                self?.scrollToCursorPositionIfBelowKeyboard(textView: textView)
-                self?.focusedTextView = textView
-            }
-//            titleCellNode.titleNode.textView.isEditable = self.noteInfo.status != .trash
+            titleCellNode.delegate = self
             return titleCellNode
         case .content:
             let contentCellNode = NoteContentCellNode(title: self.noteInfo.note.content)
-            contentCellNode.textChanged {[weak contentCellNode] (newText: String) in
-                if let contentCellNode = contentCellNode {
-                    self.refreshTableNode(node: contentCellNode)
-                }
-            }
-            contentCellNode.textDidFinishEditing {[weak self] (newText: String) in
-//                self?.updateInputContent(newText)
-            }
-            contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
-                self?.focusedTextView = textView
-            }
-            contentCellNode.textShouldBeginEditing {[weak self] (textView: UITextView) in
-                self?.focusedTextView = textView
-            }
-            contentCellNode.saveButtonTapped {[weak self]  in
-//                self?.dismiss(animated: true, completion: nil)
-                self?.saveIconTapped()
-            }
-//            textView.inputAccessoryView = keyboardView
-            //        if isEditable   {
-            //            let keyboardView = MDKeyboardView()
-            //            keyboardView.delegate = self
-            //            textView.inputAccessoryView = keyboardView
-            //        }
-//            contentCellNode.textNode.textView.isEditable = self.noteInfo.status != .trash
+            contentCellNode.delegate = self
             return contentCellNode
         }
     }
     
-    private func updateInputContent(_ content:String) {
-        let noteTagTitles = self.noteInfo.tags
-        let tagTitles = MDEditorViewController.extractTags(text: content)
-
-        let isTagNotChange =  noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
-        if isTagNotChange { // 只更新内容
-            self.model.updateNoteContent(content: content)
+    private func updateInputContent(title:String?,content:String?) {
+        var note = self.noteInfo.note
+        
+        if let title = title {
+           note.title = title
+        }
+        var tagsChanged = false
+        var tagTitles:[String] = []
+        if let content = content {
+           note.content = content
+            
+            tagTitles = MDEditorViewController.extractTags(text: content)
+            let noteTagTitles = self.noteInfo.tags
+            tagsChanged =  !noteTagTitles.elementsEqual(tagTitles) { $0.title == $1 }
+        }
+        note.updatedAt = Date()
+        
+        if !tagsChanged { // 只更新内容
+            self.model.updateNote(note)
             return
         }
-        // 提取标签并更新
-        self.model.updateNoteContentAndTags(content: content, tagTitles: tagTitles)
-
+        self.model.updateNoteAndTags(note: note, tagTitles: tagTitles)
         // 通知侧边栏刷新
         EventManager.shared.post(name: .Tag_UPDATED)
     }
