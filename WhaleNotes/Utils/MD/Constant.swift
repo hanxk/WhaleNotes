@@ -66,8 +66,10 @@ let cloudPath: String = {
 }()
 
 let PAGESIZE = 10
-let HASHTAG = "#"
 
+let HASHTAG = "#"
+let ENTER_KEY:Character = "\n"
+let SPACE_KEY:Character = " "
 
 var window:UIWindow  {
     return UIApplication.shared.windows[0]

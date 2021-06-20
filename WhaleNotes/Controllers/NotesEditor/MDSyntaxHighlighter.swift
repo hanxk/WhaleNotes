@@ -70,6 +70,35 @@ struct Syntax {
         return expression.firstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range:  NSMakeRange(0, text.count)) != nil
     }
     
+    
+    func match(text:String,range:NSRange) -> NSRange? {
+        let range = expression.rangeOfFirstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: range)
+        if range.location == NSNotFound {
+            return nil
+        }
+        return range
+    }
+    
+    //allrange,symbol range
+    func matchAllRange(text:String,range:NSRange) -> (NSRange,NSRange)? {
+//        let range = expression.rangeOfFirstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: range)
+//        if range.location == NSNotFound {
+//            return nil
+//        }
+       if let match = expression.firstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: range) {
+            return (match.range,match.range(at: 1))
+       }
+       return nil
+    }
+    
+//    func matchSymbol(text:String,range:NSRange) -> NSRange? {
+//        let range = expression.rangeOfFirstMatch(in: text, options: NSRegularExpression.MatchingOptions(), range: range)
+//        if range.location == NSNotFound {
+//            return nil
+//        }
+//        return range
+//    }
+    
     func matchSymbol(text:String,symbolEnd:Character = " ") -> String? {
         if !isMatch(text: text) { return nil }
         if let index = text.firstIndex(of: symbolEnd) {
@@ -97,7 +126,7 @@ struct MDSyntaxHighlighter {
         boldSyntax =  Syntax("(.?|^)(\\*\\*|__)(?=\\S)(.+?)(?<=\\S)(\\2)", style: HighlightStyle(font: MDEditStyleConfig.boldFont))
         tagSyntax =  Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link))
         bulletSyntax = Syntax(#"^(?:[ \t]*)([\*\+\-])(?:[ ])(?:.*)$"#,style:HighlightStyle(font: MDEditStyleConfig.normalFont))
-        numberSyntax = Syntax("^(?:[ \\t]*)(\\d+[.][ \\t]+)(?:.*)$",style: HighlightStyle(font: MDEditStyleConfig.normalFont))
+        numberSyntax = Syntax(#"^(?:[ \t]*)(\d+)[.][ \t]+(?:.*)$"#,style: HighlightStyle(font: MDEditStyleConfig.normalFont))
         syntaxArray = [headerSyntax,boldSyntax,tagSyntax,bulletSyntax,numberSyntax]
     }
     

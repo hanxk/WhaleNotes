@@ -16,23 +16,12 @@ protocol NoteContentCellNodeDelegate: AnyObject {
 class NoteContentCellNode:ASCellNode {
     
     var textNode:ASEditableTextNode!
-    
     var mdTextViewWrapper:MDTextViewWrapper!
-    
     var textView:UITextView {
         return textNode.textView
     }
-    
     private(set) var content:String  = ""
-    
     var delegate:NoteContentCellNodeDelegate?
-    
-//    private var textChanged: ((String) -> Void)?
-//    private var textDidFinishEditing: ((String) -> Void)?
-//    private var textShouldBeginEditing: ((UITextView) -> Void)?
-//    private var saveButtonTapped: (() -> Void)?
-    
-    
     private var mdHelper:MDHelper!
     
     private lazy var keyboardView = MDKeyboardView().then {
@@ -58,20 +47,6 @@ class NoteContentCellNode:ASCellNode {
         let insets = UIEdgeInsets(top:0, left: MDEditorConfig.paddingH, bottom: 0, right: MDEditorConfig.paddingH)
         return  ASInsetLayoutSpec(insets: insets, child: textNode)
     }
-    
-    
-//    func textChanged(action: @escaping (String) -> Void) {
-//        self.textChanged = action
-//    }
-//    func textDidFinishEditing(action: @escaping (String) -> Void) {
-//        self.textDidFinishEditing = action
-//    }
-//    func textShouldBeginEditing(action: @escaping (UITextView) -> Void) {
-//        self.textShouldBeginEditing = action
-//    }
-//    func saveButtonTapped(action: @escaping () -> Void) {
-//        self.saveButtonTapped = action
-//    }
     
     func generateASEditableTextNode(content:String)  -> ASEditableTextNode {
         
@@ -105,39 +80,12 @@ class NoteContentCellNode:ASCellNode {
     }
 }
 
-extension NoteContentCellNode:MDTextViewTappedDelegate {
-    func textViewTagTapped(_ textView: UITextView, tag: String) {
-        
-    }
- 
-//    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-//
-//        if let view = mdTextViewWrapper.hitTest(self.convert(point, to: textNode), with: event)
-//           {
-//            return view
-//        }
-//        return super.hitTest(point, with: event)
-//    }
-}
-
-
-
 extension NoteContentCellNode: ASEditableTextNodeDelegate {
     func editableTextNodeDidUpdateText(_ editableTextNode: ASEditableTextNode) {
         let textView = editableTextNode.textView
         self.mdTextViewWrapper.textViewDidChange(textView)
         delegate?.textChanged(self)
     }
-//    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
-////        let newText = editableTextNode.textView.text ??  ""
-//        self.textShouldBeginEditing?(editableTextNode.textView)
-//        return true
-//    }
-    
-//    func editableTextNodeDidFinishEditing(_ editableTextNode: ASEditableTextNode) {
-//        let text = editableTextNode.textView.text ??  ""
-//        self.textDidFinishEditing?(text)
-//    }
     
     func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         let textView = editableTextNode.textView
@@ -194,7 +142,6 @@ extension NoteContentCellNode:MDKeyboarActionDelegate {
     }
     
     func keyboardButtonTapped() {
-//        self.saveButtonTapped?()
         self.delegate?.saveButtonTapped(self)
     }
 }

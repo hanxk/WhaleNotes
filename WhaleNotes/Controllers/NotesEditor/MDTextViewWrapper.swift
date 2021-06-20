@@ -32,23 +32,7 @@ extension MDTextViewWrapper: UITextViewDelegate {
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
-            let begin = max(range.location - 100, 0)
-            let len = range.location - begin
-            let nsString = textView.text! as NSString
-            let nearText = nsString.substring(with: NSRange(location:begin, length: len))
-            let texts = nearText.components(separatedBy: "\n")
-            
-            let lastLineCount = texts.last!.utf16.count
-            let beginning = textView.beginningOfDocument
-            guard let from = textView.position(from: beginning, offset: range.location - lastLineCount),
-                  let to = textView.position(from: beginning, offset: range.location),
-                  let textRange = textView.textRange(from: from, to: to) else {
-                return true
-            }
-            let newText  =  newLine(texts.last!)
-            textView.insertText(newText)
-//            textView.replace(textRange, withText: newText)
-            return false
+            return self.handleEnterKeyInput()
         }
         return true
     }
@@ -60,8 +44,37 @@ extension MDTextViewWrapper: UITextViewDelegate {
         UIApplication.shared.open(URL)
         return false
     }
+    
+    func handleEnterKeyInput() -> Bool {
+        guard let textView = textView else { return false }
+        let allText = textView.text!
+        let lineRange  = (allText as NSString).lineRange(for: textView.selectedRange)
+       
+        if let bulletAndSymbolRange = highlight.bulletSyntax.matchAllRange(text: allText, range: lineRange) {
+            if bulletAndSymbolRange.1.length == lineRange.length {
+                replaceAndMoveSelected(range: bulletAndSymbolRange.0, replace: "")
+            }else {
+              let symbol = allText.substring(with: bulletAndSymbolRange.1)
+              textView.insertText(String(ENTER_KEY)+symbol+String(SPACE_KEY))
+            }
+            return false
+        }
+        
+        if let numberAndSymbolRange = highlight.numberSyntax.matchAllRange(text: allText, range: lineRange) {
+            if numberAndSymbolRange.1.length == lineRange.length {
+                replaceAndMoveSelected(range: numberAndSymbolRange.0, replace: "")
+            }else {
+              let symbol = allText.substring(with: numberAndSymbolRange.1)
+                if let num =  Int(symbol) {
+                   textView.insertText("\(ENTER_KEY)\(num+1). ")
+                }
+            }
+            return false
+        }
+        
+        return true
+    }
 }
-
 
 extension MDTextViewWrapper {
     @objc func processHighlight() {
@@ -69,14 +82,19 @@ extension MDTextViewWrapper {
         highlight.highlight(textView.textStorage)
     }
     
-    func newLine(_ last: String) -> String{
+    // 返回 nil，清空当前行
+    func newLine(_ last: String) -> String?{
         let line = "\n"
+        
         if highlight.bulletSyntax.isMatch(text: last) {
+            if last.count == 2 { return nil}
             return line + "- "
         }
+//        NSMakeRange(bulletSymbolRange.location, bulletSymbolRange.length)
         
         if let numberSymbol = highlight.numberSyntax.matchSymbol(text: last,symbolEnd: "."),
            let number = Int(numberSymbol){
+            if last.count == 2 { return nil}
             return line +  String(number + 1)+". "
         }
         
