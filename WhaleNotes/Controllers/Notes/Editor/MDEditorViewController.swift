@@ -126,21 +126,10 @@ class MDEditorViewController: UIViewController {
     }
     
     @objc func appMovedToBackground() {
-        tryUpdateInputing()
+        self.saveInput(needDismiss: false)
     }
 }
 
-
-extension MDEditorViewController {
-    
-    func tryUpdateInputing() {
-        if let contentCellNode = self.tableView.nodeForRow(at: IndexPath(row: 1, section: 0)) as?  NoteContentCellNode  {
-//            self.updateInputContent(contentCellNode.textView.text)
-        }
-        
-        
-    }
-}
 
 //MARK: 键盘
 extension MDEditorViewController {
@@ -324,24 +313,7 @@ extension MDEditorViewController:NoteContentCellNodeDelegate {
     
     
     @objc func saveIconTapped() {
-        var title = ""
-        if let titleCell = self.getNoteTitleCell()  {
-            title = titleCell.textView.text
-        }
-        
-        var content = ""
-        if let contentCell = self.getNoteContentCellNode()  {
-            content = contentCell.textView.text
-        }
-        
-        let isUpdated = noteInfo.title != title  || noteInfo.content != content
-        if isUpdated == false {
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
-        self.needDismiss = true
-        self.updateInputContent(title: title, content: content)
-        
+        self.saveInput(needDismiss: true)
     }
 }
 
@@ -362,6 +334,27 @@ extension MDEditorViewController:ASTableDataSource {
             contentCellNode.delegate = self
             return contentCellNode
         }
+    }
+    
+    private func saveInput(needDismiss:Bool) {
+        var title = ""
+        if let titleCell = self.getNoteTitleCell()  {
+            title = titleCell.textView.text
+        }
+        
+        var content = ""
+        if let contentCell = self.getNoteContentCellNode()  {
+            content = contentCell.textView.text
+        }
+        let isUpdated = noteInfo.title != title  || noteInfo.content != content
+        if isUpdated == false {
+            if needDismiss {
+                self.dismiss(animated: true, completion: nil)
+            }
+            return
+        }
+        self.needDismiss = needDismiss
+        self.updateInputContent(title: title, content: content)
     }
     
     private func updateInputContent(title:String?,content:String?) {
