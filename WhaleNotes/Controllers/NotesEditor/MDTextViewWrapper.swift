@@ -16,8 +16,6 @@ class MDTextViewWrapper:NSObject {
         return textView?.text ?? ""
     }
     
-    
-    
     var selectedRange:NSRange {
         return textView?.selectedRange ?? NSRange.init()
     }
@@ -77,9 +75,9 @@ extension MDTextViewWrapper: UITextViewDelegate {
 }
 
 extension MDTextViewWrapper {
-    @objc func processHighlight() {
+   func processHighlight(visibleRange:NSRange? = nil) {
         guard let textView = self.textView else { return }
-        highlight.highlight(textView.textStorage)
+        highlight.highlight(textView.textStorage,visibleRange: visibleRange)
     }
     
     // 返回 nil，清空当前行
@@ -143,11 +141,14 @@ extension MDTextViewWrapper {
     func change2Bold() {
         self.textView?.insertText("****")
         textView?.selectedRange = NSMakeRange(selectedRange.location-2, 0)
+        
+        self.processHighlight(visibleRange: getSelectedLineRange())
     }
     
     
     func change2Tag() {
       self.textView?.insertText(HASHTAG)
+      self.processHighlight(visibleRange: getSelectedLineRange())
     }
     
     func changeCurrentLine2List() {
@@ -161,19 +162,15 @@ extension MDTextViewWrapper {
         }
         
         let symbolStr = "- "
-//        let lineLeadingText = getLeadingText(line: line)
-        
-        if highlight.numberSyntax.isMatch(text: line)  {
-//            let move = abs(numSymbolRange.length - symbolStr.count)
-//            replaceAndMoveSelected(range: NSMakeRange(lineRange.location, numSymbolRange.length), replace: symbolStr)
+        if line.isNotEmpty && highlight.numberSyntax.isMatch(text: line)  {
             replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound,1), replace: "")
-//            self.tryUpdateBelowLinesNum(newBeginNum: 1, loc: lineRange.upperBound - move, lineLeadingText: lineLeadingText)
             return
         }
         
         replaceAndMoveSelected(range: NSMakeRange(lineRange.lowerBound, 0), replace: symbolStr)
-//        self.processHighlight()
-        
+        if line.isEmpty {
+            self.processHighlight(visibleRange: getSelectedLineRange())
+        }
     }
     
     private func getLeadingText(line: String)-> String {

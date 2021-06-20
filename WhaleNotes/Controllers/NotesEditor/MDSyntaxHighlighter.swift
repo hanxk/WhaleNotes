@@ -124,11 +124,11 @@ struct MDSyntaxHighlighter {
     init(isEdit:Bool=true) {
         self.isEdit = isEdit
         headerSyntax =  Syntax("^#{1,6} .*", style: HighlightStyle(font: MDEditStyleConfig.headerFont))
-        boldSyntax =  Syntax("(.?|^)(\\*\\*|__)(?=\\S)(.+?)(?<=\\S)(\\2)", style: HighlightStyle(font: MDEditStyleConfig.boldFont))
-        tagSyntax =  Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link))
+        boldSyntax =  Syntax(#"(?<=(.?|^))(\*{2})(?=\S)(.+?)(?<=\S)(\2)"#, style: HighlightStyle(font: MDEditStyleConfig.boldFont))
         bulletSyntax = Syntax(#"^(?:[ \t]*)([\*\+\-])(?:[ ])(?:.*)$"#,style:HighlightStyle(font: MDEditStyleConfig.normalFont))
         numberSyntax = Syntax(#"^(?:[ \t]*)(\d+)[.][ \t]+(?:.*)$"#,style: HighlightStyle(font: MDEditStyleConfig.normalFont))
-        syntaxArray = [headerSyntax,boldSyntax,tagSyntax,bulletSyntax,numberSyntax]
+        tagSyntax =  Syntax(MDTagHighlighter.regexStr,style: HighlightStyle(font: MDEditStyleConfig.normalFont,textColor: .link))
+        syntaxArray = [headerSyntax,bulletSyntax,numberSyntax,tagSyntax,boldSyntax]
     }
     
     func highlight(_ text: NSTextStorage, visibleRange: NSRange? = nil) {
