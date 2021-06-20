@@ -101,10 +101,6 @@ class SideMenuViewController: UIViewController {
     private let disposeBag = DisposeBag()
     weak var delegate:SideMenuViewControllerDelegate? = nil {
         didSet {
-            //        self.loadTags {[weak self] tags in
-            //            self?.setupData(tags: tags)
-            //            self?.setSelectedIndexPath(IndexPath(row: 0, section: 0),checkSame: false)
-            //        }
             self.selectedMenu = SideMenuItem.system(sysMenuItem:self.sysMenuItems[0])
             self.delegate?.sideMenuItemSelected(sideMenuItem: self.sysMenuItems[0])
             self.setupData(tags: [])
@@ -112,7 +108,6 @@ class SideMenuViewController: UIViewController {
         }
     }
     
-    var needRefresh = true
     var notification:Notification?
     var needLoadTags = true
     
@@ -135,16 +130,20 @@ class SideMenuViewController: UIViewController {
     
     var tags:[Tag]  = [] {
         didSet {
-            self.tagsMap = Dictionary(uniqueKeysWithValues: tags.map { ($0.id, $0)})
-            self.tagChildCountMap = Dictionary(uniqueKeysWithValues:
-                                                tagsMap.map { key, value in (key, getChildCount(tag: value)) })
-            self.visibleTagIds = self.getVisibleTagIds()
+            self.setupDataSource()
         }
     }
     
     enum Constants {
         static let all = SystemMenuItem.all(icon: "doc.text", title: "笔记")
         static let trash = SystemMenuItem.trash(icon: "trash", title: "废纸篓")
+    }
+    
+    func setupDataSource() {
+        self.tagsMap = Dictionary(uniqueKeysWithValues: tags.map { ($0.id, $0)})
+        self.tagChildCountMap = Dictionary(uniqueKeysWithValues:
+                                            tagsMap.map { key, value in (key, getChildCount(tag: value)) })
+        self.visibleTagIds = self.getVisibleTagIds()
     }
     
     var tagsMap:[String:Tag] = [:]
@@ -167,6 +166,7 @@ class SideMenuViewController: UIViewController {
     //        }
     //    }
     var selectedMenu:SideMenuItem!
+    var updatedSelectedMenu:SideMenuItem? = nil
     //        didSet {
     //            switch self.selectedMenu {
     //            case .tag(let tagId):
@@ -256,42 +256,57 @@ class SideMenuViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        guard let notification = self.notification else {
+        guard let _ = self.notification else {
             if needLoadTags {
-                self.needLoadTags = false
                 self.refreshTags()
             }
             return
         }
-        
         self.notification = nil
-        self.needLoadTags = false
-        
-        switch notification.name {
-        case .Tag_UPDATED,.Tag_DELETED:
-            self.refreshTags()
-        case .Tag_CHANGED:
-            if let tag = notification.object as? Tag  {
-                handleTagChanged(tag)
+        if self.needLoadTags {
+            self.needLoadTags = false
+            self.loadTags { [weak self]newTags in
+                guard let self = self else { return }
+                self.reloadTagList(newTags: newTags,withAnim: false)
+                self.updateSelected()
             }
-        default:break
-            
+            return
         }
-        //        if needRefresh {
-        //           self.needRefresh = false
-        //           self.refreshTags()
-        //        }
+        if self.updatedSelectedMenu != nil {
+            self.updateSelected()
+        }
+//        switch notification.name {
+//        case .Tag_UPDATED,.Tag_DELETED:
+//            self.refreshTags()
+//        case .Tag_CHANGED:
+//            if let tag = notification.object as? Tag  {
+//                handleTagChanged(tag)
+//            }
+//        default:break
+//
+//        }
     }
     
-    private func handleTagChanged(_ tag:Tag) {
-        guard let selectedIndexPath = getSelectedIndexPath() else { return }
-        self.selectedMenu = SideMenuItem.tag(id: tag.id)
-        self.refreshTags()
-        self.tableView.reloadRows(at: [selectedIndexPath], with: .none)
+    private func updateSelected() {
+        var updatedRows:[IndexPath] = []
+        if let oldSelectedIndexPath = getSelectedIndexPath() {
+            updatedRows.append(oldSelectedIndexPath)
+        }
+        if let updatedSelectedMenu = self.updatedSelectedMenu
+           {
+            self.selectedMenu = updatedSelectedMenu
+            self.updatedSelectedMenu = nil
+            if let newSelectedIndexPath = getSelectedIndexPath() {
+                updatedRows.append(newSelectedIndexPath)
+            }
+        }
+        if updatedRows.count > 0 {
+            self.tableView.reloadRows(at: updatedRows, with: .none)
+        }
     }
     
     private func refreshTags() {
+        self.needLoadTags = false
         self.loadTags { [weak self]newTags in
             guard let self = self else { return }
             self.reloadTagList(newTags: newTags,withAnim: false)
@@ -403,31 +418,24 @@ extension SideMenuViewController {
         self.notification = notification
         switch notification.name {
         case .Tag_UPDATED:
-            self.needRefresh = true
+            self.needLoadTags = true
             if let tag = notification.object as? Tag {
-                self.selectedMenu = SideMenuItem.tag(id: tag.id)
                 self.delegate?.sideMenuItemSelected(tag: tag)
+                self.updatedSelectedMenu = SideMenuItem.tag(id: tag.id)
             }
             break
         case .Tag_DELETED:
-            self.needRefresh = true
-            let all = IndexPath(row: 0, section: 0)
-            self.setSelectedIndexPath(all)
-            if let cell = self.tableView.cellForRow(at: all) as? SideMenuCell {
-                cell.cellIsSelected = true
-            }
+            self.needLoadTags = true
+            self.delegate?.sideMenuItemSelected(sideMenuItem: Constants.all)
+            self.updatedSelectedMenu = SideMenuItem.system(sysMenuItem: Constants.all)
         case .Tag_CHANGED:
             guard let tag = notification.object as? Tag else { return }
-            
-            //
-            _ = self.expandTagSource(tag)
+            let updatedTitles = self.expandTagSource(tag)
             self.delegate?.sideMenuItemSelected(tag: tag)
-            //            self.needRefresh = true
-            
-            //            if let indexPath = self.visibleTagIds.firstIndex(where: {$0 == tag.id})  {
-            //               self.setSelected(indexPath: IndexPath(row: indexPath, section: 1))
-            //            }else {
-            //            }
+            self.updatedSelectedMenu = SideMenuItem.tag(id: tag.id)
+            if updatedTitles.count > 0 {
+                self.needLoadTags = true
+            }
             break
         default:
             break
@@ -560,8 +568,10 @@ extension SideMenuViewController {
             }else {
                 tempTitle = tempTitle + "/"+title
             }
-            TagExpandCache.shared.set(key: tempTitle, value: tempTitle)
-            updatedTitles.append(tempTitle)
+            if TagExpandCache.shared.get(key: tempTitle) == nil {
+               TagExpandCache.shared.set(key: tempTitle, value: tempTitle)
+                updatedTitles.append(tempTitle)
+            }
         }
         return updatedTitles
     }
