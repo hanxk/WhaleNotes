@@ -51,7 +51,7 @@ extension MDTextViewWrapper: UITextViewDelegate {
         let lineRange  = (allText as NSString).lineRange(for: textView.selectedRange)
        
         if let bulletAndSymbolRange = highlight.bulletSyntax.matchAllRange(text: allText, range: lineRange) {
-            if bulletAndSymbolRange.1.length == lineRange.length {
+            if bulletAndSymbolRange.1.length == lineRange.length - 1 {
                 replaceAndMoveSelected(range: bulletAndSymbolRange.0, replace: "")
             }else {
               let symbol = allText.substring(with: bulletAndSymbolRange.1)
@@ -61,7 +61,7 @@ extension MDTextViewWrapper: UITextViewDelegate {
         }
         
         if let numberAndSymbolRange = highlight.numberSyntax.matchAllRange(text: allText, range: lineRange) {
-            if numberAndSymbolRange.1.length == lineRange.length {
+            if numberAndSymbolRange.1.length == lineRange.length - 1 {
                 replaceAndMoveSelected(range: numberAndSymbolRange.0, replace: "")
             }else {
               let symbol = allText.substring(with: numberAndSymbolRange.1)

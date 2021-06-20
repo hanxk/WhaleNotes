@@ -9,8 +9,9 @@ import UIKit
 
 let paragraphStyle = { () -> NSMutableParagraphStyle in
     let paraStyle = NSMutableParagraphStyle()
-    paraStyle.lineSpacing = MDEditStyleConfig.lineSpacing
-//    paraStyle.lineHeightMultiple = MDStyleConfig.lineHeight
+//    paraStyle.lineSpacing = MDEditStyleConfig.lineSpacing
+//    lineHeightMultiple
+    paraStyle.lineHeightMultiple = 1.2
 //    paragraphStyle.lineHeightMultiple = MDStyleConfig.lineHeight
 //    paraStyle.maximumLineHeight = MDStyleConfig.lineHeight
 //    paraStyle.minimumLineHeight = MDStyleConfig.lineHeight
@@ -45,11 +46,11 @@ struct HighlightStyle {
     var attrs: [NSAttributedString.Key : Any] {
         
         return [NSAttributedString.Key.font : font!,
-                .obliqueness : italic ? 0.3 : 0,
+//                .obliqueness : italic ? 0.3 : 0,
                 .foregroundColor : textColor,
-                .backgroundColor : backgroundColor,
-                .strikethroughStyle : deletionLine ? NSUnderlineStyle.single.rawValue :  NSUnderlineStyle.init().rawValue,
-                .strikethroughColor : textColor,
+//                .backgroundColor : backgroundColor,
+//                .strikethroughStyle : deletionLine ? NSUnderlineStyle.single.rawValue :  NSUnderlineStyle.init().rawValue,
+//                .strikethroughColor : textColor,
                 .paragraphStyle : paragraphStyle
         ]
     }
@@ -132,6 +133,7 @@ struct MDSyntaxHighlighter {
     
     func highlight(_ text: NSTextStorage, visibleRange: NSRange? = nil) {
         let len = (text.string as NSString).length
+        if len == 0 { return }
         var validRange:NSRange
         if  let  visibleRange = visibleRange {
             validRange = visibleRange

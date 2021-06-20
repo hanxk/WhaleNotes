@@ -22,6 +22,7 @@
 		181D63EC248BA17D00B34E20 /* MenuCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */; };
 		181E395724BC0BFC00631EF0 /* BlockPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181E395624BC0BFC00631EF0 /* BlockPosition.swift */; };
 		181EE032267DFAF200098A03 /* MDBoldParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181EE031267DFAF200098A03 /* MDBoldParser.swift */; };
+		181EE034267EFF9400098A03 /* MyEditTextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181EE033267EFF9300098A03 /* MyEditTextNode.swift */; };
 		181F17D4249E0EA900F8C5B8 /* HomeTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */; };
 		181F48F62617FF9300B92E82 /* NotesSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */; };
 		181F48F9261827E700B92E82 /* UserDefaults+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */; };
@@ -237,6 +238,7 @@
 		181D63EB248BA17D00B34E20 /* MenuCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCategoryCell.swift; sourceTree = "<group>"; };
 		181E395624BC0BFC00631EF0 /* BlockPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockPosition.swift; sourceTree = "<group>"; };
 		181EE031267DFAF200098A03 /* MDBoldParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDBoldParser.swift; sourceTree = "<group>"; };
+		181EE033267EFF9300098A03 /* MyEditTextNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEditTextNode.swift; sourceTree = "<group>"; };
 		181F17D3249E0EA200F8C5B8 /* HomeTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTitleView.swift; sourceTree = "<group>"; };
 		181F48F52617FF9300B92E82 /* NotesSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesSyncEngine.swift; sourceTree = "<group>"; };
 		181F48F8261827E700B92E82 /* UserDefaults+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Ex.swift"; sourceTree = "<group>"; };
@@ -1043,6 +1045,7 @@
 				18CD52CE2650ECCD00F0039D /* EditorToolbarWrapper.swift */,
 				18CD52D02650F6FB00F0039D /* MyTextView.swift */,
 				186A34F3258349130003E926 /* MDSyntaxHighlighter.swift */,
+				181EE033267EFF9300098A03 /* MyEditTextNode.swift */,
 			);
 			path = NotesEditor;
 			sourceTree = "<group>";
@@ -1484,6 +1487,7 @@
 				18C132302599C02600D1529B /* MarkdownListHighlighter.swift in Sources */,
 				181D63E4248B1F6600B34E20 /* TitleBlockCell.swift in Sources */,
 				1865AF16244DCB850006B48D /* TextBlockCell.swift in Sources */,
+				181EE034267EFF9400098A03 /* MyEditTextNode.swift in Sources */,
 				188BD3FD2592E6A30050D896 /* ActionButton.swift in Sources */,
 				1865AF12244D63700006B48D /* Ditionary+Ex.swift in Sources */,
 				18E9567B2449A3F0003755BF /* WhaleNotes.xcdatamodeld in Sources */,

@@ -34,6 +34,7 @@ class NoteContentCellNode:ASCellNode {
         
         self.textNode =  generateASEditableTextNode(content: title)
         self.textView.inputAccessoryView = keyboardView
+        self.textNode.attributedText = getContentAttributesString(content: content)
         
         self.addSubnode(textNode)
         
@@ -45,7 +46,8 @@ class NoteContentCellNode:ASCellNode {
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
         let insets = UIEdgeInsets(top:0, left: MDEditorConfig.paddingH, bottom: 0, right: MDEditorConfig.paddingH)
-        return  ASInsetLayoutSpec(insets: insets, child: textNode)
+        let spec =  ASInsetLayoutSpec(insets: insets, child: textNode)
+        return spec
     }
     
     func generateASEditableTextNode(content:String)  -> ASEditableTextNode {
@@ -60,22 +62,21 @@ class NoteContentCellNode:ASCellNode {
 //                          textContainerSize: .zero,
 //                          layoutManager: layoutManager)
 //
-        let placeholderTextKit: ASTextKitComponents =
-                    .init(attributedSeedString:  getContentPlaceHolderAttributesString(),
-                          textContainerSize: .zero)
+//        let placeholderTextKit: ASTextKitComponents =
+//                    .init(attributedSeedString:  getContentPlaceHolderAttributesString(),
+//                          textContainerSize: .zero)
         let contentNode = ASEditableTextNode.init().then {
 //        let contentNode = ASEditableTextNode.init(textKitComponents: ASTextKitComponents.init(), placeholderTextKitComponents: placeholderTextKit).then {
                         $0.placeholderEnabled  = false
                         $0.scrollEnabled = false
-                        $0.textView.font = MDEditStyleConfig.normalFont
+//                        $0.textView.font = MDEditStyleConfig.normalFont
                         $0.textView.isEditable =   true
                         $0.delegate = self
                         $0.textView.tag = EditViewTag.content.rawValue
                         $0.tintColor =  UIColor.cursor
-                        $0.attributedText = getContentAttributesString(content: content)
                         $0.typingAttributes = getContentAttributesString()
          }
-        
+        contentNode.style.minHeight = ASDimensionMake(100)
         return  contentNode
     }
 }
@@ -105,7 +106,7 @@ extension NoteContentCellNode {
     func getContentPlaceHolderAttributesString() -> NSAttributedString {
         var titleAttr = getContentAttributes()
         titleAttr[.foregroundColor] = UIColor.lightGray
-        return NSMutableAttributedString(string: "", attributes: titleAttr)
+        return NSMutableAttributedString(string: " ", attributes: titleAttr)
     }
     
     
