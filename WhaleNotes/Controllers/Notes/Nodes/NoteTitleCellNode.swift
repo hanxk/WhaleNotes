@@ -21,7 +21,7 @@ class NoteTitleCellNode:ASCellNode {
         $0.attributedPlaceholderText = getTitlePlaceHolderAttributesString()
         $0.scrollEnabled = false
         $0.typingAttributes = getTitleAttributesString()
-        $0.textContainerInset = UIEdgeInsets(top: 22, left: MDEditorConfig.paddingH, bottom: 12, right: MDEditorConfig.paddingH)
+        $0.textContainerInset = UIEdgeInsets(top: 0, left: MDEditorConfig.paddingH, bottom: 0, right: MDEditorConfig.paddingH)
         $0.delegate = self
         $0.tintColor = .cursor
         $0.textView.tag = EditViewTag.title.rawValue
@@ -52,7 +52,7 @@ class NoteTitleCellNode:ASCellNode {
     }
     
     override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
-        let insets = UIEdgeInsets(top:0, left: 0, bottom: 0, right: 0)
+        let insets = UIEdgeInsets(top:24, left: 0, bottom: 10, right: 0)
         return  ASInsetLayoutSpec(insets: insets, child: titleNode)
     }
     

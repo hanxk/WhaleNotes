@@ -94,9 +94,8 @@ class MDEditorViewController: UIViewController {
         
         if let cell = self.getNoteContentCellNode() {
             cell.textNode.textView.becomeFirstResponder()
-           
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { // Change `2.0` to the desired number of seconds.
-                self.scrollToCursorPositionIfBelowKeyboard(textView:cell.textNode.textView)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.refreshTableNode(node: cell)
             }
            
         }
