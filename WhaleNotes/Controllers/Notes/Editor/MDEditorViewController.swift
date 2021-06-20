@@ -53,7 +53,7 @@ class MDEditorViewController: UIViewController {
     private lazy var tableView = ASTableNode().then {
 //        $0.delegate = self
         $0.dataSource = self
-        $0.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: bottomExtraSpace, right: 0)
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .none

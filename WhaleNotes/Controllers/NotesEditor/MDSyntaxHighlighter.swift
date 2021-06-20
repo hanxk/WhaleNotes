@@ -24,7 +24,7 @@ enum MDStyleConfig {
     static let lineSpacing:CGFloat = 4
 }
 enum MDEditStyleConfig {
-    static let headerFont:UIFont = UIFont.systemFont(ofSize: 19,weight: .medium)
+    static let headerFont:UIFont = UIFont.systemFont(ofSize: 20,weight: .medium)
     static let boldFont:UIFont = UIFont.systemFont(ofSize: 17,weight: .medium)
     static let normalFont:UIFont = UIFont.systemFont(ofSize: 17)
     static let lineSpacing:CGFloat = 5

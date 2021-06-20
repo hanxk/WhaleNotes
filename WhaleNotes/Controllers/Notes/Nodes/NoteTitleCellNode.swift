@@ -20,7 +20,7 @@ class NoteTitleCellNode:ASCellNode {
         $0.attributedPlaceholderText = getTitlePlaceHolderAttributesString()
         $0.scrollEnabled = false
         $0.typingAttributes = getTitleAttributesString()
-        $0.textContainerInset = UIEdgeInsets(top: 4, left: MDEditorConfig.paddingH, bottom: 8, right: MDEditorConfig.paddingH)
+        $0.textContainerInset = UIEdgeInsets(top: 22, left: MDEditorConfig.paddingH, bottom: 12, right: MDEditorConfig.paddingH)
         $0.delegate = self
         $0.tintColor = .cursor
         $0.textView.tag = EditViewTag.title.rawValue
@@ -86,8 +86,7 @@ extension NoteTitleCellNode {
     
 
     private func getTitleAttributes() -> [NSAttributedString.Key: Any] {
-//        let font = MDStyle.generateDefaultFont(fontSize: 22,weight: .medium)
-        let font = MDStyleConfig.headerFont
+        let font = MDEditStyleConfig.headerFont
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.2
         paragraphStyle.lineBreakMode = .byWordWrapping;
