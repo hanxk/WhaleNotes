@@ -10,6 +10,7 @@ import AsyncDisplayKit
 
 protocol NoteContentCellNodeDelegate: AnyObject {
     func textChanged(_ cellNode:NoteContentCellNode)
+    func editableTextNodeDidBeginEditing(_ cellNode:NoteContentCellNode)
     func saveButtonTapped(_ cellNode:NoteContentCellNode)
 }
 
@@ -86,6 +87,11 @@ extension NoteContentCellNode: ASEditableTextNodeDelegate {
         let textView = editableTextNode.textView
         self.mdTextViewWrapper.textViewDidChange(textView)
         delegate?.textChanged(self)
+    }
+    
+    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
+        self.delegate?.editableTextNodeDidBeginEditing(self)
+        return true
     }
     
     func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {

@@ -12,6 +12,7 @@ import AsyncDisplayKit
 
 protocol NoteTitleCellNodeDelegate: AnyObject {
     func textChanged(_ cellNode:NoteTitleCellNode)
+    func editableTextNodeDidBeginEditing(_ cellNode:NoteTitleCellNode)
     func saveButtonTapped(_ cellNode:NoteTitleCellNode)
 }
 
@@ -115,10 +116,10 @@ extension NoteTitleCellNode: ASEditableTextNodeDelegate {
 //        self.textDidFinishEditing?(text)
 //    }
 //
-//    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
-//        self.textShouldBeginEditing?(editableTextNode.textView)
-//        return true
-//    }
+    func editableTextNodeShouldBeginEditing(_ editableTextNode: ASEditableTextNode) -> Bool {
+        self.delegate?.editableTextNodeDidBeginEditing(self)
+        return true
+    }
     
     func editableTextNode(_ editableTextNode: ASEditableTextNode, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 //       return self.mdHelper?.textView(editableTextNode.textView, shouldChangeTextIn: range, replacementText: text) ?? false

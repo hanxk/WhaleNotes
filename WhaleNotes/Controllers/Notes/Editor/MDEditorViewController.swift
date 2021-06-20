@@ -94,6 +94,11 @@ class MDEditorViewController: UIViewController {
         
         if let cell = self.getNoteContentCellNode() {
             cell.textNode.textView.becomeFirstResponder()
+           
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { // Change `2.0` to the desired number of seconds.
+                self.scrollToCursorPositionIfBelowKeyboard(textView:cell.textNode.textView)
+            }
+           
         }
     }
     
@@ -291,6 +296,11 @@ extension MDEditorViewController {
 }
 
 extension MDEditorViewController:NoteTitleCellNodeDelegate {
+    
+    func editableTextNodeDidBeginEditing(_ cellNode: NoteTitleCellNode) {
+        self.focusedTextView = cellNode.textView
+    }
+    
     func textChanged(_ cellNode: NoteTitleCellNode) {
         self.refreshTableNode(node: cellNode)
     }
@@ -301,6 +311,10 @@ extension MDEditorViewController:NoteTitleCellNodeDelegate {
 }
 
 extension MDEditorViewController:NoteContentCellNodeDelegate {
+    func editableTextNodeDidBeginEditing(_ cellNode: NoteContentCellNode) {
+        self.focusedTextView = cellNode.textView
+    }
+    
     func textChanged(_ cellNode: NoteContentCellNode) {
         self.refreshTableNode(node: cellNode)
     }
@@ -468,7 +482,7 @@ extension MDEditorViewController:ASTableDataSource {
             
             if self.isKeyboardShow {
                 if let focusedTextView = self.focusedTextView {
-                    self.scrollToCursorPositionIfBelowKeyboard(textView:focusedTextView,animated:false)
+                    self.scrollToCursorPositionIfBelowKeyboard(textView:focusedTextView)
                 }
             }
             
