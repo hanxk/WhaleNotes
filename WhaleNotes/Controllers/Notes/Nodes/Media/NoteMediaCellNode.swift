@@ -18,6 +18,7 @@ enum NoteMediaCellConstants {
 
 protocol NoteMediaCellNodeDelegate: AnyObject {
     func imageChanged(_ cellNode:NoteMediaCellNode)
+    func imageTapped(_ cellNode:NoteMediaCellNode,index:Int)
 }
 class NoteMediaCellNode:ASCellNode {
     
@@ -79,6 +80,11 @@ extension NoteMediaCellNode: ASCollectionDelegate {
         let itemWidth = (collectionNode.frame.width - (NoteMediaCellConstants.cellCount - 1)*NoteMediaCellConstants.cellSpacing) / NoteMediaCellConstants.cellCount
         return ASSizeRange(min: .zero, max: .init(width: itemWidth, height: itemWidth))
     }
+    
+    func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
+        self.delegate?.imageTapped(self, index: indexPath.row)
+    }
+    
 }
 
 fileprivate class MediaItemCellNode:ASCellNode {

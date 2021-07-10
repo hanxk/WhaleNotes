@@ -13,17 +13,18 @@ import FloatingPanel
 import DeepDiff
 import SwiftMessages
 import MarkdownKit
+import ImageViewer
 
 
 enum NoteListMode {
     static func == (lhs: NoteListMode, rhs: NoteListMode) -> Bool {
         switch (lhs,rhs)  {
-            case (.all,.all),(.trash,.trash):
-                return true
-            case (.tag(let lTag),.tag(let rTag)):
-                return lTag.id == rTag.id
-            default:
-                return false
+        case (.all,.all),(.trash,.trash):
+            return true
+        case (.tag(let lTag),.tag(let rTag)):
+            return lTag.id == rTag.id
+        default:
+            return false
         }
     }
     
@@ -107,7 +108,7 @@ class NotesListView: UIView {
     
     // 刷新数据源
     func refresh() {
-       self.loadNotes(mode: mode,offset: 0)
+        self.loadNotes(mode: mode,offset: 0)
     }
     
     private func refreshDataSource(newNotes:[NoteInfo]) {
@@ -132,7 +133,7 @@ class NotesListView: UIView {
     }
     
     func openEditorVC(noteInfo:NoteInfo,isNewCreated:Bool = false) {
-//        let editorVC  = NoteMDViewController()
+        //        let editorVC  = NoteMDViewController()
         let editorVC = MDEditorViewController()
         editorVC.noteInfo = noteInfo
         editorVC.isNewCreated = isNewCreated
@@ -143,7 +144,7 @@ class NotesListView: UIView {
         editorVC.modalTransitionStyle = .coverVertical
         editorVC.modalPresentationStyle = .fullScreen
         self.controller?.present(editorVC, animated: true, completion: nil)
-//        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
+        //        self.controller?.navigationController?.pushViewController(editorVC, animated: true)
     }
 }
 
@@ -223,24 +224,24 @@ extension NotesListView {
     
     func handleNoteInfoCreated(noteInfo:NoteInfo) {
         
-//        let visibleRows = self.tableView.indexPathsForVisibleRows()
-//
-//        self.notes.insert(noteInfo, at: 0)
-//        let indexPath:IndexPath = IndexPath(row: 0, section: 0)
+        //        let visibleRows = self.tableView.indexPathsForVisibleRows()
+        //
+        //        self.notes.insert(noteInfo, at: 0)
+        //        let indexPath:IndexPath = IndexPath(row: 0, section: 0)
         
-//        let needScroll2Top = visibleRows.count > 0 && visibleRows[0].row > indexPath.row
+        //        let needScroll2Top = visibleRows.count > 0 && visibleRows[0].row > indexPath.row
         
-//        self.tableView.insertRows(at: [indexPath], with: .automatic)
-//        if needScroll2Top {
-//            self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
-//        }
+        //        self.tableView.insertRows(at: [indexPath], with: .automatic)
+        //        if needScroll2Top {
+        //            self.tableView.scrollToRow(at: indexPath, at: .none, animated: false)
+        //        }
         self.openEditorVC(noteInfo:noteInfo,isNewCreated: true)
     }
 }
 
 extension NotesListView {
     func handleNoteInfoUpdated(_ noteInfo:NoteInfo) {
-//        NotesSyncEngine.shared.pushToCloudKit(notesToUpdate: [noteInfo])
+        //        NotesSyncEngine.shared.pushToCloudKit(notesToUpdate: [noteInfo])
         NotesSyncEngine.shared.pushLocalToRemote()
         // 检查tag
         if let tag = self.noteTag,
@@ -277,8 +278,8 @@ extension NotesListView {
 //MARK: ASTableDelegate
 extension NotesListView:ASTableDelegate {
     func tableNode(_ tableNode: ASTableNode, didSelectRowAt indexPath: IndexPath) {
-//        let noteInfo = self.notes[indexPath.row]
-//        self.openEditorVC(noteInfo: noteInfo)
+        //        let noteInfo = self.notes[indexPath.row]
+        //        self.openEditorVC(noteInfo: noteInfo)
     }
     
     func tableNode(_ tableNode: ASTableNode, willDisplayRowWith node: ASCellNode) {
@@ -313,19 +314,19 @@ extension NotesListView:ASTableDataSource {
             self?.handleCardAction(action,noteId: noteInfo.note.id)
         })
         node.delegate = self
-//        node.textChanged {[weak node] (newText: String) in
-//            UIView.performWithoutAnimation {
-//                node?.setNeedsLayout()
-//            }
-//        }
-//        node.textEdited {[weak self] text,editViewTag in
-//            self?.handleEditText(text: text, editViewTag: editViewTag, noteId: noteInfo.note.id)
-//        }
+        //        node.textChanged {[weak node] (newText: String) in
+        //            UIView.performWithoutAnimation {
+        //                node?.setNeedsLayout()
+        //            }
+        //        }
+        //        node.textEdited {[weak self] text,editViewTag in
+        //            self?.handleEditText(text: text, editViewTag: editViewTag, noteId: noteInfo.note.id)
+        //        }
         let doubleTapGesture = MyTapGesture(target: self, action: #selector(handleDoubleTap))
         doubleTapGesture.numberOfTapsRequired = 2
         doubleTapGesture.noteInfo = noteInfo
         node.view.addGestureRecognizer(doubleTapGesture)
-
+        
         return node
     }
     
@@ -412,6 +413,13 @@ extension NotesListView:ASTableDataSource {
 
 //MARK: NoteCardNodeDelegate
 extension NotesListView:NoteCardNodeDelegate{
+    func noteFileTapped(noteFiles: [NoteFile], index: Int) {
+       let imageUrls = noteFiles.map { ImageLocalUtil.sharedInstance.filePath(imageName: $0.id) }
+        if let vc = self.controller {
+           ImageViewerUtil.present(vc: vc, imageUrls: imageUrls)
+        }
+    }
+    
     func tagTapped(tag: Tag) {
         if let currentTag = self.noteTag,
            currentTag.id == tag.id{
@@ -419,7 +427,10 @@ extension NotesListView:NoteCardNodeDelegate{
         }
         EventManager.shared.post(name: .Tag_CHANGED,object: tag)
     }
+    
 }
+
+
 
 
 //MARK: card action
@@ -455,18 +466,18 @@ extension NotesListView {
             menuRows.append(PopMenuRow(icon: UIImage(systemName:"doc.on.doc"), title: "复制",tag:MenuAction.copy.rawValue))
             menuRows.append(PopMenuRow(icon: UIImage(systemName:"trash"), title: "移到废纸篓",tag:MenuAction.trash.rawValue))
         }
-
+        
         let menuVC = PopMenuController(menuRows: menuRows)
         menuVC.rowSelected = {[weak self] menuRow in
             self?.handleMenuRowSelected(menuRow:menuRow,noteId: noteId)
         }
         menuVC.showModal(vc: self.controller!)
-
+        
     }
     
     func showMenu(sourceVC:UIViewController,menuRows:[PopMenuRow],callback: @escaping ((PopMenuRow)->Void)) {
         let alert = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
-           
+        
         for menuRow in menuRows {
             let style:UIAlertAction.Style = menuRow.isDestroy ? .destructive : .default
             let action = UIAlertAction(title: menuRow.title, style: style) { _ in
@@ -474,12 +485,12 @@ extension NotesListView {
             }
             alert.addAction(action)
         }
-           //uncomment for iPad Support
-           //alert.popoverPresentationController?.sourceView = self.view
-
+        //uncomment for iPad Support
+        //alert.popoverPresentationController?.sourceView = self.view
+        
         sourceVC.present(alert, animated: true, completion: {
-               print("completion block")
-           })
+            print("completion block")
+        })
     }
     
     fileprivate func handleTagAction(noteId:String) {
@@ -623,9 +634,9 @@ extension NotesListView {
 extension NotesListView {
     
     fileprivate func subscribeRemoteNotesChanged() {
-//        NotificationCenter.default.addObserver(self, selector: #selector(noteInserted(_:)), name: .noteInserted, object:nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(noteUpdated(_:)), name: .noteUpdated, object:nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(noteDeleted(_:)), name: .noteDeleted, object:nil)
+        //        NotificationCenter.default.addObserver(self, selector: #selector(noteInserted(_:)), name: .noteInserted, object:nil)
+        //        NotificationCenter.default.addObserver(self, selector: #selector(noteUpdated(_:)), name: .noteUpdated, object:nil)
+        //        NotificationCenter.default.addObserver(self, selector: #selector(noteDeleted(_:)), name: .noteDeleted, object:nil)
         EventManager.shared.addObserver(observer: self, selector: #selector(handleRemoteDataChanged), name: .REMOTE_DATA_CHANGED)
     }
     
@@ -635,27 +646,27 @@ extension NotesListView {
         
     }
     @objc func noteDeleted(_ notification: Notification? = nil) {
-//        guard let deletedNoteIDs = notification?.object as? [String] else {return }
-//
-//        // 当前列表中是否存在被删除的notes
-//        let validIDs = deletedNoteIDs.filter{ id in self.notes.contains(where: {$0.id == id})}
-//        if validIDs.isEmpty { return }
-//
-//        // 过滤掉被删除的notes
-//        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
-//        self.refreshDataSource(newNotes: newNotes)
+        //        guard let deletedNoteIDs = notification?.object as? [String] else {return }
+        //
+        //        // 当前列表中是否存在被删除的notes
+        //        let validIDs = deletedNoteIDs.filter{ id in self.notes.contains(where: {$0.id == id})}
+        //        if validIDs.isEmpty { return }
+        //
+        //        // 过滤掉被删除的notes
+        //        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
+        //        self.refreshDataSource(newNotes: newNotes)
     }
     @objc func handleRemoteDataChanged(_ notification: Notification? = nil) {
         self.refresh()
-//        guard let deletedNoteIDs = notification?.object as? [String] else {return }
-//
-//        // 当前列表中是否存在被删除的notes
-//        let validIDs = deletedNoteIDs.filter{ id in self.notes.contains(where: {$0.id == id})}
-//        if validIDs.isEmpty { return }
-//
-//        // 过滤掉被删除的notes
-//        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
-//        self.refreshDataSource(newNotes: newNotes)
+        //        guard let deletedNoteIDs = notification?.object as? [String] else {return }
+        //
+        //        // 当前列表中是否存在被删除的notes
+        //        let validIDs = deletedNoteIDs.filter{ id in self.notes.contains(where: {$0.id == id})}
+        //        if validIDs.isEmpty { return }
+        //
+        //        // 过滤掉被删除的notes
+        //        let newNotes = self.notes.filter({validIDs.contains($0.id) == false})
+        //        self.refreshDataSource(newNotes: newNotes)
     }
 }
 
@@ -666,7 +677,7 @@ extension NSMutableAttributedString {
         let attributes: [NSAttributedString.Key: Any] = [
             NSAttributedString.Key.paragraphStyle: paragraphStyle
         ]
-
+        
         let range = (string as NSString).range(of: string)
         addAttributes(attributes, range: range)
     }

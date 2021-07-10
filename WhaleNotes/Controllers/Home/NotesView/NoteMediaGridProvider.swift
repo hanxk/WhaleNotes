@@ -23,6 +23,7 @@ class NoteMediaGridProvider: NSObject, NoteCardContentProvider  {
     }
     var delegate:NoteMediaCellNodeDelegate? = nil
     var noteFiles:[NoteFile] = []
+    var callbackImageTapped:((Int) -> Void)?
     
     lazy var collectionNode:ASCollectionNode = {
         let layout = UICollectionViewFlowLayout()
@@ -81,6 +82,10 @@ extension NoteMediaGridProvider: ASCollectionDelegate {
     func collectionNode(_ collectionNode: ASCollectionNode, constrainedSizeForItemAt indexPath: IndexPath) -> ASSizeRange {
         let itemWidth = (collectionNode.frame.width - (self.cellCount.cgFloat - 1)*cellSpacing) / self.cellCount.cgFloat
         return ASSizeRange(min: .zero, max: .init(width: itemWidth, height: itemWidth))
+    }
+    
+    func collectionNode(_ collectionNode: ASCollectionNode, didSelectItemAt indexPath: IndexPath) {
+        self.callbackImageTapped?(indexPath.row)
     }
 }
 

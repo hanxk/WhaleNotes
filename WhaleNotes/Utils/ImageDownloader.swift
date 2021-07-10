@@ -18,10 +18,10 @@ class ImageDownloader {
     
     func downloadImage(`with` url : URL,imageW:CGFloat,callback:@escaping ((UIImage?)->Void)){
         let resource = ImageResource(downloadURL: url)
-        let processor = DownsamplingImageProcessor(size: CGSize(width: imageW, height: imageW))
+//        let processor = DownsamplingImageProcessor(size: CGSize(width: imageW, height: imageW))
         KingfisherManager.shared.retrieveImage(with: resource, options: [
-                                               .processor(processor),
-                                               .loadDiskFileSynchronously,
+//                                               .processor(processor),
+//                                               .loadDiskFileSynchronously,
                                                .transition(.fade(0.25))
                                            ], progressBlock: nil) { result in
             switch result {
@@ -30,6 +30,7 @@ class ImageDownloader {
                 callback(value.image)
             case .failure(let error):
                 print("Error: \(error)")
+                callback(nil)
             }
         }
     }

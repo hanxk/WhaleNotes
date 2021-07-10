@@ -24,6 +24,7 @@ protocol NoteCardContentProvider {
 
 protocol NoteCardNodeDelegate {
     func tagTapped(tag:Tag)
+    func noteFileTapped(noteFiles:[NoteFile],index:Int)
 }
 
 
@@ -47,6 +48,7 @@ enum NoteCardAction: Int {
     case photo = 3
     case save = 4
     case menu = 5
+//    case imageTapped(index:Int)
 }
 
 enum NoteCardMode: Int {
@@ -149,8 +151,12 @@ class NoteCardNode: ASCellNode {
         }
         
         if noteInfo.files.isNotEmpty {
-            mediaGridProvider = NoteMediaGridProvider(noteFiles: noteInfo.files)
-            mediaGridProvider?.attach(cell: self)
+            let mediaGridProvider = NoteMediaGridProvider(noteFiles: noteInfo.files)
+            mediaGridProvider.callbackImageTapped = { index in
+                self.delegate?.noteFileTapped(noteFiles: noteInfo.files, index: index)
+            }
+            mediaGridProvider.attach(cell: self)
+            self.mediaGridProvider = mediaGridProvider
         }
         
         

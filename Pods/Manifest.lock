@@ -6,10 +6,9 @@ PODS:
   - DeepDiff (2.3.1)
   - EZSwiftExtensions (2.0)
   - FloatingPanel (2.1.0)
+  - ImageViewer (6.0.0)
   - JXPhotoBrowser (3.1.2)
-  - Kingfisher (5.15.8):
-    - Kingfisher/Core (= 5.15.8)
-  - Kingfisher/Core (5.15.8)
+  - Kingfisher (6.3.0)
   - MarkdownKit (1.7.1)
   - MBProgressHUD (1.2.0)
   - NewPopMenu (2.1.2)
@@ -79,8 +78,9 @@ DEPENDENCIES:
   - DeepDiff
   - EZSwiftExtensions (from `https://github.com/goktugyil/EZSwiftExtensions.git`, branch `ceeyang-Swift5.0`)
   - FloatingPanel
+  - ImageViewer
   - JXPhotoBrowser (~> 3.0)
-  - Kingfisher (~> 5.0)
+  - Kingfisher (~> 6.0)
   - MarkdownKit
   - MBProgressHUD (~> 1.2.0)
   - NewPopMenu (~> 2.0)
@@ -101,6 +101,9 @@ DEPENDENCIES:
   - Zip
 
 SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - ImageViewer
+    - Kingfisher
   trunk:
     - Alamofire
     - Cache
@@ -109,7 +112,6 @@ SPEC REPOS:
     - DeepDiff
     - FloatingPanel
     - JXPhotoBrowser
-    - Kingfisher
     - MarkdownKit
     - MBProgressHUD
     - NewPopMenu
@@ -151,8 +153,9 @@ SPEC CHECKSUMS:
   DeepDiff: e5ae6c50d0321568e4508cec5930b9f10bb293fc
   EZSwiftExtensions: f73648a591e529a1dbd83c22b19fd3e57df6fb7d
   FloatingPanel: 1af47b69e26df98b8728307254a9a0f4eb3cd645
+  ImageViewer: cb88ef1c0ba19161bc10702adfdcebc116a7a59d
   JXPhotoBrowser: 7f0bc11f02fbc84ae06829f922f32ce822aa9661
-  Kingfisher: a3c03d702433fa6cfedabb2bddbe076fb8f2e902
+  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   MarkdownKit: 0b15195c63cf3e39387949c4bdeccde0055e252a
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   NewPopMenu: c6129e08e8192f6257ceb5f9a4357e1b59c6e2e7
@@ -176,6 +179,6 @@ SPEC CHECKSUMS:
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   Zip: 414f59909701fda9a84ab774ebe0f5449b1082cc
 
-PODFILE CHECKSUM: 9c0eb65f8da3aa6e230f3e5e05582e3d0ada351a
+PODFILE CHECKSUM: 23485a84f9e6b8f2798b5ef432b999580fab9e9a
 
 COCOAPODS: 1.9.1

@@ -433,12 +433,20 @@ extension MDEditorViewController:ASTableDelegate {
     }
 }
 
+//MARK: NoteMediaCellNodeDelegate
 extension MDEditorViewController:NoteMediaCellNodeDelegate {
+    func imageTapped(_ cellNode: NoteMediaCellNode, index: Int) {
+        let imageUrls = cellNode.noteFiles.map { ImageLocalUtil.sharedInstance.filePath(imageName: $0.id) }
+        ImageViewerUtil.present(vc: self, imageUrls: imageUrls)
+    }
+    
     func imageChanged(_ cellNode: NoteMediaCellNode) {
         self.refreshTableNode(node: cellNode)
     }
 }
 
+
+//MARK: ASTableDataSource
 extension MDEditorViewController:ASTableDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cellNodeTypes.count
