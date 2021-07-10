@@ -319,10 +319,10 @@ extension NoteEditorViewController {
     
     func handleNoteInfoEvent(event:NoteEditorEvent) {
         isNoteUpdated = true
-        switch event {
-        case .updated(let noteInfo):
-            self.noteInfo = noteInfo
-        }
+//        switch event {
+//        case .updated(let noteInfo):
+//            self.noteInfo = noteInfo
+//        }
     }
     
 }

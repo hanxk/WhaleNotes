@@ -28,6 +28,7 @@ class MDKeyboardView: UIView {
     
     let scrollView = UIScrollView()
     private var items:[(String,Selector)] = [
+        ("camera",#selector(cameraButtonTapped)),
         ("grid",#selector(tagButtonTapped)),
 //        ("h.circle",#selector(headerButtonTapped)),
         ("bold",#selector(boldButtonTapped)),
@@ -67,6 +68,18 @@ class MDKeyboardView: UIView {
             for i in 0..<items.count {
                 let button = makeButton(btnParam:items[i])
                 button.tag = i
+                if items[i].0 == "camera" {
+                    
+                        let destruct = UIAction(title: "Destruct", attributes: .destructive) { _ in }
+                                
+                        let items = UIMenu(title: "More", options: .displayInline, children: [
+                            UIAction(title: "Item 1", image: UIImage(systemName: "mic"), handler: { _ in }),
+                            UIAction(title: "Item 2", image: UIImage(systemName: "envelope"), handler: { _ in }),
+                            UIAction(title: "Item 3", image: UIImage(systemName: "flame.fill"), handler: { _ in }),
+                            UIAction(title: "Item 4", image: UIImage(systemName: "video"), state: .on, handler: { _ in })
+                        ])
+                        button.menu = UIMenu(title: "", children: [items, destruct])
+                }
                 button.frame = CGRect(x: x, y: vSpacing, width: btnWidth, height: btnHeight)
                 x += (btnWidth+spacing)
                 self.scrollView.addSubview(button)
@@ -111,6 +124,10 @@ class MDKeyboardView: UIView {
 }
 
 extension MDKeyboardView {
+    @objc fileprivate func cameraButtonTapped(sender:UIButton) {
+        sender.showsMenuAsPrimaryAction = true
+//        delegate?.headerButtonTapped()
+    }
     @objc fileprivate func headerButtonTapped() {
         delegate?.headerButtonTapped()
     }

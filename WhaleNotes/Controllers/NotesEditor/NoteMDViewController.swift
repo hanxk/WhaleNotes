@@ -35,7 +35,6 @@ class NoteMDViewController:UIViewController {
         
         textView.font = MDStyleConfig.normalFont
         self.textView.text = noteInfo.content
-//        highlighter.processHighlight()
         
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         
@@ -77,15 +76,15 @@ extension NoteMDViewController {
     
     func handleNoteInfoEvent(event:NoteEditorEvent) {
         isNoteUpdated = true
-        switch event {
-        case .updated(let noteInfo):
-            if needDismiss {
-                self.callbackNoteInfoEdited?(noteInfo)
-                self.dismiss(animated: true, completion: nil)
-                return
-            }
-            self.noteInfo = noteInfo
-        }
+//        switch event {
+//        case .updated(let noteInfo):
+//            if needDismiss {
+//                self.callbackNoteInfoEdited?(noteInfo)
+//                self.dismiss(animated: true, completion: nil)
+//                return
+//            }
+//            self.noteInfo = noteInfo
+//        }
     }
     
 }

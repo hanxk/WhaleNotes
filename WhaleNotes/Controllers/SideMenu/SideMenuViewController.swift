@@ -155,32 +155,8 @@ class SideMenuViewController: UIViewController {
     var sysMenuItems:[SystemMenuItem] = [Constants.all,Constants.trash]
     var visibleTagIds:[String] = []
     
-    //    var selectedMenu:SideMenuItem! {
-    //        didSet {
-    //            switch self.selectedMenu {
-    //            case .tag(let tag):
-    //                break
-    //            case .system(let sysMenuItem)
-    //                break
-    //            }
-    //        }
-    //    }
     var selectedMenu:SideMenuItem!
     var updatedSelectedMenu:SideMenuItem? = nil
-    //        didSet {
-    //            switch self.selectedMenu {
-    //            case .tag(let tagId):
-    //                if let tag = tagsMap[tagId] {
-    //                    self.delegate?.sideMenuItemSelected(tag: tag)
-    //                }
-    //                break
-    //            case .system(let sysMenuItem):
-    //                break
-    //            case .none:
-    //                break
-    //            }
-    //        }
-    //    }
     
     func getVisibleTagIds() -> [String] {
         var expandTags:[String] = []
@@ -193,9 +169,6 @@ class SideMenuViewController: UIViewController {
         if  !isPreventClose {
             SideMenuManager.default.leftMenuNavigationController?.dismiss(animated: true, completion: nil)
         }
-        
-//        if checkSame && getSelectedIndexPath() == indexPath { return }
-        
         let sectionType =  self.sectionItems[indexPath.section]
         switch sectionType {
         case .system:
@@ -414,7 +387,7 @@ extension SideMenuViewController {
     }
     
     @objc private func handleTagChangedNotifi(notification: Notification) {
-        print("tag changed")
+        logi("tag changed")
         self.notification = notification
         switch notification.name {
         case .Tag_UPDATED:

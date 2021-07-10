@@ -12,6 +12,7 @@ import CloudKit
 
 struct NoteInfo {
     var note:Note
+    var files:[NoteFile] = []
     var tags:[Tag] = []
 }
 
@@ -26,10 +27,11 @@ extension NoteInfo {
     var content:String {
         return self.note.content
     }
-    var createdAt:Date {
-        return self.note.createdAt
-    }
     var updatedAt:Date {
+        get { return self.note.updatedAt }
+        set { self.note.updatedAt = newValue }
+    }
+    var createdAt:Date {
         return self.note.updatedAt
     }
     var status:NoteStatus {

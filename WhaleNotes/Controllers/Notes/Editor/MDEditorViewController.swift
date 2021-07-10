@@ -18,24 +18,27 @@ class MDEditorViewController: UIViewController {
     enum EditorCellNodeType {
         case title
         case content
+        case media
         //        case tags
     }
     
     private  var disposeBag = DisposeBag()
     var noteInfo:NoteInfo!
+    var oldupdatedAt:Date!
     private var model:NoteInfoViewModel!
     private var needDismiss = false
     private var isNoteUpdated:Bool = false
-    var cellNodeTypes:[EditorCellNodeType] = [.title,.content]
+    var cellNodeTypes:[EditorCellNodeType] = [.content]
     
     private var isKeyboardShow = false
     var isNewCreated = false
+    var cellHeight:CGFloat = -1
     
     var callbackNoteInfoEdited:((NoteInfo)->Void)?
     
     private lazy var myNavbar:UINavigationBar = UINavigationBar() .then{
         $0.isTranslucent = false
-        //        $0.delegate = self
+         $0.delegate = self
         let barAppearance =  UINavigationBarAppearance()
         //   barAppearance.configureWithDefaultBackground()
         barAppearance.configureWithDefaultBackground()
@@ -46,17 +49,22 @@ class MDEditorViewController: UIViewController {
     }
     
     var contentCellIndex:Int {
-        return self.cellNodeTypes.count-1
+        return self.cellNodeTypes.firstIndex(of: .content) ?? 0
+    }
+    
+    var mediaCellIndex:Int {
+        return self.cellNodeTypes.firstIndex(of: .media) ?? -1
     }
     
     
     private lazy var tableView = ASTableNode().then {
-//        $0.delegate = self
+                $0.delegate = self
         $0.dataSource = self
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomExtraSpace, right: 0)
+        $0.contentInset = UIEdgeInsets(top: 14, left: 0, bottom: bottomExtraSpace, right: 0)
         $0.view.allowsSelection = false
         $0.view.separatorStyle = .none
         $0.view.keyboardDismissMode = .none
+        $0.view.keyboardDismissMode = .onDrag
     }
     
     
@@ -66,12 +74,18 @@ class MDEditorViewController: UIViewController {
     var focusedTextView:UITextView? = nil
     
     override func viewDidLoad() {
+        self.oldupdatedAt = self.noteInfo.updatedAt
         super.viewDidLoad()
         self.setupUI()
         self.registerNoteInfoEvent()
     }
     
     private func setupUI(){
+        if self.noteInfo.files.count > 0 {
+            self.cellNodeTypes.append(.media)
+            self.cellHeight = self.calcMediaCollectionHeight()
+        }
+        
         self.view.addSubview(tableView.view)
         tableView.view.snp.makeConstraints {
             $0.width.equalToSuperview()
@@ -93,11 +107,11 @@ class MDEditorViewController: UIViewController {
         
         
         if let cell = self.getNoteContentCellNode() {
-            cell.textNode.textView.becomeFirstResponder()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.refreshTableNode(node: cell)
-            }
-           
+//            cell.textNode.textView.becomeFirstResponder()
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                self.refreshTableNode(node: cell)
+//            }
+            
         }
     }
     
@@ -130,6 +144,10 @@ class MDEditorViewController: UIViewController {
     }
 }
 
+extension MDEditorViewController:UINavigationBarDelegate {
+    
+}
+
 
 //MARK: 键盘
 extension MDEditorViewController {
@@ -158,7 +176,7 @@ extension MDEditorViewController {
             tableView.view.scrollIndicatorInsets  =  UIEdgeInsets(top: 0, left: 0, bottom: offset, right: 0)
             
             if let focusedTextView = self.focusedTextView {
-              self.scrollToCursorPositionIfBelowKeyboard(textView:focusedTextView)
+                self.scrollToCursorPositionIfBelowKeyboard(textView:focusedTextView)
             }
         }
     }
@@ -178,7 +196,7 @@ extension MDEditorViewController {
     
 }
 
-
+//MARK: 笔记更新
 extension MDEditorViewController {
     
     func registerNoteInfoEvent() {
@@ -198,9 +216,45 @@ extension MDEditorViewController {
                 return
             }
             self.noteInfo = noteInfo
+        case .fileUpdated(noteInfo: let noteInfo):
+            self.noteInfo = noteInfo
+            let newHeight = calcMediaCollectionHeight()
+            let heightChanged = self.cellHeight != newHeight
+            self.cellHeight = newHeight
+            // 更新图片
+            self.refreshMediaCell(heightChanged:heightChanged)
         }
     }
     
+    func refreshMediaCell(heightChanged:Bool) {
+        if mediaCellIndex == -1 {
+            self.cellNodeTypes.append(.media)
+            self.tableView.insertRows(at: [IndexPath(row: mediaCellIndex, section: 0)], with: .none)
+            return
+        }
+        let row = IndexPath(row: mediaCellIndex, section: 0)
+        guard let mediaCell = self.tableView.nodeForRow(at: row) as? NoteMediaCellNode else { return }
+        if heightChanged {// 完整刷新
+            self.tableView.reloadRowsWithoutAnim(at: [row])
+            return
+        }
+        mediaCell.reload(newNoteFiles: self.noteInfo.files)
+    }
+    
+    
+    private func calcMediaCollectionHeight() -> CGFloat {
+        let noteFiles = self.noteInfo.files
+        
+        var rowCount = noteFiles.count / Int(NoteMediaCellConstants.cellCount)
+        if noteFiles.count % Int(NoteMediaCellConstants.cellCount) > 0 {
+            rowCount += 1
+        }
+    
+        let itemWidth = (UIScreen.main.bounds.width - MDEditorConfig.paddingH*2 - (NoteMediaCellConstants.cellCount - 1)*NoteMediaCellConstants.cellSpacing) / NoteMediaCellConstants.cellCount
+        
+        let cellHeight = itemWidth*CGFloat(rowCount) + (CGFloat(rowCount)-1) * NoteMediaCellConstants.cellSpacing
+        return cellHeight
+    }
 }
 
 
@@ -218,9 +272,9 @@ extension MDEditorViewController: UIGestureRecognizerDelegate {
         if sender.state != .ended {
             return
         }
-//        if self.noteInfo.status == .trash {
-//            return
-//        }
+        //        if self.noteInfo.status == .trash {
+        //            return
+        //        }
         
         let touch = sender.location(in: self.tableView.view)
         if let _ = tableView.indexPathForRow(at: touch) { // 点击空白区域
@@ -240,31 +294,44 @@ extension MDEditorViewController {
         myNavbar.tintColor = .toolbarTint
         
         func createBackBarButton(forNavigationItem navigationItem:UINavigationItem){
-            let backButtonImage =  UIImage(systemName: "camera",pointSize: 18)?.withTintColor(.toolbarTint).withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
-            let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
-            backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
-            backButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
-            let backBarButton = UIBarButtonItem(customView: backButton)
-            navigationItem.leftBarButtonItems = [backBarButton]
+//            let backButtonImage =  UIImage(systemName: "camera",pointSize: 18)?.withTintColor(.toolbarTint).withAlignmentRectInsets(UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0))
+//            let backButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+//            backButton.leftImage(image: backButtonImage!, renderMode: .alwaysOriginal)
+//            let backBarButton = UIBarButtonItem(customView: backButton)
+//            UIBarButtonItem(image: <#T##UIImage?#>, style: <#T##UIBarButtonItem.Style#>, target: <#T##Any?#>, action: <#T##Selector?#>)
+            let cameraButtonItem = UIBarButtonItem(image: UIImage(systemName: "camera"), style: .plain, target: self, action: nil)
+            
+            let items = UIMenu(title: "", options: .displayInline, children: [
+                UIAction(title: "拍照或录视频", image: UIImage(systemName: "camera"), handler: { _ in
+                    self.handlePickPhotos(sourceType: .camera)
+                }),
+                UIAction(title: "选取照片或视频", image: UIImage(systemName: "photo.on.rectangle"), handler: { _ in
+                    self.handlePickPhotos(sourceType: .photoLibrary)
+                }),
+            ])
+            cameraButtonItem.menu =  UIMenu(title: "", children: [items])
+            
+            
+            navigationItem.leftBarButtonItems = [cameraButtonItem]
         }
         
         createBackBarButton(forNavigationItem: navItem)
         
-//        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(saveIconTapped))
+        //        let menuButton = generateUIBarButtonItem(imageName: "ellipsis", action:  #selector(saveIconTapped))
         
         let savevButton = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(saveIconTapped))
         savevButton.tintColor = .brand
         
         navItem.rightBarButtonItems = [savevButton]
         
-//        let closeButton =  UIButton().then {
-//            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
-//            let image = UIImage(systemName: "chevron.compact.down", pointSize: 44)?.withRenderingMode(.alwaysTemplate)
-//            $0.setImage(image, for: .normal)
-//            $0.tintColor = .toolbarTint
-//            $0.addTarget(self, action: #selector(saveIconTapped), for: .touchUpInside)
-//        }
-//        navItem.titleView = closeButton
+        //        let closeButton =  UIButton().then {
+        //            $0.frame = CGRect(x: 0, y: 0, width: 100, height: 44)
+        //            let image = UIImage(systemName: "chevron.compact.down", pointSize: 44)?.withRenderingMode(.alwaysTemplate)
+        //            $0.setImage(image, for: .normal)
+        //            $0.tintColor = .toolbarTint
+        //            $0.addTarget(self, action: #selector(saveIconTapped), for: .touchUpInside)
+        //        }
+        //        navItem.titleView = closeButton
         
     }
     
@@ -274,10 +341,6 @@ extension MDEditorViewController {
         }
     }
     
-    
-    @objc func cameraButtonTapped() {
-        
-    }
     
     @objc func tagIconTapped() {
     }
@@ -299,6 +362,10 @@ extension MDEditorViewController:NoteTitleCellNodeDelegate {
 }
 
 extension MDEditorViewController:NoteContentCellNodeDelegate {
+    func pickPhotoButtonTapped(sourceType: UIImagePickerController.SourceType) {
+        self.handlePickPhotos(sourceType: sourceType)
+    }
+    
     func editableTextNodeDidBeginEditing(_ cellNode: NoteContentCellNode) {
         self.focusedTextView = cellNode.textView
     }
@@ -314,6 +381,61 @@ extension MDEditorViewController:NoteContentCellNodeDelegate {
     
     @objc func saveIconTapped() {
         self.saveInput(needDismiss: true)
+    }
+    
+    fileprivate func handlePickPhotos(sourceType:UIImagePickerController.SourceType) {
+        let pickerController = UIImagePickerController()
+        pickerController.delegate = self
+        pickerController.allowsEditing = false
+        pickerController.mediaTypes = ["public.image"]
+        pickerController.sourceType = sourceType
+        
+        self.present(pickerController, animated: true, completion: nil)
+    }
+}
+
+//MARK: 图片选择
+extension MDEditorViewController:UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        //        self.pickerController(picker, didSelect: nil)
+    }
+    
+    public func imagePickerController(_ picker: UIImagePickerController,
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        guard let image = info[.originalImage] as? UIImage else {
+            return self.pickerController(picker, didSelect: nil)
+        }
+        self.pickerController(picker, didSelect: image)
+    }
+    
+    private func pickerController(_ controller: UIImagePickerController, didSelect image: UIImage?) {
+        controller.dismiss(animated: true, completion: nil)
+        guard let image = image else { return }
+        //保存图片
+        self.model.saveImage(image: image)
+    }
+}
+
+
+extension MDEditorViewController:ASTableDelegate {
+    
+    func tableNode(_ tableNode: ASTableNode, constrainedSizeForRowAt indexPath: IndexPath) -> ASSizeRange {
+        let cellNodeType = self.cellNodeTypes[indexPath.row]
+        if cellHeight == -1 {
+            cellHeight = self.calcMediaCollectionHeight()
+        }
+        switch cellNodeType {
+        case .media:
+            return ASSizeRange(min: .zero, max: .init(width: tableNode.frame.width, height: cellHeight))
+        default:
+            return ASSizeRangeUnconstrained
+        }
+    }
+}
+
+extension MDEditorViewController:NoteMediaCellNodeDelegate {
+    func imageChanged(_ cellNode: NoteMediaCellNode) {
+        self.refreshTableNode(node: cellNode)
     }
 }
 
@@ -333,6 +455,10 @@ extension MDEditorViewController:ASTableDataSource {
             let contentCellNode = NoteContentCellNode(title: self.noteInfo.note.content)
             contentCellNode.delegate = self
             return contentCellNode
+        case .media:
+            let contentCellNode = NoteMediaCellNode(noteFiles: self.noteInfo.files)
+            contentCellNode.delegate = self
+            return contentCellNode
         }
     }
     
@@ -348,6 +474,9 @@ extension MDEditorViewController:ASTableDataSource {
         }
         let isUpdated = noteInfo.title != title  || noteInfo.content != content
         if isUpdated == false {
+            if self.oldupdatedAt != self.noteInfo.note.updatedAt { //图片被更新了
+                self.callbackNoteInfoEdited?(self.noteInfo)
+            }
             if needDismiss {
                 self.dismiss(animated: true, completion: nil)
             }
@@ -361,12 +490,12 @@ extension MDEditorViewController:ASTableDataSource {
         var note = self.noteInfo.note
         
         if let title = title {
-           note.title = title
+            note.title = title
         }
         var tagsChanged = false
         var tagTitles:[String] = []
         if let content = content {
-           note.content = content
+            note.content = content
             
             tagTitles = MDEditorViewController.extractTags(text: content)
             let noteTagTitles = self.noteInfo.tags
@@ -386,12 +515,12 @@ extension MDEditorViewController:ASTableDataSource {
     
     func deleteNoteInfo() {
         NoteRepo.shared.deleteNote(self.noteInfo)
-        .subscribe(onNext: { _  in
-            self.dismiss(animated: true, completion: nil)
-        },onError: {
-            Logger.error($0)
-        })
-        .disposed(by: disposeBag)
+            .subscribe(onNext: { _  in
+                self.dismiss(animated: true, completion: nil)
+            },onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
     }
     
     static func extractTags(text:String) -> [String]  {
@@ -409,10 +538,10 @@ extension MDEditorViewController:ASTableDataSource {
                         tags.append(tagValue)
                     }
                     
-//                    if let hashTagIndex = tag.firstIndex(of: "#") {
-//                        let range = tag.startIndex..<hashTagIndex
-//                        tag = String(tag[range])
-//                    }
+                    //                    if let hashTagIndex = tag.firstIndex(of: "#") {
+                    //                        let range = tag.startIndex..<hashTagIndex
+                    //                        tag = String(tag[range])
+                    //                    }
                     
                 }
             }
@@ -434,7 +563,7 @@ extension MDEditorViewController:ASTableDataSource {
         }
         tagTitles = tagTitles.sorted { $0 < $1 }
         return tagTitles
-            
+        
     }
     
     

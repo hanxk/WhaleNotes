@@ -15,6 +15,13 @@ protocol NoteCardProvider {
     func layout(constrainedSize: ASSizeRange) -> ASLayoutSpec
 }
 
+
+protocol NoteCardContentProvider {
+    func attach(cell:ASCellNode)
+    func element(constrainedSize: ASSizeRange) -> ASLayoutElement
+}
+
+
 protocol NoteCardNodeDelegate {
     func tagTapped(tag:Tag)
 }
@@ -90,6 +97,8 @@ class NoteCardNode: ASCellNode {
     
     private var footerProvider:NoteCardProvider!
     
+    private var mediaGridProvider:NoteCardContentProvider?
+    
     private var tagsProvider:NoteCardProvider?
     
     private let toolbar = MDToolbar()
@@ -104,7 +113,7 @@ class NoteCardNode: ASCellNode {
         
         $0.cornerRadius = StyleConfig.cornerRadius
         $0.borderWidth = 1
-        $0.borderColor = UIColor(red: 0.937, green: 0.945, blue: 0.957, alpha: 1).cgColor
+        $0.borderColor = UIColor(red: 0.937, green: 0.945, blue: 0.957, alpha: 0.9).cgColor
         
         $0.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.05).cgColor
         $0.shadowOpacity = 1
@@ -138,6 +147,13 @@ class NoteCardNode: ASCellNode {
             self.contentNode = contentNode
             self.addSubnode(contentNode)
         }
+        
+        if noteInfo.files.isNotEmpty {
+            mediaGridProvider = NoteMediaGridProvider(noteFiles: noteInfo.files)
+            mediaGridProvider?.attach(cell: self)
+        }
+        
+        
         self.cardActionEmit  = action
         
         // footer
@@ -174,12 +190,18 @@ class NoteCardNode: ASCellNode {
             vContentLayout.children?.append(contentNode)
         }
         
+        let maxContentWidth = constrainedSize.max.width - StyleConfig.insetH*2 - StyleConfig.padding*2
+        
         // tags
         if let tagsProvider = self.tagsProvider {
-            let maxWidth = constrainedSize.max.width - StyleConfig.insetH*2 - StyleConfig.padding*2
-            let cs = ASSizeRange(min: .zero, max: CGSize(width: maxWidth, height: 100))
+            let cs = ASSizeRange(min: .zero, max: CGSize(width: maxContentWidth, height: 100))
             let tagsLayout = tagsProvider.layout(constrainedSize: cs)
             vContentLayout.children?.append(tagsLayout)
+        }
+        
+        if let mediaGridProvider = self.mediaGridProvider {
+            let cs = ASSizeRange(min: .zero, max: CGSize(width: maxContentWidth, height: constrainedSize.max.height))
+            vContentLayout.children?.append(mediaGridProvider.element(constrainedSize: cs))
         }
         
         let vRootLayout = ASStackLayoutSpec.vertical().then {

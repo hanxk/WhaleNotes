@@ -12,6 +12,7 @@ protocol NoteContentCellNodeDelegate: AnyObject {
     func textChanged(_ cellNode:NoteContentCellNode)
     func editableTextNodeDidBeginEditing(_ cellNode:NoteContentCellNode)
     func saveButtonTapped(_ cellNode:NoteContentCellNode)
+    func pickPhotoButtonTapped(sourceType:UIImagePickerController.SourceType)
 }
 
 class NoteContentCellNode:ASCellNode {
@@ -25,16 +26,22 @@ class NoteContentCellNode:ASCellNode {
     var delegate:NoteContentCellNodeDelegate?
     private var mdHelper:MDHelper!
     
-    private lazy var keyboardView = MDKeyboardView().then {
-        $0.delegate = self
-    }
+//    private lazy var keyboardView = MDKeyboardView().then {
+//        $0.delegate = self
+//    }
+    
+    var bar:KeyboardToolBar!
     
     init(title:String) {
         super.init()
         self.content = title
         
         self.textNode =  generateASEditableTextNode(content: title)
-        self.textView.inputAccessoryView = keyboardView
+        self.bar  = KeyboardToolBar()
+        
+        bar.delegate = self
+        
+        self.textView.inputAccessoryView = bar.toolbar
         self.textNode.attributedText = getContentAttributesString(content: content)
         
         self.addSubnode(textNode)
@@ -127,9 +134,13 @@ extension NoteContentCellNode {
 }
 
 
-extension NoteContentCellNode:MDKeyboarActionDelegate {
+extension NoteContentCellNode:KeyboardToolBarDelegate {
     func headerButtonTapped() {
         
+    }
+    
+    func pickPhotoButtonTapped(sourceType:UIImagePickerController.SourceType) {
+        self.delegate?.pickPhotoButtonTapped(sourceType: sourceType)
     }
     
     func boldButtonTapped() {
@@ -151,4 +162,5 @@ extension NoteContentCellNode:MDKeyboarActionDelegate {
     func keyboardButtonTapped() {
         self.delegate?.saveButtonTapped(self)
     }
+    
 }

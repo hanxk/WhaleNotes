@@ -46,10 +46,15 @@ extension NoteRepo {
                 let noteIds = notes.map { $0.id }
                 // 获取所有note的tags
                 let noteTags = try self.tagDao.queryByTag(noteIds: noteIds)
+                
+                // 获取图片
+                let noteFilesMap = try self.noteFileDao.queryByTag(noteIds: noteIds)
+                
                 var noteInfos:[NoteInfo] = []
                 for note in notes {
                     let tags = noteTags.filter{$0.0 == note.id}.map { $0.1 }
-                    noteInfos.append(NoteInfo(note: note, tags: tags))
+                    let noteFiles:[NoteFile] = noteFilesMap[note.id] ?? []
+                    noteInfos.append(NoteInfo(note: note, files:noteFiles,tags: tags))
                 }
                 return noteInfos
             }
@@ -529,6 +534,40 @@ extension NoteRepo {
         .observeOn(MainScheduler.instance)
     }
     
+}
+
+//MARK: 处理图片
+extension NoteRepo {
+    
+    
+    func saveImage(image:UIImage,noteInfo:NoteInfo) -> Observable<NoteInfo?> {
+        return Observable<NoteInfo?>.create {  observer -> Disposable in
+            self.transactionTask(observable: observer) { () -> NoteInfo? in
+                let noteFileId = UUID().uuidString
+                //1.  缓存图片到本地
+                let imageName = noteFileId
+                let isSuccess = ImageLocalUtil.sharedInstance.saveImage(imageName: imageName, image: image)
+                if !isSuccess {
+                    return nil
+                }
+                let date = Date()
+                
+                var newNoteInfo = noteInfo
+                newNoteInfo.updatedAt = date
+                
+                try self.noteDao.updateUpdatedAt(id: noteInfo.id, updatedAt: date)
+                
+                //2. 生成一个 notefile 添加的数据库中
+                let noteFile = NoteFile(id:noteFileId,noteId: noteInfo.id, width: Double(image.width), height: Double(image.height), fileSize: image.fileSize, sort: 0, createdAt: date, updatedAt:date)
+                try self.noteFileDao.insert(noteFile)
+                
+                newNoteInfo.files.append(noteFile)
+                return newNoteInfo
+            }
+        }
+        .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
+        .observeOn(MainScheduler.instance)
+    }
 }
 
 

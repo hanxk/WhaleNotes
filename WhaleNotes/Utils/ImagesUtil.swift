@@ -9,23 +9,25 @@
 import UIKit
 
 
-class ImageUtil {
+class ImageLocalUtil {
     
     private var _dirPath: URL!
     var dirPath:URL {
         return _dirPath
     }
-    static let sharedInstance = ImageUtil()
+    static let sharedInstance = ImageLocalUtil()
     private init(){
         _dirPath = self.getDirPath()
     }
     
     func saveImage(imageName: String,image: UIImage) -> Bool {
         
-        if let jpegData = image.jpegData(compressionQuality: 0.8) {
+        if let jpegData = image.jpegData(compressionQuality: 1) {
             do  {
-                try jpegData.write(to: filePath(imageName: imageName),
+                let path = filePath(imageName: imageName)
+                try jpegData.write(to: path,
                                    options: .atomic)
+                logi("保存图片成功：\(path.absoluteString)")
                 return true
             } catch let err {
                 print("Saving file resulted in error: ", err)

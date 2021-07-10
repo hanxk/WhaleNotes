@@ -101,4 +101,26 @@ extension UIImage {
         guard let newCGImage = ctx.makeImage() else { return nil }
         return UIImage.init(cgImage: newCGImage, scale: 1, orientation: .up)
     }
+
+    var width: CGFloat {
+        get {
+            let width = self.size.width
+            return width
+        }
+    }
+
+    var height: CGFloat {
+        get {
+            let height = self.size.height
+            return height
+        }
+    }
+    
+    var fileSize:Int {
+        get {
+            let data = self.jpegData(compressionQuality: 1)
+            let imageSize = data?.count ?? 0
+            return imageSize
+        }
+    }
 }

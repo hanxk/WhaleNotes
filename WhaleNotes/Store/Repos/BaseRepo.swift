@@ -23,6 +23,11 @@ open class BaseRepo {
     var noteTagDao:NoteTagDao {
         return DBManager.shared.noteTagDao
     }
+    
+    var noteFileDao:NoteFileDao {
+        return DBManager.shared.noteFileDao
+    }
+    
     internal init() {}
 }
 

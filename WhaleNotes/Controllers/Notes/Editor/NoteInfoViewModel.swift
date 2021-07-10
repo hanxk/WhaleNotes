@@ -11,6 +11,7 @@ import RxSwift
 
 enum NoteEditorEvent {
     case updated(noteInfo:NoteInfo)
+    case fileUpdated(noteInfo:NoteInfo)
 //    case statusChanged(block:BlockInfo)
 //    case backgroundChanged(block:BlockInfo)
 //    case moved(block:BlockInfo,boardBlock:BlockInfo)
@@ -95,6 +96,19 @@ class NoteInfoViewModel {
                 guard let self = self else { return }
                 self.noteInfo = noteInfo
                 self.noteInfoPub.onNext(.updated(noteInfo: noteInfo))
+            }, onError: {
+                Logger.error($0)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    
+    func saveImage(image:UIImage)  {
+        NoteRepo.shared.saveImage(image: image, noteInfo: self.noteInfo)
+            .subscribe(onNext: { [weak self] noteInfo in
+                guard let self = self,let noteInfo = noteInfo else { return }
+                self.noteInfo = noteInfo
+                self.noteInfoPub.onNext(.fileUpdated(noteInfo: self.noteInfo))
             }, onError: {
                 Logger.error($0)
             })
