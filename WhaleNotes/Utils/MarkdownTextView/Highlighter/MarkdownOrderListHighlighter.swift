@@ -80,7 +80,7 @@ extension MarkdownOrderListHighlighter {
         let pointIndex = lineText.firstIndex(of: ".")!.utf16Offset(in: lineText)
         let numPrefix = NSString(string: lineText.substring(with: (0..<pointIndex))).integerValue+1
         let prefix = "\(numPrefix). "
-        let newText = ENTER_KEY.toString + prefix
+        let newText = ENTER_KEY.toString() + prefix
         let newRange = NSMakeRange(range.location, 1)
         let move = newText.count - 1
         textStorage.replaceCharactersInRange(newRange, withString: newText,selectedRangeLocationMove: move)
@@ -94,7 +94,7 @@ extension MarkdownOrderListHighlighter {
     //更新其它行
     func tryUpdateOtherOrderList(textStorage:MarkdownTextStorage,cursorPos:Int,numBegin:Int) {
         
-        let lines = textStorage.string.substring(from: cursorPos).components(separatedBy: ENTER_KEY.toString)
+        let lines = textStorage.string.substring(from: cursorPos).components(separatedBy: ENTER_KEY.toString())
         if lines.count == 1 { return }
         
         

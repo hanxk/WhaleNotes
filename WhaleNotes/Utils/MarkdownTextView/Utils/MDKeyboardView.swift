@@ -10,11 +10,11 @@ import UIKit
 
 
 fileprivate var btnWidth: CGFloat = {
-    return isPad ? 50 : 44
+    return UIDevice.isPad() ? 50 : 44
 }()
 
 fileprivate var btnHeight: CGFloat = {
-    return isPad ? 52 : 46
+    return UIDevice.isPad() ? 52 : 46
 }()
 
 fileprivate var spacing: CGFloat = {
@@ -118,7 +118,7 @@ class MDKeyboardView: UIView {
         button.setImage(UIImage(systemName: btnParam.0,pointSize: pointSize,weight: .medium)?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = UIColor(hexString: "#414141")
         button.addTarget(self, action: btnParam.1, for: .touchUpInside)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: isPad ? 18 : 15)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIDevice.isPad() ? 18 : 15)
         return button
     }
 }

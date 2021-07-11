@@ -15,6 +15,8 @@ extension UIImage {
         self.init(systemName: systemName, withConfiguration: configuration)
     }
     
+    
+    
     func withBackground(color: UIColor, opaque: Bool = true) -> UIImage {
         UIGraphicsBeginImageContextWithOptions(size, opaque, scale)
 

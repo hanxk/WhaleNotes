@@ -25,7 +25,7 @@ class BoardTagCell: UICollectionViewCell {
     
     let imageView  = UIImageView().then {
         $0.clipsToBounds = true
-        $0.layer.cornerRadius = AttachmentsConstants.radius
+//        $0.layer.cornerRadius = AttachmentsConstants.radius
         $0.backgroundColor = .placeHolderColor
     }
     

@@ -42,7 +42,7 @@ class PopMenuController:UITableViewController  {
         shadow.radius = 16
         shadow.spread = 8
         
-        fpc.surfaceView.cornerRadius = 12.0
+//        fpc.surfaceView.cornerRadius = 12.0
         fpc.backdropView.backgroundColor = .black
         fpc.surfaceView.grabberHandle.isHidden = true
         fpc.panGestureRecognizer.isEnabled = false

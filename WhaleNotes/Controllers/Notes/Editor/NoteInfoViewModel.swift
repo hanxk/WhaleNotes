@@ -103,8 +103,8 @@ class NoteInfoViewModel {
     }
     
     
-    func saveImage(image:UIImage)  {
-        NoteRepo.shared.saveImage(image: image, noteInfo: self.noteInfo)
+    func saveImage(fileInfo:FileInfo)  {
+        NoteRepo.shared.saveImage(fileInfo: fileInfo,noteInfo: self.noteInfo)
             .subscribe(onNext: { [weak self] noteInfo in
                 guard let self = self,let noteInfo = noteInfo else { return }
                 self.noteInfo = noteInfo

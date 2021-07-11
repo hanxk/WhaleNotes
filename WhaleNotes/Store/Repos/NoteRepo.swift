@@ -540,13 +540,11 @@ extension NoteRepo {
 extension NoteRepo {
     
     
-    func saveImage(image:UIImage,noteInfo:NoteInfo) -> Observable<NoteInfo?> {
+    func saveImage(fileInfo:FileInfo,noteInfo:NoteInfo) -> Observable<NoteInfo?> {
         return Observable<NoteInfo?>.create {  observer -> Disposable in
             self.transactionTask(observable: observer) { () -> NoteInfo? in
-                let noteFileId = UUID().uuidString
                 //1.  缓存图片到本地
-                let imageName = noteFileId
-                let isSuccess = ImageLocalUtil.sharedInstance.saveImage(imageName: imageName, image: image)
+                let isSuccess = try LocalFileUtil.shared.saveFileInfo(fileInfo: fileInfo)
                 if !isSuccess {
                     return nil
                 }
@@ -558,7 +556,7 @@ extension NoteRepo {
                 try self.noteDao.updateUpdatedAt(id: noteInfo.id, updatedAt: date)
                 
                 //2. 生成一个 notefile 添加的数据库中
-                let noteFile = NoteFile(id:noteFileId,noteId: noteInfo.id, width: Double(image.width), height: Double(image.height), fileSize: image.fileSize, sort: 0, createdAt: date, updatedAt:date)
+                let noteFile = NoteFile(id:fileInfo.fileId,fileName: fileInfo.fileName, noteId: noteInfo.id, width: Double(fileInfo.image.width), height: Double(fileInfo.image.height), fileSize: fileInfo.image.fileSize, sort: 0, createdAt: date, updatedAt:date)
                 try self.noteFileDao.insert(noteFile)
                 
                 newNoteInfo.files.append(noteFile)

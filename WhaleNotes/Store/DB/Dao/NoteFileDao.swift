@@ -21,8 +21,8 @@ class NoteFileDao {
 
 extension NoteFileDao {
     func insert( _ noteFile:NoteFile) throws {
-        let insertSQL = "INSERT OR REPLACE INTO note_file(id,note_id,width,height,file_size,sort,file_type,created_at,updated_at) values(?,?,?,?,?,?,?,?,?)"
-        try db.execute(insertSQL, args: noteFile.id,noteFile.noteId,noteFile.width,noteFile.height,noteFile.fileSize,noteFile.sort,noteFile.fileType, noteFile.createdAt.timeIntervalSince1970,noteFile.updatedAt.timeIntervalSince1970)
+        let insertSQL = "INSERT OR REPLACE INTO note_file(id,file_name,note_id,width,height,file_size,sort,file_type,created_at,updated_at) values(?,?,?,?,?,?,?,?,?,?)"
+        try db.execute(insertSQL, args: noteFile.id,noteFile.fileName, noteFile.noteId,noteFile.width,noteFile.height,noteFile.fileSize,noteFile.sort,noteFile.fileType, noteFile.createdAt.timeIntervalSince1970,noteFile.updatedAt.timeIntervalSince1970)
     }
     
     func delete(id:String) throws {
@@ -60,6 +60,7 @@ extension NoteFileDao {
     
     fileprivate func extract(from row: Row) -> NoteFile {
         let id = row["id"] as! String
+        let fileName = row["file_name"] as! String
         let noteId = row["note_id"] as! String
         let width = row["width"] as? Double ?? 0
         let height = row["height"] as? Double ?? 0
@@ -71,6 +72,6 @@ extension NoteFileDao {
         }
         let createdAt = Date(timeIntervalSince1970:  row["created_at"] as! Double)
         let updatedAt = Date(timeIntervalSince1970:  row["updated_at"] as! Double)
-        return NoteFile(id: id, noteId: noteId, width: width, height: height, fileSize: fileSize, sort: sort, fileType:  NoteFiletype.init(rawValue: fileType)!, createdAt: createdAt, updatedAt: updatedAt)
+        return NoteFile(id: id,fileName: fileName, noteId: noteId, width: width, height: height, fileSize: fileSize, sort: sort, fileType:  NoteFiletype.init(rawValue: fileType)!, createdAt: createdAt, updatedAt: updatedAt)
     }
 }

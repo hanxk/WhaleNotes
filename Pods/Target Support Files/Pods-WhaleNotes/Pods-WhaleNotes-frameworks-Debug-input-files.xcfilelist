@@ -4,7 +4,6 @@ ${BUILT_PRODUCTS_DIR}/CHTCollectionViewWaterfallLayout/CHTCollectionViewWaterfal
 ${BUILT_PRODUCTS_DIR}/Cache/Cache.framework
 ${BUILT_PRODUCTS_DIR}/ContextMenu/ContextMenu.framework
 ${BUILT_PRODUCTS_DIR}/DeepDiff/DeepDiff.framework
-${BUILT_PRODUCTS_DIR}/EZSwiftExtensions/EZSwiftExtensions.framework
 ${BUILT_PRODUCTS_DIR}/FloatingPanel/FloatingPanel.framework
 ${BUILT_PRODUCTS_DIR}/ImageViewer/ImageViewer.framework
 ${BUILT_PRODUCTS_DIR}/JXPhotoBrowser/JXPhotoBrowser.framework

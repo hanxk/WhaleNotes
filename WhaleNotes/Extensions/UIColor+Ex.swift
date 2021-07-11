@@ -15,7 +15,7 @@ extension UIColor {
 //            return UIColor(hexString: "#F6C641")!
 //            return UIColor(hexString: "#F7D549")!
 //            return UIColor(hexString: "#F1B029")!
-            return UIColor(hexString: "#CD4D48")!
+            return UIColor(hexString: "#CD4D48")
             
 //            return UIColor(hexString: "#EC5564")!
 //            return .link
@@ -24,7 +24,7 @@ extension UIColor {
     
     open class var link: UIColor {
         get {
-            return UIColor(hexString: "#385898")!
+            return UIColor(hexString: "#385898")
 //            return UIColor(hexString: "#DEBF43")!
         }
     }
@@ -112,7 +112,8 @@ extension UIColor {
     
     open class var placeHolderColor: UIColor { return UIColor(named: "PlaceHolder")! }
     open class var settingbg: UIColor { return UIColor(hexString: "#F4F4F4") }
-    
+}
+extension UIColor {
     convenience init(hexString: String) {
         let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int = UInt64()
@@ -130,8 +131,11 @@ extension UIColor {
         }
         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
     }
-}
+    public convenience init(r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat = 1) {
+        self.init(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: a)
+    }
 
+}
 
 // sidebar
 extension UIColor {

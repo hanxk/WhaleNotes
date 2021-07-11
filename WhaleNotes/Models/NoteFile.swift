@@ -11,6 +11,7 @@ import DeepDiff
 
 struct NoteFile {
     var id:String = UUID.init().uuidString
+    var fileName:String
     var noteId:String
     var width:Double
     var height:Double
@@ -19,6 +20,11 @@ struct NoteFile {
     var fileType:NoteFiletype = .photo
     var createdAt:Date
     var updatedAt:Date
+    
+    
+    var localURL:URL {
+        return LocalFileUtil.shared.getFilePathURL(fileId: id, fileName: fileName)
+    }
 }
 extension NoteFile:DiffAware {
     typealias DiffId = String
@@ -38,6 +44,7 @@ extension NoteFile:SQLTable {
         return  """
                     CREATE TABLE IF NOT EXISTS "note_file" (
                       "id" TEXT PRIMARY KEY NOT NULL,
+                      "file_name" TEXT,
                       "note_id" TEXT,
                       "width" double,
                       "height" double,

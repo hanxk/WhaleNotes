@@ -235,7 +235,7 @@ extension MDTextViewWrapper {
     
     func tryUpdateBelowLinesNum(newBeginNum:Int,loc:Int,lineLeadingText:String)  {
         let otherText = self.text.substring(from: loc)
-        let lines = otherText.components(separatedBy: ENTER_KEY.toString)
+        let lines = otherText.components(separatedBy: ENTER_KEY.toString())
         
         var lineNum = newBeginNum
         var newLoc = loc
@@ -317,7 +317,7 @@ extension MDTextViewWrapper {
     func getRightPreLineNumAndPending(lineRange:NSRange,lineLeadingText: String) -> (Int,String)?  {
         if lineRange.location == 0 { return nil }
         let preText = self.text.subString(to: lineRange.location-1) // -1 是过滤掉回车
-        let lines = Array(preText.components(separatedBy: ENTER_KEY.toString).reversed())
+        let lines = Array(preText.components(separatedBy: ENTER_KEY.toString()).reversed())
         for line in lines {
             guard let symbolRange = matchListSymbol(text: line, lineRange: NSMakeRange(0, line.count)) else {
                 break

@@ -327,4 +327,10 @@ extension Date {
         }
     }
     
+    public func secondsInBetweenDate(_ date: Date) -> Double {
+        var diff = self.timeIntervalSince1970 - date.timeIntervalSince1970
+        diff = fabs(diff)
+        return diff
+    }
+    
 }

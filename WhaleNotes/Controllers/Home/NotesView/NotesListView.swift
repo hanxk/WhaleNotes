@@ -414,7 +414,8 @@ extension NotesListView:ASTableDataSource {
 //MARK: NoteCardNodeDelegate
 extension NotesListView:NoteCardNodeDelegate{
     func noteFileTapped(noteFiles: [NoteFile], index: Int) {
-       let imageUrls = noteFiles.map { ImageLocalUtil.sharedInstance.filePath(imageName: $0.id) }
+        
+        let imageUrls = noteFiles.map { $0.localURL }
         if let vc = self.controller {
            ImageViewerUtil.present(vc: vc, imageUrls: imageUrls)
         }

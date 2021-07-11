@@ -4,7 +4,6 @@ PODS:
   - CHTCollectionViewWaterfallLayout/Swift (0.9.8)
   - ContextMenu (0.4.0)
   - DeepDiff (2.3.1)
-  - EZSwiftExtensions (2.0)
   - FloatingPanel (2.1.0)
   - ImageViewer (6.0.0)
   - JXPhotoBrowser (3.1.2)
@@ -76,7 +75,6 @@ DEPENDENCIES:
   - CHTCollectionViewWaterfallLayout/Swift
   - ContextMenu
   - DeepDiff
-  - EZSwiftExtensions (from `https://github.com/goktugyil/EZSwiftExtensions.git`, branch `ceeyang-Swift5.0`)
   - FloatingPanel
   - ImageViewer
   - JXPhotoBrowser (~> 3.0)
@@ -135,23 +133,12 @@ SPEC REPOS:
     - Toast-Swift
     - Zip
 
-EXTERNAL SOURCES:
-  EZSwiftExtensions:
-    :branch: ceeyang-Swift5.0
-    :git: https://github.com/goktugyil/EZSwiftExtensions.git
-
-CHECKOUT OPTIONS:
-  EZSwiftExtensions:
-    :commit: c1f2720c6164ed47e081fa38bbf6b489fc0f9266
-    :git: https://github.com/goktugyil/EZSwiftExtensions.git
-
 SPEC CHECKSUMS:
   Alamofire: 2291f7d21ca607c491dd17642e5d40fdcda0e65c
   Cache: 48762993ec44e1d93483c4d4a13edd18452326f4
   CHTCollectionViewWaterfallLayout: 5f241d2480ab4939aa0d1ad4981de9eef1fbe60d
   ContextMenu: f835e09a93f1c28c631b76ee94396d9570397fd1
   DeepDiff: e5ae6c50d0321568e4508cec5930b9f10bb293fc
-  EZSwiftExtensions: f73648a591e529a1dbd83c22b19fd3e57df6fb7d
   FloatingPanel: 1af47b69e26df98b8728307254a9a0f4eb3cd645
   ImageViewer: cb88ef1c0ba19161bc10702adfdcebc116a7a59d
   JXPhotoBrowser: 7f0bc11f02fbc84ae06829f922f32ce822aa9661
@@ -179,6 +166,6 @@ SPEC CHECKSUMS:
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   Zip: 414f59909701fda9a84ab774ebe0f5449b1082cc
 
-PODFILE CHECKSUM: 23485a84f9e6b8f2798b5ef432b999580fab9e9a
+PODFILE CHECKSUM: 563a97a53491638308fe2ed8c61d2507af87057a
 
 COCOAPODS: 1.9.1

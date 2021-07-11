@@ -10,7 +10,5 @@
 #define WhaleNotes_bridge_h
 
 #import <Foundation/Foundation.h>
-#import "NSData+MD5.h"
-#import "MarkdownRender.h"
 
 #endif /* WhaleNotes_bridge_h */

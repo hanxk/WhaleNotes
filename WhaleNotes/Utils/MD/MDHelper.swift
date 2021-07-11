@@ -1,16 +1,17 @@
-//
 //  MDHelper.swift
 //  WhaleNotes
 //
 //  Created by hanxk on 2020/12/23.
 //  Copyright © 2020 hanxk. All rights reserved.
+//  Created by hanxk on 2021/7/11.
+//  Copyright © 2021 hanxk. All rights reserved.
 //
 import RxSwift
 import UIKit
 
 class MDHelper:NSObject   {
     
-    let markdownRenderer = MarkdownRender.shared()
+//    let markdownRenderer = MarkdownRender.shared()
     var highlightmanager = MDSyntaxHighlighter()
     let bag = DisposeBag()
     
@@ -234,3 +235,4 @@ extension MDHelper {
         return last + "\n"
     }
 }
+import Foundation

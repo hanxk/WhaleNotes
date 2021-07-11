@@ -28,7 +28,7 @@ target 'WhaleNotes' do
   pod 'Toast-Swift', '~> 5.0.1'
   pod 'SwiftLinkPreview', '~> 3.2.0'
   pod 'FloatingPanel'
-  pod 'EZSwiftExtensions', :git => 'https://github.com/goktugyil/EZSwiftExtensions.git', :branch => 'ceeyang-Swift5.0' #For Swift 2.3
+#  pod 'EZSwiftExtensions', :git => 'https://github.com/goktugyil/EZSwiftExtensions.git', :branch => 'ceeyang-Swift5.0' #For Swift 2.3
   pod 'Zip'
   pod 'Alamofire', '~> 5.2'
   pod 'Cache'

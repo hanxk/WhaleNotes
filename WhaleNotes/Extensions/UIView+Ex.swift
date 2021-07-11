@@ -50,7 +50,11 @@ extension UIView {
 //        self.layer.addSublayer(border)
 //    }
     
-    
+    public func removeSubviews() {
+         for subview in subviews {
+             subview.removeFromSuperview()
+         }
+     }
 }
 
 extension CALayer {

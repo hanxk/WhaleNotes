@@ -188,7 +188,7 @@ extension MDEditorViewController {
         
         if let selectedRange = textView.selectedTextRange {
             var caret = textView.caretRect(for: selectedRange.start)
-            caret.y =  caret.y + originY + self.keyboardTop
+            caret.origin.y =  caret.origin.y + originY + self.keyboardTop
             self.tableView.view.scrollRectToVisible(caret, animated: animated)
         }
     }
@@ -405,14 +405,21 @@ extension MDEditorViewController:UIImagePickerControllerDelegate,UINavigationCon
         guard let image = info[.originalImage] as? UIImage else {
             return self.pickerController(picker, didSelect: nil)
         }
-        self.pickerController(picker, didSelect: image)
+        var fileName = ""
+        var fileType = ""
+        if let url = info[UIImagePickerController.InfoKey.imageURL] as? URL {
+            fileName = url.lastPathComponent
+            fileType = url.pathExtension
+        }
+        let fileInfo = FileInfo(fileId: UUID.init().uuidString, fileName: fileName,fileType: fileType,image: image)
+        self.pickerController(picker, didSelect: fileInfo)
     }
     
-    private func pickerController(_ controller: UIImagePickerController, didSelect image: UIImage?) {
+    private func pickerController(_ controller: UIImagePickerController, didSelect fileInfo:FileInfo? = nil) {
         controller.dismiss(animated: true, completion: nil)
-        guard let image = image else { return }
+        guard let fileInfo = fileInfo else { return }
         //保存图片
-        self.model.saveImage(image: image)
+        self.model.saveImage(fileInfo: fileInfo)
     }
 }
 
@@ -436,7 +443,7 @@ extension MDEditorViewController:ASTableDelegate {
 //MARK: NoteMediaCellNodeDelegate
 extension MDEditorViewController:NoteMediaCellNodeDelegate {
     func imageTapped(_ cellNode: NoteMediaCellNode, index: Int) {
-        let imageUrls = cellNode.noteFiles.map { ImageLocalUtil.sharedInstance.filePath(imageName: $0.id) }
+        let imageUrls = cellNode.noteFiles.map { $0.localURL  }
         ImageViewerUtil.present(vc: self, imageUrls: imageUrls)
     }
     

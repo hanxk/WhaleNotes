@@ -106,8 +106,7 @@ fileprivate class MediaItemCellNode:ASCellNode {
         self.backgroundColor = .lightGray
         
         if let imageView = imageNode.view as? UIImageView {
-            let url = ImageLocalUtil.sharedInstance.filePath(imageName: noteFile.id)
-            imageView.setLocalImage(fileURL: url,imageW: imageW)
+            imageView.setLocalImage(fileURL: noteFile.localURL,imageW: imageW)
         }
     }
     
