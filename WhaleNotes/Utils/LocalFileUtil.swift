@@ -28,6 +28,7 @@ class LocalFileUtil {
         return true
     }
     
+    
     func getFilePath(fileId:String,fileName:String) -> String {
         let path = "\(LocalFileConstants.imagePath)/\(fileId)/\(fileName)"
         return path

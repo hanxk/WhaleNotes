@@ -98,7 +98,7 @@ extension Note {
 //        return (note,tagIDs)
 //    }
     
-    func toRecord() -> CKRecord {
+    func toRecord(noteFiles:[NoteFile] = []) -> CKRecord {
         let record = CKRecord(recordType: "Note",recordID: self.recordID)
         record["id"] = self.id as CKRecordValue
         record["title"] = self.title as CKRecordValue
@@ -106,6 +106,12 @@ extension Note {
         record["status"] = self.status.rawValue as CKRecordValue
         record["createdAt"] = self.createdAt as CKRecordValue
         record["updatedAt"] = self.updatedAt as CKRecordValue
+        
+//        if noteFiles.isNotEmpty {
+//            let noteFileReferences:[CKRecord.Reference] = noteFiles.map { $0.toRecord2() }.map { CKRecord.Reference(record: $0, action: .deleteSelf) }
+//            record["files"] = noteFileReferences as CKRecordValue
+//        }
+        
         return record
     }
     

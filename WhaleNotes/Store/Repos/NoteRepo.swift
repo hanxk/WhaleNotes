@@ -556,7 +556,7 @@ extension NoteRepo {
                 try self.noteDao.updateUpdatedAt(id: noteInfo.id, updatedAt: date)
                 
                 //2. 生成一个 notefile 添加的数据库中
-                let noteFile = NoteFile(id:fileInfo.fileId,fileName: fileInfo.fileName, noteId: noteInfo.id, width: Double(fileInfo.image.width), height: Double(fileInfo.image.height), fileSize: fileInfo.image.fileSize, sort: 0, createdAt: date, updatedAt:date)
+                let noteFile = NoteFile(id:fileInfo.fileId,name:fileInfo.fileName, noteId: noteInfo.id, width: Double(fileInfo.image.width), height: Double(fileInfo.image.height), size: fileInfo.image.fileSize, sort: 0, suffix: fileInfo.fileType, createdAt: date, updatedAt:date)
                 try self.noteFileDao.insert(noteFile)
                 
                 newNoteInfo.files.append(noteFile)

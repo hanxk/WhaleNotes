@@ -25,6 +25,7 @@ class NotesSyncEngine {
         static let previousChangeToken = "PreviousChangeToken"
         static let noteRecordType = "Note"
         static let tagRecordType = "Tag"
+        static let noteFileRecordType = "NoteFile"
         static let zoneName = "mysparkZone"
         static let lastSyncDate = "lastSyncDate"
     }

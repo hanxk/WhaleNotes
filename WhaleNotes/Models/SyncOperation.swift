@@ -6,7 +6,7 @@
 //  Copyright © 2021 hanxk. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import CloudKit
 enum ZoneError: Error {
   case ZoneCreationFailed
@@ -17,14 +17,18 @@ enum SyncAction {
     case fetch
     case push
 }
-private struct Constants {
-    static let previousChangeToken = "PreviousChangeToken"
-    static let noteRecordType = "Note"
-    static let tagRecordType = "Tag"
-    static let zoneName = "mysparkZone"
-    static let lastPushDate = "lastSyncDate"
+enum RecordEntityType:String {
+    case note = "Note"
+    case tag = "Tag"
+    case file = "NoteFile"
 }
 class SyncOperation: Operation {
+    
+    private enum SyncConstants {
+        static let previousChangeToken = "PreviousChangeToken"
+        static let zoneName = "mysparkZone"
+        static let lastPushDate = "lastSyncDate"
+    }
     
     var zone:CKRecordZone {
         return NotesSyncEngine.shared.zone
@@ -42,7 +46,7 @@ class SyncOperation: Operation {
     
     private var previousChangeToken: CKServerChangeToken? {
         get {
-            guard let tokenData = UserDefaults.standard.object(forKey: Constants.previousChangeToken) as? Data else { return nil }
+            guard let tokenData = UserDefaults.standard.object(forKey: SyncConstants.previousChangeToken) as? Data else { return nil }
             do {
                 return try NSKeyedUnarchiver.unarchivedObject(ofClass: CKServerChangeToken.self, from: tokenData)
             }catch {
@@ -51,12 +55,12 @@ class SyncOperation: Operation {
         }
         set {
             guard let newValue = newValue else {
-                UserDefaults.standard.setNilValueForKey(Constants.previousChangeToken)
+                UserDefaults.standard.setNilValueForKey(SyncConstants.previousChangeToken)
                 return
             }
             do {
                 let data = try NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false)
-                UserDefaults.standard.set(data, forKey: Constants.previousChangeToken)
+                UserDefaults.standard.set(data, forKey: SyncConstants.previousChangeToken)
             }catch {
                 
             }
@@ -65,11 +69,11 @@ class SyncOperation: Operation {
     }
     private var lastPushDate: Date {
         get {
-           let date = UserDefaults.standard.date(forKey: Constants.lastPushDate) ?? Date.distantPast
+           let date = UserDefaults.standard.date(forKey: SyncConstants.lastPushDate) ?? Date.distantPast
            return date
         }
         set {
-            UserDefaults.standard.set(Date(), forKey: Constants.lastPushDate)
+            UserDefaults.standard.set(Date(), forKey: SyncConstants.lastPushDate)
         }
     }
     
@@ -103,7 +107,7 @@ class SyncOperation: Operation {
     
     func setup() throws {
         
-        if UserDefaults.standard.date(forKey: Constants.lastPushDate) == nil { // date 初始化
+        if UserDefaults.standard.date(forKey: SyncConstants.lastPushDate) == nil { // date 初始化
             self.lastPushDate = Date()
         }
         
@@ -158,6 +162,7 @@ extension SyncOperation {
         
         // notes
         let notes = try NotesStore.shared.queryChangedNotes(date: lastPushDate)
+        
         var deledNoteIDs:[String] = []
         for note in notes {
             if note.isDel {
@@ -166,7 +171,21 @@ extension SyncOperation {
                 continue
             }
             recordsToUpdate.append(note.toRecord())
+            
         }
+        
+        //notefile
+        let noteFiles = try NotesStore.shared.queryChangedNoteFiles(date: lastPushDate)
+//        var deledTagIDs:[String] = []
+        for noteFile in noteFiles {
+//            if tag.isDel {
+//                recordIDsToDelete.append(tag.recordID)
+//                deledTagIDs.append(tag.id)
+//                continue
+//            }
+            recordsToUpdate.append(noteFile.toRecord())
+        }
+        
         
         // tags
         let tags = try NotesStore.shared.queryChangedTags(date: lastPushDate)
@@ -299,14 +318,16 @@ extension SyncOperation {
         
         // 删除
         for (recordType,recordIDs) in deletedIdentifiers {
-            if recordType == Constants.noteRecordType {
-                let noteIDs = recordIDs.map{$0.recordName}
-                try self.deleteNotesForever(noteIDs: noteIDs)
-                continue
-            }
-            if recordType == Constants.tagRecordType {
-                let tagIDs = recordIDs.map{$0.recordName}
-                try self.deleteTagsForever(tagIDs: tagIDs)
+            guard let recordType = RecordEntityType.init(rawValue: recordType) else { continue }
+            switch recordType {
+                case .note:
+                    let noteIDs = recordIDs.map{$0.recordName}
+                    try self.deleteNotesForever(noteIDs: noteIDs)
+                case .tag:
+                    let tagIDs = recordIDs.map{$0.recordName}
+                    try self.deleteTagsForever(tagIDs: tagIDs)
+                case .file:
+                    break
             }
         }
         
@@ -348,32 +369,39 @@ extension SyncOperation {
     
     private func processFetchedRecords(_ records:[CKRecord]) throws {
         var notes:[Note] = []
+        var noteFiles:[NoteFile] = []
         var tags:[Tag] = []
-        records.forEach {
-            let recordType = $0.recordType
+        
+        for record in records {
+            guard let recordType = RecordEntityType.init(rawValue: record.recordType) else { continue }
             switch recordType {
-            case Constants.noteRecordType:
-                if let note = Note.from(from: $0) {
-//                    let note = noteAndTags.0
-//                    let noteTags = noteAndTags.1.map{NoteTag(noteId: note.id, tagId: $0)}
-                    notes.append(note)
-//                    tags.append(noteTags)
-                }
-                break
-            case Constants.tagRecordType:
-                if let tag = Tag.from(from: $0) {
-                    tags.append(tag)
-                }
-                break
-            default:
-                break
+                case .note:
+                    if let note = Note.from(from: record) {
+                        notes.append(note)
+                    }
+                case .tag:
+                    if let tag = Tag.from(from: record) {
+                        tags.append(tag)
+                    }
+                case .file:
+                    if let noteFile = NoteFile.from(from: record) {
+                        if let asset = record["asset"] as? CKAsset,
+                           let data = try? Data(contentsOf: (asset.fileURL!)),
+                           let image = UIImage(data: data) {
+                            let fileInfo = FileInfo(fileId: noteFile.id, fileName: noteFile.name, fileType: noteFile.suffix, image: image)
+                            _ = try LocalFileUtil.shared.saveFileInfo(fileInfo: fileInfo)
+                        }
+                        
+                        noteFiles.append(noteFile)
+                    }
+                    break
             }
         }
-        if notes.count == 0 && tags.count == 0 {
+        if notes.count == 0 && tags.count == 0 && noteFiles.count == 0 {
             return
         }
         logi("更新来自 iCloud 中的数据")
-        try NotesStore.shared.save(notes: notes, tags: tags)
+        try NotesStore.shared.save(notes: notes, tags: tags, noteFiles: noteFiles)
     }
     
 //    private func processFetchedRecords(_ records:[CKRecord.ID : CKRecord]) throws {
